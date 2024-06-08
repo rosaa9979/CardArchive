@@ -25,7 +25,8 @@ namespace TcgEngine.Client
             render = GetComponent<SpriteRenderer>();
             collide = GetComponent<Collider>();
             start_alpha = render.color.a;
-            render.color = new Color(render.color.r, render.color.g, render.color.b, 0f);
+            //render.color = new Color(render.color.r, render.color.g, render.color.b, 0f); 불투명하게 만드는 코드
+            render.color = new Color(render.color.r, render.color.g, render.color.b, 1f);
             bounds = collide.bounds;
         }
 
@@ -36,8 +37,11 @@ namespace TcgEngine.Client
 
         protected virtual void Update()
         {
+            // 매 프레임마다 투명도 계산해서 반영
+            /*
             current_alpha = Mathf.MoveTowards(current_alpha, target_alpha * start_alpha, 2f * Time.deltaTime);
             render.color = new Color(render.color.r, render.color.g, render.color.b, current_alpha);
+            */
         }
 
         public virtual Slot GetSlot()
