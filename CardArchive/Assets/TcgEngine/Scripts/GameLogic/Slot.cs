@@ -92,6 +92,11 @@ namespace TcgEngine
             return x >= x_min && x <= x_max - y_max + y && y >= y_min && y <= y_max && p >= 0;
         }
 
+        public int GetP()
+        {
+            return ignore_p ? 0 : p;
+        }
+
         //Return slot P-value of player, usually its same as player_id, unless we ignore P value then its 0 for all
         public static int GetP(int pid)
         {
@@ -159,7 +164,7 @@ namespace TcgEngine
             return list;
         }
 
-        //Get all slots on player side (exclude Neutral Slot)
+        //Get all slots on player side (include Neutral Slot)
         public static List<Slot> GetAllIncludeNeutral(int pid)
         {
             int p = GetP(pid);
@@ -203,7 +208,6 @@ namespace TcgEngine
                     for (int x = x_min; x <= x_max - y_max + y; x++)
                     {
                         all_slots.Add(new Slot(x, y, p));
-                        Debug.Log(x.ToString()+" "+y.ToString()+" "+p.ToString());
                     }
                 }
             }
@@ -211,7 +215,6 @@ namespace TcgEngine
             for (int x = x_min; x <= x_max; x++)
             {
                 all_slots.Add(new Slot(x, 3, 2));
-                Debug.Log(x.ToString()+" 3 2");
             }
             return all_slots;
         }

@@ -40,7 +40,7 @@ namespace TcgEngine.Client
         protected override void Update()
         {
             // 매 프레임마다 플레이어의 행동에 따라 투명도를 계산해서 반영
-            /*
+            
             base.Update();
 
             if (!GameClient.Get().IsReady())
@@ -58,7 +58,9 @@ namespace TcgEngine.Client
             collide.enabled = slot_card == null; //Disable collider when a card is here
 
             //Find target opacity value
-            target_alpha = 1f;
+            if (drag_card != null)
+            {
+            target_alpha = 0f;
 
             if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && gdata.CanPlayCard(dcard, slot))
             {
@@ -89,7 +91,7 @@ namespace TcgEngine.Client
             {
                 target_alpha = 1f;
             }
-            */
+            }
         }
 
         //Find the actual slot coordinates of this board slot
@@ -130,20 +132,7 @@ namespace TcgEngine.Client
         {
             if (GameUI.IsOverUI())
                 return;
-
-            Game gdata = GameClient.Get().GetGameData();
-            int player_id = GameClient.Get().GetPlayerID();
-
-            if (gdata.selector == SelectorType.SelectTarget && player_id == gdata.selector_player_id)
-            {
-                Slot slot = GetSlot();
-                Card slot_card = gdata.GetSlotCard(slot);
-                if (slot_card == null)
-                {
-                    GameClient.Get().SelectSlot(slot);
-                }
-            }
+            
         }
-
     }
 }

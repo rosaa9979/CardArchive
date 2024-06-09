@@ -40,6 +40,7 @@ namespace TcgEngine.Client
         private bool focus = false;
         private bool drag = false;
         private bool selected = false;
+        private static bool select_target = false;
 
         private static List<HandCard> card_list = new List<HandCard>();
 
@@ -80,6 +81,17 @@ namespace TcgEngine.Client
 
             if (IsDrag())
             {
+                HandCard selected_card = GetDrag();
+                if (selected_card != null)
+                {
+                    foreach (HandCard acard in card_list)
+                    {
+                        if (acard != selected_card)
+                        {
+                            acard.SetOpacity(0f);
+                        }
+                    }
+                }
                 target_position = GetTargetPosition();
                 target_size = start_scale * 0.75f;
                 Vector3 dir = card_transform.position - prev_pos;
@@ -218,7 +230,7 @@ namespace TcgEngine.Client
             Slot slot = Slot.None;
             if (bslot != null)
                 slot = bslot.GetEmptySlot(board_pos);
-            if(bslot != null && card.CardData.IsRequireTarget())
+            if (bslot != null && card.CardData.IsRequireTarget())
                 slot = bslot.GetSlot(board_pos);
 
             Card slot_card = bslot?.GetSlotCard(board_pos);
@@ -287,9 +299,19 @@ namespace TcgEngine.Client
                 card.selected = false;
         }
 
+        public static bool GetSelect()
+        {
+            return select_target;
+        }
+
         public static List<HandCard> GetAll()
         {
             return card_list;
+        }
+
+        public void SetOpacity(float opacity)
+        {
+            card_ui.SetOpacity(opacity);
         }
     }
 }
