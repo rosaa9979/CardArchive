@@ -81,17 +81,17 @@ namespace TcgEngine.Client
 
             if (IsDrag())
             {
-                HandCard selected_card = GetDrag();
-                if (selected_card != null)
-                {
-                    foreach (HandCard acard in card_list)
-                    {
-                        if (acard != selected_card)
-                        {
-                            acard.SetOpacity(0f);
-                        }
-                    }
-                }
+                //HandCard selected_card = GetDrag();
+                //if (selected_card != null)
+                //{
+                //    foreach (HandCard acard in card_list)
+                //   {
+                //        if (acard != selected_card)
+                //      {
+                //            acard.SetOpacity(0f);
+                //        }
+                //    }
+                //}
                 target_position = GetTargetPosition();
                 target_size = start_scale * 0.75f;
                 Vector3 dir = card_transform.position - prev_pos;
@@ -102,6 +102,11 @@ namespace TcgEngine.Client
             }
             else
             {
+                //foreach (HandCard acard in card_list)
+                //{
+                //    acard.SetOpacity(1f);
+                //}
+
                 target_rotate = new Vector3(0f, 0f, deck_angle);
                 current_rotate = new Vector3(0f, 0f, deck_angle);
             }
@@ -200,6 +205,18 @@ namespace TcgEngine.Client
             selected = true;
             PlayerControls.Get().UnselectAll();
             AudioTool.Get().PlaySFX("hand_card", AssetData.Get().hand_card_click_audio);
+
+            HandCard selected_card = GetDrag();
+            if (selected_card != null)
+            {
+                foreach (HandCard acard in card_list)
+                {
+                    if (acard != selected_card)
+                    {
+                        acard.SetOpacity(0f);
+                    }
+                }
+            }
         }
 
         public void OnMouseUpCard()
@@ -211,6 +228,9 @@ namespace TcgEngine.Client
             else
                 HandCardArea.Get().SortCards();
             drag = false;
+
+            foreach (HandCard acard in card_list)
+                acard.SetOpacity(1f);
         }
 
         public void TryPlayCard(Vector3 board_pos)
