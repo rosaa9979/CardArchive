@@ -996,6 +996,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   card_image: {fileID: 3022209176866955285}
   frame_image: {fileID: 151845916311054082}
+  art_bg: {fileID: 9172865726250177345}
+  art_frame: {fileID: 4441235671613496497}
   team_icon: {fileID: 0}
   attack_icon: {fileID: 3112030505581135925}
   hp_icon: {fileID: 6032460319751613979}

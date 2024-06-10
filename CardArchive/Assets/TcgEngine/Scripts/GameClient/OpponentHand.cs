@@ -19,10 +19,15 @@ namespace TcgEngine.Client
         public float card_offset_y = 10f;
 
         private List<HandCardBack> cards = new List<HandCardBack>();
+        private static OpponentHand _instance;
 
+        void Awake()
+        {
+            _instance = this;
+        }
         void Start()
         {
-
+            
         }
 
         void Update()
@@ -63,7 +68,16 @@ namespace TcgEngine.Client
                 crect.anchoredPosition = Vector3.Lerp(crect.anchoredPosition, tpos, 4f * Time.deltaTime);
                 card.transform.localRotation = Quaternion.Slerp(card.transform.localRotation, Quaternion.Euler(0f, 0f, tangle), 4f * Time.deltaTime);
             }
+        }
 
+        public static OpponentHand Get()
+        {
+            return _instance;
+        }
+
+        public void SetHide(bool status)
+        {
+            _instance.gameObject.SetActive(status);
         }
     }
 }

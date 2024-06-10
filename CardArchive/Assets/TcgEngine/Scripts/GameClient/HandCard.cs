@@ -206,6 +206,7 @@ namespace TcgEngine.Client
             PlayerControls.Get().UnselectAll();
             AudioTool.Get().PlaySFX("hand_card", AssetData.Get().hand_card_click_audio);
 
+            
             HandCard selected_card = GetDrag();
             if (selected_card != null)
             {
@@ -213,9 +214,10 @@ namespace TcgEngine.Client
                 {
                     if (acard != selected_card)
                     {
-                        acard.SetOpacity(0f);
+                        acard.SetHide(false);
                     }
                 }
+                OpponentHand.Get().SetHide(false);
             }
         }
 
@@ -223,14 +225,16 @@ namespace TcgEngine.Client
         {
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
-            if (drag && mpos.y > 0.25f)
+            if (drag && mpos.y > 0.15f)
                 TryPlayCard(board_pos);
             else
                 HandCardArea.Get().SortCards();
             drag = false;
 
             foreach (HandCard acard in card_list)
-                acard.SetOpacity(1f);
+                acard.SetHide(true);
+            OpponentHand.Get().SetHide(true);
+            
         }
 
         public void TryPlayCard(Vector3 board_pos)
@@ -332,6 +336,11 @@ namespace TcgEngine.Client
         public void SetOpacity(float opacity)
         {
             card_ui.SetOpacity(opacity);
+        }
+
+        public void SetHide(bool status)
+        {
+            this.gameObject.SetActive(status);
         }
     }
 }

@@ -17,6 +17,8 @@ namespace TcgEngine.UI
     {
         public Image card_image;
         public Image frame_image;
+        public Image art_bg;
+        public Image art_frame;
         public Image team_icon;
         public Image attack_icon;
         public Image hp_icon;
@@ -131,6 +133,10 @@ namespace TcgEngine.UI
                 card_image.color = new Color(card_image.color.r, card_image.color.g, card_image.color.b, opacity);
             if (frame_image != null)
                 frame_image.color = new Color(frame_image.color.r, frame_image.color.g, frame_image.color.b, opacity);
+            if (art_bg != null)
+                art_bg.color = new Color(art_bg.color.r, art_bg.color.g, art_bg.color.b, opacity);
+            if (art_frame != null)
+                art_frame.color = new Color(art_frame.color.r, art_frame.color.g, art_frame.color.b, opacity);
             if (attack_icon != null)
                 attack_icon.color = new Color(attack_icon.color.r, attack_icon.color.g, attack_icon.color.b, opacity);
             if (hp_icon != null)
