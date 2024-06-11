@@ -225,16 +225,16 @@ namespace TcgEngine.Client
         {
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
+
+            foreach (HandCard acard in card_list)
+                acard.SetHide(true);
+            OpponentHand.Get().SetHide(true);
+
             if (drag && mpos.y > 0.15f)
                 TryPlayCard(board_pos);
             else
                 HandCardArea.Get().SortCards();
             drag = false;
-
-            foreach (HandCard acard in card_list)
-                acard.SetHide(true);
-            OpponentHand.Get().SetHide(true);
-            
         }
 
         public void TryPlayCard(Vector3 board_pos)

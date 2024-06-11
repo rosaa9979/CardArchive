@@ -570,7 +570,8 @@ namespace TcgEngine
         None = 0,
         StartTurn = 10, //Start of turn resolution
         Main = 20,      //Main play phase
-        EndTurn = 30,   //End of turn resolutions
+        Attack = 30,    //Attack phase
+        EndTurn = 40,   //End of turn resolutions
     }
 
     [System.Serializable]
