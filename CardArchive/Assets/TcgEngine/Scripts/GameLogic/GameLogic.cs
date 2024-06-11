@@ -217,20 +217,28 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
 
+        
         public virtual void AttackPhase()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
+            if (game_data.phase != GamePhase.Main)
+                return;
 
+            game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
-            Debug.Log("Start Attack Phase");
-            Debug.Log("End Attack Phase");
 
+            Player player = game_data.GetActivePlayer();
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            foreach (Card card in player.cards_board)
+                AttackPlayer(card, oplayer);
+
+            RefreshData();
             resolve_queue.AddCallback(EndTurn);
             resolve_queue.ResolveAll(0.2f);
-            //onTurnPlay?.Invoke();
-            //RefreshData();
         }
+        
 
         public virtual void EndTurn()
         {
@@ -239,7 +247,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
 
-            game_data.selector = SelectorType.None;
+            //game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.EndTurn;
 
             //Reduce status effects with duration
@@ -287,7 +295,6 @@ namespace TcgEngine.Gameplay
             CancelSelection();
 
             //Add to resolve queue in case its still resolving
-            //resolve_queue.AddCallback(EndTurn);
             resolve_queue.AddCallback(AttackPhase);
             resolve_queue.ResolveAll();
         }

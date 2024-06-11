@@ -632,7 +632,7 @@ namespace TcgEngine.AI
 
             if (action.type == GameAction.EndTurn)
             {
-                game_logic.EndTurn();
+                game_logic.AttackPhase();
             }
         }
 
