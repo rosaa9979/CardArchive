@@ -57,40 +57,41 @@ namespace TcgEngine.Client
             bool your_turn = GameClient.Get().IsYourTurn();
             collide.enabled = slot_card == null; //Disable collider when a card is here
 
+            target_alpha = 1f;
+
             //Find target opacity value
             if (drag_card != null)
             {
-            target_alpha = 0f;
+                //target_alpha = 1f;
+                if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && (!gdata.CanPlayCard(dcard, slot)))
+                {
+                    target_alpha = 0f; //hightlight when dragging a character or artifact
+                }
 
-            if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && gdata.CanPlayCard(dcard, slot))
-            {
-                target_alpha = 1f; //hightlight when dragging a character or artifact
-            }
+                if (your_turn && dcard != null && dcard.CardData.IsRequireTarget() && gdata.CanPlayCard(dcard, slot))
+                {
+                    target_alpha = 1f; //Highlight when dragin a spell with target
+                }
 
-            if (your_turn && dcard != null && dcard.CardData.IsRequireTarget() && gdata.CanPlayCard(dcard, slot))
-            {
-                target_alpha = 1f; //Highlight when dragin a spell with target
-            }
-
-            if (gdata.selector == SelectorType.SelectTarget && player.player_id == gdata.selector_player_id)
-            {
-                Card caster = gdata.GetCard(gdata.selector_caster_uid);
-                AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
-                if(ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot))
-                    target_alpha = 1f; //Highlight when selecting a target and slot are valid
-                if (ability != null && slot_card != null && ability.CanTarget(gdata, caster, slot_card))
-                    target_alpha = 1f; //Highlight when selecting a target and cards are valid
-            }
+                if (gdata.selector == SelectorType.SelectTarget && player.player_id == gdata.selector_player_id)
+                {
+                    Card caster = gdata.GetCard(gdata.selector_caster_uid);
+                    AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
+                    if(ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot))
+                        target_alpha = 1f; //Highlight when selecting a target and slot are valid
+                    if (ability != null && slot_card != null && ability.CanTarget(gdata, caster, slot_card))
+                        target_alpha = 1f; //Highlight when selecting a target and cards are valid
+                }
             
 
-            Card select_card = bcard_selected?.GetCard();
-            bool can_do_move = your_turn && select_card != null && slot_card == null && gdata.CanMoveCard(select_card, slot);
-            bool can_do_attack = your_turn && select_card != null && slot_card != null && gdata.CanAttackTarget(select_card, slot_card);
+                Card select_card = bcard_selected?.GetCard();
+                bool can_do_move = your_turn && select_card != null && slot_card == null && gdata.CanMoveCard(select_card, slot);
+                bool can_do_attack = your_turn && select_card != null && slot_card != null && gdata.CanAttackTarget(select_card, slot_card);
 
-            if (can_do_attack || can_do_move)
-            {
-                target_alpha = 1f;
-            }
+                if (can_do_attack || can_do_move)
+                {
+                    target_alpha = 1f;
+                }
             }
         }
 

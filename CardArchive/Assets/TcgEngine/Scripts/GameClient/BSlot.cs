@@ -15,7 +15,7 @@ namespace TcgEngine.Client
         protected Bounds bounds;
         protected float start_alpha = 0f;
         protected float current_alpha = 0f;
-        protected float target_alpha = 0f;
+        protected float target_alpha = 1f;
 
         private static List<BSlot> slot_list = new List<BSlot>();
 
@@ -38,10 +38,8 @@ namespace TcgEngine.Client
         protected virtual void Update()
         {
             // 매 프레임마다 투명도 계산해서 반영
-            /*
             current_alpha = Mathf.MoveTowards(current_alpha, target_alpha * start_alpha, 2f * Time.deltaTime);
             render.color = new Color(render.color.r, render.color.g, render.color.b, current_alpha);
-            */
         }
 
         public virtual Slot GetSlot()
