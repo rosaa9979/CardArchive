@@ -231,8 +231,27 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
-            foreach (Card card in player.cards_board)
-                AttackPlayer(card, oplayer);
+            bool is_end = true;
+
+            while (true)
+            {
+                Debug.Log("Loop");
+                is_end = true;
+
+                List<Card> all_bcards = new List<Card>(player.cards_board);
+
+                foreach (Card bcard in all_bcards)
+                {
+                    if (bcard.CanAttack())
+                    {
+                        AttackPlayer(bcard, oplayer);
+                        is_end = false;
+                    }
+                }
+
+                if (is_end)
+                    break;
+            }
 
             RefreshData();
             resolve_queue.AddCallback(EndTurn);
