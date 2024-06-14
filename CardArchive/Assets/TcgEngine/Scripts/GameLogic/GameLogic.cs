@@ -231,27 +231,80 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
-            bool is_end = true;
-
-            while (true)
+            if (player.cards_board.Count > 0 && oplayer.cards_board.Count > 0)
             {
-                Debug.Log("Loop");
-                is_end = true;
+                if (player.cards_board[0].CanAttack())
+                    AttackTarget(player.cards_board[0], oplayer.cards_board[0]);
+                resolve_queue.ResolveAll(0.2f);
+                
+                /*
+                while (true)
+                {
+                    Debug.Log("2");
+                    resolve_queue.ResolveAll(0.2f);
+                    if (resolve_queue.IsResolving() == false)
+                        break;
+                }*/
+            }
 
-                List<Card> all_bcards = new List<Card>(player.cards_board);
+            Debug.Log("After resolving queue");
 
-                foreach (Card bcard in all_bcards)
+            /*
+            while (true)
+            { 
+                bool is_end = true;
+
+                foreach (Card bcard in player.cards_board)
                 {
                     if (bcard.CanAttack())
                     {
-                        AttackPlayer(bcard, oplayer);
+                        if (oplayer.cards_board.Count > 0)
+                        {
+                            AttackTarget(bcard, oplayer.cards_board[0]);
+                        }
+
+                        else
+                        {
+                            AttackPlayer(bcard, oplayer);
+                        }
                         is_end = false;
+                        resolve_queue.ResolveAll(0f);
+                        RefreshData();  
+
+                        break;
                     }
+                }
+                
+                while (true)
+                {
+                    if (resolve_queue.IsResolving() == false)
+                        break;
                 }
 
                 if (is_end)
                     break;
             }
+            
+            /*
+            foreach (Card bcard in player.cards_board)
+            {
+                if (bcard.CanAttack())
+                {
+                    if (oplayer.cards_board.Count > 0)
+                    {
+                        AttackTarget(bcard, oplayer.cards_board[0]);
+                    }
+
+                    else
+                    {
+                        AttackPlayer(bcard, oplayer);
+                    }
+
+                    resolve_queue.ResolveAll(0.3f);
+                    RefreshData();
+                }
+            }
+            */
 
             RefreshData();
             resolve_queue.AddCallback(EndTurn);
