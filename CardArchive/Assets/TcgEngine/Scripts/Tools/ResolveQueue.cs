@@ -152,6 +152,12 @@ namespace TcgEngine
             ResolveAll();  //Resolve now if no delay
         }
 
+        public virtual void ResolveAll_Min(float delay)
+        {
+            SetDelay_Min(delay);
+            ResolveAll();  //Resolve now if no delay
+        }
+
         public virtual void ResolveAll()
         {
             if (is_resolving)
@@ -162,6 +168,7 @@ namespace TcgEngine
             {
                 Resolve();
             }
+
             is_resolving = false;
         }
 
