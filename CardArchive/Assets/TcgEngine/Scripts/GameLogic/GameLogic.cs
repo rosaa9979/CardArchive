@@ -224,14 +224,23 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Main)
                 return;
 
-            
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
 
             
+            for (int i = 0; i < 100; i++)
+            {
+                Debug.Log(i);
+                if (game_data.phase == GamePhase.EndTurn)
+                    break;
+                else
+                    resolve_queue.AddAttack(AttackSearch);
+                resolve_queue.ResolveAll();
+            }
+
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
+            /*
             foreach (Card bcard in player.cards_board)
             {
                 if (bcard.CanAttack())
@@ -242,6 +251,37 @@ namespace TcgEngine.Gameplay
                         AttackPlayer(bcard, oplayer);
                 }
                 resolve_queue.ResolveAll();
+            }
+            
+
+            RefreshData();
+            resolve_queue.AddCallback(EndTurn);
+            resolve_queue.ResolveAll(0.2f);
+            */
+        }
+
+        public virtual void AttackSearch()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+            if (game_data.phase != GamePhase.Attack)
+                return;
+
+            Player player = game_data.GetActivePlayer();
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+
+            foreach (Card bcard in player.cards_board)
+            {
+                if (bcard.CanAttack())
+                {
+                    if (oplayer.cards_board.Count > 0)
+                        AttackTarget(bcard, oplayer.cards_board[0]);
+                    else
+                        AttackPlayer(bcard, oplayer);
+                    resolve_queue.ResolveAll(0.2f);
+                    return;
+                }
             }
 
             RefreshData();
