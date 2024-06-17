@@ -217,7 +217,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
         
-        public virtual void AttackPhase()
+        public async virtual void AttackPhase()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
@@ -267,6 +267,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
 
+            Debug.Log("Attack Search");
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 

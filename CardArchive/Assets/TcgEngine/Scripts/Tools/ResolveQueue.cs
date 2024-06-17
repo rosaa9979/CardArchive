@@ -91,6 +91,7 @@ namespace TcgEngine
 
         public virtual void AddAttack(Action callback)
         {
+            Debug.Log("Enqueue attack queue");
             AttackQueueElement elem = attack_elem_pool.Create();
             elem.attacker = null;
             elem.target = null;
