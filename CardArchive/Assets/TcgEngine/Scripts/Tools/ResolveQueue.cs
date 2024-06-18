@@ -160,6 +160,11 @@ namespace TcgEngine
             }
         }
 
+        public virtual void printLenResolveQueue()
+        {
+            Debug.Log(ability_queue.Count.ToString()+" "+secret_queue.Count.ToString()+" "+attack_queue.Count.ToString()+" "+callback_queue.Count.ToString());
+        }
+
         public virtual void ResolveAll(float delay)
         {
             SetDelay(delay);
@@ -169,8 +174,12 @@ namespace TcgEngine
         public virtual void ResolveAll()
         {
             if (is_resolving)
+            {
+                Debug.Log("Already resolving");
                 return;
-
+            }
+                
+            Debug.Log("Resolving");
             is_resolving = true;
             while (CanResolve())
             {

@@ -217,7 +217,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
         
-        public async virtual void AttackPhase()
+        public virtual void AttackPhase()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
@@ -227,17 +227,25 @@ namespace TcgEngine.Gameplay
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
 
-            
-            for (int i = 0; i < 100; i++)
-            {
-                Debug.Log(i);
-                if (game_data.phase == GamePhase.EndTurn)
-                    break;
-                else
-                    resolve_queue.AddAttack(AttackSearch);
-                resolve_queue.ResolveAll();
-            }
+            resolve_queue.printLenResolveQueue();
+            Debug.Log("Before");
+            resolve_queue.ResolveAll();
+            Debug.Log("After");
 
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    Debug.Log(i);
+            //    if (game_data.phase == GamePhase.EndTurn)
+            //        break;
+            //    else
+                    resolve_queue.AddAttack(AttackSearch);
+                Debug.Log("Before resolving");
+                resolve_queue.printLenResolveQueue();
+                resolve_queue.ResolveAll();
+                Debug.Log("After resolving");
+            //}
+
+            //resolve_queue.printLenResolveQueue();
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
             /*
@@ -347,6 +355,7 @@ namespace TcgEngine.Gameplay
             //Add to resolve queue in case its still resolving
             Debug.Log("Enqueue attackPhase");
             resolve_queue.AddCallback(AttackPhase);
+            resolve_queue.printLenResolveQueue();
             resolve_queue.ResolveAll(0.2f);
             Debug.Log("finish NextStep");
         }
