@@ -140,6 +140,11 @@ namespace TcgEngine
             return type == CardType.Character;
         }
 
+        public bool IsArtifact()
+        {
+            return type == CardType.Artifact;
+        }
+
         public bool IsSecret()
         {
             return type == CardType.Secret;

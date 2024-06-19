@@ -227,10 +227,8 @@ namespace TcgEngine.Gameplay
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
 
-            Debug.Log("Attack phase start");
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
-            Debug.Log("Attack phase finish");
         }
 
         public virtual void AttackCheck()
@@ -334,10 +332,8 @@ namespace TcgEngine.Gameplay
             CancelSelection();
 
             //Add to resolve queue in case its still resolving
-            Debug.Log("Enqueue attackPhase");
             resolve_queue.AddCallback(AttackPhase);
             resolve_queue.ResolveAll();
-            Debug.Log("NextStep finish");
         }
 
         //Check if a player is winning the game, if so end the game

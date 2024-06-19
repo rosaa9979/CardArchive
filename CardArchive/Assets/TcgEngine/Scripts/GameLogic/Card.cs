@@ -442,6 +442,8 @@ namespace TcgEngine
 
         public virtual bool CanAttack(bool skip_cost = false)
         {
+            if (CardData.IsArtifact())
+                return false;
             if (HasStatus(StatusType.Paralysed))
                 return false;
             if (!skip_cost && exhausted)
