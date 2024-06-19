@@ -89,18 +89,6 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAttack(Action callback)
-        {
-            Debug.Log("Enqueue attack queue");
-            AttackQueueElement elem = attack_elem_pool.Create();
-            elem.attacker = null;
-            elem.target = null;
-            elem.ptarget = null;
-            elem.skip_cost = false;
-            elem.scallback = callback;
-            attack_queue.Enqueue(elem);
-        }
-
         public virtual void AddSecret(AbilityTrigger secret_trigger, Card secret, Card trigger, Action<AbilityTrigger, Card, Card> callback)
         {
             if (secret != null && trigger != null)

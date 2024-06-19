@@ -227,58 +227,40 @@ namespace TcgEngine.Gameplay
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
 
-            resolve_queue.printLenResolveQueue();
-            Debug.Log("Before");
+            Debug.Log("Attack phase start");
+            resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
-            Debug.Log("After");
-
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    Debug.Log(i);
-            //    if (game_data.phase == GamePhase.EndTurn)
-            //        break;
-            //    else
-                    resolve_queue.AddAttack(AttackSearch);
-                Debug.Log("Before resolving");
-                resolve_queue.printLenResolveQueue();
-                resolve_queue.ResolveAll();
-                Debug.Log("After resolving");
-            //}
-
-            //resolve_queue.printLenResolveQueue();
-            Player player = game_data.GetActivePlayer();
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-            /*
-            foreach (Card bcard in player.cards_board)
-            {
-                if (bcard.CanAttack())
-                {
-                    if (oplayer.cards_board.Count > 0)
-                        AttackTarget(bcard, oplayer.cards_board[0]);
-                    else
-                        AttackPlayer(bcard, oplayer);
-                }
-                resolve_queue.ResolveAll();
-            }
-            
-
-            RefreshData();
-            resolve_queue.AddCallback(EndTurn);
-            resolve_queue.ResolveAll(0.2f);
-            */
+            Debug.Log("Attack phase finish");
         }
 
-        public virtual void AttackSearch()
+        public virtual void AttackCheck()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Attack)
                 return;
 
-            Debug.Log("Attack Search");
+            
+            Player player = game_data.GetActivePlayer();
+
+            foreach (Card bcard in player.cards_board)
+            {
+                if (bcard.CanAttack())
+                {
+                    resolve_queue.AddCallback(AttackSearch);
+                    resolve_queue.ResolveAll();
+                    return;
+                }
+            }
+
+            resolve_queue.AddCallback(EndTurn);
+            resolve_queue.ResolveAll(0.2f);
+        }
+
+        public virtual void AttackSearch()
+        {
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
 
             foreach (Card bcard in player.cards_board)
             {
@@ -288,15 +270,14 @@ namespace TcgEngine.Gameplay
                         AttackTarget(bcard, oplayer.cards_board[0]);
                     else
                         AttackPlayer(bcard, oplayer);
-                    resolve_queue.ResolveAll(0.2f);
-                    return;
+                    break;
                 }
             }
-
-            RefreshData();
-            resolve_queue.AddCallback(EndTurn);
+            resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll(0.2f);
         }
+
+
 
         public virtual void EndTurn()
         {
@@ -355,9 +336,8 @@ namespace TcgEngine.Gameplay
             //Add to resolve queue in case its still resolving
             Debug.Log("Enqueue attackPhase");
             resolve_queue.AddCallback(AttackPhase);
-            resolve_queue.printLenResolveQueue();
-            resolve_queue.ResolveAll(0.2f);
-            Debug.Log("finish NextStep");
+            resolve_queue.ResolveAll();
+            Debug.Log("NextStep finish");
         }
 
         //Check if a player is winning the game, if so end the game
