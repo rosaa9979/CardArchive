@@ -239,7 +239,7 @@ namespace TcgEngine.AI
         {
             if (CanPlay())
             {
-                gameplay.AttackPhase();
+                gameplay.StartAttackPhase();
                 //gameplay.EndTurn();
             }
         }

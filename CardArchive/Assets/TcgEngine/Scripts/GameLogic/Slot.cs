@@ -15,6 +15,7 @@ namespace TcgEngine
         public int x; //From 1 to 5
         public int y; //Not in use, could be used to add more rows or different locations on the board
         public int p; //0 or 1, represent player ID
+        //public List<Slot> neighbor_slots = new List<Slot>();
 
         public static int x_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot)
         public static int x_max = 7; //Number of slots in a row/zone
@@ -28,6 +29,7 @@ namespace TcgEngine
         private static Dictionary<int, List<Slot>> player_slots_include_neutral = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();
         private static List<Slot> neutral_slots = new List<Slot>();
+        
 
         public Slot(int pid)
         {
@@ -232,7 +234,53 @@ namespace TcgEngine
 
             return neutral_slots;
         }
+        /*
+        public List<Slot> GetNeighbor()
+        {
+            
+            if (neighbor_slots.Count > 0)
+                return neighbor_slots;
+            
+            List<(int, int)> points = new List<(int, int)>
+            {
+                (-1, 0),
+                (0, 1),
+                (1, 1),
+                (1, 0),
+                (0, -1),
+                (-1, -1)
+            };
 
+            List<Slot> slots = GetAll();
+
+            foreach (var point in points)
+            {
+                int new_x = x + point.Item1;
+                int new_y = y + point.Item2;
+                int new_p = p;
+
+                if (new_y > y_max)
+                {
+                    new_y = y_max - (new_y - y_max);
+                    new_p = 1 - new_p;
+                }
+
+                Slot new_slot = new Slot(new_x, new_y, new_p);
+
+                foreach (Slot slot in slots)
+                {
+                    if (new_slot == slot)
+                    {
+                        neighbor_slots.Add(new_slot);
+                        break;
+                    }
+                }
+            }
+
+            return neighbor_slots;
+        }
+        
+    */
 
         public static bool operator ==(Slot slot1, Slot slot2)
         {

@@ -194,8 +194,8 @@ namespace TcgEngine.FX
                     ChargeInto(btarget);
 
                     //Show Damage Number FX on self
-                    if(!attacker.HasStatus(StatusType.Intimidate))
-                        DamageFX(target, attacker, transform);
+                    //if(!attacker.HasStatus(StatusType.Intimidate))
+                    //    DamageFX(target, attacker, transform);
 
                     //Attack FX and Audio
                     GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;

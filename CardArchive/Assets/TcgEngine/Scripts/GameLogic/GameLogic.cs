@@ -217,7 +217,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
         }
         
-        public virtual void AttackPhase()
+        public virtual void StartAttackPhase()
         {
             if (game_data.state == GameState.GameEnded)
                 return;
@@ -332,7 +332,7 @@ namespace TcgEngine.Gameplay
             CancelSelection();
 
             //Add to resolve queue in case its still resolving
-            resolve_queue.AddCallback(AttackPhase);
+            resolve_queue.AddCallback(StartAttackPhase);
             resolve_queue.ResolveAll();
         }
 
@@ -597,8 +597,8 @@ namespace TcgEngine.Gameplay
             DamageCard(attacker, target, datt1);
 
             //Counter Damage
-            if(!attacker.HasStatus(StatusType.Intimidate))
-                DamageCard(target, attacker, datt2);
+            //if(!attacker.HasStatus(StatusType.Intimidate))
+            //    DamageCard(target, attacker, datt2);
 
             //Save attack and exhaust
             if (!skip_cost)

@@ -79,17 +79,17 @@ namespace TcgEngine.AI
 
             PlayCard();
 
-            yield return new WaitForSeconds(0.5f);
+            //yield return new WaitForSeconds(0.5f);
 
-            Attack();
+            //Attack();
 
-            yield return new WaitForSeconds(0.5f);
+            //yield return new WaitForSeconds(0.5f);
 
-            Attack();
+            //Attack();
 
-            yield return new WaitForSeconds(0.5f);
+            //yield return new WaitForSeconds(0.5f);
 
-            AttackPlayer();
+            //AttackPlayer();
 
             yield return new WaitForSeconds(0.5f);
 
@@ -263,7 +263,7 @@ namespace TcgEngine.AI
         {
             if (CanPlay())
             {
-                gameplay.AttackPhase();
+                gameplay.StartAttackPhase();
             }
         }
     }

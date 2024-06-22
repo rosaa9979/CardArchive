@@ -340,6 +340,7 @@ namespace TcgEngine.Client
 
         public void OnMouseDown()
         {
+            /*
             if (GameUI.IsOverUILayer("UI"))
                 return;
 
@@ -350,6 +351,7 @@ namespace TcgEngine.Client
                 focus = true;
                 ShowStatusBar();
             }
+            */
         }
 
         public void OnMouseUp()
