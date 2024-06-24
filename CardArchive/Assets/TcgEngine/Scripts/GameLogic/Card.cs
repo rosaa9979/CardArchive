@@ -21,6 +21,7 @@ namespace TcgEngine
         public int mana = 0;
         public int attack = 0;
         public int hp = 0;
+        public int range = 0;
 
         public int mana_ongoing = 0;
         public int attack_ongoing = 0;

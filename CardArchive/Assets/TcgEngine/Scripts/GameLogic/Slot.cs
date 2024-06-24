@@ -26,6 +26,7 @@ namespace TcgEngine
 
         private static Dictionary<int, List<Slot>> player_slots = new Dictionary<int, List<Slot>>();
         private static Dictionary<int, List<Slot>> player_slots_include_neutral = new Dictionary<int, List<Slot>>();
+        private static Dictionary<int, List<Slot>> player_self_slots = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();
         private static List<Slot> neutral_slots = new List<Slot>();      
 
@@ -233,6 +234,82 @@ namespace TcgEngine
             return neutral_slots;
         }
 
+        public static List<Slot> GetPlayerSelf(int pid)
+        {
+            int p = GetP(pid);
+
+            if (player_self_slots.ContainsKey(p))
+                return player_self_slots[p]; //Faster access
+
+
+            List<Slot> list = new List<Slot>();
+
+            list.Add(new Slot(1, 1, p));
+            list.Add(new Slot(2, 1, p));
+            list.Add(new Slot(3, 1, p));
+            list.Add(new Slot(4, 1, p));
+            list.Add(new Slot(5, 1, p));
+
+            list.Add(new Slot(1, 2, p));
+            list.Add(new Slot(6, 2, p));
+
+            player_slots_include_neutral[p] = list;
+            return list;
+        }
+
+        public List<Slot> GetNeighborSlot()
+        {
+            List<Slot> slots = GetAll();
+            List<Slot> neighbor_slots = new List<Slot>();
+
+            List<(int, int)> directions = new List<(int, int)>
+            {
+                (-1, 0),
+                (0, 1),
+                (1, 1),
+                (1, 0),
+                (0, -1),
+                (-1, -1)
+            };
+
+            foreach (var dir in directions)
+            {
+                int new_x = x + dir.Item1;
+                int new_y = y + dir.Item2;
+                int new_p = p;
+
+                if (y != new_y)
+                {
+                    if (y == 3)
+                    {
+                        if (new_y > y)
+                        {
+                            new_y = y_max - (new_y - y_max);
+                            new_x = new_x - 1;
+                            new_p = 1;
+                        }
+                        else if (new_y < y)
+                            new_p = 0;
+                    }
+                    else if (y < 3)
+                    {
+                        if (new_y == 3)
+                            new_p = 2;
+                    }
+                }
+
+                Slot new_slot = new Slot(new_x, new_y, new_p);
+
+                foreach (Slot slot in slots)
+                {
+                    if (slot == new_slot)
+                        neighbor_slots.Add(new_slot);
+                }
+            }
+
+            return neighbor_slots;
+        }
+
         public static bool operator ==(Slot slot1, Slot slot2)
         {
             return slot1.x == slot2.x && slot1.y == slot2.y && slot1.p == slot2.p;
@@ -242,6 +319,7 @@ namespace TcgEngine
         {
             return slot1.x != slot2.x || slot1.y != slot2.y || slot1.p != slot2.p;
         }
+
 
         public override bool Equals(object o)
         {

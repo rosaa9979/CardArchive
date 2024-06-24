@@ -89,6 +89,20 @@ namespace TcgEngine
             }
         }
 
+        public virtual void AddAttack(Card attacker, Action<Card, bool> callback, bool skip_cost = false)
+        {
+            if (attacker != null)
+            {
+                AttackQueueElement elem = attack_elem_pool.Create();
+                elem.attacker = attacker;
+                elem.target = null;
+                elem.ptarget = null;
+                elem.skip_cost = skip_cost;
+                elem.scallback = callback;
+                attack_queue.Enqueue(elem);
+            }
+        }
+
         public virtual void AddSecret(AbilityTrigger secret_trigger, Card secret, Card trigger, Action<AbilityTrigger, Card, Card> callback)
         {
             if (secret != null && trigger != null)
@@ -138,7 +152,7 @@ namespace TcgEngine
                 else if (elem.target != null)
                     elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost);
                 else
-                    elem.scallback?.Invoke();
+                    elem.scallback?.Invoke(elem.attacker, elem.skip_cost);
             }
             else if (callback_queue.Count > 0)
             {
@@ -241,7 +255,7 @@ namespace TcgEngine
         public bool skip_cost;
         public Action<Card, Card, bool> callback;
         public Action<Card, Player, bool> pcallback;
-        public Action scallback;
+        public Action<Card, bool> scallback;
     }
 
     public class SecretQueueElement

@@ -245,7 +245,7 @@ namespace TcgEngine.Gameplay
             {
                 if (bcard.CanAttack())
                 {
-                    resolve_queue.AddCallback(AttackSearch);
+                    resolve_queue.AddAttack(bcard, AttackSearch);
                     resolve_queue.ResolveAll();
                     return;
                 }
@@ -255,10 +255,11 @@ namespace TcgEngine.Gameplay
             resolve_queue.ResolveAll(0.2f);
         }
 
-        public virtual void AttackSearch()
+        public virtual void AttackSearch(Card attacker, bool skip_cost)
         {
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+            List<Slot> range_slots = new List<Slot>();
 
             foreach (Card bcard in player.cards_board)
             {
