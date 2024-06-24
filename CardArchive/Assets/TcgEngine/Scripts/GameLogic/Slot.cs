@@ -310,6 +310,45 @@ namespace TcgEngine
             return neighbor_slots;
         }
 
+        public List<Slot> GetRangeSlot(int range)
+        {
+            /*
+            List<Slot> slots = GetAll();
+            List<Slot> range_slots = new List<Slot>();
+            Dictionary<int, List<Slot>> range_slots_dict = new Dictionary<int, List<Slot>>();
+
+            range_slots.Add(new Slot(x, y, p));
+            range_slots_dict[0] = List<Slot> {new Slot(x, y, p)};
+            */
+            List<Slot> range_slots = new List<Slot>();
+            Queue<(Slot slot, int ran)> queue = new Queue<(Slot slot, int ran)>();
+            HashSet<Slot> visited = new HashSet<Slot>();
+
+            queue.Enqueue((new Slot(x, y, p), 0));
+            visited.Add(new Slot(x, y, p));
+
+            while (queue.Count > 0)
+            {
+                var (current_slot, current_range) = queue.Dequeue();
+
+                if (current_range <= range)
+                {
+                    range_slots.Add(current_slot);
+
+                    foreach (var neighbor in current_slot.GetNeighborSlot())
+                    {
+                        if (!visited.Contains(neighbor))
+                        {
+                            queue.Enqueue((neighbor, current_range + 1));
+                            visited.Add(neighbor);
+                        }
+                    }
+                }
+            }
+
+            return range_slots;
+        }
+
         public static bool operator ==(Slot slot1, Slot slot2)
         {
             return slot1.x == slot2.x && slot1.y == slot2.y && slot1.p == slot2.p;

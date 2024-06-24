@@ -259,7 +259,15 @@ namespace TcgEngine.Gameplay
         {
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-            List<Slot> range_slots = new List<Slot>();
+
+            List<Slot> range_slots = attacker.slot.GetRangeSlot(2);
+
+            foreach (Slot rslot in range_slots)
+            {
+                Debug.Log(rslot.x+" "+rslot.y+" "+rslot.p);
+            }
+
+
 
             foreach (Card bcard in player.cards_board)
             {
