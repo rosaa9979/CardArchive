@@ -260,26 +260,37 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
-            List<Slot> range_slots = attacker.slot.GetRangeSlot(2);
+            List<Slot> range_slots = attacker.slot.GetRangeSlot(attacker.GetRange());
+            List<Card> candidate_target = new List<Card>();
 
-            foreach (Slot rslot in range_slots)
+            foreach (Card target in oplayer.cards_board)
             {
-                Debug.Log(rslot.x+" "+rslot.y+" "+rslot.p);
+                if (range_slots.Contains(target.slot) && game_data.CanAttackTarget(attacker, target))
+                    candidate_target.Add(target);
             }
 
-
-
-            foreach (Card bcard in player.cards_board)
+            if (candidate_target.Count > 0)
             {
-                if (bcard.CanAttack())
+                int randomIndex = random.Next(0, candidate_target.Count);
+                Debug.Log(randomIndex);
+                AttackTarget(attacker, candidate_target[randomIndex]);
+            }
+            else
+            {
+                List<Slot> OpponentSelf = Slot.GetPlayerSelf(oplayer.player_id);
+                
+                foreach (Slot rslot in range_slots)
                 {
-                    if (oplayer.cards_board.Count > 0)
-                        AttackTarget(bcard, oplayer.cards_board[0]);
-                    else
-                        AttackPlayer(bcard, oplayer);
-                    break;
+                    if (OpponentSelf.Contains(rslot))
+                    {
+                        AttackPlayer(attacker, oplayer);
+                        break;
+                    }
                 }
             }
+            attacker.exhausted = true;
+
+            RefreshData();
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll(0.2f);
         }

@@ -253,7 +253,7 @@ namespace TcgEngine
             list.Add(new Slot(1, 2, p));
             list.Add(new Slot(6, 2, p));
 
-            player_slots_include_neutral[p] = list;
+            player_self_slots[p] = list;
             return list;
         }
 

@@ -14,6 +14,26 @@ namespace TcgEngine
         Equipment = 50,
     }
 
+    public enum WeaponType
+    {
+        None = 0,
+
+        SG = 1,
+        SMG = 2,
+        HG = 3,
+
+        AR = 11,
+        MG = 12,
+        SR = 13,
+
+        GL = 21,
+        RL = 22,
+        MT = 23,
+
+        RG = 31,
+        FT = 32,
+    }
+
     /// <summary>
     /// Defines all card data
     /// </summary>
@@ -32,10 +52,12 @@ namespace TcgEngine
         public CardType type;
         public TeamData team;
         public int mana;
-        public WeaponData weapon;
-        public int range;
         public int attack;
         public int hp;
+
+        [Header("Weapon")]
+        public WeaponType weapon_type;
+        public int range;
 
         [Header("Traits")]
         public TraitData[] traits;

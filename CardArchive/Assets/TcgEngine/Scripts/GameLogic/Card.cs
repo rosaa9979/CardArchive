@@ -26,6 +26,7 @@ namespace TcgEngine
         public int mana_ongoing = 0;
         public int attack_ongoing = 0;
         public int hp_ongoing = 0;
+        public int range_ongoing = 0;
 
         public string equipped_uid = null;
 
@@ -59,6 +60,7 @@ namespace TcgEngine
         public virtual int GetHP() { return Mathf.Max(hp + hp_ongoing - damage, 0); }
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
+        public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
         {
@@ -68,6 +70,7 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
+            range = icard.range;
             SetTraits(icard);
             SetAbilities(icard);
         }
