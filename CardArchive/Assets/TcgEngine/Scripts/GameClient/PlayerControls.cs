@@ -51,7 +51,7 @@ namespace TcgEngine.Client
             }
             else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
             {
-                //Start dragging card
+                //Start ging card
                 selected_card = bcard;
             }
         }
@@ -80,6 +80,7 @@ namespace TcgEngine.Client
                 {
                     GameClient.Get().CastAbility(card, ability.GetAbility());
                 }
+                /*
                 else if (tslot is BoardSlotPlayer)
                 {
                     if (card.exhausted)
@@ -98,6 +99,7 @@ namespace TcgEngine.Client
                 {
                     GameClient.Get().Move(card, tslot.GetSlot());
                 }
+                */
             }
 
             UnselectAll();

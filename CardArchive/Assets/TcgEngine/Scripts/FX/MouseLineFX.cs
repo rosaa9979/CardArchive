@@ -25,11 +25,13 @@ namespace TcgEngine.FX
 
         void Update()
         {
+            
             if (!GameClient.Get().IsReady())
                 return;
 
             RefreshLine();
             RefreshRender();
+            
         }
 
         private void RefreshLine()
@@ -42,11 +44,13 @@ namespace TcgEngine.FX
 
             bool visible = false;
             Vector3 source = Vector3.zero;
+            /*
             if (bcard != null)
             {
                 source = bcard.transform.position;
                 visible = true;
             }
+            */
 
             HandCard drag = HandCard.GetDrag();
             if (drag != null)

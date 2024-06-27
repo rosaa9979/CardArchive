@@ -95,11 +95,12 @@ namespace TcgEngine.Client
             if(!destroyed)
                 card_ui.SetCard(card);
 
-            bool selected = controls.GetSelected() == this;
-            Vector3 targ_pos = GetTargetPos();
-            float speed = 12f;
+            //bool selected = controls.GetSelected() == this;
+            bool selected = false;
+            //Vector3 targ_pos = GetTargetPos();
+            //float speed = 12f;
 
-            transform.position = Vector3.MoveTowards(transform.position, targ_pos, speed * Time.deltaTime);
+            //transform.position = Vector3.MoveTowards(transform.position, targ_pos, speed * Time.deltaTime);
 
             float target_alpha = IsFocus() || selected ? 1f : 0f;
             if (destroyed || timer < 1f)
@@ -340,7 +341,7 @@ namespace TcgEngine.Client
 
         public void OnMouseDown()
         {
-            /*
+            
             if (GameUI.IsOverUILayer("UI"))
                 return;
 
@@ -351,7 +352,6 @@ namespace TcgEngine.Client
                 focus = true;
                 ShowStatusBar();
             }
-            */
         }
 
         public void OnMouseUp()

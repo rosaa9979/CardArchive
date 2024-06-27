@@ -260,7 +260,7 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
-            List<Slot> range_slots = attacker.slot.GetRangeSlot(attacker.GetRange());
+            List<Slot> range_slots = attacker.slot.GetRangeSlot(2);
             List<Card> candidate_target = new List<Card>();
 
             foreach (Card target in oplayer.cards_board)
@@ -271,9 +271,12 @@ namespace TcgEngine.Gameplay
 
             if (candidate_target.Count > 0)
             {
+                /*
                 int randomIndex = random.Next(0, candidate_target.Count);
                 Debug.Log(randomIndex);
                 AttackTarget(attacker, candidate_target[randomIndex]);
+                */
+                AttackTarget(attacker, candidate_target);
             }
             else
             {
@@ -288,14 +291,14 @@ namespace TcgEngine.Gameplay
                     }
                 }
             }
-            attacker.exhausted = true;
+
+            ExhaustBattle(attacker);
+            
 
             RefreshData();
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll(0.2f);
         }
-
-
 
         public virtual void EndTurn()
         {
@@ -576,7 +579,6 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanAttackTarget(attacker, target, skip_cost))
             {
-
                 Player player = game_data.GetPlayer(attacker.player_id);
                 if(!is_ai_predict)
                     player.AddHistory(GameAction.Attack, attacker, target);
@@ -590,6 +592,29 @@ namespace TcgEngine.Gameplay
                 //Resolve attack
                 resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
                 resolve_queue.ResolveAll();
+            }
+        }
+
+        public virtual void AttackTarget(Card attacker, List<Card> targets, bool skip_cost = false)
+        {
+            foreach (Card target in targets)
+            {
+                if (game_data.CanAttackTarget(attacker, target, skip_cost))
+                {
+                    Player player = game_data.GetPlayer(attacker.player_id);
+                    if(!is_ai_predict)
+                        player.AddHistory(GameAction.Attack, attacker, target);
+
+                    //Trigger before attack abilities
+                    TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
+                    TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, target, attacker);
+                    TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
+                    TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
+
+                    //Resolve attack
+                    resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
+                    resolve_queue.ResolveAll();
+                }
             }
         }
 
@@ -621,8 +646,8 @@ namespace TcgEngine.Gameplay
             //    DamageCard(target, attacker, datt2);
 
             //Save attack and exhaust
-            if (!skip_cost)
-                ExhaustBattle(attacker);
+            //if (!skip_cost)
+            //    ExhaustBattle(attacker);
 
             //Recalculate bonus
             UpdateOngoing();
@@ -686,8 +711,8 @@ namespace TcgEngine.Gameplay
             DamagePlayer(attacker, target, attacker.GetAttack());
 
             //Save attack and exhaust
-            if (!skip_cost)
-                ExhaustBattle(attacker);
+            //if (!skip_cost)
+                //ExhaustBattle(attacker);
 
             //Recalculate bonus
             UpdateOngoing();
