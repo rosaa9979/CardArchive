@@ -310,44 +310,46 @@ namespace TcgEngine
             return neighbor_slots;
         }
 
-        public List<Slot> GetRangeSlot(int range)
+        public Dictionary<int, List<Slot>> GetRangeSlot(int range)
         {
-            /*
-            List<Slot> slots = GetAll();
-            List<Slot> range_slots = new List<Slot>();
-            Dictionary<int, List<Slot>> range_slots_dict = new Dictionary<int, List<Slot>>();
-
-            range_slots.Add(new Slot(x, y, p));
-            range_slots_dict[0] = List<Slot> {new Slot(x, y, p)};
-            */
-            List<Slot> range_slots = new List<Slot>();
-            Queue<(Slot slot, int ran)> queue = new Queue<(Slot slot, int ran)>();
             HashSet<Slot> visited = new HashSet<Slot>();
+            Dictionary<int, List<Slot>> range_slot = new Dictionary<int, List<Slot>>();
+            Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
 
+            // 시작 슬롯과 거리 0을 큐에 삽입
             queue.Enqueue((new Slot(x, y, p), 0));
             visited.Add(new Slot(x, y, p));
+            range_slot.TryAdd(0, new List<Slot>());
+            range_slot[0].Add(new Slot(x, y, p));
 
             while (queue.Count > 0)
             {
-                var (current_slot, current_range) = queue.Dequeue();
+                // 현재 슬롯과 거리 정보를 큐에서 꺼냄
+                var (currentSlot, currentDistance) = queue.Dequeue();
 
-                if (current_range <= range)
+                // 현재 거리가 범위를 초과하면 탐색 중단
+                if (currentDistance > range - 1)
+                    continue;
+
+                // 현재 슬롯의 모든 이웃 슬롯 탐색
+                foreach (var neighbor in currentSlot.GetNeighborSlot())
                 {
-                    range_slots.Add(current_slot);
-
-                    foreach (var neighbor in current_slot.GetNeighborSlot())
+                    // 이웃 슬롯이 방문하지 않았다면
+                    if (!visited.Contains(neighbor))
                     {
-                        if (!visited.Contains(neighbor))
-                        {
-                            queue.Enqueue((neighbor, current_range + 1));
-                            visited.Add(neighbor);
-                        }
+                        visited.Add(neighbor);
+
+                        if (!range_slot.ContainsKey(currentDistance + 1))
+                            range_slot.TryAdd(currentDistance + 1, new List<Slot>());
+
+                        range_slot[currentDistance + 1].Add(neighbor);
+                        queue.Enqueue((neighbor, currentDistance + 1));
                     }
                 }
             }
 
-            return range_slots;
-        }
+            return range_slot;
+        }  
 
         public static bool operator ==(Slot slot1, Slot slot2)
         {

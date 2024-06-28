@@ -36,6 +36,7 @@ namespace TcgEngine
         public List<Card> cards_equip = new List<Card>();   //Cards equipped by characters
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area
+        public List<Card> cards_attachment = new List<Card>(); //Cards in the player's attachment
         public List<Card> cards_temp = new List<Card>();    //Temporary cards that have just been created, not assigned to any zone yet
 
         public List<CardTrait> traits = new List<CardTrait>();              //Current persistant traits the cards has

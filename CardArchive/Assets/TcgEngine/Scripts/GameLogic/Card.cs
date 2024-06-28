@@ -21,6 +21,7 @@ namespace TcgEngine
         public int mana = 0;
         public int attack = 0;
         public int hp = 0;
+        public WeaponType weapon_type = WeaponType.None;
         public int range = 0;
 
         public int mana_ongoing = 0;
@@ -60,6 +61,7 @@ namespace TcgEngine
         public virtual int GetHP() { return Mathf.Max(hp + hp_ongoing - damage, 0); }
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
+        public virtual WeaponType GetWeaponType() { return weapon_type; }
         public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
@@ -70,7 +72,9 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
-            range = icard.range;
+            weapon_type = icard.weapon_type;
+            range = icard.GetRange();
+            
             SetTraits(icard);
             SetAbilities(icard);
         }

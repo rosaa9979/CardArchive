@@ -18,10 +18,10 @@ MonoBehaviour:
   art_board: {fileID: 21300000, guid: 5c7ad24f1fcbb7a4d9d4e1a1c7265dc8, type: 3}
   type: 10
   team: {fileID: 11400000, guid: b80d8061c5bdb2e408e62a08e0e743ca, type: 2}
-  rarity: {fileID: 11400000, guid: fab1a52f5a36cc942985dea95be18ac9, type: 2}
   mana: 2
   attack: 2
   hp: 3
+  weapon_type: 11
   traits: []
   stats: []
   abilities:

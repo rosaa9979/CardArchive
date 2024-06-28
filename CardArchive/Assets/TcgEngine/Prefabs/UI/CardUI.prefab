@@ -347,7 +347,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 820879647486807064}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -356,7 +356,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 12.902, y: -1.7663}
+  m_AnchoredPosition: {x: 12.902008, y: -1.7663002}
   m_SizeDelta: {x: 25.8051, y: 30.4043}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6352347776756480500
@@ -1002,9 +1002,13 @@ MonoBehaviour:
   attack_icon: {fileID: 3112030505581135925}
   hp_icon: {fileID: 6032460319751613979}
   cost_icon: {fileID: 6253182797653099009}
+  weapon_icon: {fileID: 4699554112510748538}
+  range_icon: {fileID: 7955559122210950705}
   attack: {fileID: 3820524832514598553}
   hp: {fileID: 7761594293431591646}
   cost: {fileID: 925872138855219087}
+  weapon_type: {fileID: 3217733422301778214}
+  range: {fileID: 1350808949330436255}
   card_title: {fileID: 8818002955700808277}
   card_text: {fileID: 1455965521662676655}
   stats: []

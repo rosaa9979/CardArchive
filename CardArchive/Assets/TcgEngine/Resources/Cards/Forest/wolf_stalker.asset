@@ -21,8 +21,7 @@ MonoBehaviour:
   mana: 3
   attack: 4
   hp: 2
-  weapon_type: 11
-  range: 3
+  weapon_type: 12
   traits:
   - {fileID: 11400000, guid: 9436e14bc49faf74595ac5f19b793ba3, type: 2}
   stats: []

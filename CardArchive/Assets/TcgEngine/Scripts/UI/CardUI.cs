@@ -23,9 +23,13 @@ namespace TcgEngine.UI
         public Image attack_icon;
         public Image hp_icon;
         public Image cost_icon;
+        public Image weapon_icon;
+        public Image range_icon;
         public Text attack;
         public Text hp;
         public Text cost;
+        public Text weapon_type;
+        public Text range;
 
         public Text card_title;
         public Text card_text;
@@ -56,6 +60,10 @@ namespace TcgEngine.UI
                 attack.text = card.GetAttack().ToString();
             if (hp != null)
                 hp.text = card.GetHP().ToString();
+            if (weapon_type != null)
+                weapon_type.text = card.GetWeaponType().ToString();
+            if (range != null)
+                range.text = card.GetRange().ToString();
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
@@ -90,6 +98,10 @@ namespace TcgEngine.UI
                 cost_icon.enabled = card.type != CardType.Hero;
             if (cost != null)
                 cost.enabled = card.type != CardType.Hero;
+            if (weapon_type != null)
+                attack_icon.enabled = card.IsBoardCard();
+            if (range != null)
+                range_icon.enabled = card.IsBoardCard();
 
             if (cost != null)
                 cost.text = card.mana.ToString();
@@ -97,6 +109,10 @@ namespace TcgEngine.UI
                 attack.text = card.attack.ToString();
             if (hp != null)
                 hp.text = card.hp.ToString();
+            if (weapon_type != null)
+                weapon_type.text = card.weapon_type.ToString();
+            if (range != null)
+                range.text = card.GetRange().ToString();
 
             if (team_icon != null)
             {

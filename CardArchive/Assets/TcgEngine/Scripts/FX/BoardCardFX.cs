@@ -191,7 +191,7 @@ namespace TcgEngine.FX
                 if (btarget != null)
                 {
                     //Card charge into target
-                    //ChargeInto(btarget);
+                    ChargeInto(btarget);
 
                     //Show Damage Number FX on self
                     //if(!attacker.HasStatus(StatusType.Intimidate))
@@ -228,7 +228,7 @@ namespace TcgEngine.FX
                 CardData icard = bcard.GetCardData();
                 BoardSlotPlayer zone = BoardSlotPlayer.Get(is_other);
 
-                //ChargeIntoPlayer(zone);
+                ChargeIntoPlayer(zone);
 
                 AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
                 AudioTool.Get().PlaySFX("card_attack", audio);

@@ -213,9 +213,7 @@ namespace TcgEngine.Client
                 foreach (HandCard acard in card_list)
                 {
                     if (acard != selected_card)
-                    {
                         acard.SetHide(false);
-                    }
                 }
                 OpponentHand.Get().SetHide(false);
             }

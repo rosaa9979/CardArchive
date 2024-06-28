@@ -260,29 +260,24 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
-            List<Slot> range_slots = attacker.slot.GetRangeSlot(2);
-            List<Card> candidate_target = new List<Card>();
+            Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
+            bool target_attack = GetAllTarget(attacker, range_slot).Count > 0;
+            List<Card> target = GetAttackTarget(attacker, range_slot);
+            
 
-            foreach (Card target in oplayer.cards_board)
+            if (target_attack)
             {
-                if (range_slots.Contains(target.slot) && game_data.CanAttackTarget(attacker, target))
-                    candidate_target.Add(target);
-            }
-
-            if (candidate_target.Count > 0)
-            {
-                /*
-                int randomIndex = random.Next(0, candidate_target.Count);
-                Debug.Log(randomIndex);
-                AttackTarget(attacker, candidate_target[randomIndex]);
-                */
-                AttackTarget(attacker, candidate_target);
+                AttackTarget(attacker, target);
             }
             else
             {
                 List<Slot> OpponentSelf = Slot.GetPlayerSelf(oplayer.player_id);
+                List<Slot> slots = new List<Slot>();
+
+                foreach (var dis in range_slot.Keys)
+                    slots.AddRange(range_slot[dis]);
                 
-                foreach (Slot rslot in range_slots)
+                foreach (Slot rslot in slots)
                 {
                     if (OpponentSelf.Contains(rslot))
                     {
@@ -291,13 +286,147 @@ namespace TcgEngine.Gameplay
                     }
                 }
             }
-
+            
             ExhaustBattle(attacker);
             
-
             RefreshData();
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll(0.2f);
+        }
+        
+        
+        public virtual List<Card> GetAttackTarget(Card attacker, Dictionary<int, List<Slot>> range_slot)
+        {
+            Player player = game_data.GetActivePlayer();
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            List<Card> target = new List<Card>();
+
+            if (attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.H2H)
+            {
+                List<Card> candidate_target = GetNearestTarget(attacker, range_slot);
+                if (candidate_target.Count > 0)
+                {
+                    int randomIndex = random.Next(0, candidate_target.Count);
+                    target.Add(candidate_target[randomIndex]);
+                }
+            }
+
+            else if (attacker.GetWeaponType() == WeaponType.AR || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL || attacker.GetWeaponType() == WeaponType.MT)
+            {
+                List<Card> candidate_target = GetAllTarget(attacker, range_slot);
+                if (candidate_target.Count > 0)
+                {
+                    int randomIndex = random.Next(0, candidate_target.Count);
+                    target.Add(candidate_target[randomIndex]);
+                }
+            }
+            else if (attacker.GetWeaponType() == WeaponType.MG)
+            {
+                List<Card> candidate_target = GetAllTarget(attacker, range_slot);
+                if (candidate_target.Count > 0)
+                {
+                    foreach (Card candidate in candidate_target)
+                    {
+                        double pos = random.NextDouble();
+                        if (pos < 0.5)
+                            target.Add(candidate);
+                    }
+                }
+            }
+                
+            else if (attacker.GetWeaponType() == WeaponType.SR)
+            {
+                List<Card> candidate_target = GetAllTarget(attacker, range_slot);
+                List<Card> lowest_health_target = new List<Card>();
+                int lowest_health = 99999;
+                if (candidate_target.Count > 0)
+                {
+                    foreach (Card candidate in candidate_target)
+                    {
+                        if (candidate.GetHP() < lowest_health)
+                        {
+                            lowest_health = candidate.GetHP();
+                            lowest_health_target.Clear();
+                            lowest_health_target.Add(candidate);
+                        }
+                        else if (candidate.GetHP() == lowest_health)
+                            lowest_health_target.Add(candidate);
+                        else
+                            continue;
+                    }
+
+                    if (lowest_health_target.Count > 0)
+                    {
+                        int randomIndex = random.Next(0, lowest_health_target.Count);
+                        target.Add(lowest_health_target[randomIndex]);
+                    }
+                }
+            }
+
+            return target;
+        }
+        
+        public virtual List<Card> GetNearestTarget(Card attacker, Dictionary<int, List<Slot>> range_slot)
+        {
+            Player player = game_data.GetActivePlayer();
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            List<Card> target = new List<Card>();
+
+            foreach (var dis in range_slot.Keys)
+            {
+                target.Clear();
+                if (range_slot[dis].Count > 0)
+                {
+                    foreach (Slot slot in range_slot[dis])
+                    {
+                        Card targ = game_data.GetSlotCard(slot);
+
+                        if (targ != null && game_data.CanAttackTarget(attacker, targ))
+                            target.Add(targ);
+                    }
+
+                    if (target.Count > 0)
+                        return target;
+                }
+            }
+            return target;
+        }
+
+        public virtual List<Card> GetAllTarget(Card attacker, Dictionary<int, List<Slot>> range_slot)
+        {
+            Player player = game_data.GetActivePlayer();
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            List<Card> target = new List<Card>();
+            List<Slot> slots = new List<Slot>();
+
+            foreach (var dis in range_slot.Keys)
+                slots.AddRange(range_slot[dis]);
+
+            foreach (Slot slot in slots)
+            {
+                foreach (Card obcard in oplayer.cards_board)
+                {
+                    if (obcard.slot == slot && game_data.CanAttackTarget(attacker, obcard))
+                    {
+                        target.Add(obcard);
+                        break;
+                    }
+                }
+
+                foreach (Card bcard in player.cards_board)
+                {
+                    if (bcard.slot == slot && game_data.CanAttackTarget(attacker, bcard))
+                    {
+                        target.Add(bcard);
+                        break;
+                    }
+                }
+            }
+
+            return target;         
         }
 
         public virtual void EndTurn()
@@ -595,25 +724,28 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public virtual void AttackTarget(Card attacker, List<Card> targets, bool skip_cost = false)
+        public virtual void AttackTarget(Card attacker, List<Card> target, bool skip_cost = false)
         {
-            foreach (Card target in targets)
+            if (target.Count > 0)
             {
-                if (game_data.CanAttackTarget(attacker, target, skip_cost))
+                foreach (Card targ in target)
                 {
-                    Player player = game_data.GetPlayer(attacker.player_id);
-                    if(!is_ai_predict)
-                        player.AddHistory(GameAction.Attack, attacker, target);
+                    if (game_data.CanAttackTarget(attacker, targ, skip_cost))
+                    {
+                        Player player = game_data.GetPlayer(attacker.player_id);
+                        if(!is_ai_predict)
+                            player.AddHistory(GameAction.Attack, attacker, targ);
 
-                    //Trigger before attack abilities
-                    TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
-                    TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, target, attacker);
-                    TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
-                    TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
+                        //Trigger before attack abilities
+                        TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, targ);
+                        TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, targ, attacker);
+                        TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
+                        TriggerSecrets(AbilityTrigger.OnBeforeDefend, targ);
 
-                    //Resolve attack
-                    resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
-                    resolve_queue.ResolveAll();
+                        //Resolve attack
+                        resolve_queue.AddAttack(attacker, targ, ResolveAttack, skip_cost);
+                        resolve_queue.ResolveAll();
+                    }
                 }
             }
         }
