@@ -207,6 +207,78 @@ namespace TcgEngine
 
             return true;
         }
+        
+        public virtual bool CanAdditionAttackTarget(Card attacker, Card target, bool skip_cost = false)
+        {
+            if (attacker == null || target == null)
+                return false;
+
+            //if (!attacker.CanAttack(skip_cost))
+            //    return false; //Card cant attack
+
+            if (attacker.player_id == target.player_id)
+                return false; //Cant attack same player
+
+            if (!IsOnBoard(attacker) || !IsOnBoard(target))
+                return false; //Cards not on board
+
+            //if (!attacker.CardData.IsCharacter() || !target.CardData.IsBoardCard())
+            //    return false; //Only character can attack
+
+            //if (target.HasStatus(StatusType.Stealth))
+            //    return false; //Stealth cant be attacked
+
+            //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
+            //    return false; //Protected by adjacent card
+
+            return true;
+        }
+
+        public virtual List<Card> CanAttackTarget(Card attacker, List<Card> target, bool skip_cost = false)
+        {
+            List<Card> attack_list= new List<Card>();
+            bool contain_taunt = false;
+
+            if (attacker == null || target == null)
+                return attack_list;
+
+            foreach (Card targ in target)
+            {
+                if (attacker.player_id == targ.player_id)
+                    continue; //Cant attack same player
+
+                if (!IsOnBoard(attacker) || !IsOnBoard(targ))
+                    continue; //Cards not on board
+
+                //if (!attacker.CardData.IsCharacter() || !targ.CardData.IsBoardCard())
+                //    return false; //Only charcter can attacka
+
+                if (targ.HasStatus(StatusType.Stealth))
+                    continue; //Stealth cant be attacked
+
+                if (attacker.GetWeaponType() != WeaponType.MG)
+                {
+                    if (targ.HasStatus(StatusType.Protection))
+                    {
+                        if (!contain_taunt)
+                        {
+                            attack_list.Clear();
+                            contain_taunt = true;
+                        }
+                        attack_list.Add(targ);
+                        continue;
+                    }
+
+                    if (!contain_taunt)
+                        attack_list.Add(targ);
+                    continue;
+                }
+
+                attack_list.Add(targ);
+            }
+
+            return attack_list;
+        }
 
         public virtual bool CanCastAbility(Card card, AbilityData ability)
         {

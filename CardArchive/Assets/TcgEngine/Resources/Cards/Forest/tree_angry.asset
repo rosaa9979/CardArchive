@@ -21,7 +21,7 @@ MonoBehaviour:
   mana: 3
   attack: 3
   hp: 5
-  weapon_type: 4
+  weapon_type: 32
   traits: []
   stats: []
   abilities:
