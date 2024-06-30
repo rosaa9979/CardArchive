@@ -34,9 +34,9 @@ namespace TcgEngine
         public List<Card> cards_hand = new List<Card>();    //Cards in the player's hand
         public List<Card> cards_board = new List<Card>();   //Cards on the board
         public List<Card> cards_equip = new List<Card>();   //Cards equipped by characters
+        public List<Card> cards_attach = new List<Card>(); //Cards in the player's attachment
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area
-        public List<Card> cards_attachment = new List<Card>(); //Cards in the player's attachment
         public List<Card> cards_temp = new List<Card>();    //Temporary cards that have just been created, not assigned to any zone yet
 
         public List<CardTrait> traits = new List<CardTrait>();              //Current persistant traits the cards has
@@ -72,6 +72,7 @@ namespace TcgEngine
             cards_hand.Remove(card);
             cards_board.Remove(card);
             cards_equip.Remove(card);
+            cards_attach.Remove(card);
             cards_deck.Remove(card);
             cards_discard.Remove(card);
             cards_secret.Remove(card);
@@ -130,6 +131,16 @@ namespace TcgEngine
             return null;
         }
 
+        public Card GetAttachCard(string uid)
+        {
+            foreach (Card card in cards_attach)
+            {
+                if (card.uid == uid)
+                    return card;
+            }
+            return null;
+        }
+
         public Card GetDeckCard(string uid)
         {
             foreach (Card card in cards_deck)
@@ -158,6 +169,17 @@ namespace TcgEngine
                     return card;
             }
             return null;
+        }
+
+        public Slot GetAttachedSlot(Card attachment)
+        {
+            List<Slot> all_slots = Slot.GetAll();
+            foreach (Slot slot in all_slots)
+            {
+                if (slot != null && slot.attached_uid == attachment.uid)
+                    return slot;
+            }
+            return new Slot(0, 0, -1);
         }
 
         public Card GetSlotCard(Slot slot)

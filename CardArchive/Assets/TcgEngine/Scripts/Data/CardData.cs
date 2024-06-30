@@ -12,6 +12,7 @@ namespace TcgEngine
         Artifact = 30,
         Secret = 40,
         Equipment = 50,
+        Attachment = 60,
     }
 
     public enum WeaponType
@@ -206,6 +207,11 @@ namespace TcgEngine
         public bool IsEquipment()
         {
             return type == CardType.Equipment;
+        }
+
+        public bool IsAttachment()
+        {
+            return type == CardType.Attachment;
         }
 
         public bool HasTrait(string trait)
