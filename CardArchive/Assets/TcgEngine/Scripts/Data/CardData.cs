@@ -160,6 +160,8 @@ namespace TcgEngine
                 return "secret";
             if (type == CardType.Equipment)
                 return "equipment";
+            if (type == CardType.Equipment)
+                return "attachment";
             return "";
         }
 

@@ -1561,6 +1561,9 @@ namespace TcgEngine.Gameplay
                 for (int c = 0; c < player.cards_equip.Count; c++)
                     player.cards_equip[c].ClearOngoing();
 
+                for (int c = 0; c < player.cards_attach.Count; c++)
+                    player.cards_attach[c].ClearOngoing();
+
                 for (int c = 0; c < player.cards_hand.Count; c++)
                     player.cards_hand[c].ClearOngoing();
             }
@@ -1579,6 +1582,12 @@ namespace TcgEngine.Gameplay
                 for (int c = 0; c < player.cards_equip.Count; c++)
                 {
                     Card card = player.cards_equip[c];
+                    UpdateOngoingAbilities(player, card);
+                }
+
+                for (int c = 0; c < player.cards_attach.Count; c++)
+                {
+                    Card card = player.cards_attach[c];
                     UpdateOngoingAbilities(player, card);
                 }
             }
@@ -1662,7 +1671,7 @@ namespace TcgEngine.Gameplay
             for (int a = 0; a < cabilities.Count; a++)
             {
                 AbilityData ability = cabilities[a];
-                if (ability != null && ability.trigger == AbilityTrigger.Ongoing && ability.AreTriggerConditionsMet(game_data, card))
+                if (ability != null && ability.trigger == AbilityTrigger.Ongoing && ability.AreTriggerConditionsMet(game_data,  card))
                 {
                     if (ability.target == AbilityTarget.Self)
                     {
@@ -1711,6 +1720,24 @@ namespace TcgEngine.Gameplay
                             //Get equipped card
                             Card target = game_data.GetCard(card.equipped_uid);
                             if (target != null && ability.AreTargetConditionsMet(game_data, card, target))
+                            {
+                                ability.DoOngoingEffects(this, card, target);
+                            }
+                        }
+                    }
+
+                    if (ability.target == AbilityTarget.AttachedSlot)
+                    {
+                        if (card.CardData.IsAttachment())
+                        {
+                            Slot attached_slot = player.GetAttachedSlot(card);
+                            Debug.Log(attached_slot.p);
+                            Card target = player.GetSlotCard(attached_slot);
+
+                            if (target != null)
+                                Debug.Log(target.card_id);
+
+                            if (attached_slot.IsValid() && target != null)
                             {
                                 ability.DoOngoingEffects(this, card, target);
                             }

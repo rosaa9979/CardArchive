@@ -233,7 +233,10 @@ namespace TcgEngine
         public void DoOngoingEffects(GameLogic logic, Card caster, Card target)
         {
             foreach (EffectData effect in effects)
+            {
+                Debug.Log("Doongoingeffect");
                 effect?.DoOngoingEffect(logic, this, caster, target);
+            }
             foreach (StatusData stat in status)
                 target.AddOngoingStatus(stat, value);
         }
@@ -658,6 +661,7 @@ namespace TcgEngine
         PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)      
         AbilityTriggerer = 25,   //The card that triggered the trap
         EquippedCard = 27,       //If equipment, the bearer, if character, the item equipped
+        AttachedSlot = 28,
 
         SelectTarget = 30,        //Select a card, player or slot on board
         CardSelector = 40,          //Card selector menu

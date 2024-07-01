@@ -43,6 +43,7 @@ namespace TcgEngine
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
+            Debug.Log("Add attack");
             if (type == EffectStatType.Attack)
                 target.attack_ongoing += ability.value;
             if (type == EffectStatType.HP)

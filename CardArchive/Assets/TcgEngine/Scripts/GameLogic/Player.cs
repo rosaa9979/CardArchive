@@ -176,7 +176,7 @@ namespace TcgEngine
             List<Slot> all_slots = Slot.GetAll();
             foreach (Slot slot in all_slots)
             {
-                if (slot != null && slot.attached_uid == attachment.uid)
+                if (slot != null && slot == attachment.slot)
                     return slot;
             }
             return new Slot(0, 0, -1);
