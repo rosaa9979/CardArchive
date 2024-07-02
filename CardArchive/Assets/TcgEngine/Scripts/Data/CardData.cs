@@ -9,7 +9,7 @@ namespace TcgEngine
         Hero = 5,
         Character = 10,
         Spell = 20,
-        Artifact = 30,
+        Building = 30,
         Secret = 40,
         Equipment = 50,
         Attachment = 60,
@@ -152,8 +152,8 @@ namespace TcgEngine
                 return "hero";
             if (type == CardType.Character)
                 return "character";
-            if (type == CardType.Artifact)
-                return "artifact";
+            if (type == CardType.Building)
+                return "building";
             if (type == CardType.Spell)
                 return "spell";
             if (type == CardType.Secret)
@@ -181,9 +181,9 @@ namespace TcgEngine
             return type == CardType.Character;
         }
 
-        public bool IsArtifact()
+        public bool IsBuilding()
         {
-            return type == CardType.Artifact;
+            return type == CardType.Building;
         }
 
         public bool IsSecret()
@@ -193,7 +193,7 @@ namespace TcgEngine
 
         public bool IsBoardCard()
         {
-            return type == CardType.Character || type == CardType.Artifact;
+            return type == CardType.Character || type == CardType.Building;
         }
 
         public bool IsRequireTarget()

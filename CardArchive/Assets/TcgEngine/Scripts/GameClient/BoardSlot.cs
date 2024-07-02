@@ -65,7 +65,7 @@ namespace TcgEngine.Client
                 //target_alpha = 1f;
                 if (your_turn && dcard != null && dcard.CardData.IsBoardCard() && (!gdata.CanPlayCard(dcard, slot)))
                 {
-                    target_alpha = 0f; //hightlight when dragging a character or artifact
+                    target_alpha = 0f; //hightlight when dragging a character or building
                 }
 
                 if (your_turn && dcard != null && dcard.CardData.IsRequireTarget() && gdata.CanPlayCard(dcard, slot))

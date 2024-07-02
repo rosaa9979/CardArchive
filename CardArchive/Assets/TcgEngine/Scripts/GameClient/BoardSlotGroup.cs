@@ -78,7 +78,7 @@ namespace TcgEngine.Client
                 foreach (GroupSlot slot in group_slots)
                 {
                     if(gdata.CanPlayCard(dcard, slot.slot))
-                        target_alpha = 1f; //hightlight when dragging a character or artifact
+                        target_alpha = 1f; //hightlight when dragging a character or building
                 }
             }
 

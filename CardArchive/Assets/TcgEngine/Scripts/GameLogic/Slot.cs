@@ -15,8 +15,6 @@ namespace TcgEngine
         public int x; //From 1 to 5
         public int y; //Not in use, could be used to add more rows or different locations on the board
         public int p; //0 or 1, represent player ID
-        public int attached_player_id;
-        public string attached_uid;
 
         public static int x_min = 1; //Dont change this, should start at 1  (0,0,0 represent invalid slot)
         public static int x_max = 7; //Number of slots in a row/zone
@@ -37,8 +35,6 @@ namespace TcgEngine
             this.x = 0;
             this.y = 0;
             this.p = pid;
-            this.attached_player_id = -1;
-            this.attached_uid = null;
         }
 
         public Slot(int x, int y, int pid)
@@ -46,8 +42,6 @@ namespace TcgEngine
             this.x = x;
             this.y = y;
             this.p = pid;
-            this.attached_player_id = -1;
-            this.attached_uid = null;
         }
 
         public Slot(SlotXY slot, int pid)
@@ -55,8 +49,6 @@ namespace TcgEngine
             this.x = slot.x;
             this.y = slot.y;
             this.p = pid;
-            this.attached_player_id = -1;
-            this.attached_uid = null;
         }
 
         public bool IsInRangeX(Slot slot, int range)

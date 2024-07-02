@@ -427,6 +427,19 @@ namespace TcgEngine
             return null;
         }
 
+        public Card GetAttachCard(Slot slot)
+        {
+            foreach (Player player in players)
+            {
+                foreach (Card card in player.cards_attach)
+                {
+                    if (card != null && card.slot == slot)
+                        return card;
+                }
+            }
+            return null;
+        }
+
         public Card GetHandCard(string card_uid)
         {
             foreach (Player player in players)

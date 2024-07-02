@@ -450,7 +450,7 @@ namespace TcgEngine
 
         public virtual bool CanAttack(bool skip_cost = false)
         {
-            if (CardData.IsArtifact())
+            if (CardData.IsBuilding())
                 return false;
             if (HasStatus(StatusType.Paralysed))
                 return false;

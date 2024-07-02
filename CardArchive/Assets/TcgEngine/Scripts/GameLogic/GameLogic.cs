@@ -1061,30 +1061,21 @@ namespace TcgEngine.Gameplay
                 if (attachment.CardData.IsAttachment())
                 {
                     DetachAll(slot); //Detach previous cards, only 1 attach at a time
-
                     Player player = game_data.GetPlayer(attachment.player_id);
                     player.RemoveCardFromAllGroups(attachment);
                     player.cards_attach.Add(attachment);
-                    slot.attached_player_id = player.player_id;
-                    slot.attached_uid = attachment.uid;
                     attachment.slot = slot;
                 }
             }
+
         }
 
         public virtual void DetachAll(Slot slot)
         {
-            if (slot != null && slot.attached_uid != null)
-            {
-                Player player = game_data.GetPlayer(slot.attached_player_id);
-                Card attach = player.GetAttachCard(slot.attached_uid);
-                if (attach != null)
-                {
-                    slot.attached_player_id = -1;
-                    slot.attached_uid = null;
-                    DiscardCard(attach);
-                }
-            }
+            Card attached_card = game_data.GetAttachCard(slot);
+
+            if (slot != null && attached_card != null)
+                DiscardCard(attached_card);
         }
 
         //Change owner of a card
@@ -1242,7 +1233,7 @@ namespace TcgEngine.Gameplay
             UnequipAll(card);
 
             //Detach card
-            DetachAll(card.slot);
+            //DetachAll(card.slot);
 
             //Remove card from board and add to discard
             player.RemoveCardFromAllGroups(card);
@@ -1253,15 +1244,6 @@ namespace TcgEngine.Gameplay
             Card bearer = player.GetBearerCard(card);
             if (bearer != null)
                 bearer.equipped_uid = null;
-
-            Slot attached_slot = player.GetAttachedSlot(card);
-
-            if (attached_slot.IsValid())
-            {
-                attached_slot.attached_player_id = -1;
-                attached_slot.attached_uid = null;
-            }
-
 
             if (was_on_board)
             {
@@ -1731,11 +1713,7 @@ namespace TcgEngine.Gameplay
                         if (card.CardData.IsAttachment())
                         {
                             Slot attached_slot = player.GetAttachedSlot(card);
-                            Debug.Log(attached_slot.p);
                             Card target = player.GetSlotCard(attached_slot);
-
-                            if (target != null)
-                                Debug.Log(target.card_id);
 
                             if (attached_slot.IsValid() && target != null)
                             {
