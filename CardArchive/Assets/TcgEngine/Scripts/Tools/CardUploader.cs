@@ -227,7 +227,7 @@ namespace TcgEngine
             CardAddRequest req = new CardAddRequest();
             req.tid = card.id;
             req.type = card.GetTypeId();
-            req.team = card.team.id;
+            //req.team = card.team.id;
             req.mana = card.mana;
             req.attack = card.attack;
             req.hp = card.hp;
@@ -351,8 +351,8 @@ namespace TcgEngine
     {
         public string tid;
         public string type;
-        public string team;
-        public string rarity;
+        //public string team;
+        //public string rarity;
         public int mana;
         public int attack;
         public int hp;

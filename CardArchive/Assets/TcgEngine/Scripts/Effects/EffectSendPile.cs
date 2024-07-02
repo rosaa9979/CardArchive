@@ -58,6 +58,7 @@ namespace TcgEngine
         Discard = 40,
         Secret = 50,
         Equipped = 60,
+        Attached = 70,
         Temp = 90,
     }
 

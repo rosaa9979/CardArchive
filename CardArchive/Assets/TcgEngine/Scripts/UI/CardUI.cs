@@ -19,11 +19,12 @@ namespace TcgEngine.UI
         public Image frame_image;
         public Image art_bg;
         public Image art_frame;
-        public Image team_icon;
+        //public Image team_icon;
         public Image attack_icon;
         public Image hp_icon;
         public Image cost_icon;
         public Image weapon_icon;
+        public Image range_background;
         public Image range_icon;
         public Text attack;
         public Text hp;
@@ -98,10 +99,16 @@ namespace TcgEngine.UI
                 cost_icon.enabled = card.type != CardType.Hero;
             if (cost != null)
                 cost.enabled = card.type != CardType.Hero;
+            if (weapon_icon != null)
+                weapon_icon.enabled = card.IsCharacter();
             if (weapon_type != null)
-                attack_icon.enabled = card.IsBoardCard();
+                weapon_type.enabled = card.IsCharacter();
+            if (range_background != null)
+                range_background.enabled = card.IsCharacter();
+            if (range_icon != null)
+                range_icon.enabled = card.IsCharacter();
             if (range != null)
-                range_icon.enabled = card.IsBoardCard();
+                range.enabled = card.IsCharacter();
 
             if (cost != null)
                 cost.text = card.mana.ToString();
@@ -114,11 +121,11 @@ namespace TcgEngine.UI
             if (range != null)
                 range.text = card.GetRange().ToString();
 
-            if (team_icon != null)
-            {
-                team_icon.sprite = card.team.icon;
-                team_icon.enabled = team_icon.sprite != null;
-            }
+            //if (team_icon != null)
+            //{
+            //    team_icon.sprite = card.team.icon;
+            //    team_icon.enabled = team_icon.sprite != null;
+            //}
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
@@ -133,8 +140,8 @@ namespace TcgEngine.UI
                 card_image.material = mat;
             if (frame_image != null)
                 frame_image.material = mat;
-            if (team_icon != null)
-                team_icon.material = mat;
+            //if (team_icon != null)
+            //    team_icon.material = mat;
             if (attack_icon != null)
                 attack_icon.material = mat;
             if (hp_icon != null)

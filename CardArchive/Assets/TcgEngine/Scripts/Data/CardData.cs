@@ -52,7 +52,7 @@ namespace TcgEngine
 
         [Header("Stats")]
         public CardType type;
-        public TeamData team;
+        //public TeamData team;
         public int mana;
         public int attack;
         public int hp;

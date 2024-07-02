@@ -19,7 +19,7 @@ namespace TcgEngine.UI
         public GameObject card_prefab;
 
         [Header("Left Side")]
-        public IconButton[] team_filters;
+        //public IconButton[] team_filters;
         public Toggle toggle_owned;
         public Toggle toggle_not_owned;
 
@@ -52,7 +52,7 @@ namespace TcgEngine.UI
         public GridLayoutGroup deck_grid;
         public IconButton[] hero_powers;
 
-        private TeamData filter_team = null;
+        //private TeamData filter_team = null;
         private int filter_dropdown = 0;
         private string filter_search = "";
 
@@ -87,8 +87,8 @@ namespace TcgEngine.UI
             foreach (DeckLine line in deck_lines)
                 line.onClickDelete += OnClickDeckDelete;
 
-            foreach (IconButton button in team_filters)
-                button.onClick += OnClickTeam;
+            //foreach (IconButton button in team_filters)
+            //    button.onClick += OnClickTeam;
         }
 
         protected override void Start()
@@ -103,11 +103,11 @@ namespace TcgEngine.UI
                 AbilityData iability = icard?.GetAbility(AbilityTrigger.Activate);
                 if (icard != null && hover != null && iability != null)
                 {
-                    string color = ColorUtility.ToHtmlStringRGBA(icard.team.color);
-                    hover.text = "<b><color=#" + color + ">Hero Power: </color>";
-                    hover.text += icard.title + "</b>\n " + iability.GetDesc(icard);
-                    if (iability.mana_cost > 0)
-                        hover.text += " <size=16>Mana: " + iability.mana_cost + "</size>";
+                    //string color = ColorUtility.ToHtmlStringRGBA(icard.team.color);
+                    //hover.text = "<b><color=#" + color + ">Hero Power: </color>";
+                    //hover.text += icard.title + "</b>\n " + iability.GetDesc(icard);
+                    //if (iability.mana_cost > 0)
+                    //    hover.text += " <size=16>Mana: " + iability.mana_cost + "</size>";
                 }
             }
         }
@@ -196,10 +196,10 @@ namespace TcgEngine.UI
         {
             search.text = "";
             sort_dropdown.value = 0;
-            foreach (IconButton button in team_filters)
-                button.Deactivate();
+            //foreach (IconButton button in team_filters)
+            //    button.Deactivate();
 
-            filter_team = null;
+            //filter_team = null;
             filter_dropdown = 0;
             filter_search = "";
         }
@@ -261,6 +261,7 @@ namespace TcgEngine.UI
                 if (card.card.deckbuilding)
                 {
                     CardData icard = card.card;
+                    /*
                     if (filter_team == null || filter_team == icard.team)
                     {
                         bool owned = card.quantity > 0;
@@ -295,6 +296,7 @@ namespace TcgEngine.UI
                         //    shown_cards.Add(card);
                         //}
                     }
+                    */
                 }
             }
 
@@ -575,7 +577,7 @@ namespace TcgEngine.UI
         }
 
         //---- Left Panel Filters Clicks -----------
-
+        /*
         public void OnClickTeam(IconButton button)
         {
             filter_team = null;
@@ -589,6 +591,7 @@ namespace TcgEngine.UI
             }
             RefreshCards();
         }
+        */
 
         public void OnChangeToggle()
         {
