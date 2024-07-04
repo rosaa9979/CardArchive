@@ -25,6 +25,7 @@ namespace TcgEngine
 
         [Header("Deckbuilding")]
         public int deck_size = 30;
+        public int club_size = 3;
         public int deck_duplicate_max = 2;
 
         [Header("Buy/Sell")]

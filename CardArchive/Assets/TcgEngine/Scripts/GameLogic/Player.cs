@@ -29,6 +29,7 @@ namespace TcgEngine
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
         public Card hero = null;
+        public List<Card> clubs = new List<Card>();
 
         public List<Card> cards_deck = new List<Card>();    //Cards in the player's deck
         public List<Card> cards_hand = new List<Card>();    //Cards in the player's hand
@@ -38,6 +39,7 @@ namespace TcgEngine
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area
         public List<Card> cards_temp = new List<Card>();    //Temporary cards that have just been created, not assigned to any zone yet
+
 
         public List<CardTrait> traits = new List<CardTrait>();              //Current persistant traits the cards has
         public List<CardTrait> ongoing_traits = new List<CardTrait>();      //Current ongoing traits the cards has
@@ -201,6 +203,11 @@ namespace TcgEngine
                     return card;
             }
             return null;
+        }
+
+        public ClubData GetClub(string id)
+        {
+            return ClubData.Get(id);
         }
 
         public bool IsOnBoard(Card card)

@@ -17,10 +17,10 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 60
-  team: {fileID: 0}
   mana: 1
   attack: 0
   hp: 0
+  clubs: []
   weapon_type: 0
   traits: []
   stats: []

@@ -34,6 +34,9 @@ namespace TcgEngine
         public List<CardTrait> traits = new List<CardTrait>();
         public List<CardTrait> ongoing_traits = new List<CardTrait>();
 
+        public List<CardClub> clubs = new List<CardClub>();
+        public List<CardClub> ongoing_clubs = new List<CardClub>();
+
         public List<CardStatus> status = new List<CardStatus>();
         public List<CardStatus> ongoing_status = new List<CardStatus>();
 
@@ -76,6 +79,7 @@ namespace TcgEngine
             range = icard.GetRange();
             
             SetTraits(icard);
+            SetClubs(icard);
             SetAbilities(icard);
         }
 
@@ -89,6 +93,13 @@ namespace TcgEngine
                 foreach (TraitStat stat in icard.stats)
                     SetTrait(stat.trait.id, stat.value);
             }
+        }
+
+        public void SetClubs(CardData icard)
+        {
+            clubs.Clear();
+            foreach (ClubData club in icard.clubs)
+                SetClub(club.id);
         }
 
         public void SetAbilities(CardData icard)
@@ -206,6 +217,48 @@ namespace TcgEngine
             all_traits.AddRange(traits);
             all_traits.AddRange(ongoing_traits);
             return all_traits;
+        }
+        
+        public void SetClub(string id)
+        {
+            CardClub club = GetClub(id);
+            if (club == null)
+            {
+                club = new CardClub(id);
+                clubs.Add(club);
+            }
+        }
+
+        public CardClub GetClub(string id)
+        {
+            foreach (CardClub club in clubs)
+            {
+                if (club.id == id)
+                    return club;
+            }
+            return null;
+        }
+
+        public CardClub GetOngoingClub(string id)
+        {
+            foreach (CardClub club in ongoing_clubs)
+            {
+                if (club.id == id)
+                    return club;
+            }
+            return null;
+        }
+        
+        public bool HasClub(ClubData club)
+        {
+            if (club != null)
+                return HasClub(club.id);
+            return false;
+        }
+
+        public bool HasClub(string id)
+        {
+            return GetClub(id) != null || GetOngoingClub(id) != null;
         }
         
         //Alternate names since traits/stats are stored in same var
@@ -466,7 +519,7 @@ namespace TcgEngine
             //   return false;
             //if (!skip_cost && exhausted)
             //    return false; //no more action
-            return true; 
+            return false; 
         }
 
         public virtual bool CanDoActivatedAbilities()
@@ -738,6 +791,63 @@ namespace TcgEngine
         }
 
         public static void CloneList(List<CardTrait> source, List<CardTrait> dest)
+        {
+            for (int i = 0; i < source.Count; i++)
+            {
+                if (i < dest.Count)
+                    Clone(source[i], dest[i]);
+                else
+                    dest.Add(CloneNew(source[i]));
+            }
+
+            if (dest.Count > source.Count)
+                dest.RemoveRange(source.Count, dest.Count - source.Count);
+        }
+    }
+
+    [System.Serializable]
+    public class CardClub
+    {
+        public string id;
+
+        [System.NonSerialized]
+        private ClubData data = null;
+
+        public CardClub(string id)
+        {
+            this.id = id;
+        }
+
+        public CardClub(ClubData club, int value)
+        {
+            this.id = club.id;
+        }
+
+        public ClubData ClubData
+        {
+            get
+            {
+                if (data == null || data.id != id)
+                    data = ClubData.Get(id);
+                return data;
+            }
+        }
+
+        public ClubData Data => ClubData; //Alternate name
+
+
+        public static CardClub CloneNew(CardClub copy)
+        {
+            CardClub status = new CardClub(copy.id);
+            return status;
+        }
+
+        public static void Clone(CardClub source, CardClub dest)
+        {
+            dest.id = source.id;
+        }
+
+        public static void CloneList(List<CardClub> source, List<CardClub> dest)
         {
             for (int i = 0; i < source.Count; i++)
             {

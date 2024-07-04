@@ -57,6 +57,9 @@ namespace TcgEngine
         public int attack;
         public int hp;
 
+        [Header("Club")]
+        public ClubData[] clubs;
+
         [Header("Weapon")]
         public WeaponType weapon_type;
 
@@ -230,6 +233,23 @@ namespace TcgEngine
         {
             if(trait != null)
                 return HasTrait(trait.id);
+            return false;
+        }
+
+        public bool HasClub(string club)
+        {
+            foreach (ClubData c in clubs)
+            {
+                if (c.id == club)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool HasClub(ClubData club)
+        {
+            if(club != null)
+                return HasClub(club.id);
             return false;
         }
 

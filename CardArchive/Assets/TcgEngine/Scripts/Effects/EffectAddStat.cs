@@ -39,17 +39,20 @@ namespace TcgEngine
                 target.hp += ability.value;
             if (type == EffectStatType.Mana)
                 target.mana += ability.value;
+            if (type == EffectStatType.Range)
+                target.range += ability.value;
         }
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            Debug.Log("Add attack");
             if (type == EffectStatType.Attack)
                 target.attack_ongoing += ability.value;
             if (type == EffectStatType.HP)
                 target.hp_ongoing += ability.value;
             if (type == EffectStatType.Mana)
                 target.mana_ongoing += ability.value;
+            if (type == EffectStatType.Range)
+                target.range_ongoing += ability.value;
         }
 
     }
@@ -60,5 +63,6 @@ namespace TcgEngine
         Attack = 10,
         HP = 20,
         Mana = 30,
+        Range = 40,
     }
 }

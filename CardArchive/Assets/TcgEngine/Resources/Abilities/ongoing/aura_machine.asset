@@ -10,16 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: detachment
+  m_Name: aura_machine
   m_EditorClassIdentifier: 
-  id: detachment
+  id: aura_machine
   trigger: 2
   conditions_trigger: []
-  target: 28
-  conditions_target: []
+  target: 10
+  conditions_target:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
+  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
+  - {fileID: 11400000, guid: 86b26ca3d37e53a448e73068cf9069b9, type: 2}
+  - {fileID: 11400000, guid: 3d2cef72580f00d45a4779fc891118e9, type: 2}
   status: []
   value: 1
   duration: 0

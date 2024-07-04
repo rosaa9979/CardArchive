@@ -226,7 +226,7 @@ namespace TcgEngine.Gameplay
 
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
-
+            
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
         }
@@ -579,6 +579,12 @@ namespace TcgEngine.Gameplay
             if (deck.hero != null)
             {
                 player.hero = Card.Create(deck.hero, variant, player);
+            }
+
+            if (deck.clubs.Count > 0)
+            {
+                foreach (CardData club in deck.clubs)
+                    player.clubs.Add(Card.Create(club, variant, player));
             }
 
             foreach (CardData card in deck.cards)
@@ -1548,6 +1554,8 @@ namespace TcgEngine.Gameplay
 
                 for (int c = 0; c < player.cards_hand.Count; c++)
                     player.cards_hand[c].ClearOngoing();
+                for (int c = 0; c < player.clubs.Count; c++)
+                    player.clubs[c].ClearOngoing();
             }
 
             for (int p = 0; p < game_data.players.Length; p++)
@@ -1570,6 +1578,12 @@ namespace TcgEngine.Gameplay
                 for (int c = 0; c < player.cards_attach.Count; c++)
                 {
                     Card card = player.cards_attach[c];
+                    UpdateOngoingAbilities(player, card);
+                }
+
+                for (int c = 0; c < player.clubs.Count; c++)
+                {
+                    Card card = player.clubs[c];
                     UpdateOngoingAbilities(player, card);
                 }
             }

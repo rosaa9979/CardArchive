@@ -82,6 +82,13 @@ namespace TcgEngine
             return dsc;
         }
 
+        public string GetDesc(ClubData club)
+        {
+            string dsc = desc;
+            dsc = dsc.Replace("<name>", club.title);
+            return dsc;
+        }
+
         //Generic condition for the ability to trigger
         public bool AreTriggerConditionsMet(Game data, Card caster)
         {
@@ -234,7 +241,6 @@ namespace TcgEngine
         {
             foreach (EffectData effect in effects)
             {
-                Debug.Log("Doongoingeffect");
                 effect?.DoOngoingEffect(logic, this, caster, target);
             }
             foreach (StatusData stat in status)

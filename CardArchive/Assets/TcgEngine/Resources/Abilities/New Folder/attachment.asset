@@ -21,7 +21,7 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
   status: []
-  value: 0
+  value: 1
   duration: 0
   chain_abilities: []
   mana_cost: 0

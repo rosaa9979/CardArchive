@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: detachment
+  m_Name: Engineering_Department
   m_EditorClassIdentifier: 
-  id: detachment
-  title: detachment
+  id: Engineering_Department
+  title: "\uC5D4\uC9C0\uB2C8\uC5B4\uBD80"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 60
-  mana: 1
+  type: 0
+  mana: 0
   attack: 0
   hp: 0
   clubs: []
@@ -25,9 +25,9 @@ MonoBehaviour:
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: 83a3eb43feefff44ca8ee9906bccecd2, type: 2}
-  text: 
-  desc: 
+  - {fileID: 11400000, guid: 820cf0c1e9072d94d96f3b273410889b, type: 2}
+  text: "\uC5D4\uC9C0\uB2C8\uC5B4 \uBD80\uC6D0 \uC218\uB9CC\uD07C +1 / +1"
+  desc: "\uC5D4\uC9C0\uB2C8\uC5B4 \uBD80\uC6D0 \uC218\uB9CC\uD07C +1 / +1"
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

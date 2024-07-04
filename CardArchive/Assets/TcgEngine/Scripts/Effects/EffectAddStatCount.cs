@@ -17,7 +17,8 @@ namespace TcgEngine
 
         [Header("Count Traits")]
         public CardType has_type;
-        //public TeamData has_team;
+        //public TeamData has_club;
+        public ClubData has_club;
         public TraitData has_trait;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
@@ -47,6 +48,8 @@ namespace TcgEngine
                 target.hp += val;
             if (type == EffectStatType.Mana)
                 target.mana += val;
+            if (type == EffectStatType.Range)
+                target.range += val;
         }
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
@@ -58,6 +61,8 @@ namespace TcgEngine
                 target.hp_ongoing += val;
             if (type == EffectStatType.Mana)
                 target.mana_ongoing += val;
+            if (type == EffectStatType.Range)
+                target.range_ongoing += val;
         }
 
         private int GetCount(Game data, Card caster)
@@ -107,10 +112,10 @@ namespace TcgEngine
         private bool IsTrait(Card card)
         {
             bool is_type = card.CardData.type == has_type || has_type == CardType.None;
-            //bool is_team = card.CardData.team == has_team || has_team == null;
+            bool is_club = card.HasClub(has_club) || has_club == null;
             bool is_trait = card.HasTrait(has_trait) || has_trait == null;
             //return (is_type && is_team && is_trait);
-            return (is_type && is_trait);
+            return (is_type && is_club && is_trait);
         }
     }
 }
