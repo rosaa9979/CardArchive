@@ -123,8 +123,8 @@ namespace TcgEngine
                     return false;
 
                 Card target = GetSlotCard(slot);
-                if (target == null || target.CardData.type != CardType.Character || target.player_id != card.player_id)
-                    return false; //Target must be an allied character
+                if (target == null || target.CardData.type != CardType.Citizen || target.player_id != card.player_id)
+                    return false; //Target must be an allied citizen
 
                 return true;
             }
@@ -172,7 +172,7 @@ namespace TcgEngine
             if (attacker.player_id == target.player_id)
                 return false; //Cant attack same player
 
-            if (!IsOnBoard(attacker) || !attacker.CardData.IsCharacter())
+            if (!IsOnBoard(attacker) || !attacker.CardData.IsCitizen())
                 return false; //Cards not on board
 
             if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
@@ -196,8 +196,8 @@ namespace TcgEngine
             if (!IsOnBoard(attacker) || !IsOnBoard(target))
                 return false; //Cards not on board
 
-            if (!attacker.CardData.IsCharacter() || !target.CardData.IsBoardCard())
-                return false; //Only character can attack
+            if (!attacker.CardData.IsCitizen() || !target.CardData.IsBoardCard())
+                return false; //Only citizen can attack
 
             if (target.HasStatus(StatusType.Stealth))
                 return false; //Stealth cant be attacked
@@ -222,8 +222,8 @@ namespace TcgEngine
             if (!IsOnBoard(attacker) || !IsOnBoard(target))
                 return false; //Cards not on board
 
-            //if (!attacker.CardData.IsCharacter() || !target.CardData.IsBoardCard())
-            //    return false; //Only character can attack
+            //if (!attacker.CardData.IsCitizen() || !target.CardData.IsBoardCard())
+            //    return false; //Only citizen can attack
 
             //if (target.HasStatus(StatusType.Stealth))
             //    return false; //Stealth cant be attacked
@@ -250,8 +250,8 @@ namespace TcgEngine
                 if (!IsOnBoard(attacker) || !IsOnBoard(targ))
                     continue; //Cards not on board
 
-                //if (!attacker.CardData.IsCharacter() || !targ.CardData.IsBoardCard())
-                //    return false; //Only charcter can attacka
+                //if (!attacker.CardData.IsCitizen() || !targ.CardData.IsBoardCard())
+                //    return false; //Only citizen can attacka
 
                 if (targ.HasStatus(StatusType.Stealth))
                     continue; //Stealth cant be attacked

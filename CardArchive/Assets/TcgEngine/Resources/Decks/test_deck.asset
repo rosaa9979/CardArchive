@@ -16,25 +16,20 @@ MonoBehaviour:
   title: Test Deck
   hero: {fileID: 11400000, guid: cf170aea7ffb041428f37608f1561058, type: 2}
   cards:
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
-  - {fileID: 11400000, guid: 1e22d4647e903814d96f63a729e1f820, type: 2}
   - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
   - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
   - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
   - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
   - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
-  - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
-  - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
-  - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
-  - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
-  - {fileID: 11400000, guid: 99081d84b6aa6264aa1c68c6defbe31d, type: 2}
+  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}

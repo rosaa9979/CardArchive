@@ -23,7 +23,7 @@ namespace TcgEngine.UI
         public Toggle toggle_owned;
         public Toggle toggle_not_owned;
 
-        public Toggle toggle_character;
+        public Toggle toggle_citizen;
         public Toggle toggle_spell;
         public Toggle toggle_building;
         public Toggle toggle_equipment;
@@ -272,12 +272,12 @@ namespace TcgEngine.UI
                             || (!owned && toggle_not_owned.isOn)
                             || toggle_owned.isOn == toggle_not_owned.isOn;
 
-                        bool type_check = (type == CardType.Character && toggle_character.isOn)
+                        bool type_check = (type == CardType.Citizen && toggle_citizen.isOn)
                             || (type == CardType.Spell && toggle_spell.isOn)
                             || (type == CardType.Building && toggle_building.isOn)
                             || (type == CardType.Equipment && toggle_equipment.isOn)
                             || (type == CardType.Secret && toggle_secret.isOn)
-                            || (!toggle_character.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);
+                            || (!toggle_citizen.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);
 
                         //bool rarity_check = (rarity.rank == 1 && toggle_common.isOn)
                         //    || (rarity.rank == 2 && toggle_uncommon.isOn)

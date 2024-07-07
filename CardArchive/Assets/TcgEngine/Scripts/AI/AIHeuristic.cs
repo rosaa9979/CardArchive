@@ -181,7 +181,7 @@ namespace TcgEngine.AI
             if (order.type == GameAction.AttackPlayer)
                 type_sort = 5; //Player attacks fifth
             if (order.type == GameAction.PlayCard && !is_spell)
-                type_sort = 7; //Play Characters last
+                type_sort = 7; //Play Citizens last
 
             int card_sort = card != null ? (card.Hash % 100) : 0;
             int target_sort = target != null ? (target.Hash % 100) : 0;

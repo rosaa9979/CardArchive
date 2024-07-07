@@ -34,7 +34,7 @@ namespace TcgEngine
         public List<Card> cards_deck = new List<Card>();    //Cards in the player's deck
         public List<Card> cards_hand = new List<Card>();    //Cards in the player's hand
         public List<Card> cards_board = new List<Card>();   //Cards on the board
-        public List<Card> cards_equip = new List<Card>();   //Cards equipped by characters
+        public List<Card> cards_equip = new List<Card>();   //Cards equipped by citizens
         public List<Card> cards_attach = new List<Card>(); //Cards in the player's attachment
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area

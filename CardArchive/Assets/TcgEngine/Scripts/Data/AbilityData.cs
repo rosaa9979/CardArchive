@@ -666,7 +666,7 @@ namespace TcgEngine
 
         PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)      
         AbilityTriggerer = 25,   //The card that triggered the trap
-        EquippedCard = 27,       //If equipment, the bearer, if character, the item equipped
+        EquippedCard = 27,       //If equipment, the bearer, if citizen, the item equipped
         AttachedSlot = 28,
 
         SelectTarget = 30,        //Select a card, player or slot on board

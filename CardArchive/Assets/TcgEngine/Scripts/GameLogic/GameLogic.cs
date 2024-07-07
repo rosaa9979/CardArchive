@@ -1073,7 +1073,6 @@ namespace TcgEngine.Gameplay
                     attachment.slot = slot;
                 }
             }
-
         }
 
         public virtual void DetachAll(Slot slot)
@@ -1159,7 +1158,7 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Invincibility))
                 return; //Invincible
 
-            if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Character)
+            if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Citizen)
                 return; //Spell immunity
 
             //Shell
@@ -1193,7 +1192,7 @@ namespace TcgEngine.Gameplay
             target.RemoveStatus(StatusType.Sleep);
 
             //Deathtouch
-            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Character)
+            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Citizen)
                 KillCard(attacker, target);
 
             //Kill card if no hp

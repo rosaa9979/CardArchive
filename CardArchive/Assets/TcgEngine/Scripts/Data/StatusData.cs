@@ -21,7 +21,7 @@ namespace TcgEngine
         Armor = 16,         //Receives less damage
         SpellImmunity = 18, //Cant be targeted/damaged by spells
 
-        Deathtouch = 20,    //Kills when attacking a character
+        Deathtouch = 20,    //Kills when attacking a citizen
         Fury = 22,          //Can attack twice per turn
         Intimidate = 23,    //Target doesnt counter when attacking
         Flying = 24,         //Can ignore taunt

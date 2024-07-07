@@ -89,7 +89,7 @@ namespace TcgEngine
             foreach (char c in Path.GetInvalidFileNameChars())
             {
                 if (filename.Contains(c.ToString()))
-                    return false; //Dont allow any special characters
+                    return false; //Dont allow any special citizens
             }
             return true;
         }

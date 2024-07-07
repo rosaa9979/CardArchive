@@ -88,9 +88,9 @@ namespace TcgEngine.UI
                 card_text.text = card.GetText();
 
             if (attack_icon != null)
-                attack_icon.enabled = card.IsCharacter();
+                attack_icon.enabled = card.IsCitizen();
             if (attack != null)
-                attack.enabled = card.IsCharacter();
+                attack.enabled = card.IsCitizen();
             if (hp_icon != null)
                 hp_icon.enabled = card.IsBoardCard() || card.IsEquipment();
             if (hp != null)
@@ -100,15 +100,15 @@ namespace TcgEngine.UI
             if (cost != null)
                 cost.enabled = card.type != CardType.Hero;
             if (weapon_icon != null)
-                weapon_icon.enabled = card.IsCharacter();
+                weapon_icon.enabled = card.IsCitizen();
             if (weapon_type != null)
-                weapon_type.enabled = card.IsCharacter();
+                weapon_type.enabled = card.IsCitizen();
             if (range_background != null)
-                range_background.enabled = card.IsCharacter();
+                range_background.enabled = card.IsCitizen();
             if (range_icon != null)
-                range_icon.enabled = card.IsCharacter();
+                range_icon.enabled = card.IsCitizen();
             if (range != null)
-                range.enabled = card.IsCharacter();
+                range.enabled = card.IsCitizen();
 
             if (cost != null)
                 cost.text = card.mana.ToString();

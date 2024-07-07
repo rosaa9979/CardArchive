@@ -310,6 +310,42 @@ namespace TcgEngine
             return neighbor_slots;
         }
 
+        public List<Slot> GetNeighborSlot(int range)
+        {
+            HashSet<Slot> visited = new HashSet<Slot>();
+            List<Slot> neighbor_slot = new List<Slot>();
+            Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
+
+            // 시작 슬롯과 거리 0을 큐에 삽입
+            queue.Enqueue((new Slot(x, y, p), 0));
+            visited.Add(new Slot(x, y, p));
+            neighbor_slot.Add(new Slot(x, y, p));
+
+            while (queue.Count > 0)
+            {
+                // 현재 슬롯과 거리 정보를 큐에서 꺼냄
+                var (currentSlot, currentDistance) = queue.Dequeue();
+
+                // 현재 거리가 범위를 초과하면 탐색 중단
+                if (currentDistance > range - 1)
+                    continue;
+
+                // 현재 슬롯의 모든 이웃 슬롯 탐색
+                foreach (var neighbor in currentSlot.GetNeighborSlot())
+                {
+                    // 이웃 슬롯이 방문하지 않았다면
+                    if (!visited.Contains(neighbor))
+                    {
+                        visited.Add(neighbor);
+                        neighbor_slot.Add(neighbor);
+                        queue.Enqueue((neighbor, currentDistance + 1));
+                    }
+                }
+            }
+
+            return neighbor_slot;
+        } 
+
         public Dictionary<int, List<Slot>> GetRangeSlot(int range)
         {
             HashSet<Slot> visited = new HashSet<Slot>();

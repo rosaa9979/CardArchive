@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
-  m_Name: is_character
+  m_Script: {fileID: 11500000, guid: 6387beb9a48f723469e5bb1532d7f51f, type: 3}
+  m_Name: summon_thundergun
   m_EditorClassIdentifier: 
-  has_type: 10
-  has_team: 0
-  oper: 0
+  summon: {fileID: 11400000, guid: 3fde7551cb5c9664bb7c551bff049aeb, type: 2}
