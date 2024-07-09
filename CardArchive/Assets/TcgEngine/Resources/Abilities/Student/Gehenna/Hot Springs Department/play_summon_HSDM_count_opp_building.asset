@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: play_summon_thundergun
+  m_Name: play_summon_HSDM_count_opp_building
   m_EditorClassIdentifier: 
-  id: play_summon_thundergun
-  trigger: 10
-  conditions_trigger: []
-  target: 30
+  id: play_summon_HSDM_count_opp_building
+  trigger: 0
+  conditions_trigger:
+  - {fileID: 11400000, guid: a90415b86dadf4b4abf0ee0599fde320, type: 2}
+  target: 15
   conditions_target:
   - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
-  - {fileID: 11400000, guid: 0d5d806335e533048a36ec0d0af3435b, type: 2}
   - {fileID: 11400000, guid: 24455e8381a12484d927dd9dfe5ee5a3, type: 2}
-  filters_target: []
+  filters_target:
+  - {fileID: 11400000, guid: e4f42d39761c0bb448bcb7b21e427e41, type: 2}
   effects:
-  - {fileID: 11400000, guid: a23ee22ac5413064794d306ea5eb69ba, type: 2}
+  - {fileID: 11400000, guid: d529ff1213364634bba65eefce073798, type: 2}
   status: []
   value: 0
   duration: 0

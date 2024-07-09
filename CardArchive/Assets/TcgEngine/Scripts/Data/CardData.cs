@@ -7,6 +7,7 @@ namespace TcgEngine
     {
         None = 0,
         Hero = 5,
+        Club = 7,
         Citizen = 10,
         Spell = 20,
         Building = 30,

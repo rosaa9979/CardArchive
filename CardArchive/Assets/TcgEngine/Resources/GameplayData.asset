@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameplayData
   m_EditorClassIdentifier: 
   hp_start: 20
-  mana_start: 2
+  mana_start: 10
   mana_per_turn: 1
   mana_max: 10
   cards_start: 5
@@ -22,6 +22,7 @@ MonoBehaviour:
   turn_duration: 60
   second_bonus: {fileID: 11400000, guid: 9503f60659f1df04eb3dd7fa925885fb, type: 2}
   deck_size: 20
+  club_size: 3
   deck_duplicate_max: 2
   sell_ratio: 0.8
   ai_type: 0

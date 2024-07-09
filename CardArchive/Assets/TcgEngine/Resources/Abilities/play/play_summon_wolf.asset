@@ -15,7 +15,7 @@ MonoBehaviour:
   id: play_summon_wolf
   trigger: 10
   conditions_trigger: []
-  target: 15
+  target: 30
   conditions_target:
   - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}

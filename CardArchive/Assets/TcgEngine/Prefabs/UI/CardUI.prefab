@@ -483,18 +483,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 60c034825564ff844a40e633765c3064, type: 3}
-    m_FontSize: 30
+    m_FontSize: 25
     m_FontStyle: 0
     m_BestFit: 1
-    m_MinSize: 1
-    m_MaxSize: 30
+    m_MinSize: 0
+    m_MaxSize: 25
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
-  m_Text: "'\uD5E4\uC77C\uB85C\uB97C \uD30C\uAD34\uD558\uB294' \uD3ED\uD0C4\uC744
+  m_Text: "'\uD5E4\uC77C\uB85C\uB97C \uD30C\uAD34\uD558\uB294 <b>\uD3ED\uD0C4</b>'\uC744
     \uAC00\uC838\uC635\uB2C8\uB2E4."
 --- !u!1 &1381664514515420532
 GameObject:

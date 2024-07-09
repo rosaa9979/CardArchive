@@ -201,12 +201,14 @@ namespace TcgEngine
         public string attacker_uid;
         public string target_uid;
         public int damage;
+        public bool addition_attack;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref attacker_uid);
             serializer.SerializeValue(ref target_uid);
             serializer.SerializeValue(ref damage);
+            serializer.SerializeValue(ref addition_attack);
         }
     }
 

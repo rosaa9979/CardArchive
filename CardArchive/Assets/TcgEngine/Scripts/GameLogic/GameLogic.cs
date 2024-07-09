@@ -33,7 +33,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<AbilityData, Card, Slot> onAbilityTargetSlot;
         public UnityAction<AbilityData, Card> onAbilityEnd;
 
-        public UnityAction<Card, Card> onAttackStart;  //Attacker, Defender
+        public UnityAction<Card, Card, bool> onAttackStart;  //Attacker, Defender
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
@@ -257,6 +257,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackSearch(Card attacker, bool skip_cost)
         {
+            bool addition_attack = false;
             Player player = game_data.GetActivePlayer();
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -269,8 +270,18 @@ namespace TcgEngine.Gameplay
                 if (attacker.GetWeaponType() != WeaponType.MG)
                 {
                     AttackTarget(attacker, target);
-                    List<Card> addition_target = GetAdditionalTarget(attacker, target[0]);
-                    AttackTarget(attacker, addition_target);
+                    
+                    if (attacker.CanAdditionAttack())
+                    {
+                        addition_attack = true;
+                        
+                    /*
+                        attacker.addition_attack = true;
+                        List<Card> addition_target = GetAdditionalTarget(attacker, target[0]);
+                        AttackTarget(attacker, addition_target, additional_attack: true);
+                    */
+                    }
+                    
                 }
                 else
                 {
@@ -306,6 +317,28 @@ namespace TcgEngine.Gameplay
             ExhaustBattle(attacker);
             
             RefreshData();
+
+            if (addition_attack)
+            {
+                resolve_queue.AddCallback(attacker, target[0], AdditionalAttack);
+                resolve_queue.ResolveAll(0.2f);
+            }
+            else
+            {
+                resolve_queue.AddCallback(AttackCheck);
+                resolve_queue.ResolveAll(0.2f);
+            }
+        }
+
+        public virtual void AdditionalAttack(Card attacker, Card target)
+        {
+            Debug.Log("additional attack : "+attacker.addition_attack);
+            attacker.addition_attack = true;
+            Debug.Log("additional attack : "+attacker.addition_attack);
+            
+            List<Card> addition_target = GetAdditionalTarget(attacker, target);
+            AttackTarget(attacker, addition_target, additional_attack: true);
+
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll(0.2f);
         }
@@ -750,7 +783,7 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
+        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false, bool additional_attack = false)
         {
             Player player = game_data.GetPlayer(attacker.player_id);
             if(!is_ai_predict)
@@ -763,11 +796,11 @@ namespace TcgEngine.Gameplay
             TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
 
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost, additional_attack);
             resolve_queue.ResolveAll();
         }
 
-        public virtual void AttackTarget(Card attacker, List<Card> target, bool skip_cost = false)
+        public virtual void AttackTarget(Card attacker, List<Card> target, bool skip_cost = false, bool additional_attack = false)
         {
             if (target.Count > 0)
             {
@@ -784,31 +817,36 @@ namespace TcgEngine.Gameplay
                     TriggerSecrets(AbilityTrigger.OnBeforeDefend, targ);
 
                     //Resolve attack
-                    resolve_queue.AddAttack(attacker, targ, ResolveAttack, skip_cost);
+                    resolve_queue.AddAttack(attacker, targ, ResolveAttack, skip_cost, additional_attack);
                     resolve_queue.ResolveAll();
                 }
             }
         }
 
-        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
+        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost, bool additional_attack)
         {
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            onAttackStart?.Invoke(attacker, target);
+            onAttackStart?.Invoke(attacker, target, additional_attack);
 
             attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
-            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost, additional_attack);
             resolve_queue.ResolveAll(0.3f);
         }
 
-        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
+        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost, bool additional_attack)
         {
             //Count attack damage
             int datt1 = attacker.GetAttack();
             int datt2 = target.GetAttack();
+
+            Player player = game_data.GetPlayer(attacker.player_id);
+
+            if (attacker.addition_attack && (attacker.GetWeaponType() != WeaponType.FT))
+                datt1 = (int)Mathf.Floor((float)datt1 / 2.0f);
 
             //Damage Cards
             DamageCard(attacker, target, datt1);
@@ -843,7 +881,7 @@ namespace TcgEngine.Gameplay
             resolve_queue.ResolveAll(0.2f);
         }
 
-        public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
+        public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false, bool additional_attack = false)
         {
             if (attacker == null || target == null)
                 return;
@@ -860,11 +898,11 @@ namespace TcgEngine.Gameplay
             TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
 
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost, additional_attack);
             resolve_queue.ResolveAll();
         }
 
-        protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
+        protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost, bool additional_attack)
         {
             if (!game_data.IsOnBoard(attacker))
                 return;
@@ -874,11 +912,11 @@ namespace TcgEngine.Gameplay
             attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
-            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost, additional_attack);
             resolve_queue.ResolveAll(0.3f);
         }
 
-        protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
+        protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost, bool additional_attack)
         {
             DamagePlayer(attacker, target, attacker.GetAttack());
 
@@ -921,6 +959,7 @@ namespace TcgEngine.Gameplay
                     att.ptarget = null;
                     att.callback = ResolveAttack;
                     att.pcallback = null;
+                    att.scallback = null;
                 }
             }
         }
@@ -935,6 +974,7 @@ namespace TcgEngine.Gameplay
                     att.target = null;
                     att.pcallback = ResolveAttackPlayer;
                     att.callback = null;
+                    att.scallback = null;
                 }
             }
         }

@@ -61,7 +61,7 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool> callback, bool skip_cost = false)
+        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool, bool> callback, bool skip_cost = false, bool additional_attack = false)
         {
             if (attacker != null && target != null)
             {
@@ -70,12 +70,13 @@ namespace TcgEngine
                 elem.target = target;
                 elem.ptarget = null;
                 elem.skip_cost = skip_cost;
+                elem.additional_attack = additional_attack;
                 elem.callback = callback;
                 attack_queue.Enqueue(elem);
             }
         }
 
-        public virtual void AddAttack(Card attacker, Player target, Action<Card, Player, bool> callback, bool skip_cost = false)
+        public virtual void AddAttack(Card attacker, Player target, Action<Card, Player, bool, bool> callback, bool skip_cost = false, bool additional_attack = false)
         {
             if (attacker != null && target != null)
             {
@@ -98,6 +99,7 @@ namespace TcgEngine
                 elem.target = null;
                 elem.ptarget = null;
                 elem.skip_cost = skip_cost;
+                elem.additional_attack = false;
                 elem.scallback = callback;
                 attack_queue.Enqueue(elem);
             }
@@ -122,6 +124,22 @@ namespace TcgEngine
             {
                 CallbackQueueElement elem = callback_elem_pool.Create();
                 elem.callback = callback;
+                elem.acallback = null;
+                elem.attacker = null;
+                elem.target = null;
+                callback_queue.Enqueue(elem);
+            }
+        }
+
+        public virtual void AddCallback(Card attacker, Card target, Action<Card, Card> callback)
+        {
+            if (callback != null)
+            {
+                CallbackQueueElement elem = callback_elem_pool.Create();
+                elem.callback = null;
+                elem.acallback = callback;
+                elem.attacker = attacker;
+                elem.target = target;               
                 callback_queue.Enqueue(elem);
             }
         }
@@ -148,9 +166,9 @@ namespace TcgEngine
                 AttackQueueElement elem = attack_queue.Dequeue();
                 attack_elem_pool.Dispose(elem);
                 if (elem.ptarget != null)
-                    elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost);
+                    elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost, elem.additional_attack);
                 else if (elem.target != null)
-                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost);
+                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost, elem.additional_attack);
                 else
                     elem.scallback?.Invoke(elem.attacker, elem.skip_cost);
             }
@@ -158,7 +176,10 @@ namespace TcgEngine
             {
                 CallbackQueueElement elem = callback_queue.Dequeue();
                 callback_elem_pool.Dispose(elem);
-                elem.callback.Invoke();
+                if (elem.target != null)
+                    elem.acallback?.Invoke(elem.attacker, elem.target);
+                else
+                    elem.callback.Invoke();
             }
         }
 
@@ -253,8 +274,9 @@ namespace TcgEngine
         public Card target;
         public Player ptarget;
         public bool skip_cost;
-        public Action<Card, Card, bool> callback;
-        public Action<Card, Player, bool> pcallback;
+        public bool additional_attack;
+        public Action<Card, Card, bool, bool> callback;
+        public Action<Card, Player, bool, bool> pcallback;
         public Action<Card, bool> scallback;
     }
 
@@ -268,6 +290,9 @@ namespace TcgEngine
 
     public class CallbackQueueElement
     {
+        public Card attacker;
+        public Card target;
         public Action callback;
+        public Action<Card, Card> acallback;
     }
 }

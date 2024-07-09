@@ -737,12 +737,13 @@ namespace TcgEngine.Server
             SendToAll(GameAction.ValueRolled, mdata, NetworkDelivery.Reliable);
         }
 
-        protected virtual void OnAttackStart(Card attacker, Card target)
+        protected virtual void OnAttackStart(Card attacker, Card target, bool addition_attack)
         {
             MsgAttack mdata = new MsgAttack();
             mdata.attacker_uid = attacker.uid;
             mdata.target_uid = target.uid;
             mdata.damage = 0;
+            mdata.addition_attack = addition_attack;
             SendToAll(GameAction.AttackStart, mdata, NetworkDelivery.Reliable);
         }
 
