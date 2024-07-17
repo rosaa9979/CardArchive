@@ -8,11 +8,11 @@ namespace TcgEngine
     /// <summary>
     /// Effect that sets stats equal to a dynamic calculated value from a pile (number of cards on board/hand/deck)
     /// </summary>
-    
-    [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/AddStatCount", order = 10)]
-    public class EffectAddStatCount : EffectData
+
+    [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/DamageCount", order = 10)]
+    public class EffectDamageCount : EffectData
     {
-        public EffectStatType type;
+        public TraitData bonus_damage;
 
         [Header("Count Traits")]
         public PileType pile;
@@ -26,50 +26,27 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            int val = GetCount(logic.GetGameData(), caster) * ability.value;
-            if (type == EffectStatType.HP)
-            {
-                target.hp += val;
-                target.hp_max += ability.value;
-            }
-
-            if (type == EffectStatType.Mana)
-            {
-                target.mana += val;
-                target.mana_max += val;
-                target.mana = Mathf.Max(target.mana, 0);
-                target.mana_max = Mathf.Clamp(target.mana_max, 0, GameplayData.Get().mana_max);
-            }
+            int damage = GetDamage(logic.GameData, caster, GetCount(logic.GetGameData(), caster) * ability.value);
+            logic.DamagePlayer(caster, target, damage);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            int val = GetCount(logic.GetGameData(), caster) * ability.value;
-            if (type == EffectStatType.Attack)
-                target.attack += val;
-            if (type == EffectStatType.HP)
-                target.hp += val;
-            if (type == EffectStatType.Mana)
-                target.mana += val;
-            if (type == EffectStatType.Range)
-                target.range += val;
+            int damage = GetDamage(logic.GameData, caster, GetCount(logic.GetGameData(), caster) * ability.value);
+            Debug.Log(damage);
+            logic.DamageCard(caster, target, damage, true);
         }
 
-        public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
+        private int GetDamage(Game data, Card caster, int value)
         {
-            int val = GetCount(logic.GetGameData(), caster) * ability.value;
-            if (type == EffectStatType.Attack)
-                target.attack_ongoing += val;
-            if (type == EffectStatType.HP)
-                target.hp_ongoing += val;
-            if (type == EffectStatType.Mana)
-                target.mana_ongoing += val;
-            if (type == EffectStatType.Range)
-                target.range_ongoing += val;
+            Player player = data.GetPlayer(caster.player_id);
+            int damage = value + caster.GetTraitValue(bonus_damage) + player.GetTraitValue(bonus_damage);
+            return damage;
         }
 
         private int GetCount(Game data, Card caster)
         {
+            Debug.Log("in");
             Player p = data.GetPlayer(caster.player_id);
             Player op = data.GetOpponentPlayer(p.player_id);
 
@@ -129,12 +106,5 @@ namespace TcgEngine
             //return (is_type && is_team && is_trait);
             return (is_type && is_club && is_trait);
         }
-    }
-
-    public enum EffectPlayerType
-    {
-        All = 0,
-        Player = 10,
-        Opponent = 20,
     }
 }

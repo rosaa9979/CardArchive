@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -33,7 +34,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<AbilityData, Card, Slot> onAbilityTargetSlot;
         public UnityAction<AbilityData, Card> onAbilityEnd;
 
-        public UnityAction<Card, Card, bool> onAttackStart;  //Attacker, Defender
+        public UnityAction<Card, Card> onAttackStart;  //Attacker, Defender
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
@@ -55,6 +56,9 @@ namespace TcgEngine.Gameplay
         private ListSwap<Slot> slot_array = new ListSwap<Slot>();
         private ListSwap<CardData> card_data_array = new ListSwap<CardData>();
         private List<Card> cards_to_clear = new List<Card>();
+
+        private Queue<Card> attack_list = new Queue<Card>();
+        private bool is_player_attacked = false;
 
         public GameLogic(bool is_ai)
         {
@@ -233,183 +237,177 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackCheck()
         {
+            Debug.Log("Attack Check Start");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Attack)
                 return;
-
             
             Player player = game_data.GetActivePlayer();
+            bool can_attack = false;
 
-            foreach (Card bcard in player.cards_board)
+            attack_list.Clear(); 
+            is_player_attacked = false;
+
+            foreach (Card attacker in player.cards_board)
             {
-                if (bcard.CanAttack())
+                if (attacker.CanAttack())
                 {
-                    resolve_queue.AddAttack(bcard, AttackSearch);
-                    resolve_queue.ResolveAll();
-                    return;
+                    can_attack = true;
+                    resolve_queue.AddAttack(attacker, AttackSearch);
+                    resolve_queue.ResolveAll(0.2f);
+                    break;
                 }
             }
 
-            resolve_queue.AddCallback(EndTurn);
-            resolve_queue.ResolveAll(0.2f);
+            if (!can_attack)
+            {
+                resolve_queue.AddCallback(EndTurn);
+                resolve_queue.ResolveAll(0.2f);
+            }
+
         }
 
-        public virtual void AttackSearch(Card attacker, bool skip_cost)
+        public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
-            bool addition_attack = false;
-            Player player = game_data.GetActivePlayer();
+            Debug.Log("Attack Search Start");
+
+            Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
             Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
-            List<Card> target = GetCanAttackTarget(attacker);
-            
-
-            if (target.Count > 0)
-            {
-                if (attacker.GetWeaponType() != WeaponType.MG)
-                {
-                    AttackTarget(attacker, target);
-                    
-                    if (attacker.CanAdditionAttack())
-                    {
-                        addition_attack = true;
-                        
-                    /*
-                        attacker.addition_attack = true;
-                        List<Card> addition_target = GetAdditionalTarget(attacker, target[0]);
-                        AttackTarget(attacker, addition_target, additional_attack: true);
-                    */
-                    }
-                    
-                }
-                else
-                {
-                    List<Card> MG_target = new List<Card>();
-                    foreach (Card targ in target)
-                    {
-                        double pos = random.NextDouble();
-                        if (pos < 1)
-                            MG_target.Add(targ);
-                    }
-                    AttackTarget(attacker, MG_target);
-                }
-
-            }
-            else
-            {
-                List<Slot> OpponentSelf = Slot.GetPlayerSelf(oplayer.player_id);
-                List<Slot> slots = new List<Slot>();
-
-                foreach (var dis in range_slot.Keys)
-                    slots.AddRange(range_slot[dis]);
-                
-                foreach (Slot slot in slots)
-                {
-                    if (OpponentSelf.Contains(slot))
-                    {
-                        AttackPlayer(attacker, oplayer);
-                        break;
-                    }
-                }
-            }
-            
-            ExhaustBattle(attacker);
-            
-            RefreshData();
-
-            if (addition_attack)
-            {
-                resolve_queue.AddCallback(attacker, target[0], AdditionalAttack);
-                resolve_queue.ResolveAll(0.2f);
-            }
-            else
-            {
-                resolve_queue.AddCallback(AttackCheck);
-                resolve_queue.ResolveAll(0.2f);
-            }
-        }
-
-        public virtual void AdditionalAttack(Card attacker, Card target)
-        {
-            Debug.Log("additional attack : "+attacker.addition_attack);
-            attacker.addition_attack = true;
-            Debug.Log("additional attack : "+attacker.addition_attack);
-            
-            List<Card> addition_target = GetAdditionalTarget(attacker, target);
-            AttackTarget(attacker, addition_target, additional_attack: true);
-
-            resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(0.2f);
-        }
-        
-        
-        public virtual List<Card> GetCanAttackTarget(Card attacker)
-        {
-            Player player = game_data.GetActivePlayer();
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
             List<Card> candidate_target = new List<Card>();
-            List<Card> target = new List<Card>();
 
-            if (attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.H2H)
+            if (attacker.GetWeaponType() == WeaponType.H2H || attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.FT)
+            {
                 candidate_target = GetNearestTarget(attacker);
 
-            else if (attacker.GetWeaponType() == WeaponType.AR || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL || attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.FT)
+                if (candidate_target.Count != 0)
+                {
+                    int randomIdx = random.Next(0, candidate_target.Count);
+                    attack_list.Enqueue(candidate_target[randomIdx]);
+                }
+
+            }
+
+            else if (attacker.GetWeaponType() == WeaponType.AR || attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
+            {
                 candidate_target = GetAllTarget(attacker);
 
-            else if (attacker.GetWeaponType() == WeaponType.MG)
-                return GetAllTarget(attacker);
+                if (candidate_target.Count != 0)
+                {
+                    int randomIdx = random.Next(0, candidate_target.Count);
+                    attack_list.Enqueue(candidate_target[randomIdx]);
+                }
 
+            }
 
             else if (attacker.GetWeaponType() == WeaponType.SR)
             {
-                List<Card> sr_target = GetAllTarget(attacker);
-                candidate_target = new List<Card>();
-                int lowest_health = 99999;
-                if (sr_target.Count > 0)
+                candidate_target = GetAllTarget(attacker);
+
+                if (candidate_target.Count != 0)
                 {
-                    foreach (Card candidate in sr_target)
+                    int minHP = candidate_target.Min(card => card.GetHP());
+                    List<Card> lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
+                    int randomIdx = random.Next(0, lowestHPCards.Count);
+                    attack_list.Enqueue(lowestHPCards[randomIdx]);
+                }
+
+            }
+
+            else if (attacker.GetWeaponType() == WeaponType.MG)
+            {
+                candidate_target = GetAllTarget(attacker);
+
+                if (candidate_target.Count != 0)
+                {
+                    foreach (Card candidate in candidate_target)
                     {
-                        if (candidate.GetHP() < lowest_health)
-                        {
-                            lowest_health = candidate.GetHP();
-                            candidate_target.Clear();
-                            candidate_target.Add(candidate);
-                        }
-                        else if (candidate.GetHP() == lowest_health)
-                            candidate_target.Add(candidate);
-                        else
-                            continue;
+                        double pos = random.NextDouble();
+                        if (pos < 1)
+                            attack_list.Enqueue(candidate);
                     }
                 }
             }
 
-            if (candidate_target.Count > 0)
+            Debug.Log(candidate_target.Count);
+
+            if (candidate_target.Count == 0)
             {
-                int randomIndex = random.Next(0, candidate_target.Count);
-                target.Add(candidate_target[randomIndex]);
+                List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
+                List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
+
+                if (rslot.Any(element => pslot.Contains(element)))
+                    is_player_attacked = true;
+
             }
 
-            return target;
+            resolve_queue.AddAttack(attacker, AttackLoop);
+            resolve_queue.ResolveAll();
         }
 
-        public virtual List<Card> GetAdditionalTarget(Card attacker, Card target)
+        public virtual void AttackLoop(Card attacker, bool skip_cost)
         {
-            List<Card> addition_target = new List<Card>();
+            Debug.Log("Attack Loop Start");
+            Player player = game_data.GetPlayer(attacker.player_id);
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            if (!is_player_attacked && attack_list.Count == 0)
+            {
+                Debug.Log("exhausted");
+                ExhaustBattle(attacker);
+                resolve_queue.AddAttack(attacker, AdditionalAttackLoop);
+                resolve_queue.ResolveAll();
+            }
+
+            else if (is_player_attacked && attack_list.Count == 0)
+            {
+                Debug.Log("attack player");
+                AttackPlayer(attacker, oplayer);
+                resolve_queue.AddAttack(attacker, AttackLoop);
+                resolve_queue.ResolveAll();
+            }
+
+            else if (!is_player_attacked && attack_list.Count > 0)
+            {
+                Debug.Log("attack target");                
+                Card target = attack_list.Dequeue();
+                AttackTarget(attacker, target);
+                resolve_queue.AddAttack(attacker, AttackLoop);
+                resolve_queue.ResolveAll();
+            }
+        }
+
+        public virtual void AdditionalAttackLoop(Card attacker, bool skip_cost)
+        {
+            Debug.Log("AdditionalAttackLoop Start");
+            resolve_queue.AddCallback(AttackCheck);
+            resolve_queue.ResolveAll();
+        }
+
+        public virtual List<Card> AttackSearchAdditional(Card attacker, Card target)
+        {
+            Player player = game_data.GetPlayer(attacker.player_id);
+            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
+
+            List<Card> additional_target = new List<Card>();
 
             if (attacker.GetWeaponType() == WeaponType.FT)
             {
                 HashSet<Slot> visited = new HashSet<Slot>();
-                Queue<Slot> queue = new Queue<Slot>();
+                //List<Slot> neighbor_slot = new List<Slot>();
+                Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
 
+                // 시작 슬롯과 거리 0을 큐에 삽입
+                queue.Enqueue((target.slot, 0));
                 visited.Add(target.slot);
-                queue.Enqueue(target.slot);
+                //neighbor_slot.Add(new Slot(x, y, p));
 
                 while (queue.Count > 0)
                 {
                     // 현재 슬롯과 거리 정보를 큐에서 꺼냄
-                    var currentSlot = queue.Dequeue();
+                    var (currentSlot, currentDistance) = queue.Dequeue();
 
                     // 현재 슬롯의 모든 이웃 슬롯 탐색
                     foreach (var neighbor in currentSlot.GetNeighborSlot())
@@ -417,32 +415,31 @@ namespace TcgEngine.Gameplay
                         // 이웃 슬롯이 방문하지 않았다면
                         if (!visited.Contains(neighbor))
                         {
-                            visited.Add(neighbor);
-
-                            Card new_target = game_data.GetSlotCard(neighbor);
-                            if (new_target != null && game_data.CanAdditionAttackTarget(attacker, new_target))
+                            Card candidate = game_data.GetSlotCard(neighbor);
+                            if (candidate != null && candidate.player_id == oplayer.player_id)
                             {
-                                addition_target.Add(new_target);
-                                queue.Enqueue(neighbor);
+                                visited.Add(neighbor);
+                                additional_target.Add(candidate);
+                                queue.Enqueue((neighbor, currentDistance + 1));
                             }
                         }
                     }
                 }
             }
 
-            if (attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL || attacker.GetWeaponType() == WeaponType.MT)
+            else if (attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
             {
-                List<Slot> neighbors = target.slot.GetNeighborSlot();
+                List<Slot> additional_slot = target.slot.GetNeighborSlot();
 
-                foreach (Slot neighbor in neighbors)
+                foreach (Slot slot in additional_slot)
                 {
-                    Card new_target = game_data.GetSlotCard(neighbor);
-                    if (new_target != null && game_data.CanAdditionAttackTarget(attacker, new_target))
-                        addition_target.Add(new_target);
+                    Card candidate = game_data.GetSlotCard(slot);
+                    if (candidate != null && candidate.player_id == oplayer.player_id)
+                        additional_target.Add(candidate);
                 }
             }
 
-            return addition_target;
+            return additional_target;
         }
         
         
@@ -592,10 +589,12 @@ namespace TcgEngine.Gameplay
             game_data.last_played = null;
             game_data.last_destroyed = null;
             game_data.last_target = null;
+            game_data.last_attacked = null;
+            game_data.last_player_attacked = false;
             game_data.last_summoned = null;
             game_data.ability_triggerer = null;
             game_data.ability_played.Clear();
-            game_data.cards_attacked.Clear();
+            game_data.cards_attacked.Clear();      
         }
 
         //--- Setup ------
@@ -783,70 +782,52 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false, bool additional_attack = false)
+        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             Player player = game_data.GetPlayer(attacker.player_id);
             if(!is_ai_predict)
                 player.AddHistory(GameAction.Attack, attacker, target);
+            
+            game_data.last_attacked = target.uid;
+            game_data.last_player_attacked = false;
 
             //Trigger before attack abilities
             TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
             TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, target, attacker);
             TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
             TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeAttackOther, attacker);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeDefendOther, target);
 
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost, additional_attack);
+            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
             resolve_queue.ResolveAll();
         }
 
-        public virtual void AttackTarget(Card attacker, List<Card> target, bool skip_cost = false, bool additional_attack = false)
-        {
-            if (target.Count > 0)
-            {
-                foreach (Card targ in target)
-                {
-                    Player player = game_data.GetPlayer(attacker.player_id);
-                    if(!is_ai_predict)
-                        player.AddHistory(GameAction.Attack, attacker, targ);
-
-                    //Trigger before attack abilities
-                    TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, targ);
-                    TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, targ, attacker);
-                    TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
-                    TriggerSecrets(AbilityTrigger.OnBeforeDefend, targ);
-
-                    //Resolve attack
-                    resolve_queue.AddAttack(attacker, targ, ResolveAttack, skip_cost, additional_attack);
-                    resolve_queue.ResolveAll();
-                }
-            }
-        }
-
-        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost, bool additional_attack)
+        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
         {
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            onAttackStart?.Invoke(attacker, target, additional_attack);
+            if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
+                return;
+
+            onAttackStart?.Invoke(attacker, target);
 
             attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
-            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost, additional_attack);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
             resolve_queue.ResolveAll(0.3f);
         }
 
-        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost, bool additional_attack)
+        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
         {
             //Count attack damage
             int datt1 = attacker.GetAttack();
             int datt2 = target.GetAttack();
 
             Player player = game_data.GetPlayer(attacker.player_id);
-
-            if (attacker.addition_attack && (attacker.GetWeaponType() != WeaponType.FT))
-                datt1 = (int)Mathf.Floor((float)datt1 / 2.0f);
 
             //Damage Cards
             DamageCard(attacker, target, datt1);
@@ -874,35 +855,64 @@ namespace TcgEngine.Gameplay
             if (def_board)
                 TriggerSecrets(AbilityTrigger.OnAfterDefend, target);
 
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
+
             onAttackEnd?.Invoke(attacker, target);
+            RefreshData();
+            CheckForWinner();
+
+            resolve_queue.AddAttack(attacker, target, DamageAdditionalTarget, skip_cost);
+            resolve_queue.ResolveAll(0.2f);
+        }
+
+        public virtual void DamageAdditionalTarget(Card attacker, Card target, bool skip_cost)
+        {
+            if (attacker.GetWeaponType() != WeaponType.FT)
+                return;
+
+            if (attacker.GetWeaponType() != WeaponType.MT || attacker.GetWeaponType() != WeaponType.RL || attacker.GetWeaponType() != WeaponType.GL)
+                return;
+
+            List<Card> targets = AttackSearchAdditional(attacker, target);
+
+            DamageCard(attacker, targets, attacker.GetAttack());
             RefreshData();
             CheckForWinner();
 
             resolve_queue.ResolveAll(0.2f);
         }
 
-        public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false, bool additional_attack = false)
+        
+
+        public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
         {
             if (attacker == null || target == null)
                 return;
 
             if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
-
+            
             Player player = game_data.GetPlayer(attacker.player_id);
+
+            is_player_attacked = false;
+            
+            game_data.last_player_attacked = true;
+
             if(!is_ai_predict)
                 player.AddHistory(GameAction.AttackPlayer, attacker, target);
 
             //Resolve abilities
             TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
             TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeAttackOther, attacker);
 
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost, additional_attack);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost);
             resolve_queue.ResolveAll();
         }
 
-        protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost, bool additional_attack)
+        protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
         {
             if (!game_data.IsOnBoard(attacker))
                 return;
@@ -912,11 +922,11 @@ namespace TcgEngine.Gameplay
             attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
-            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost, additional_attack);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost);
             resolve_queue.ResolveAll(0.3f);
         }
 
-        protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost, bool additional_attack)
+        protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
         {
             DamagePlayer(attacker, target, attacker.GetAttack());
 
@@ -931,6 +941,7 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(AbilityTrigger.OnAfterAttack, attacker, target);
 
             TriggerSecrets(AbilityTrigger.OnAfterAttack, attacker);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
 
             onAttackPlayerEnd?.Invoke(attacker, target);
             RefreshData();
@@ -1240,6 +1251,71 @@ namespace TcgEngine.Gameplay
                 KillCard(attacker, target);
         }
 
+        public virtual void DamageCard(Card attacker, List<Card> targets, int value, bool spell_damage = false)
+        {
+            if (attacker == null || targets.Count == 0)
+                return;
+
+            List<Card> after_attack_list = new List<Card>();
+
+            foreach (Card target in targets)
+            {
+                int value_copy = value;
+                if (target.HasStatus(StatusType.Invincibility))
+                    continue; //Invincible
+
+                if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Citizen)
+                    continue; //Spell immunity
+
+                //Shell
+                bool doublelife = target.HasStatus(StatusType.Shell);
+                if (doublelife && value > 0)
+                {
+                    target.RemoveStatus(StatusType.Shell);
+                    continue;
+                }
+
+                //Armor
+                if (!spell_damage && target.HasStatus(StatusType.Armor))
+                    value_copy = Mathf.Max(value_copy - target.GetStatusValue(StatusType.Armor), 0);
+
+                //Damage
+                int damage_max = Mathf.Min(value_copy, target.GetHP());
+                int extra = value_copy - target.GetHP();
+                target.damage += value_copy;
+
+                //Trample
+                Player tplayer = game_data.GetPlayer(target.player_id);
+                if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
+                    tplayer.hp -= extra;
+
+                //Lifesteal
+                Player player = game_data.GetPlayer(attacker.player_id);
+                if (!spell_damage && attacker.HasStatus(StatusType.LifeSteal))
+                    player.hp += damage_max;
+                
+                if (value_copy >= 1)
+                    after_attack_list.Add(target);
+
+                //Remove sleep on damage
+                target.RemoveStatus(StatusType.Sleep);
+            }
+
+            foreach (Card target in after_attack_list)
+                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
+
+            foreach (Card target in targets)
+            {
+                //Deathtouch
+                if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Citizen)
+                    KillCard(attacker, target);
+
+                //Kill card if no hp
+                if (target.GetHP() <= 0)
+                    KillCard(attacker, target);
+            }
+        }
+
         //A card that kills another card
         public virtual void KillCard(Card attacker, Card target)
         {
@@ -1356,6 +1432,8 @@ namespace TcgEngine.Gameplay
 
                 foreach (Card card in oplayer.cards_board)
                     TriggerCardAbilityType(type, card, triggerer);
+                foreach (Card club in oplayer.clubs)
+                    TriggerCardAbilityType(type, club, triggerer);
             }
         }
 

@@ -10,22 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: add_machine_atk1_afterattack
+  m_Name: OAAO_damage_building_2HSD
   m_EditorClassIdentifier: 
-  id: afterattack_add_machine_atk1
-  trigger: 31
-  conditions_trigger: []
-  target: 10
+  id: OAAO_damage_building_2HSD
+  trigger: 33
+  conditions_trigger:
+  - {fileID: 11400000, guid: 00511614df2ba714996da7ccda6c4bac, type: 2}
+  target: 71
   conditions_target:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
-  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
-  filters_target:
-  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
+  filters_target: []
   effects:
-  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
+  - {fileID: 11400000, guid: 3e3ec5a5e50ccd74abc4c18275bce068, type: 2}
   status: []
-  value: 1
+  value: 10
   duration: 0
   chain_abilities: []
   mana_cost: 0

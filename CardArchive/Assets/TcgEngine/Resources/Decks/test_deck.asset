@@ -16,11 +16,6 @@ MonoBehaviour:
   title: Test Deck
   hero: {fileID: 11400000, guid: cf170aea7ffb041428f37608f1561058, type: 2}
   cards:
-  - {fileID: 11400000, guid: a7ef4ce2892aa2947a7bad53e49bf1ab, type: 2}
-  - {fileID: 11400000, guid: a7ef4ce2892aa2947a7bad53e49bf1ab, type: 2}
-  - {fileID: 11400000, guid: a7ef4ce2892aa2947a7bad53e49bf1ab, type: 2}
-  - {fileID: 11400000, guid: a7ef4ce2892aa2947a7bad53e49bf1ab, type: 2}
-  - {fileID: 11400000, guid: a7ef4ce2892aa2947a7bad53e49bf1ab, type: 2}
   - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
   - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
   - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
@@ -33,3 +28,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d564bc13a3f2c2a459cfe492217d8d98, type: 2}
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
+  - {fileID: 11400000, guid: 4ac9859dbbc608e479ec72995311fdfb, type: 2}

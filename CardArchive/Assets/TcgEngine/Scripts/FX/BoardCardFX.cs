@@ -178,9 +178,8 @@ namespace TcgEngine.FX
             AudioTool.Get().PlaySFX("card_move", AssetData.Get().card_move_audio);
         }
 
-        private void OnAttack(Card attacker, Card target, bool addition_attack)
+        private void OnAttack(Card attacker, Card target)
         {
-            Debug.Log(addition_attack);
             Card card = bcard.GetCard();
             CardData icard = bcard.GetCardData();
             if (attacker == null || target == null)
@@ -211,7 +210,7 @@ namespace TcgEngine.FX
                 if (target.CardData.IsCitizen() || card == target)
                 {
                     //Show Damage Number FX on self
-                    DamageFX(attacker, target, addition_attack, transform);
+                    DamageFX(attacker, target, transform);
                 }
             }
 
@@ -239,15 +238,11 @@ namespace TcgEngine.FX
             }
         }
 
-        private void DamageFX(Card attacker, Card target, bool addition_attack, Transform target_trans, float delay = 0.5f)
+        private void DamageFX(Card attacker, Card target, Transform target_trans, float delay = 0.5f)
         {
             if (!target.HasStatus(StatusType.Invincibility))
             {
-                Debug.Log(addition_attack);
                 int value = attacker.GetAttack();
-
-                if (addition_attack && (attacker.GetWeaponType() != WeaponType.FT))
-                    value = (int)Mathf.Floor((float)value / 2.0f);
                 
                 value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
                 DamageFX(target_trans, value, delay);

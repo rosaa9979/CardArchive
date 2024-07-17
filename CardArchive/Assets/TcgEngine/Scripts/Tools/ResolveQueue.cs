@@ -61,7 +61,7 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool, bool> callback, bool skip_cost = false, bool additional_attack = false)
+        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool> callback, bool skip_cost = false)
         {
             if (attacker != null && target != null)
             {
@@ -70,13 +70,12 @@ namespace TcgEngine
                 elem.target = target;
                 elem.ptarget = null;
                 elem.skip_cost = skip_cost;
-                elem.additional_attack = additional_attack;
                 elem.callback = callback;
                 attack_queue.Enqueue(elem);
             }
         }
 
-        public virtual void AddAttack(Card attacker, Player target, Action<Card, Player, bool, bool> callback, bool skip_cost = false, bool additional_attack = false)
+        public virtual void AddAttack(Card attacker, Player target, Action<Card, Player, bool> callback, bool skip_cost = false)
         {
             if (attacker != null && target != null)
             {
@@ -99,7 +98,6 @@ namespace TcgEngine
                 elem.target = null;
                 elem.ptarget = null;
                 elem.skip_cost = skip_cost;
-                elem.additional_attack = false;
                 elem.scallback = callback;
                 attack_queue.Enqueue(elem);
             }
@@ -166,9 +164,9 @@ namespace TcgEngine
                 AttackQueueElement elem = attack_queue.Dequeue();
                 attack_elem_pool.Dispose(elem);
                 if (elem.ptarget != null)
-                    elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost, elem.additional_attack);
+                    elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost);
                 else if (elem.target != null)
-                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost, elem.additional_attack);
+                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost);
                 else
                     elem.scallback?.Invoke(elem.attacker, elem.skip_cost);
             }
@@ -274,9 +272,8 @@ namespace TcgEngine
         public Card target;
         public Player ptarget;
         public bool skip_cost;
-        public bool additional_attack;
-        public Action<Card, Card, bool, bool> callback;
-        public Action<Card, Player, bool, bool> pcallback;
+        public Action<Card, Card, bool> callback;
+        public Action<Card, Player, bool> pcallback;
         public Action<Card, bool> scallback;
     }
 

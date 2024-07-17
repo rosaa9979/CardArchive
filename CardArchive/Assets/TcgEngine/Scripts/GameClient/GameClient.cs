@@ -48,7 +48,7 @@ namespace TcgEngine.Client
         public UnityAction<Card, Card> onSecretTrigger;    //Secret, Triggerer
         public UnityAction<Card, Card> onSecretResolve;    //Secret, Triggerer
 
-        public UnityAction<Card, Card, bool> onAttackStart;   //Attacker, Defender
+        public UnityAction<Card, Card> onAttackStart;   //Attacker, Defender
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
@@ -515,8 +515,7 @@ namespace TcgEngine.Client
             MsgAttack msg = sdata.Get<MsgAttack>();
             Card attacker = game_data.GetCard(msg.attacker_uid);
             Card target = game_data.GetCard(msg.target_uid);
-            bool addition_attack = msg.addition_attack;
-            onAttackStart?.Invoke(attacker, target, addition_attack);
+            onAttackStart?.Invoke(attacker, target);
         }
 
         private void OnAttackEnd(SerializedData sdata)

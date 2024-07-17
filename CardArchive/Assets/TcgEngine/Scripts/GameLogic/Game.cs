@@ -33,6 +33,8 @@ namespace TcgEngine
         //Other reference values
         public string last_played;
         public string last_target;
+        public string last_attacked;
+        public bool last_player_attacked;
         public string last_destroyed;
         public string last_summoned;
         public string ability_triggerer;
@@ -115,6 +117,7 @@ namespace TcgEngine
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
                 if (GetOpponentPlayer(player.player_id).player_id == slot.p)
                     return false; //Cant play on opponent side
+                    
                 return true;
             }
             if (card.CardData.IsEquipment())
@@ -625,6 +628,8 @@ namespace TcgEngine
             dest.last_destroyed = source.last_destroyed;
             dest.last_played = source.last_played;
             dest.last_target = source.last_target;
+            dest.last_attacked = source.last_attacked;
+            dest.last_player_attacked = source.last_player_attacked;
             dest.last_summoned = source.last_summoned;
             dest.ability_triggerer = source.ability_triggerer;
             dest.rolled_value = source.rolled_value;

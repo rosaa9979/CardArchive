@@ -357,6 +357,13 @@ namespace TcgEngine
                     targets.Add(target);
             }
 
+            if (target == AbilityTarget.LastAttacked)
+            {
+                Card target = data.GetCard(data.last_attacked);
+                if (target != null && AreTargetConditionsMet(data, caster, target))
+                    targets.Add(target);
+            }
+
             if (target == AbilityTarget.LastSummoned)
             {
                 Card target = data.GetCard(data.last_summoned);
@@ -640,10 +647,15 @@ namespace TcgEngine
         EndOfTurn = 22, //Every turn
 
         OnBeforeAttack = 30, //When attacking, before damage
-        OnAfterAttack = 31, //When attacking, after damage if still alive
-        OnBeforeDefend = 32, //When being attacked, before damage
-        OnAfterDefend = 33, //When being attacked, after damage if still alive
-        OnKill = 35,        //When killing another card during an attack
+        OnBeforeAttackOther = 31,
+        OnAfterAttack = 32, //When attacking, after damage if still alive
+        OnAfterAttackOther = 33,
+        OnBeforeDefend = 34, //When being attacked, before damage
+        OnBeforeDefendOther = 35,
+        OnAfterDefend = 36, //When being attacked, after damage if still alive
+        OnAfterDefendOther = 37,
+        OnAfterDamage = 38,
+        OnKill = 39,        //When killing another card during an attack
 
         OnDeath = 40, //When dying
         OnDeathOther = 42, //When another dying
@@ -674,6 +686,7 @@ namespace TcgEngine
         ChoiceSelector = 50,        //Choice selector menu
 
         LastPlayed = 70,            //Last card that was played 
+        LastAttacked = 71,
         LastTargeted = 72,          //Last card that was targeted with an ability
         LastDestroyed = 74,            //Last card that was killed
         LastSummoned = 77,            //Last card that was summoned or created

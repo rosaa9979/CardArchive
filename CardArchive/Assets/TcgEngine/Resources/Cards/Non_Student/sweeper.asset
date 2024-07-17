@@ -10,25 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Shimokura_Megu
+  m_Name: sweeper
   m_EditorClassIdentifier: 
-  id: Shimokura_Megu
-  title: "\uC2DC\uBAA8\uCFE0\uB77C \uBA54\uAD6C"
+  id: sweeper
+  title: "\uC2A4\uC704\uD37C"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 10
-  mana: 4
+  mana: 1
   attack: 1
-  hp: 6
-  clubs:
-  - {fileID: 11400000, guid: 05f800c145171ee4eb4a209cc7d194c5, type: 2}
-  weapon_type: 32
+  hp: 1
+  clubs: []
+  weapon_type: 4
   traits: []
   stats: []
-  abilities:
-  - {fileID: 11400000, guid: b835c12aa500c0f448a559f7b68f7a28, type: 2}
-  text: "\uB4F1\uAD50 : \uC0C1\uB300 \uAC74\uBB3C \uD558\uB098\uB97C \uC9C0\uC815\uD569\uB2C8\uB2E4. 
-    '\uC628\uCC9C' (0/2)\uC73C\uB85C \uAD50\uCCB4\uD569\uB2C8\uB2E4."
+  abilities: []
+  text: 
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
