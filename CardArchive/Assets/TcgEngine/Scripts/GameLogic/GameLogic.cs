@@ -59,6 +59,7 @@ namespace TcgEngine.Gameplay
 
         private Queue<Card> attack_list = new Queue<Card>();
         private bool is_player_attacked = false;
+        private Slot additional_slot = new Slot(0, 0, -1);
 
         public GameLogic(bool is_ai)
         {
@@ -248,6 +249,7 @@ namespace TcgEngine.Gameplay
 
             attack_list.Clear(); 
             is_player_attacked = false;
+            additional_slot = new Slot(0, 0, -1);
 
             foreach (Card attacker in player.cards_board)
             {
@@ -286,6 +288,7 @@ namespace TcgEngine.Gameplay
                 {
                     int randomIdx = random.Next(0, candidate_target.Count);
                     attack_list.Enqueue(candidate_target[randomIdx]);
+                    additional_slot = candidate_target[randomIdx].slot;
                 }
 
             }
@@ -298,6 +301,7 @@ namespace TcgEngine.Gameplay
                 {
                     int randomIdx = random.Next(0, candidate_target.Count);
                     attack_list.Enqueue(candidate_target[randomIdx]);
+                    additional_slot = candidate_target[randomIdx].slot;
                 }
 
             }
@@ -312,6 +316,7 @@ namespace TcgEngine.Gameplay
                     List<Card> lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
                     int randomIdx = random.Next(0, lowestHPCards.Count);
                     attack_list.Enqueue(lowestHPCards[randomIdx]);
+                    additional_slot = lowestHPCards[randomIdx].slot;
                 }
 
             }
@@ -326,7 +331,11 @@ namespace TcgEngine.Gameplay
                     {
                         double pos = random.NextDouble();
                         if (pos < 1)
+                        {
                             attack_list.Enqueue(candidate);
+                            additional_slot = candidate.slot;
+                        }
+
                     }
                 }
             }
@@ -357,7 +366,7 @@ namespace TcgEngine.Gameplay
             {
                 Debug.Log("exhausted");
                 ExhaustBattle(attacker);
-                resolve_queue.AddAttack(attacker, AdditionalAttackLoop);
+                resolve_queue.AddCallback(AttackCheck);
                 resolve_queue.ResolveAll();
             }
 
@@ -382,11 +391,14 @@ namespace TcgEngine.Gameplay
         public virtual void AdditionalAttackLoop(Card attacker, bool skip_cost)
         {
             Debug.Log("AdditionalAttackLoop Start");
+            List<Card> targets= AttackSearchAdditional(attacker, additional_slot);
+            DamageCard(attacker, targets, attacker.GetAttack());
+
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
         }
 
-        public virtual List<Card> AttackSearchAdditional(Card attacker, Card target)
+        public virtual List<Card> AttackSearchAdditional(Card attacker, Slot target)
         {
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
@@ -400,8 +412,8 @@ namespace TcgEngine.Gameplay
                 Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
 
                 // 시작 슬롯과 거리 0을 큐에 삽입
-                queue.Enqueue((target.slot, 0));
-                visited.Add(target.slot);
+                queue.Enqueue((target, 0));
+                visited.Add(target);
                 //neighbor_slot.Add(new Slot(x, y, p));
 
                 while (queue.Count > 0)
@@ -429,7 +441,7 @@ namespace TcgEngine.Gameplay
 
             else if (attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
             {
-                List<Slot> additional_slot = target.slot.GetNeighborSlot();
+                List<Slot> additional_slot = target.GetNeighborSlot();
 
                 foreach (Slot slot in additional_slot)
                 {
@@ -828,6 +840,7 @@ namespace TcgEngine.Gameplay
             int datt2 = target.GetAttack();
 
             Player player = game_data.GetPlayer(attacker.player_id);
+            Slot target_slot = target.slot;
 
             //Damage Cards
             DamageCard(attacker, target, datt1);
@@ -858,25 +871,29 @@ namespace TcgEngine.Gameplay
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
 
+            //onAttackEnd?.Invoke(attacker, target);
+            //RefreshData();
+            //CheckForWinner();
+
+            resolve_queue.AddAttack(attacker, target_slot, DamageAdditionalTarget, skip_cost);
+            resolve_queue.ResolveAll(0.2f);
+
             onAttackEnd?.Invoke(attacker, target);
             RefreshData();
             CheckForWinner();
-
-            resolve_queue.AddAttack(attacker, target, DamageAdditionalTarget, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
         }
 
-        public virtual void DamageAdditionalTarget(Card attacker, Card target, bool skip_cost)
+        public virtual void DamageAdditionalTarget(Card attacker, Slot target, bool skip_cost)
         {
-            if (attacker.GetWeaponType() != WeaponType.FT)
-                return;
-
-            if (attacker.GetWeaponType() != WeaponType.MT || attacker.GetWeaponType() != WeaponType.RL || attacker.GetWeaponType() != WeaponType.GL)
+            Debug.Log("DamageAdditionalTarget start");
+            if (attacker.GetWeaponType() != WeaponType.FT && attacker.GetWeaponType() != WeaponType.MT && attacker.GetWeaponType() != WeaponType.RL && attacker.GetWeaponType() != WeaponType.GL)
                 return;
 
             List<Card> targets = AttackSearchAdditional(attacker, target);
+            Debug.Log("additional attack"+targets.Count);
 
             DamageCard(attacker, targets, attacker.GetAttack());
+
             RefreshData();
             CheckForWinner();
 
