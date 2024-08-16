@@ -52,6 +52,7 @@ namespace TcgEngine
     public enum PileType
     {
         None = 0,
+        Club = 5,
         Board = 10,
         Hand = 20,
         Deck = 30,

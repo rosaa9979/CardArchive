@@ -17,16 +17,15 @@ MonoBehaviour:
   art_full: {fileID: 21300000, guid: e96abe5fc2239f0498afba2234497bd8, type: 3}
   art_board: {fileID: 0}
   type: 20
-  team: {fileID: 11400000, guid: 6bbb96863ece0314fb318c0fce569afc, type: 2}
-  rarity: {fileID: 11400000, guid: 72248f07232412e4db2f6864dbb4e271, type: 2}
   mana: 2
   attack: 0
   hp: 0
+  clubs: []
+  weapon_type: 0
   traits: []
   stats: []
   abilities:
   - {fileID: 11400000, guid: d753d81200fc2704b87c7c428459dfc6, type: 2}
-  - {fileID: 11400000, guid: 2841093c6dacc2c419c03663c168fb72, type: 2}
   text: 'Deal 1 damage.
 
     Draw a card.'

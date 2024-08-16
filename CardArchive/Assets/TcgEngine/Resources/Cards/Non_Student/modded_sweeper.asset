@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: modded_sweeper
+  m_Name: Modded_Sweeper
   m_EditorClassIdentifier: 
-  id: modded_sweeper
+  id: Modded_Sweeper
   title: "\uAC1C\uC870 \uC2A4\uC704\uD37C"
   art_full: {fileID: 0}
   art_board: {fileID: 0}

@@ -126,7 +126,7 @@ namespace TcgEngine
                     return false;
 
                 Card target = GetSlotCard(slot);
-                if (target == null || target.CardData.type != CardType.Citizen || target.player_id != card.player_id)
+                if (target == null || !target.CardData.IsCitizen() || target.player_id != card.player_id)
                     return false; //Target must be an allied citizen
 
                 return true;
@@ -443,6 +443,19 @@ namespace TcgEngine
             return null;
         }
 
+        public Card GetClubCard(string card_uid)
+        {
+            foreach (Player player in players)
+            {
+                foreach (Card card in player.clubs)
+                {
+                    if (card != null && card.uid == card_uid)
+                        return card;
+                }
+            }
+            return null;
+        }
+
         public Card GetHandCard(string card_uid)
         {
             foreach (Player player in players)
@@ -537,6 +550,11 @@ namespace TcgEngine
         {
             Player player = GetRandomPlayer(rand);
             return player.GetRandomSlot(rand);
+        }
+
+        public bool IsInClub(Card card)
+        {
+            return card != null && GetClubCard(card.uid) != null;
         }
 
         public bool IsInHand(Card card)

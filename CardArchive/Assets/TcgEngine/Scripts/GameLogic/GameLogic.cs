@@ -238,7 +238,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackCheck()
         {
-            Debug.Log("Attack Check Start");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Attack)
@@ -272,8 +271,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
-            Debug.Log("Attack Search Start");
-
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -340,8 +337,6 @@ namespace TcgEngine.Gameplay
                 }
             }
 
-            Debug.Log(candidate_target.Count);
-
             if (candidate_target.Count == 0)
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
@@ -358,13 +353,11 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackLoop(Card attacker, bool skip_cost)
         {
-            Debug.Log("Attack Loop Start");
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
             if (!is_player_attacked && attack_list.Count == 0)
             {
-                Debug.Log("exhausted");
                 ExhaustBattle(attacker);
                 resolve_queue.AddCallback(AttackCheck);
                 resolve_queue.ResolveAll();
@@ -372,30 +365,18 @@ namespace TcgEngine.Gameplay
 
             else if (is_player_attacked && attack_list.Count == 0)
             {
-                Debug.Log("attack player");
                 AttackPlayer(attacker, oplayer);
                 resolve_queue.AddAttack(attacker, AttackLoop);
                 resolve_queue.ResolveAll();
             }
 
             else if (!is_player_attacked && attack_list.Count > 0)
-            {
-                Debug.Log("attack target");                
+            {             
                 Card target = attack_list.Dequeue();
                 AttackTarget(attacker, target);
                 resolve_queue.AddAttack(attacker, AttackLoop);
                 resolve_queue.ResolveAll();
             }
-        }
-
-        public virtual void AdditionalAttackLoop(Card attacker, bool skip_cost)
-        {
-            Debug.Log("AdditionalAttackLoop Start");
-            List<Card> targets= AttackSearchAdditional(attacker, additional_slot);
-            DamageCard(attacker, targets, attacker.GetAttack());
-
-            resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll();
         }
 
         public virtual List<Card> AttackSearchAdditional(Card attacker, Slot target)
@@ -885,19 +866,18 @@ namespace TcgEngine.Gameplay
 
         public virtual void DamageAdditionalTarget(Card attacker, Slot target, bool skip_cost)
         {
-            Debug.Log("DamageAdditionalTarget start");
             if (attacker.GetWeaponType() != WeaponType.FT && attacker.GetWeaponType() != WeaponType.MT && attacker.GetWeaponType() != WeaponType.RL && attacker.GetWeaponType() != WeaponType.GL)
                 return;
 
             List<Card> targets = AttackSearchAdditional(attacker, target);
-            Debug.Log("additional attack"+targets.Count);
 
-            DamageCard(attacker, targets, attacker.GetAttack());
-
-            RefreshData();
-            CheckForWinner();
+            foreach (Card targ in targets)
+                DamageCard(attacker, targ, attacker.GetAttack());
 
             resolve_queue.ResolveAll(0.2f);
+            
+            RefreshData();
+            CheckForWinner();
         }
 
         
@@ -1226,7 +1206,7 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Invincibility))
                 return; //Invincible
 
-            if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Citizen)
+            if (target.HasStatus(StatusType.SpellImmunity) && !attacker.CardData.IsCitizen())
                 return; //Spell immunity
 
             //Shell
@@ -1260,77 +1240,12 @@ namespace TcgEngine.Gameplay
             target.RemoveStatus(StatusType.Sleep);
 
             //Deathtouch
-            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Citizen)
+            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
                 KillCard(attacker, target);
 
             //Kill card if no hp
             if (target.GetHP() <= 0)
                 KillCard(attacker, target);
-        }
-
-        public virtual void DamageCard(Card attacker, List<Card> targets, int value, bool spell_damage = false)
-        {
-            if (attacker == null || targets.Count == 0)
-                return;
-
-            List<Card> after_attack_list = new List<Card>();
-
-            foreach (Card target in targets)
-            {
-                int value_copy = value;
-                if (target.HasStatus(StatusType.Invincibility))
-                    continue; //Invincible
-
-                if (target.HasStatus(StatusType.SpellImmunity) && attacker.CardData.type != CardType.Citizen)
-                    continue; //Spell immunity
-
-                //Shell
-                bool doublelife = target.HasStatus(StatusType.Shell);
-                if (doublelife && value > 0)
-                {
-                    target.RemoveStatus(StatusType.Shell);
-                    continue;
-                }
-
-                //Armor
-                if (!spell_damage && target.HasStatus(StatusType.Armor))
-                    value_copy = Mathf.Max(value_copy - target.GetStatusValue(StatusType.Armor), 0);
-
-                //Damage
-                int damage_max = Mathf.Min(value_copy, target.GetHP());
-                int extra = value_copy - target.GetHP();
-                target.damage += value_copy;
-
-                //Trample
-                Player tplayer = game_data.GetPlayer(target.player_id);
-                if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
-                    tplayer.hp -= extra;
-
-                //Lifesteal
-                Player player = game_data.GetPlayer(attacker.player_id);
-                if (!spell_damage && attacker.HasStatus(StatusType.LifeSteal))
-                    player.hp += damage_max;
-                
-                if (value_copy >= 1)
-                    after_attack_list.Add(target);
-
-                //Remove sleep on damage
-                target.RemoveStatus(StatusType.Sleep);
-            }
-
-            foreach (Card target in after_attack_list)
-                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
-
-            foreach (Card target in targets)
-            {
-                //Deathtouch
-                if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.type == CardType.Citizen)
-                    KillCard(attacker, target);
-
-                //Kill card if no hp
-                if (target.GetHP() <= 0)
-                    KillCard(attacker, target);
-            }
         }
 
         //A card that kills another card
@@ -1353,7 +1268,6 @@ namespace TcgEngine.Gameplay
 
             TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
         }
-
         //Send card into discard
         public virtual void DiscardCard(Card card)
         {
@@ -1486,6 +1400,9 @@ namespace TcgEngine.Gameplay
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
 
+            if (iability.trigger == AbilityTrigger.OnDeathOther && !game_data.IsOnBoard(caster))
+                return;
+
             //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id);
 
             onAbilityStart?.Invoke(iability, caster);
@@ -1567,11 +1484,15 @@ namespace TcgEngine.Gameplay
             //Get Cards Targets based on conditions
             List<Card> targets = iability.GetCardTargets(game_data, caster, card_array);
 
+            //ResolveEffectTarget(iability, caster, targets);
+
+            
             //Resolve effects
             foreach (Card target in targets)
             {
                 ResolveEffectTarget(iability, caster, target);
             }
+            
         }
 
         protected virtual void ResolveCardAbilitySlots(AbilityData iability, Card caster)
@@ -1617,6 +1538,11 @@ namespace TcgEngine.Gameplay
 
             onAbilityTargetCard?.Invoke(iability, caster, target);
             game_data.last_target = target.uid;
+        }
+
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target)
+        {
+            iability.DoEffects(this, caster, target);
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target)

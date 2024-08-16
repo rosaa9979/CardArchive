@@ -20,6 +20,11 @@ namespace TcgEngine
             if (target == null)
                 return false;
 
+            if (type == PileType.Club)
+            {
+                return CompareBool(data.IsInClub(target), oper);
+            }
+
             if (type == PileType.Hand)
             {
                 return CompareBool(data.IsInHand(target), oper);

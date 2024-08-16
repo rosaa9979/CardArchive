@@ -15,13 +15,15 @@ MonoBehaviour:
   id: death_heal2
   trigger: 40
   conditions_trigger: []
-  target: 4
-  conditions_target: []
-  filters_target: []
+  target: 10
+  conditions_target:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
   effects:
-  - {fileID: 11400000, guid: 5e489970bbb948c409125b3ab22f2aac, type: 2}
+  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
   status: []
-  value: 2
+  value: 1
   duration: 0
   chain_abilities: []
   mana_cost: 0

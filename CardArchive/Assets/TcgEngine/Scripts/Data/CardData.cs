@@ -8,7 +8,8 @@ namespace TcgEngine
         None = 0,
         Hero = 5,
         Club = 7,
-        Citizen = 10,
+        Student = 10,
+        NonStudent = 11,
         Spell = 20,
         Building = 30,
         Secret = 40,
@@ -154,8 +155,10 @@ namespace TcgEngine
         {
             if (type == CardType.Hero)
                 return "hero";
-            if (type == CardType.Citizen)
-                return "citizen";
+            if (type == CardType.Student)
+                return "student";
+            if (type == CardType.NonStudent)
+                return "nonstudent";
             if (type == CardType.Building)
                 return "building";
             if (type == CardType.Spell)
@@ -182,7 +185,7 @@ namespace TcgEngine
 
         public bool IsCitizen()
         {
-            return type == CardType.Citizen;
+            return type == CardType.Student || type == CardType.NonStudent;
         }
 
         public bool IsBuilding()
@@ -197,7 +200,7 @@ namespace TcgEngine
 
         public bool IsBoardCard()
         {
-            return type == CardType.Citizen || type == CardType.Building;
+            return type == CardType.Student || type == CardType.NonStudent || type == CardType.Building;
         }
 
         public bool IsRequireTarget()

@@ -21,6 +21,11 @@ namespace TcgEngine
             //Server side gameplay logic
         }
 
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, List<Card> target)
+        {
+            //Server side gameplay logic
+        }
+
         public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             //Server side gameplay logic

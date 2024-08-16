@@ -217,6 +217,17 @@ namespace TcgEngine
                 target.AddStatus(stat, value, duration);
         }
 
+        public void DoEffects(GameLogic logic, Card caster, List<Card> target)
+        {
+            foreach (EffectData effect in effects)
+                effect?.DoEffect(logic, this, caster, target);
+            foreach (Card targ in target)
+            {
+                foreach(StatusData stat in status)
+                    targ.AddStatus(stat, value, duration);
+            }
+        }
+
         public void DoEffects(GameLogic logic, Card caster, Player target)
         {
             foreach (EffectData effect in effects)
@@ -326,6 +337,7 @@ namespace TcgEngine
             {
                 foreach (Player player in data.players)
                 {
+                    AddValidCards(data, caster, player.clubs, targets);
                     AddValidCards(data, caster, player.cards_deck, targets);
                     AddValidCards(data, caster, player.cards_discard, targets);
                     AddValidCards(data, caster, player.cards_hand, targets);

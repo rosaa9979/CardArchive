@@ -230,6 +230,13 @@ namespace TcgEngine
             }
         }
 
+        public void AddClub(string id)
+        {
+            CardClub club = GetClub(id);
+            if (club == null)
+                SetClub(id);
+        }
+
         public CardClub GetClub(string id)
         {
             foreach (CardClub club in clubs)
@@ -260,6 +267,14 @@ namespace TcgEngine
         public bool HasClub(string id)
         {
             return GetClub(id) != null || GetOngoingClub(id) != null;
+        }
+
+        public List<CardClub> GetAllClubs()
+        {
+            List<CardClub> all_clubs = new List<CardClub>();
+            all_clubs.AddRange(clubs);
+            all_clubs.AddRange(ongoing_clubs);
+            return all_clubs;
         }
         
         //Alternate names since traits/stats are stored in same var
