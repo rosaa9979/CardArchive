@@ -346,6 +346,26 @@ namespace TcgEngine
             return neighbor_slot;
         } 
 
+        public List<Slot> GetRowSlot()
+        {
+            List<Slot> slots = GetAll();
+            List<Slot> row_slots = new List<Slot>();
+
+            List<(int, int)> directions = new List<(int, int)>
+            {
+                (-1, 0),
+                (1, 0)
+            };
+
+            foreach (var slot in slots)
+            {
+                if (slot.y == y && slot.p == p)
+                    row_slots.Add(slot);
+            }
+
+            return row_slots;
+        }
+
         public Dictionary<int, List<Slot>> GetRangeSlot(int range)
         {
             HashSet<Slot> visited = new HashSet<Slot>();

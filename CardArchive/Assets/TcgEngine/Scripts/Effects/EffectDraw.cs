@@ -14,13 +14,11 @@ namespace TcgEngine
     {
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            Debug.Log("draw start");
             logic.DrawCard(target, ability.value);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            Debug.Log("draw start");
             Player player = logic.GameData.GetPlayer(target.player_id);
             logic.DrawCard(player, ability.value);
         }

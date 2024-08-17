@@ -46,7 +46,6 @@ namespace TcgEngine
 
         private int GetCount(Game data, Card caster)
         {
-            Debug.Log("in");
             Player p = data.GetPlayer(caster.player_id);
             Player op = data.GetOpponentPlayer(p.player_id);
 

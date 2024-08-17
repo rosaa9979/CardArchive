@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: choice_club
+  m_Name: spell_damage_neighbor1
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: spell_damage_neighbor1
+  trigger: 10
   conditions_trigger: []
-  target: 0
+  target: 31
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}
   status: []
-  value: 0
+  value: 1
   duration: 0
   chain_abilities: []
   mana_cost: 0

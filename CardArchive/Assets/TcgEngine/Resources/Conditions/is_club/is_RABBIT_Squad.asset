@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c274f103d1df9814494533f6e0f3aedc, type: 3}
-  m_Name: has_club
+  m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
+  m_Name: is_RABBIT_Squad
   m_EditorClassIdentifier: 
-  type: 5
+  has_type: 0
+  has_club: {fileID: 11400000, guid: d2c01b70def6f024f930d721132924ef, type: 2}
+  has_trait: {fileID: 0}
   oper: 0

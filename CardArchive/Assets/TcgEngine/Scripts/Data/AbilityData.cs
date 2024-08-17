@@ -578,14 +578,15 @@ namespace TcgEngine
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
-                bool v1 = HasValidCardTarget(game_data, caster, player.cards_deck);
-                bool v2 = HasValidCardTarget(game_data, caster, player.cards_discard);
-                bool v3 = HasValidCardTarget(game_data, caster, player.cards_hand);
-                bool v4 = HasValidCardTarget(game_data, caster, player.cards_board);
-                bool v5 = HasValidCardTarget(game_data, caster, player.cards_equip);
-                bool v6 = HasValidCardTarget(game_data, caster, player.cards_secret);
-                bool v7 = HasValidCardTarget(game_data, caster, player.cards_temp);
-                if (v1 || v2 || v3 || v4 || v5 || v6 || v7)
+                bool v1 = HasValidCardTarget(game_data, caster, player.clubs);
+                bool v2 = HasValidCardTarget(game_data, caster, player.cards_deck);
+                bool v3 = HasValidCardTarget(game_data, caster, player.cards_discard);
+                bool v4 = HasValidCardTarget(game_data, caster, player.cards_hand);
+                bool v5 = HasValidCardTarget(game_data, caster, player.cards_board);
+                bool v6 = HasValidCardTarget(game_data, caster, player.cards_equip);
+                bool v7 = HasValidCardTarget(game_data, caster, player.cards_secret);
+                bool v8 = HasValidCardTarget(game_data, caster, player.cards_temp);
+                if (v1 || v2 || v3 || v4 || v5 || v6 || v7 || v8)
                     return true;
             }
             return false;
@@ -625,7 +626,7 @@ namespace TcgEngine
 
         public bool IsSelector()
         {
-            return target == AbilityTarget.SelectTarget || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
+            return target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectTargetRow || target == AbilityTarget.SelectTargetNeighbor || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
         }
 
         public static AbilityData Get(string id)
@@ -694,6 +695,8 @@ namespace TcgEngine
         AttachedSlot = 28,
 
         SelectTarget = 30,        //Select a card, player or slot on board
+        SelectTargetRow = 31,
+        SelectTargetNeighbor = 32,
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
 

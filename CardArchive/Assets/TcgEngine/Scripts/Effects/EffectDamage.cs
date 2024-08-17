@@ -16,16 +16,20 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            Debug.Log("start damage");
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamagePlayer(caster, target, damage);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            Debug.Log("start damage");
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamageCard(caster, target, damage, true);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            int damage = GetDamage(logic.GameData, caster, ability.value);
+            logic.DamageCard(caster, logic.GameData.GetSlotCard(target), damage, true);
         }
 
         private int GetDamage(Game data, Card caster, int value)

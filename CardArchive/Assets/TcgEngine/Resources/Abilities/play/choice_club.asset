@@ -10,18 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: spell_draw2
+  m_Name: choice_club
   m_EditorClassIdentifier: 
-  id: spell_draw2
+  id: choice_club
   trigger: 10
   conditions_trigger: []
-  target: 4
-  conditions_target: []
+  target: 40
+  conditions_target:
+  - {fileID: 11400000, guid: 67fdafaa6c754bc41949ccc30dd61498, type: 2}
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: d2f15281b01c4b347a527a3011ef430a, type: 2}
+  - {fileID: 11400000, guid: c401bcd0308b77344b698acfd224a16c, type: 2}
   status: []
-  value: 2
+  value: 0
   duration: 0
   chain_abilities: []
   mana_cost: 0
@@ -32,5 +34,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Draw
-  desc: Draw 1 card.
+  title: 
+  desc: 
