@@ -728,7 +728,9 @@ namespace TcgEngine.Gameplay
                 //Trigger abilities
                 TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
                 TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                TriggerCardAbilityType(AbilityTrigger.OnSummon, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, card);
 
                 RefreshData();
 
@@ -1050,10 +1052,46 @@ namespace TcgEngine.Gameplay
             if (game_data.GetSlotCard(slot) != null)
                 return null;
 
+            
             Card acard = SummonCardHand(player, card, variant);
+            /*
             PlayCard(acard, slot, true);
 
             onCardSummoned?.Invoke(acard, slot);
+
+            return acard;
+            */
+
+            if (game_data.CanPlayCard(acard, slot, true))
+            {
+                //Player player = game_data.GetPlayer(card.player_id);
+
+                //Play card
+                player.RemoveCardFromAllGroups(acard);
+
+                //Add to board
+                if (card.IsBoardCard())
+                {
+                    player.cards_board.Add(acard);
+                    acard.slot = slot;
+                    acard.exhausted = true; //Cant attack first turn
+                }
+
+                //History
+                if(!is_ai_predict && !card.IsSecret())
+                    player.AddHistory(GameAction.PlayCard, acard);
+
+                UpdateOngoing();
+
+                TriggerCardAbilityType(AbilityTrigger.OnSummon, acard);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, acard);
+
+
+                RefreshData();
+
+                onCardPlayed?.Invoke(acard, slot);
+                resolve_queue.ResolveAll(0.3f);
+            }
 
             return acard;
         }
@@ -1209,6 +1247,13 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.SpellImmunity) && !attacker.CardData.IsCitizen())
                 return; //Spell immunity
 
+            Player tplayer = game_data.GetPlayer(target.player_id);
+            //Explode
+            if (attacker.HasStatus(StatusType.Explode))
+            {
+                tplayer.hp -= value;
+            }
+
             //Shell
             bool doublelife = target.HasStatus(StatusType.Shell);
             if (doublelife && value > 0)
@@ -1216,6 +1261,10 @@ namespace TcgEngine.Gameplay
                 target.RemoveStatus(StatusType.Shell);
                 return;
             }
+
+            //Bulletproof
+            if (target.HasStatus(StatusType.Bulletproof))
+                value = Mathf.Max(value - target.GetStatusValue(StatusType.Bulletproof), 0);
 
             //Armor
             if (!spell_damage && target.HasStatus(StatusType.Armor))
@@ -1227,7 +1276,6 @@ namespace TcgEngine.Gameplay
             target.damage += value;
 
             //Trample
-            Player tplayer = game_data.GetPlayer(target.player_id);
             if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
                 tplayer.hp -= extra;
 

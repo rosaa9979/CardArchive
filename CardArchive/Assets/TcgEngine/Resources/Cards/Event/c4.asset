@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: c4
+  m_Name: C4
   m_EditorClassIdentifier: 
-  id: c4
-  title: c4
+  id: C4
+  title: C4
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
@@ -25,7 +25,8 @@ MonoBehaviour:
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: caa7390a38d2c634ea6cbe90244782f5, type: 2}
+  - {fileID: 11400000, guid: 8f806d531a1443d4a984d53829a8de50, type: 2}
+  - {fileID: 11400000, guid: 9d436a76fa6cf7441b047cb7a2065d99, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

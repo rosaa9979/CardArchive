@@ -276,6 +276,11 @@ namespace TcgEngine
             all_clubs.AddRange(ongoing_clubs);
             return all_clubs;
         }
+
+        public void SetWeaponType(WeaponType wt)
+        {
+            weapon_type = wt;
+        }
         
         //Alternate names since traits/stats are stored in same var
         public void SetStat(string id, int value) => SetTrait(id, value);
