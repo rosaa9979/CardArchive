@@ -27,14 +27,13 @@ namespace TcgEngine
         Flying = 24,         //Can ignore taunt
         Trample = 26,         //Extra damage is assigned to player
         LifeSteal = 28,      //Heal player when fighting
-        Explode = 29,
 
         Silenced = 30,      //All abilities canceled
         Paralysed = 32,     //Cant do any actions for X turns
         Poisoned = 34,     //Lose hp each start of turn
         Sleep = 36,         //Doesnt untap at the start of turn
 
-        Bulletproof = 40,
+
     }
 
     /// <summary>

@@ -672,9 +672,6 @@ namespace TcgEngine
 
         OnDeath = 40, //When dying
         OnDeathOther = 42, //When another dying
-
-        OnSummon = 50,
-        OnSummonOther = 52,
     }
 
     public enum AbilityTarget
