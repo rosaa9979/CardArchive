@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OG_add_atk_hp1_outside_rabbit
+  m_Name: OG_lifesteal_outside_rabbit
   m_EditorClassIdentifier: 
-  id: OG_add_atk_hp1_outside_rabbit
+  id: OG_lifesteal_outside_rabbit
   trigger: 2
   conditions_trigger: []
   target: 10
@@ -21,11 +21,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7d6fb9ac39dc0614aa47206beeb76a1e, type: 2}
   - {fileID: 11400000, guid: 2edcec6d21dfedb449ab9a263088daf9, type: 2}
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
-  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
-  status: []
-  value: 1
+  effects: []
+  status:
+  - {fileID: 11400000, guid: 4850ab17012eb724d869606940d0b168, type: 2}
+  value: 0
   duration: 0
   chain_abilities: []
   mana_cost: 0

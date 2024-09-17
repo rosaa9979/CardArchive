@@ -22,14 +22,23 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
+            /*
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamageCard(caster, target, damage, true);
+            */
+
+            DoEffect(logic, ability, caster, target.slot);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
+            /*
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamageCard(caster, logic.GameData.GetSlotCard(target), damage, true);
+            */
+
+            int damage = GetDamage(logic.GameData, caster, ability.value);
+            logic.DamageCard(caster, target, damage, true);
         }
 
         private int GetDamage(Game data, Card caster, int value)

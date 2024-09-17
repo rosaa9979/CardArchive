@@ -1226,6 +1226,9 @@ namespace TcgEngine.Gameplay
             int extra = value - target.GetHP();
             target.damage += value;
 
+            if (value > 0)
+                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
+
             //Trample
             Player tplayer = game_data.GetPlayer(target.player_id);
             if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
@@ -1246,6 +1249,19 @@ namespace TcgEngine.Gameplay
             //Kill card if no hp
             if (target.GetHP() <= 0)
                 KillCard(attacker, target);
+        }
+
+                //Damage a card with attacker/caster
+        public virtual void DamageCard(Card attacker, Slot target, int value, bool spell_damage = false)
+        {
+            Card card_target = game_data.GetSlotCard(target);
+            Card attach_target = game_data.GetAttachCard(target);
+
+            if (card_target != null)
+                DamageCard(attacker, card_target, value, spell_damage);
+            
+            if (attach_target != null)
+                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
         }
 
         //A card that kills another card

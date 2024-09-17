@@ -8,10 +8,10 @@ namespace TcgEngine
     /// Checks if a slot contains a card or not
     /// </summary>
 
-    [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/SlotEmpty", order = 11)]
-    public class ConditionSlotEmpty : ConditionData
+    [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/SlotUnitEmpty", order = 11)]
+    public class ConditionSlotUnitEmpty : ConditionData
     {
-        [Header("Slot Is Empty")]
+        [Header("Slot Unit Is Empty")]
         public ConditionOperatorBool oper;
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)

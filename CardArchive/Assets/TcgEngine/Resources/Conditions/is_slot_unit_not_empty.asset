@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3dd4e502c8dfa34fbb025ff1a8aaeb0, type: 3}
-  m_Name: is_slot_empty
+  m_Name: is_slot_unit_not_empty
   m_EditorClassIdentifier: 
-  oper: 0
+  oper: 1

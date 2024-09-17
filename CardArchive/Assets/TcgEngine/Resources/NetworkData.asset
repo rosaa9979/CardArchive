@@ -17,4 +17,4 @@ MonoBehaviour:
   api_url: 15.165.24.84
   api_https: 1
   solo_type: 0
-  auth_type: 10
+  auth_type: 0
