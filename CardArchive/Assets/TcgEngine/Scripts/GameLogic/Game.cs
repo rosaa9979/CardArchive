@@ -254,12 +254,12 @@ namespace TcgEngine
                     continue; //Cards not on board
 
                 //if (!attacker.CardData.IsCitizen() || !targ.CardData.IsBoardCard())
-                //    return false; //Only citizen can attacka
+                //    return false; //Only citizen can attack
 
                 if (targ.HasStatus(StatusType.Stealth))
                     continue; //Stealth cant be attacked
 
-                if (attacker.GetWeaponType() != WeaponType.MG)
+                if (attacker.GetWeapon().GetWeaponType() != WeaponType.MG)
                 {
                     if (targ.HasStatus(StatusType.Protection))
                     {

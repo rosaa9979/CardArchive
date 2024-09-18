@@ -277,162 +277,25 @@ namespace TcgEngine.Gameplay
             Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
             List<Card> candidate_target = new List<Card>();
 
-            if (attacker.GetWeaponType() == WeaponType.H2H || attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.FT)
-            {
-                candidate_target = GetNearestTarget(attacker);
+            candidate_target = attacker.GetWeapon().SearchTarget(this, attacker);
 
-                if (candidate_target.Count != 0)
-                {
-                    int randomIdx = random.Next(0, candidate_target.Count);
-                    attack_list.Enqueue(candidate_target[randomIdx]);
-                    additional_slot = candidate_target[randomIdx].slot;
-                }
+            if (candidate_target.Count != 0)
+                attacker.GetWeapon().AttackTarget(this, attacker, candidate_target);
 
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.AR || attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    int randomIdx = random.Next(0, candidate_target.Count);
-                    attack_list.Enqueue(candidate_target[randomIdx]);
-                    additional_slot = candidate_target[randomIdx].slot;
-                }
-
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.SR)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    int minHP = candidate_target.Min(card => card.GetHP());
-                    List<Card> lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
-                    int randomIdx = random.Next(0, lowestHPCards.Count);
-                    attack_list.Enqueue(lowestHPCards[randomIdx]);
-                    additional_slot = lowestHPCards[randomIdx].slot;
-                }
-
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.MG)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    foreach (Card candidate in candidate_target)
-                    {
-                        double pos = random.NextDouble();
-                        if (pos < 1)
-                        {
-                            attack_list.Enqueue(candidate);
-                            additional_slot = candidate.slot;
-                        }
-
-                    }
-                }
-            }
-
-            if (candidate_target.Count == 0)
+            else
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
                 List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
 
                 if (rslot.Any(element => pslot.Contains(element)))
-                    is_player_attacked = true;
+                    attacker.GetWeapon().AttackTarget(this, attacker, oplayer);
 
             }
+            
+            ExhaustBattle(attacker);
 
-            resolve_queue.AddAttack(attacker, AttackLoop);
+            resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
-        }
-
-        public virtual void AttackLoop(Card attacker, bool skip_cost)
-        {
-            Player player = game_data.GetPlayer(attacker.player_id);
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            if (!is_player_attacked && attack_list.Count == 0)
-            {
-                ExhaustBattle(attacker);
-                resolve_queue.AddCallback(AttackCheck);
-                resolve_queue.ResolveAll();
-            }
-
-            else if (is_player_attacked && attack_list.Count == 0)
-            {
-                AttackPlayer(attacker, oplayer);
-                resolve_queue.AddAttack(attacker, AttackLoop);
-                resolve_queue.ResolveAll();
-            }
-
-            else if (!is_player_attacked && attack_list.Count > 0)
-            {             
-                Card target = attack_list.Dequeue();
-                AttackTarget(attacker, target);
-                resolve_queue.AddAttack(attacker, AttackLoop);
-                resolve_queue.ResolveAll();
-            }
-        }
-
-        public virtual List<Card> AttackSearchAdditional(Card attacker, Slot target)
-        {
-            Player player = game_data.GetPlayer(attacker.player_id);
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            List<Card> additional_target = new List<Card>();
-
-            if (attacker.GetWeaponType() == WeaponType.FT)
-            {
-                HashSet<Slot> visited = new HashSet<Slot>();
-                //List<Slot> neighbor_slot = new List<Slot>();
-                Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
-
-                // 시작 슬롯과 거리 0을 큐에 삽입
-                queue.Enqueue((target, 0));
-                visited.Add(target);
-                //neighbor_slot.Add(new Slot(x, y, p));
-
-                while (queue.Count > 0)
-                {
-                    // 현재 슬롯과 거리 정보를 큐에서 꺼냄
-                    var (currentSlot, currentDistance) = queue.Dequeue();
-
-                    // 현재 슬롯의 모든 이웃 슬롯 탐색
-                    foreach (var neighbor in currentSlot.GetNeighborSlot())
-                    {
-                        // 이웃 슬롯이 방문하지 않았다면
-                        if (!visited.Contains(neighbor))
-                        {
-                            Card candidate = game_data.GetSlotCard(neighbor);
-                            if (candidate != null && candidate.player_id == oplayer.player_id)
-                            {
-                                visited.Add(neighbor);
-                                additional_target.Add(candidate);
-                                queue.Enqueue((neighbor, currentDistance + 1));
-                            }
-                        }
-                    }
-                }
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
-            {
-                List<Slot> additional_slot = target.GetNeighborSlot();
-
-                foreach (Slot slot in additional_slot)
-                {
-                    Card candidate = game_data.GetSlotCard(slot);
-                    if (candidate != null && candidate.player_id == oplayer.player_id)
-                        additional_target.Add(candidate);
-                }
-            }
-
-            return additional_target;
         }
         
         
@@ -852,35 +715,12 @@ namespace TcgEngine.Gameplay
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
 
-            //onAttackEnd?.Invoke(attacker, target);
-            //RefreshData();
-            //CheckForWinner();
-
-            resolve_queue.AddAttack(attacker, target_slot, DamageAdditionalTarget, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
-
             onAttackEnd?.Invoke(attacker, target);
             RefreshData();
             CheckForWinner();
-        }
-
-        public virtual void DamageAdditionalTarget(Card attacker, Slot target, bool skip_cost)
-        {
-            if (attacker.GetWeaponType() != WeaponType.FT && attacker.GetWeaponType() != WeaponType.MT && attacker.GetWeaponType() != WeaponType.RL && attacker.GetWeaponType() != WeaponType.GL)
-                return;
-
-            List<Card> targets = AttackSearchAdditional(attacker, target);
-
-            foreach (Card targ in targets)
-                DamageCard(attacker, targ, attacker.GetAttack());
 
             resolve_queue.ResolveAll(0.2f);
-            
-            RefreshData();
-            CheckForWinner();
         }
-
-        
 
         public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
         {

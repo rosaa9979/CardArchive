@@ -17,11 +17,11 @@ MonoBehaviour:
   art_full: {fileID: 21300000, guid: 7699cccd52686144db4e7915c70e7a67, type: 3}
   art_board: {fileID: 21300000, guid: 683a50fcd851d6d45ac0a67c123f2a04, type: 3}
   type: 5
-  team: {fileID: 11400000, guid: 6bbb96863ece0314fb318c0fce569afc, type: 2}
-  rarity: {fileID: 11400000, guid: 13b592f40b7cd424c966f5d7eef425aa, type: 2}
   mana: 0
   attack: 0
   hp: 0
+  clubs: []
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
   abilities:

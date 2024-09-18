@@ -17,32 +17,12 @@ namespace TcgEngine
         Attachment = 60,
     }
 
-    public enum WeaponType
-    {
-        None = 0,
-
-        SG = 1,
-        SMG = 2,
-        HG = 3,
-        H2H = 4,
-
-        AR = 11,
-        MG = 12,
-        SR = 13,
-
-        GL = 21,
-        RL = 22,
-        MT = 23,
-
-        RG = 31,
-        FT = 32,
-    }
-
     /// <summary>
     /// Defines all card data
     /// </summary>
 
     [CreateAssetMenu(fileName = "card", menuName = "TcgEngine/CardData", order = 5)]
+    [System.Serializable]
     public class CardData : ScriptableObject
     {
         public string id;
@@ -63,7 +43,7 @@ namespace TcgEngine
         public ClubData[] clubs;
 
         [Header("Weapon")]
-        public WeaponType weapon_type;
+        public WeaponData weapon;
 
         [Header("Traits")]
         public TraitData[] traits;
@@ -137,18 +117,8 @@ namespace TcgEngine
 
         public int GetRange()
         {
-            int ran = 0;
-
-            if (weapon_type == WeaponType.SG || weapon_type == WeaponType.H2H || weapon_type == WeaponType.HG || weapon_type == WeaponType.FT)
-                ran = 1;
-            else if (weapon_type == WeaponType.SMG || weapon_type == WeaponType.MG)
-                ran = 2;
-            else if (weapon_type == WeaponType.AR || weapon_type == WeaponType.GL || weapon_type == WeaponType.RL || weapon_type == WeaponType.MT)
-                ran = 3;
-            else if (weapon_type == WeaponType.SR)
-                ran = 4;
-
-            return ran;
+            return 0;
+            //return weapon.GetDefaultRange();
         }
 
         public string GetTypeId()

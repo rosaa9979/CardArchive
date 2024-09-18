@@ -22,7 +22,7 @@ namespace TcgEngine
         public int mana = 0;
         public int attack = 0;
         public int hp = 0;
-        public WeaponType weapon_type = WeaponType.None;
+        public WeaponData weapon;
         public int range = 0;
 
         public int mana_ongoing = 0;
@@ -65,7 +65,7 @@ namespace TcgEngine
         public virtual int GetHP() { return Mathf.Max(hp + hp_ongoing - damage, 0); }
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
-        public virtual WeaponType GetWeaponType() { return weapon_type; }
+        public virtual WeaponData GetWeapon() { return weapon; }
         public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
@@ -76,7 +76,7 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
-            weapon_type = icard.weapon_type;
+            weapon = icard.weapon;
             range = icard.GetRange();
             
             SetTraits(icard);
@@ -526,13 +526,6 @@ namespace TcgEngine
             if (!skip_cost && exhausted)
                 return false; //no more action
             return true;
-        }
-
-        public virtual bool CanAdditionAttack()
-        {
-            if (weapon_type == WeaponType.MT || weapon_type == WeaponType.GL || weapon_type == WeaponType.RL || weapon_type == WeaponType.FT)
-                return true;
-            return false;
         }
 
         public virtual bool CanMove(bool skip_cost = false)
