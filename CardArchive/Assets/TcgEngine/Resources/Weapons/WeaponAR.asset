@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2f6f3a66b19e634ea9dd38f897e0647, type: 3}
   m_Name: WeaponAR
   m_EditorClassIdentifier: 
+  type: 11
+  range: 3

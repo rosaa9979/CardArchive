@@ -22,6 +22,7 @@ MonoBehaviour:
   hp: 6
   clubs:
   - {fileID: 11400000, guid: 05f800c145171ee4eb4a209cc7d194c5, type: 2}
+  weapon_type: 3
   weapon: {fileID: 11400000, guid: fa1bd51c44f6b124e988bc52aace7ead, type: 2}
   traits: []
   stats: []

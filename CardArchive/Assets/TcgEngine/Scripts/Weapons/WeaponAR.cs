@@ -6,23 +6,26 @@ using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [System.Serializable]
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/AR", order = 10)]
     public class WeaponAR : WeaponData
     {
-        public WeaponAR()
+        public string AR_id = "AR";
+        public WeaponType AR_type = WeaponType.AR;
+        public int AR_range = 3;
+
+        public override string GetWeaponID()
         {
-            type = WeaponType.AR;
-            range = 3;
+            return AR_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return type;
+            return AR_type;
         }
 
         public override int GetDefaultRange()
         {
-            return range;
+            return AR_range;
         }
 
 
@@ -42,12 +45,12 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
-            foreach (Card target in targets)
-            {
-                logic.AttackTarget(attacker, target);
-            }
+            int randInt = UnityEngine.Random.Range(0, targets.Count);
+            logic.AttackTarget(attacker, targets[randInt]);
         }
 
+
+        /*
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)
         {
             Game game = logic.GetGameData();
@@ -55,5 +58,6 @@ namespace TcgEngine
 
             logic.AttackPlayer(attacker, oplayer);
         }
+        */
     }
 }

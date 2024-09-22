@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
@@ -22,7 +23,8 @@ namespace TcgEngine
         public int mana = 0;
         public int attack = 0;
         public int hp = 0;
-        public WeaponData weapon;
+        public WeaponType weapon_type = WeaponType.None;
+        public CardWeapon weapon;
         public int range = 0;
 
         public int mana_ongoing = 0;
@@ -65,7 +67,7 @@ namespace TcgEngine
         public virtual int GetHP() { return Mathf.Max(hp + hp_ongoing - damage, 0); }
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
-        public virtual WeaponData GetWeapon() { return weapon; }
+        public virtual WeaponType GetWeaponType() { return weapon_type; }
         public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
@@ -76,12 +78,24 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
-            weapon = icard.weapon;
-            range = icard.GetRange();
-            
+            weapon_type = icard.weapon_type;
+
+            SetWeapon(icard.weapon.GetWeaponID());
+
             SetTraits(icard);
             SetClubs(icard);
             SetAbilities(icard);
+        }
+
+        public void SetWeapon(string id)
+        {
+            CardWeapon new_weapon = new CardWeapon(id);
+
+            if (new_weapon != null)
+            {
+                weapon = new_weapon;
+                range = weapon.GetDefaultRange();
+            }
         }
 
         public void SetTraits(CardData icard)
@@ -528,6 +542,13 @@ namespace TcgEngine
             return true;
         }
 
+        public virtual bool CanAdditionAttack()
+        {
+            if (weapon_type == WeaponType.MT || weapon_type == WeaponType.GL || weapon_type == WeaponType.RL || weapon_type == WeaponType.FT)
+                return true;
+            return false;
+        }
+
         public virtual bool CanMove(bool skip_cost = false)
         {
             //In demo we can move freely, since it has no effect
@@ -875,6 +896,46 @@ namespace TcgEngine
 
             if (dest.Count > source.Count)
                 dest.RemoveRange(source.Count, dest.Count - source.Count);
+        }
+    }
+
+    [System.Serializable]
+    public class CardWeapon
+    {
+        public string id;
+
+        [System.NonSerialized]
+        private WeaponData data = null;
+
+        public CardWeapon(string id)
+        {
+            this.id = id;
+            this.data = WeaponData.Get(id);
+        }
+
+        public WeaponData WeaponData
+        {
+            get
+            {
+                if (data == null || data.id != id)
+                    data = WeaponData.Get(id);
+                return data;
+            }
+        }
+
+        public int GetDefaultRange()
+        {
+            return data.GetDefaultRange();
+        }
+
+        public List<Card> SearchTarget(GameLogic logic, Card attacker)
+        {
+            return data.SearchTarget(logic, attacker);
+        }
+
+        public void AttackTarget(GameLogic logic, Card attacker, List<Card>targets)
+        {
+            data.AttackTarget(logic, attacker, targets);
         }
     }
 }

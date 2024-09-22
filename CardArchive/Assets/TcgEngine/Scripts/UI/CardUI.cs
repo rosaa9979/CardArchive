@@ -62,7 +62,7 @@ namespace TcgEngine.UI
             if (hp != null)
                 hp.text = card.GetHP().ToString();
             if (weapon_type != null)
-                weapon_type.text = card.GetWeapon().GetWeaponType().ToString();
+                weapon_type.text = card.GetWeaponType().ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
 
@@ -117,7 +117,7 @@ namespace TcgEngine.UI
             if (hp != null)
                 hp.text = card.hp.ToString();
             if (weapon_type != null)
-                weapon_type.text = card.weapon.ToString();
+                weapon_type.text = card.weapon_type.ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
 

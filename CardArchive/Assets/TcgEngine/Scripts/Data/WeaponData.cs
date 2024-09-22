@@ -8,12 +8,41 @@ namespace TcgEngine
     /// <summary>
     /// Defines all traits and stats data
     /// </summary>
+    /// 
+
     [System.Serializable]
     public class WeaponData : ScriptableObject
     {
-        [SerializeField]
-        public WeaponType type;
-        public int range= 0;
+        [System.NonSerialized] public string id = "Default";
+        [System.NonSerialized] public WeaponType type = WeaponType.None;
+        [System.NonSerialized] public int range = 0;
+        public static List<WeaponData> weapon_list = new List<WeaponData>();
+
+        public static void Load(string folder = "")
+        {
+            if (weapon_list.Count == 0)
+                weapon_list.AddRange(Resources.LoadAll<WeaponData>(folder));
+        }
+
+        public static List<WeaponData> GetAll()
+        {
+            return weapon_list;
+        }
+
+        public static WeaponData Get(string id)
+        {
+            foreach (WeaponData weapon in GetAll())
+            {
+                if (weapon.GetWeaponID() == id)
+                    return weapon;
+            }
+            return null;
+        }
+
+        public virtual string GetWeaponID()
+        {
+            return id;
+        }
 
         public virtual WeaponType GetWeaponType()
         {
@@ -32,34 +61,7 @@ namespace TcgEngine
 
         public virtual void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
-
+            return;
         }
-
-        public virtual void AttackTarget(GameLogic logic, Card attacker, Player target)
-        {
-
-        }
-    }
-    
-    [System.Serializable]
-    public enum WeaponType
-    {
-        None = 0,
-
-        SG = 1,
-        SMG = 2,
-        HG = 3,
-        H2H = 4,
-
-        AR = 11,
-        MG = 12,
-        SR = 13,
-
-        GL = 21,
-        RL = 22,
-        MT = 23,
-
-        RG = 31,
-        FT = 32,
     }
 }
