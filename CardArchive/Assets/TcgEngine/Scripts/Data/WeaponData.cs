@@ -63,5 +63,10 @@ namespace TcgEngine
         {
             return;
         }
+
+        public virtual void AttackTarget(GameLogic logic, Card attacker, Player target)
+        {
+            return;
+        }
     }
 }

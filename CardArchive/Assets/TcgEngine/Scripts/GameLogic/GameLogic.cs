@@ -278,7 +278,6 @@ namespace TcgEngine.Gameplay
             List<Card> candidate_target = new List<Card>();
 
             candidate_target = attacker.weapon.SearchTarget(this, attacker);
-            Debug.Log(candidate_target.Count);
 
             /*
             if (attacker.GetWeaponType() == WeaponType.H2H || attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.FT)
@@ -345,14 +344,16 @@ namespace TcgEngine.Gameplay
             if (candidate_target.Count != 0)
                 attacker.weapon.AttackTarget(this, attacker, candidate_target);
 
-            if (candidate_target.Count == 0)
+            else
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
                 List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
 
                 if (rslot.Any(element => pslot.Contains(element)))
+                {
                     is_player_attacked = true;
-
+                    attacker.weapon.AttackTarget(this, attacker, oplayer);
+                }
             }
 
             ExhaustBattle(attacker);
@@ -835,7 +836,7 @@ namespace TcgEngine.Gameplay
             Slot target_slot = target.slot;
 
             //Damage Cards
-            DamageCard(attacker, target, datt1);
+            DamageCard(attacker, target_slot, datt1);
 
             //Counter Damage
             //if(!attacker.HasStatus(StatusType.Intimidate))
@@ -1262,7 +1263,7 @@ namespace TcgEngine.Gameplay
                 KillCard(attacker, target);
         }
 
-                //Damage a card with attacker/caster
+        //Damage a slot with attacker/caster
         public virtual void DamageCard(Card attacker, Slot target, int value, bool spell_damage = false)
         {
             Card card_target = game_data.GetSlotCard(target);

@@ -6,33 +6,33 @@ using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/AR", order = 10)]
-    public class WeaponAR : WeaponData
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/H2H", order = 10)]
+    public class WeaponH2H : WeaponData
     {
-        public string AR_id = "AR";
-        public WeaponType AR_type = WeaponType.AR;
-        public int AR_range = 3;
+        public string H2H_id = "H2H";
+        public WeaponType H2H_type = WeaponType.H2H;
+        public int H2H_range = 1;
 
         public override string GetWeaponID()
         {
-            return AR_id;
+            return H2H_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return AR_type;
+            return H2H_type;
         }
 
         public override int GetDefaultRange()
         {
-            return AR_range;
+            return H2H_range;
         }
 
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
             List<Card> target = new List<Card>();
-            List<Card> targets = logic.GetAllTarget(attacker);
+            List<Card> targets = logic.GetNearestTarget(attacker);
 
             if (targets.Count > 0)
             {

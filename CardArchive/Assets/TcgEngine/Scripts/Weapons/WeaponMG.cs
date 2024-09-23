@@ -6,26 +6,26 @@ using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/AR", order = 10)]
-    public class WeaponAR : WeaponData
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/MG", order = 10)]
+    public class WeaponMG : WeaponData
     {
-        public string AR_id = "AR";
-        public WeaponType AR_type = WeaponType.AR;
-        public int AR_range = 3;
+        public string MG_id = "MG";
+        public WeaponType MG_type = WeaponType.MG;
+        public int MG_range = 2;
 
         public override string GetWeaponID()
         {
-            return AR_id;
+            return MG_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return AR_type;
+            return MG_type;
         }
 
         public override int GetDefaultRange()
         {
-            return AR_range;
+            return MG_range;
         }
 
 
@@ -34,19 +34,18 @@ namespace TcgEngine
             List<Card> target = new List<Card>();
             List<Card> targets = logic.GetAllTarget(attacker);
 
-            if (targets.Count > 0)
-            {
-                int ran = UnityEngine.Random.Range(0, targets.Count);
-                target.Add(targets[ran]);
-            }
-
-            return target;
+            return targets;
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
             foreach (Card targ in targets)
-                logic.AttackTarget(attacker, targ);
+            {
+                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                if (ran < 1)
+                    logic.AttackTarget(attacker, targ);
+            }
+
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)

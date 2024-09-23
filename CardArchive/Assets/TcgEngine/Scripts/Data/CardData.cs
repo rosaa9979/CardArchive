@@ -65,7 +65,6 @@ namespace TcgEngine
         public ClubData[] clubs;
 
         [Header("Weapon")]
-        public WeaponType weapon_type;
         public WeaponData weapon;
 
         [Header("Traits")]
@@ -141,18 +140,7 @@ namespace TcgEngine
 
         public int GetRange()
         {
-            int ran = 0;
-
-            if (weapon_type == WeaponType.SG || weapon_type == WeaponType.H2H || weapon_type == WeaponType.HG || weapon_type == WeaponType.FT)
-                ran = 1;
-            else if (weapon_type == WeaponType.SMG || weapon_type == WeaponType.MG)
-                ran = 2;
-            else if (weapon_type == WeaponType.AR || weapon_type == WeaponType.GL || weapon_type == WeaponType.RL || weapon_type == WeaponType.MT)
-                ran = 3;
-            else if (weapon_type == WeaponType.SR)
-                ran = 4;
-
-            return ran;
+            return weapon.GetDefaultRange();
         }
 
         public string GetTypeId()

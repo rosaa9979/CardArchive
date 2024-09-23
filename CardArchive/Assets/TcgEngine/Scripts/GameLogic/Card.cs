@@ -23,7 +23,6 @@ namespace TcgEngine
         public int mana = 0;
         public int attack = 0;
         public int hp = 0;
-        public WeaponType weapon_type = WeaponType.None;
         public CardWeapon weapon;
         public int range = 0;
 
@@ -67,8 +66,8 @@ namespace TcgEngine
         public virtual int GetHP() { return Mathf.Max(hp + hp_ongoing - damage, 0); }
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
-        public virtual WeaponType GetWeaponType() { return weapon_type; }
-        public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
+        public virtual WeaponType GetWeaponType() { return weapon.GetWeaponType(); }
+        public virtual int GetRange() { return GetWeaponType() == WeaponType.H2H ? 1 : Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
         {
@@ -78,7 +77,6 @@ namespace TcgEngine
             attack = icard.attack;
             hp = icard.hp;
             mana = icard.mana;
-            weapon_type = icard.weapon_type;
 
             SetWeapon(icard.weapon.GetWeaponID());
 
@@ -95,6 +93,8 @@ namespace TcgEngine
             {
                 weapon = new_weapon;
                 range = weapon.GetDefaultRange();
+
+                Debug.Log(weapon.GetWeaponID());
             }
         }
 
@@ -541,13 +541,14 @@ namespace TcgEngine
                 return false; //no more action
             return true;
         }
-
+        /*
         public virtual bool CanAdditionAttack()
         {
             if (weapon_type == WeaponType.MT || weapon_type == WeaponType.GL || weapon_type == WeaponType.RL || weapon_type == WeaponType.FT)
                 return true;
             return false;
         }
+        */
 
         public virtual bool CanMove(bool skip_cost = false)
         {
@@ -917,14 +918,34 @@ namespace TcgEngine
         {
             get
             {
-                if (data == null || data.id != id)
+                if (data == null || data.GetWeaponID() != id)
                     data = WeaponData.Get(id);
+
                 return data;
             }
         }
 
+        public string GetWeaponID()
+        {
+            if (data == null)
+                data = WeaponData;
+
+            return data.GetWeaponID();
+        }
+
+        public WeaponType GetWeaponType()
+        {
+            if (data == null)
+                data = WeaponData;
+
+            return data.GetWeaponType();
+        }
+
         public int GetDefaultRange()
         {
+            if (data == null)
+                data = WeaponData;
+
             return data.GetDefaultRange();
         }
 
@@ -936,6 +957,11 @@ namespace TcgEngine
         public void AttackTarget(GameLogic logic, Card attacker, List<Card>targets)
         {
             data.AttackTarget(logic, attacker, targets);
+        }
+
+        public void AttackTarget(GameLogic logic, Card attacker, Player player)
+        {
+            data.AttackTarget(logic, attacker, player);
         }
     }
 }

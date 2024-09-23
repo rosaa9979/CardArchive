@@ -1,31 +1,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/AR", order = 10)]
-    public class WeaponAR : WeaponData
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/SR", order = 10)]
+    public class WeaponSR : WeaponData
     {
-        public string AR_id = "AR";
-        public WeaponType AR_type = WeaponType.AR;
-        public int AR_range = 3;
+        public string SR_id = "SR";
+        public WeaponType SR_type = WeaponType.SR;
+        public int SR_range = 4;
 
         public override string GetWeaponID()
         {
-            return AR_id;
+            return SR_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return AR_type;
+            return SR_type;
         }
 
         public override int GetDefaultRange()
         {
-            return AR_range;
+            return SR_range;
         }
 
 
@@ -34,10 +35,12 @@ namespace TcgEngine
             List<Card> target = new List<Card>();
             List<Card> targets = logic.GetAllTarget(attacker);
 
-            if (targets.Count > 0)
+            if (targets.Count != 0)
             {
-                int ran = UnityEngine.Random.Range(0, targets.Count);
-                target.Add(targets[ran]);
+                int minHP = targets.Min(card => card.GetHP());
+                List<Card> lowestHPCards = targets.Where(card => card.GetHP() == minHP).ToList();
+                int randomIdx = UnityEngine.Random.Range(0, lowestHPCards.Count);
+                target.Add(lowestHPCards[randomIdx]);
             }
 
             return target;
