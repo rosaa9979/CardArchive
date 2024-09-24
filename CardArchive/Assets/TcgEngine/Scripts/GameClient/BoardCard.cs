@@ -97,10 +97,10 @@ namespace TcgEngine.Client
 
             //bool selected = controls.GetSelected() == this;
             bool selected = false;
-            //Vector3 targ_pos = GetTargetPos();
-            //float speed = 12f;
+            Vector3 targ_pos = GetTargetPos();
+            float speed = 12f;
 
-            //transform.position = Vector3.MoveTowards(transform.position, targ_pos, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targ_pos, speed * Time.deltaTime);
 
             float target_alpha = IsFocus() || selected ? 1f : 0f;
             if (destroyed || timer < 1f)

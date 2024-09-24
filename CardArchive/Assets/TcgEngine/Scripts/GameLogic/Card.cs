@@ -93,8 +93,6 @@ namespace TcgEngine
             {
                 weapon = new_weapon;
                 range = weapon.GetDefaultRange();
-
-                Debug.Log(weapon.GetWeaponID());
             }
         }
 
@@ -557,7 +555,7 @@ namespace TcgEngine
             //   return false;
             //if (!skip_cost && exhausted)
             //    return false; //no more action
-            return false; 
+            return true; 
         }
 
         public virtual bool CanDoActivatedAbilities()

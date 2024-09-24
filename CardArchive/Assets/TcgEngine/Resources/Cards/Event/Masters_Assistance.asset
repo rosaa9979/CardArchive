@@ -10,20 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Thundergun
+  m_Name: Masters_Assistance
   m_EditorClassIdentifier: 
-  id: Thundergun
-  title: "\uCC9C\uB465\uC774"
+  id: 
+  title: 
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 10
-  mana: 1
-  attack: 1
-  hp: 2
+  type: 0
+  mana: 0
+  attack: 0
+  hp: 0
   clubs: []
-  weapon: {fileID: 11400000, guid: fa1bd51c44f6b124e988bc52aace7ead, type: 2}
-  traits:
-  - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
+  weapon: {fileID: 0}
+  traits: []
   stats: []
   abilities: []
   text: 

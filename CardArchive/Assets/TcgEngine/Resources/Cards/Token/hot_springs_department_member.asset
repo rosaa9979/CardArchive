@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: hot_springs_department_member
+  m_Name: Hot_Springs_Department_Member
   m_EditorClassIdentifier: 
-  id: hot_springs_department_member
+  id: Hot_Springs_Department_Member
   title: "\uC628\uCC9C\uAC1C\uBC1C\uBD80\uC6D0"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
@@ -21,7 +21,6 @@ MonoBehaviour:
   attack: 1
   hp: 1
   clubs: []
-  weapon_type: 11
   weapon: {fileID: 11400000, guid: fa1bd51c44f6b124e988bc52aace7ead, type: 2}
   traits: []
   stats: []

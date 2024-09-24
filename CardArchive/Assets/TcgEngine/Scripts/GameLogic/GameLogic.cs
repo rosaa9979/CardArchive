@@ -279,72 +279,7 @@ namespace TcgEngine.Gameplay
 
             candidate_target = attacker.weapon.SearchTarget(this, attacker);
 
-            /*
-            if (attacker.GetWeaponType() == WeaponType.H2H || attacker.GetWeaponType() == WeaponType.SG || attacker.GetWeaponType() == WeaponType.SMG || attacker.GetWeaponType() == WeaponType.HG || attacker.GetWeaponType() == WeaponType.FT)
-            {
-                candidate_target = GetNearestTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    int randomIdx = random.Next(0, candidate_target.Count);
-                    attack_list.Enqueue(candidate_target[randomIdx]);
-                    additional_slot = candidate_target[randomIdx].slot;
-                }
-
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.AR || attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    int randomIdx = random.Next(0, candidate_target.Count);
-                    attack_list.Enqueue(candidate_target[randomIdx]);
-                    additional_slot = candidate_target[randomIdx].slot;
-                }
-
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.SR)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    int minHP = candidate_target.Min(card => card.GetHP());
-                    List<Card> lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
-                    int randomIdx = random.Next(0, lowestHPCards.Count);
-                    attack_list.Enqueue(lowestHPCards[randomIdx]);
-                    additional_slot = lowestHPCards[randomIdx].slot;
-                }
-
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.MG)
-            {
-                candidate_target = GetAllTarget(attacker);
-
-                if (candidate_target.Count != 0)
-                {
-                    foreach (Card candidate in candidate_target)
-                    {
-                        double pos = random.NextDouble();
-                        if (pos < 1)
-                        {
-                            attack_list.Enqueue(candidate);
-                            additional_slot = candidate.slot;
-                        }
-
-                    }
-                }
-            }
-            */
-
-            if (candidate_target.Count != 0)
-                attacker.weapon.AttackTarget(this, attacker, candidate_target);
-
-            else
+            if (attacker.HasClub(ClubData.Get("Trinity_Vigilante_Crew")))
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
                 List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
@@ -354,12 +289,32 @@ namespace TcgEngine.Gameplay
                     is_player_attacked = true;
                     attacker.weapon.AttackTarget(this, attacker, oplayer);
                 }
+
+                else if (candidate_target.Count != 0)
+                    attacker.weapon.AttackTarget(this, attacker, candidate_target);
+            }
+
+            else
+            {
+                if (candidate_target.Count != 0)
+                    attacker.weapon.AttackTarget(this, attacker, candidate_target);
+
+                else
+                {
+                    List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
+                    List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
+
+                    if (rslot.Any(element => pslot.Contains(element)))
+                    {
+                        is_player_attacked = true;
+                        attacker.weapon.AttackTarget(this, attacker, oplayer);
+                    }
+                }
             }
 
             ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
-            //resolve_queue.AddAttack(attacker, AttackLoop);
             resolve_queue.ResolveAll();
         }
 
@@ -739,8 +694,12 @@ namespace TcgEngine.Gameplay
 
                 //Trigger abilities
                 TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
+                TriggerSecrets(AbilityTrigger.OnSummonOther, card); //After summon card
+
                 TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                TriggerCardAbilityType(AbilityTrigger.OnSummon, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, card);
 
                 RefreshData();
 
@@ -754,6 +713,8 @@ namespace TcgEngine.Gameplay
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
                 card.slot = slot;
+                Debug.Log(card.card_id);
+                Debug.Log(card.slot.x+" "+card.slot.x);
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
                 //if(!skip_cost)
@@ -1054,7 +1015,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Create a new card and send it to the board
-        public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
+        public virtual Card SummonCard(Player player, CardData icard, VariantData variant, Slot slot)
         {
             if (!slot.IsValid())
                 return null;
@@ -1062,12 +1023,78 @@ namespace TcgEngine.Gameplay
             if (game_data.GetSlotCard(slot) != null)
                 return null;
 
-            Card acard = SummonCardHand(player, card, variant);
-            PlayCard(acard, slot, true);
+            Debug.Log("summon");
 
-            onCardSummoned?.Invoke(acard, slot);
+            Card card = SummonCardHand(player, icard, variant);
+            
+            if (game_data.CanPlayCard(card, slot))
+            {
+                //Player player = game_data.GetPlayer(card.player_id);
+                
+                //Cost
+                /*
+                if (!skip_cost)
+                    player.PayMana(card);
+                */
 
-            return acard;
+                //Play card
+                player.RemoveCardFromAllGroups(card);
+
+                //Add to board
+                //CardData icard = card.CardData;
+                if (icard.IsBoardCard())
+                {
+                    player.cards_board.Add(card);
+                    card.slot = slot;
+                    card.exhausted = true; //Cant attack first turn
+                }
+
+                else if (icard.IsEquipment())
+                {
+                    Card bearer = game_data.GetSlotCard(slot);
+                    EquipCard(bearer, card);
+                    card.exhausted = true;
+                }
+
+                else if (icard.IsAttachment())
+                {
+                    AttachCard(slot, card);
+                    card.exhausted = true;
+                }
+
+                else if (icard.IsSecret())
+                {
+                    player.cards_secret.Add(card);
+                }
+
+                else
+                {
+                    player.cards_discard.Add(card);
+                    card.slot = slot; //Save slot in case spell has PlayTarget
+                }
+
+                //History
+                if(!is_ai_predict && !icard.IsSecret())
+                    player.AddHistory(GameAction.PlayCard, card);
+
+                //Update ongoing effects
+                game_data.last_played = card.uid;
+                UpdateOngoing();
+
+                //Trigger abilities
+                TriggerSecrets(AbilityTrigger.OnSummonOther, card); //After playing card
+                TriggerCardAbilityType(AbilityTrigger.OnSummon, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, card);
+
+                RefreshData();
+
+                onCardPlayed?.Invoke(card, slot);
+                resolve_queue.ResolveAll(0.3f);
+            }
+
+            onCardSummoned?.Invoke(card, slot);
+
+            return card;
         }
 
         //Create a new card and send it to your hand

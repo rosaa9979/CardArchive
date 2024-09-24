@@ -45,6 +45,7 @@ namespace TcgEngine
             CardbackData.Load();
             RewardData.Load();
             WeaponData.Load();
+            ClubData.Load();
 
             CheckCardData();
             CheckAbilityData();

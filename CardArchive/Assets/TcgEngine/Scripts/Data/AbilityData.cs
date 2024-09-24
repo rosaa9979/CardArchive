@@ -654,7 +654,10 @@ namespace TcgEngine
         Activate = 5, //Action
 
         OnPlay = 10,  //When playeds
-        OnPlayOther = 12,  //When another card played
+        OnPlayOther = 11,  //When another card played
+
+        OnSummon = 13,
+        OnSummonOther = 14,
 
         StartOfTurn = 20, //Every turn
         EndOfTurn = 22, //Every turn

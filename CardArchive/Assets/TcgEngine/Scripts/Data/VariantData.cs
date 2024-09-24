@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// Defines card variants
+    /// Defines weapon type
     /// </summary>
 
     [CreateAssetMenu(fileName = "VariantData", menuName = "TcgEngine/VariantData", order = 5)]

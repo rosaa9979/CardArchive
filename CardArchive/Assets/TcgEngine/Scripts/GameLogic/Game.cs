@@ -141,6 +141,7 @@ namespace TcgEngine
         //Check if a card is allowed to move to slot
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
         {
+            Debug.Log(card.card_id);
             if (card == null || !slot.IsValid())
                 return false;
 
@@ -150,8 +151,8 @@ namespace TcgEngine
             if (!card.CanMove(skip_cost))
                 return false; //Card cant move
 
-            if (Slot.GetP(card.player_id) != slot.p)
-                return false; //Card played wrong side
+            //if (Slot.GetP(card.player_id) != slot.p)
+            //    return false; //Card played wrong side
 
             if (card.slot == slot)
                 return false; //Cant move to same slot

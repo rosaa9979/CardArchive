@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: c4
+  m_Name: C4
   m_EditorClassIdentifier: 
-  id: c4
+  id: C4
   title: c4
   art_full: {fileID: 0}
   art_board: {fileID: 0}
@@ -21,7 +21,6 @@ MonoBehaviour:
   attack: 0
   hp: 0
   clubs: []
-  weapon_type: 0
   weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
