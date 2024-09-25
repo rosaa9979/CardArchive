@@ -227,8 +227,10 @@ namespace TcgEngine.UI
             card_list.Clear();
 
             UserData udata = Authenticator.Get().UserData;
+            Debug.Log(udata);
             if (udata == null)
                 return;
+
 
             VariantData variant = VariantData.GetDefault();
             VariantData special = VariantData.GetSpecial();
@@ -261,42 +263,40 @@ namespace TcgEngine.UI
                 if (card.card.deckbuilding)
                 {
                     CardData icard = card.card;
-                    /*
-                    if (filter_team == null || filter_team == icard.team)
+                    
+                    bool owned = card.quantity > 0;
+                    //RarityData rarity = icard.rarity;
+                    CardType type = icard.type;
+
+                    bool owned_check = (owned && toggle_owned.isOn)
+                        || (!owned && toggle_not_owned.isOn)
+                        || toggle_owned.isOn == toggle_not_owned.isOn;
+
+                    bool type_check = (type == CardType.Student || type == CardType.NonStudent && toggle_citizen.isOn)
+                        || (type == CardType.Spell && toggle_spell.isOn)
+                        || (type == CardType.Building && toggle_building.isOn)
+                        || (type == CardType.Equipment && toggle_equipment.isOn)
+                        || (type == CardType.Secret && toggle_secret.isOn)
+                        || (!toggle_citizen.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);
+
+                    //bool rarity_check = (rarity.rank == 1 && toggle_common.isOn)
+                    //    || (rarity.rank == 2 && toggle_uncommon.isOn)
+                    //    || (rarity.rank == 3 && toggle_rare.isOn)
+                    //    || (rarity.rank == 4 && toggle_mythic.isOn)
+                    //    || (!toggle_common.isOn && !toggle_uncommon.isOn && !toggle_rare.isOn && !toggle_mythic.isOn);
+
+                    string search = filter_search.ToLower();
+                    bool search_check = string.IsNullOrWhiteSpace(search)
+                        || icard.id.Contains(search)
+                        || icard.title.ToLower().Contains(search)
+                        || icard.GetText().ToLower().Contains(search);
+
+
+                    //if (owned_check && type_check && rarity_check && search_check)
+                    if (owned_check && type_check && search_check)
                     {
-                        bool owned = card.quantity > 0;
-                        //RarityData rarity = icard.rarity;
-                        CardType type = icard.type;
-
-                        bool owned_check = (owned && toggle_owned.isOn)
-                            || (!owned && toggle_not_owned.isOn)
-                            || toggle_owned.isOn == toggle_not_owned.isOn;
-
-                        bool type_check = (type == CardType.Citizen && toggle_citizen.isOn)
-                            || (type == CardType.Spell && toggle_spell.isOn)
-                            || (type == CardType.Building && toggle_building.isOn)
-                            || (type == CardType.Equipment && toggle_equipment.isOn)
-                            || (type == CardType.Secret && toggle_secret.isOn)
-                            || (!toggle_citizen.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);
-
-                        //bool rarity_check = (rarity.rank == 1 && toggle_common.isOn)
-                        //    || (rarity.rank == 2 && toggle_uncommon.isOn)
-                        //    || (rarity.rank == 3 && toggle_rare.isOn)
-                        //    || (rarity.rank == 4 && toggle_mythic.isOn)
-                        //    || (!toggle_common.isOn && !toggle_uncommon.isOn && !toggle_rare.isOn && !toggle_mythic.isOn);
-
-                        string search = filter_search.ToLower();
-                        bool search_check = string.IsNullOrWhiteSpace(search)
-                            || icard.id.Contains(search)
-                            || icard.title.ToLower().Contains(search)
-                            || icard.GetText().ToLower().Contains(search);
-
-                        //if (owned_check && type_check && rarity_check && search_check)
-                        //{
-                        //    shown_cards.Add(card);
-                        //}
+                        shown_cards.Add(card);
                     }
-                    */
                 }
             }
 

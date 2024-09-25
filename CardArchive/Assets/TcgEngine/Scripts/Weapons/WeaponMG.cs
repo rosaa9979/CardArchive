@@ -39,12 +39,20 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
+            List<Card> final_result = new List<Card>();
+            System.Random random = new System.Random();
+
             foreach (Card targ in targets)
             {
-                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                //float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                double ran = random.NextDouble();
+
                 if (ran < 1)
-                    logic.AttackTarget(attacker, targ);
+                    final_result.Add(targ);
             }
+
+            foreach (Card targ in final_result)
+                logic.AttackTarget(attacker, targ);
 
         }
 

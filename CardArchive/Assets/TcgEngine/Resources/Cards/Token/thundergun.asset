@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\uCC9C\uB465\uC774"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 10
+  type: 11
   mana: 1
   attack: 1
   hp: 2

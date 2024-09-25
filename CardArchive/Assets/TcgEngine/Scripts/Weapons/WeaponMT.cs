@@ -45,6 +45,8 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
+            Game game_data = logic.GetGameData();
+
             foreach (Card targ in targets)
             {
                 logic.AttackTarget(attacker, targ);

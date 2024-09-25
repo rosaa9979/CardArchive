@@ -108,7 +108,9 @@ namespace TcgEngine
                 card_list.AddRange(Resources.LoadAll<CardData>(folder));
 
                 foreach (CardData card in card_list)
+                {
                     card_dict.Add(card.id, card);
+                }
 
             }
         }

@@ -12,19 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Morizuki_Suzumi
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Morizuki_Suzumi
+  title: "\uBAA8\uB9AC\uC988\uD0A4_\uC2A4\uC988\uBBF8"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
-  attack: 0
-  hp: 0
-  clubs: []
-  weapon: {fileID: 0}
+  type: 10
+  mana: 3
+  attack: 2
+  hp: 3
+  clubs:
+  - {fileID: 11400000, guid: 2988ba11a0ce0004381c63065f7ddb12, type: 2}
+  weapon: {fileID: 11400000, guid: fa1bd51c44f6b124e988bc52aace7ead, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 48d90445a88d1e94993f36bd6bcc149e, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

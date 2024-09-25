@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OP_summon_HSDM1
   m_EditorClassIdentifier: 
   id: OP_summon_HSDM1
-  trigger: 42
+  trigger: 10
   conditions_trigger: []
   target: 15
   conditions_target:

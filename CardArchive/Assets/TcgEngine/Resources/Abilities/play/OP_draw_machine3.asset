@@ -12,13 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OP_draw_machine3
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: OP_draw_machine3
+  trigger: 10
   conditions_trigger: []
-  target: 0
-  conditions_target: []
-  filters_target: []
-  effects: []
+  target: 12
+  conditions_target:
+  - {fileID: 11400000, guid: 99c12d98b2b59f04a8441a9bc9bf5816, type: 2}
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: 59d478a7d6242eb49977504ed8cb7c52, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 8f17c76aa367dd144a0665d4514588e9, type: 2}
   status: []
   value: 0
   duration: 0

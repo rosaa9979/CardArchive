@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: chain_move_enemy_range
   m_EditorClassIdentifier: 
-  id: 
+  id: chain_move_enemy_range
   trigger: 0
   conditions_trigger: []
-  target: 0
-  conditions_target: []
+  target: 30
+  conditions_target:
+  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  - {fileID: 11400000, guid: 2f4ec8177de3b0246959cce1946b29ec, type: 2}
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: acdaa368eec48374daf1c2f69949833a, type: 2}
   status: []
   value: 0
   duration: 0

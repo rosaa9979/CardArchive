@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d618189bc6d530740bfa59a35da4c9ed, type: 3}
   m_Name: add_club
   m_EditorClassIdentifier: 
-  club: {fileID: 11400000, guid: f45cec5756a24024c92c9f22ac87cf6d, type: 2}
+  club: {fileID: 0}

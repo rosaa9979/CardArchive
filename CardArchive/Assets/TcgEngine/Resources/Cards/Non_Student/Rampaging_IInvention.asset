@@ -12,19 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Rampaging_IInvention
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Rampaging_IInvention
+  title: "\uD3ED\uC8FC\uD55C \uBC1C\uBA85\uD488"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
-  attack: 0
-  hp: 0
+  type: 11
+  mana: 1
+  attack: 3
+  hp: 2
   clubs: []
-  weapon: {fileID: 0}
-  traits: []
+  weapon: {fileID: 11400000, guid: b1a3efd71172d96488aa999e19b1112a, type: 2}
+  traits:
+  - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 3f6874f080a286d4cbe8f3fecb5484bf, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

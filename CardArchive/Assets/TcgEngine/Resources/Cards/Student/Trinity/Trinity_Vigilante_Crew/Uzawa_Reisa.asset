@@ -12,19 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Uzawa_Reisa
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Uzawa_Reisa
+  title: "\uC6B0\uC790\uC640 \uB808\uC774\uC0AC"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
-  attack: 0
-  hp: 0
-  clubs: []
-  weapon: {fileID: 0}
+  type: 10
+  mana: 2
+  attack: 1
+  hp: 4
+  clubs:
+  - {fileID: 11400000, guid: 2988ba11a0ce0004381c63065f7ddb12, type: 2}
+  weapon: {fileID: 11400000, guid: 4825742a78baaf746bf48facd5974e6a, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: ffe6920ad413ca2439cc7ae52ee3bfb8, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

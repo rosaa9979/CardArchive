@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: spell_change_HG
   m_EditorClassIdentifier: 
-  id: OP_change_HG
+  id: spell_change_HG
   trigger: 10
   conditions_trigger: []
   target: 30
   conditions_target:
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
+  - {fileID: 11400000, guid: 707ab85bffdfd2643a7375e15b2fa634, type: 2}
   filters_target: []
   effects:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 0e591947bb93ad444a292b2d225b1dd0, type: 2}
   status: []
   value: 0
   duration: 0

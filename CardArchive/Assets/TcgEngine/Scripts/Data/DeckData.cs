@@ -18,8 +18,8 @@ namespace TcgEngine
 
         [Header("Cards")]
         public CardData hero;
-        public CardData[] cards;
         public List<CardData> clubs;
+        public CardData[] cards;
 
         public static List<DeckData> deck_list = new List<DeckData>();
 

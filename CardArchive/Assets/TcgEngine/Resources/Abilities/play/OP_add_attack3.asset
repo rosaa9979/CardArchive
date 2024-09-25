@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OP_add_attack3
   m_EditorClassIdentifier: 
-  id: chain_add_attaack3
-  trigger: 0
+  id: OP_add_attack3
+  trigger: 10
   conditions_trigger: []
   target: 72
   conditions_target: []

@@ -12,19 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Bluetooth_Gun
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Bluetooth_Gun
+  title: "\uBE14\uB8E8\uD22C\uC2A4 \uAD8C\uCD1D"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
+  type: 20
+  mana: 1
   attack: 0
   hp: 0
   clubs: []
-  weapon: {fileID: 0}
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 85766f274e108f54fbcf734f6489f7e3, type: 2}
+  - {fileID: 11400000, guid: 1b4945b6d4e398947a9fbb8c6ecd79ca, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OD_summon_ES
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: OD_summon_ES
+  trigger: 40
   conditions_trigger: []
-  target: 0
+  target: 1
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: e663f8248a4fea44db39dfde32b27c7a, type: 2}
   status: []
   value: 0
   duration: 0

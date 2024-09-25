@@ -12,17 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OP_move_enemy
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: OP_move_enemy
+  trigger: 10
   conditions_trigger: []
-  target: 0
-  conditions_target: []
+  target: 30
+  conditions_target:
+  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
   filters_target: []
   effects: []
   status: []
   value: 0
   duration: 0
-  chain_abilities: []
+  chain_abilities:
+  - {fileID: 11400000, guid: db905f313241d8643bde21c764797db1, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
