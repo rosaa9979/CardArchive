@@ -47,7 +47,7 @@ namespace TcgEngine
                 //float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                 double ran = random.NextDouble();
 
-                if (ran < 1)
+                if (ran < 0.5)
                     final_result.Add(targ);
             }
 
