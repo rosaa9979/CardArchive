@@ -54,7 +54,11 @@ namespace TcgEngine
                 List<Slot> neighbor_slots = targ.slot.GetNeighborSlot();
 
                 foreach (Slot neighbor in neighbor_slots)
-                    logic.DamageCard(attacker, neighbor, attacker.GetAttack());
+                {
+                    if (game_data.CanAttackTarget(attacker, game_data.GetSlotCard(neighbor)))
+                        logic.DamageCard(attacker, neighbor, attacker.GetAttack());
+                }
+
             }
 
         }

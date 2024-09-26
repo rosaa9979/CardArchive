@@ -104,20 +104,23 @@ namespace TcgEngine
             Player player = GetPlayer(card.player_id);
             if (!skip_cost && !player.CanPayMana(card))
                 return false; //Cant pay mana
+
             if (!player.HasCard(player.cards_hand, card))
                 return false; // Card not in hand
+
 
             if (card.CardData.IsBoardCard())
             {
                 if (!slot.IsValid() || IsCardOnSlot(slot))
                     return false;   //Slot already occupied
+
                 //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
                 //    return false; //Cant play on opponent side
 
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
-                if (GetOpponentPlayer(player.player_id).player_id == slot.p)
-                    return false; //Cant play on opponent side
-                    
+                //if (GetOpponentPlayer(player.player_id).player_id == slot.p)
+                //    return false; //Cant play on opponent side
+
                 return true;
             }
             if (card.CardData.IsEquipment())

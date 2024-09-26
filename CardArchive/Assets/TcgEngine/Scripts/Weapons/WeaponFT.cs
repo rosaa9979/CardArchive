@@ -86,7 +86,11 @@ namespace TcgEngine
                 }
 
                 foreach (Slot s in neighbor_slot)
+                {
+                    Debug.Log(s.x+" "+s.y+" "+s.p+" "+attacker.GetAttack());
                     logic.DamageCard(attacker, s, attacker.GetAttack());
+                }
+
             }
         }
 

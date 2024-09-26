@@ -713,8 +713,6 @@ namespace TcgEngine.Gameplay
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
                 card.slot = slot;
-                Debug.Log(card.card_id);
-                Debug.Log(card.slot.x+" "+card.slot.x);
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
                 //if(!skip_cost)
@@ -825,35 +823,12 @@ namespace TcgEngine.Gameplay
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
 
-            //onAttackEnd?.Invoke(attacker, target);
-            //RefreshData();
-            //CheckForWinner();
-
-            resolve_queue.AddAttack(attacker, target_slot, DamageAdditionalTarget, skip_cost);
             resolve_queue.ResolveAll(0.2f);
 
             onAttackEnd?.Invoke(attacker, target);
             RefreshData();
             CheckForWinner();
         }
-
-        public virtual void DamageAdditionalTarget(Card attacker, Slot target, bool skip_cost)
-        {
-            if (attacker.GetWeaponType() != WeaponType.FT && attacker.GetWeaponType() != WeaponType.MT && attacker.GetWeaponType() != WeaponType.RL && attacker.GetWeaponType() != WeaponType.GL)
-                return;
-
-            List<Card> targets = AttackSearchAdditional(attacker, target);
-
-            foreach (Card targ in targets)
-                DamageCard(attacker, targ, attacker.GetAttack());
-
-            resolve_queue.ResolveAll(0.2f);
-            
-            RefreshData();
-            CheckForWinner();
-        }
-
-        
 
         public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
         {
@@ -1023,11 +998,9 @@ namespace TcgEngine.Gameplay
             if (game_data.GetSlotCard(slot) != null)
                 return null;
 
-            Debug.Log("summon");
-
             Card card = SummonCardHand(player, icard, variant);
-            
-            if (game_data.CanPlayCard(card, slot))
+
+            if (game_data.CanPlayCard(card, slot, true))
             {
                 //Player player = game_data.GetPlayer(card.player_id);
                 

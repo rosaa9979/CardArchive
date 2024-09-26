@@ -58,7 +58,7 @@ namespace TcgEngine.Client
             collide.enabled = slot_card == null; //Disable collider when a card is here
 
             target_alpha = 1f;
-
+            /*
             //Find target opacity value
             if (drag_card != null)
             {
@@ -93,6 +93,7 @@ namespace TcgEngine.Client
                     target_alpha = 1f;
                 }
             }
+            */
         }
 
         //Find the actual slot coordinates of this board slot
