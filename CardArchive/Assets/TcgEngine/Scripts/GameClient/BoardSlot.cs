@@ -122,11 +122,7 @@ namespace TcgEngine.Client
             if (type == BoardSlotType.PlayerSelf || type == BoardSlotType.PlayerField)
                 p = GameClient.Get().GetPlayerID();
             if (type == BoardSlotType.OpponentSelf || type == BoardSlotType.OpponentField)
-            {
-                x = (y == 1) ? 6 - x : 7 - x;
                 p = GameClient.Get().GetOpponentPlayerID();
-            }
-
             if (type == BoardSlotType.Neutral)
                 p = 2;
            
