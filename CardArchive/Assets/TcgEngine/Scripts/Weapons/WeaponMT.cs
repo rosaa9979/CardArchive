@@ -60,7 +60,6 @@ namespace TcgEngine
                 }
 
             }
-
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)

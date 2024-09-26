@@ -45,6 +45,8 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
+            Game game_data = logic.GetGameData();
+
             foreach (Card targ in targets)
             {
                 logic.AttackTarget(attacker, targ);
@@ -52,9 +54,12 @@ namespace TcgEngine
                 List<Slot> neighbor_slots = targ.slot.GetNeighborSlot();
 
                 foreach (Slot neighbor in neighbor_slots)
-                    logic.DamageCard(attacker, neighbor, attacker.GetAttack());
-            }
+                {
+                    if (game_data.CanAttackTarget(attacker, game_data.GetSlotCard(neighbor)))
+                        logic.DamageCard(attacker, neighbor, attacker.GetAttack());
+                }
 
+            }
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)
