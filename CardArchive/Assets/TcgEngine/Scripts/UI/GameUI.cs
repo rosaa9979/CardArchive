@@ -48,6 +48,7 @@ namespace TcgEngine.UI
         private void Start()
         {
             GameClient.Get().onGameStart += OnGameStart;
+            GameClient.Get().onMulliganStart += OnMulliganStart;
             GameClient.Get().onNewTurn += OnNewTurn;
             LoadPanel.Get().Show(true);
             BlackPanel.Get().Show(true);
@@ -134,8 +135,17 @@ namespace TcgEngine.UI
             
         }
 
+        private void OnMulliganStart()
+        {
+            Game data = GameClient.Get().GetGameData();
+            int player_id = GameClient.Get().GetPlayerID();
+            Player player = data.GetPlayer(player_id);
+            MulliganSelector.Get().Show(player.cards_hand, "Select Cards you want to Send Back and Redraw");
+        }
+
         private void OnNewTurn(int player_id)
         {
+            MulliganSelector.Get().Hide();
             CardSelector.Get().Hide();
             SelectTargetUI.Get().Hide();
         }

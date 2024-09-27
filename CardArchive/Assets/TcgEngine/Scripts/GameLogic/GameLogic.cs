@@ -16,6 +16,9 @@ namespace TcgEngine.Gameplay
         public UnityAction onGameStart;
         public UnityAction<Player> onGameEnd;          //Winner
 
+        public UnityAction onMulliganStart;
+        public UnityAction<Player> onMulliganPlayed;
+
         public UnityAction onTurnStart;
         public UnityAction onTurnPlay;
         public UnityAction onTurnEnd;
@@ -138,7 +141,69 @@ namespace TcgEngine.Gameplay
             RefreshData();
             onGameStart?.Invoke();
 
+            //StartTurn();
+            StartMulliganPhase();
+        }
+
+        public virtual void StartMulliganPhase()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            game_data.selector = SelectorType.SelectorMulligan;
+            game_data.mulligan_timer = 30f;
+            game_data.state = GameState.Mulligan;
+            onMulliganStart?.Invoke();
+        }
+
+        public virtual void EndMulligan()
+        {
+            if (game_data.state != GameState.Mulligan)
+                return;
+
+            game_data.selector = SelectorType.None;
+            game_data.state = GameState.Play;
+            game_data.phase = GamePhase.EndTurn;
             StartTurn();
+        }
+
+        public virtual void PlayMulliganAction(Player player, string[] card_uids)
+        {
+            if (IsResolving())
+                return;
+
+            RedrawMulligan(player.player_id, card_uids);
+        }
+
+        //Put put cards back in deck and reshuffle
+        public virtual void RedrawMulligan(int player_id, string[] card_uids)
+        {
+            Player player = game_data.GetPlayer(player_id);
+            if (player.mulligan_played) return;
+            
+            //First draw the new cards
+            for (int i = 0; i < card_uids.Length; i++)
+            {
+                if (player.cards_deck.Count > card_uids.Length)
+                {
+                    Card card = player.cards_deck[0];
+                    player.cards_deck.RemoveAt(0);
+                    player.cards_hand.Add(card);
+                }
+            }
+            
+            //then put the discarded back in the deck 
+            for (int i = 0; i < card_uids.Length; i++)
+            {
+                Card discard_card = player.GetHandCard(card_uids[i]);
+                player.RemoveCard(player.cards_hand, discard_card);
+                player.cards_deck.Add(discard_card);
+            }
+            
+            //and reshuffle
+            ShuffleDeck(player.cards_deck);
+            player.mulligan_played = true;
+            onMulliganPlayed?.Invoke(player);
         }
 		
         public virtual void StartTurn()
@@ -646,6 +711,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
+                Debug.Log(slot.x+" "+slot.y+" "+slot.p);
                 Player player = game_data.GetPlayer(card.player_id);
                 
                 //Cost

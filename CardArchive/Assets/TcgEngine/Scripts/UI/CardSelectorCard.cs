@@ -13,6 +13,12 @@ namespace TcgEngine.UI
     public class CardSelectorCard : MonoBehaviour
     {
         public CardUI card_ui;
+        public bool selectable = false;
+        public Text selection_text;
+        public Image selection_icon;
+
+        [HideInInspector] 
+        public bool selected = false;
 
         private int index;
         private Vector2 target_pos;
@@ -36,6 +42,17 @@ namespace TcgEngine.UI
         {
             rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, target_pos, 5f * Time.deltaTime);
             transform.localScale = Vector2.Lerp(transform.localScale, target_scale, 2f * Time.deltaTime);
+        }
+
+        public void OnClick()
+        {
+            if (selectable)
+            {
+                selected = !selected;
+                selection_icon.gameObject.SetActive(selected);
+                selection_text.gameObject.SetActive(selected);
+                card_ui.GetComponent<CanvasGroup>().alpha = selected ? 0.5f : 1f;
+            }
         }
 
         public void SetCard(Card card)

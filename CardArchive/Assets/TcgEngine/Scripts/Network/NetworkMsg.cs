@@ -186,6 +186,35 @@ namespace TcgEngine
         }
     }
 
+    public class MsgCards : INetworkSerializable
+    {
+        public string[] card_uids;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            if (serializer.IsReader)
+            {
+                int size = 0;
+                serializer.SerializeValue(ref size);
+                if (size > 0)
+                {
+                    byte[] bytes = new byte[size];
+                    serializer.SerializeValue(ref bytes);
+                    card_uids = NetworkTool.Deserialize<string[]>(bytes);
+                }
+            }
+
+            if (serializer.IsWriter)
+            {
+                byte[] bytes = NetworkTool.Serialize(card_uids);
+                int size = bytes.Length;
+                serializer.SerializeValue(ref size);
+                if (size > 0)
+                    serializer.SerializeValue(ref bytes);
+            }
+        }
+    }
+
     public class MsgPlayer : INetworkSerializable
     {
         public int player_id;

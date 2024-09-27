@@ -69,9 +69,12 @@ namespace TcgEngine.Server
             RegisterAction(GameAction.EndTurn, ReceiveEndTurn);
             RegisterAction(GameAction.Resign, ReceiveResign);
             RegisterAction(GameAction.ChatMessage, ReceiveChat);
+            RegisterAction(GameAction.PlayMulligan, ReceivePlayMulligan);
 
             //Events
             gameplay.onGameStart += OnGameStart;
+            gameplay.onMulliganStart += OnMulliganStart;
+            gameplay.onMulliganPlayed += OnMulliganPlayed;
             gameplay.onGameEnd += OnGameEnd;
             gameplay.onTurnStart += OnTurnStart;
             gameplay.onRefresh += RefreshAll;
@@ -102,6 +105,8 @@ namespace TcgEngine.Server
         protected virtual void Clear()
         {
             gameplay.onGameStart -= OnGameStart;
+            gameplay.onMulliganStart -= OnMulliganStart;
+            gameplay.onMulliganPlayed -= OnMulliganPlayed;
             gameplay.onGameEnd -= OnGameEnd;
             gameplay.onTurnStart -= OnTurnStart;
             gameplay.onRefresh -= RefreshAll;
@@ -151,6 +156,19 @@ namespace TcgEngine.Server
                 {
                     //Time expired during turn
                     gameplay.NextStep();
+                }
+            }
+
+            //Timer during Mulligan phase
+            if (game_data.state == GameState.Mulligan)
+            {
+                game_data.mulligan_timer -= Time.deltaTime;
+
+                if (game_data.mulligan_timer <= 0f)
+                {
+                    //Time expired
+                    gameplay.CancelSelection();
+                    gameplay.EndMulligan();
                 }
             }
 
@@ -296,6 +314,14 @@ namespace TcgEngine.Server
                 if (card != null && card.player_id == player.player_id)
                     gameplay.PlayCard(card, msg.slot);
             }
+        }
+
+        public void ReceivePlayMulligan(ClientData iclient, SerializedData sdata)
+        {
+            MsgCards msg = sdata.Get<MsgCards>();
+            Player player = GetPlayer(iclient);
+            if (player != null && msg != null)
+                gameplay.PlayMulliganAction(player, msg.card_uids);
         }
 
         public void ReceiveAttackTarget(ClientData iclient, SerializedData sdata)
@@ -665,6 +691,26 @@ namespace TcgEngine.Server
             }
         }
 
+        protected virtual void OnMulliganStart()
+        {
+            SendToAll(GameAction.MulliganStart);
+            RefreshAll();
+        }
+
+        protected virtual void OnMulliganPlayed(Player player)
+        {
+            MsgPlayer mdata = new MsgPlayer();
+            mdata.player_id = player.player_id;
+            SendToAll(GameAction.MulliganPlayed, mdata, NetworkDelivery.Reliable);
+            
+            //check if both players are done;
+            Player opponent = game_data.GetOpponentPlayer(player.player_id);
+            if (opponent.mulligan_played)
+            {
+                gameplay.EndMulligan();
+            }
+        }
+
         protected virtual void OnGameEnd(Player winner)
         {
             MsgPlayer msg = new MsgPlayer();
@@ -878,6 +924,14 @@ namespace TcgEngine.Server
                 }
             }
             writer.Dispose();
+        }
+
+        public virtual void PlayMulliganAction(int player_id, string[] card_uids)
+        {
+            if (gameplay.IsResolving())
+                return;
+
+            gameplay.RedrawMulligan(player_id, card_uids);
         }
 
         public ulong ServerID { get { return TcgNetwork.Get().ServerID; } }

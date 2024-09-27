@@ -17,6 +17,7 @@ namespace TcgEngine
         public int current_player = 0;
         public int turn_count = 0;
         public float turn_timer = 0f;
+        public float mulligan_timer = 0f;
 
         public GameState state = GameState.Connecting;
         public GamePhase phase = GamePhase.None;
@@ -672,6 +673,8 @@ namespace TcgEngine
     public enum GameState
     {
         Connecting = 0, //Players are not connected
+
+        Mulligan = 5,
         Play = 20,      //Game is being played
         GameEnded = 99,
     }
@@ -693,5 +696,6 @@ namespace TcgEngine
         SelectTarget = 10,
         SelectorCard = 20,
         SelectorChoice = 30,
+        SelectorMulligan = 40,
     }
 }

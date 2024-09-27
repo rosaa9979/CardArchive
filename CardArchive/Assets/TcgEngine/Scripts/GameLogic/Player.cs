@@ -14,6 +14,7 @@ namespace TcgEngine
         public string avatar;
         public string cardback;
         public string deck;
+        public bool mulligan_played = false;
 
         public bool is_ai = false;
         public int ai_level;

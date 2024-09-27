@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using Unity.Netcode;
@@ -29,6 +30,8 @@ namespace TcgEngine.Client
         public UnityAction<int> onPlayerReady;
 
         public UnityAction onGameStart;
+        public UnityAction onMulliganStart;
+        public UnityAction<int> onMulliganPlayed;       //who played it player_id
         public UnityAction<int> onGameEnd;              //winner player_id
         public UnityAction<int> onNewTurn;              //current player_id
 
@@ -80,6 +83,8 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.Connected, OnConnectedToGame);
             RegisterRefresh(GameAction.PlayerReady, OnPlayerReady);
             RegisterRefresh(GameAction.GameStart, OnGameStart);
+            RegisterRefresh(GameAction.MulliganStart, OnMulliganStart);
+            RegisterRefresh(GameAction.MulliganPlayed, OnMulliganPlayed);
             RegisterRefresh(GameAction.GameEnd, OnGameEnd);
             RegisterRefresh(GameAction.NewTurn, OnNewTurn);
             RegisterRefresh(GameAction.CardPlayed, OnCardPlayed);
@@ -278,11 +283,19 @@ namespace TcgEngine.Client
             SendAction(GameAction.GameSettings, settings, NetworkDelivery.ReliableFragmentedSequenced);
         }
 
+        public void PlayMulligan(Card[] cards)
+        {
+            MsgCards mdata = new MsgCards();
+            mdata.card_uids =  cards.Select(c => c.uid).ToArray();
+            SendAction(GameAction.PlayMulligan, mdata);
+        }
+
         public void PlayCard(Card card, Slot slot)
         {
             MsgPlayCard mdata = new MsgPlayCard();
             mdata.card_uid = card.uid;
             mdata.slot = slot;
+            Debug.Log(slot.x+" "+slot.y+" "+slot.p);
             SendAction(GameAction.PlayCard, mdata);
         }
 
@@ -450,6 +463,17 @@ namespace TcgEngine.Client
         private void OnGameStart(SerializedData sdata)
         {
             onGameStart?.Invoke();
+        }
+
+        private void OnMulliganStart( SerializedData sdata)
+        {
+            onMulliganStart?.Invoke();
+        }
+        
+        private void OnMulliganPlayed(SerializedData sdata)
+        {
+            MsgPlayer msg = sdata.Get<MsgPlayer>();
+            onMulliganPlayed?.Invoke(msg.player_id);
         }
 
         private void OnGameEnd(SerializedData sdata)
