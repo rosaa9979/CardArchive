@@ -127,8 +127,8 @@ namespace TcgEngine.UI
 
         private Vector2 GetCardPos(CardSelectorCard card)
         {
-            //int pos_index = card.display_index - current_index;
             int pos_index = card.GetIndex() - current_index;
+            Debug.Log(card.GetIndex()+" "+current_index);
             float card_space = ((RectTransform)card.gameObject.transform).rect.width;
             float posX = -(card_space + 100f) + (pos_index * card_space) + (pos_index * 100f);
             Vector2 pos = new Vector2(posX, 0f);
