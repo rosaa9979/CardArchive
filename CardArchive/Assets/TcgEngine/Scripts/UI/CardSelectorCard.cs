@@ -48,10 +48,16 @@ namespace TcgEngine.UI
         {
             if (selectable)
             {
+                Color color = selection_icon.color;
                 selected = !selected;
-                selection_icon.gameObject.SetActive(selected);
+                //selection_icon.gameObject.SetActive(selected);
+                if (selected)
+                    color.a = 1f;
+                else
+                    color.a = 0f;
+                selection_icon.color = color;
                 selection_text.gameObject.SetActive(selected);
-                card_ui.GetComponent<CanvasGroup>().alpha = selected ? 0.5f : 1f;
+                //card_ui.GetComponent<CanvasGroup>().alpha = selected ? 0.5f : 1f;
             }
         }
 

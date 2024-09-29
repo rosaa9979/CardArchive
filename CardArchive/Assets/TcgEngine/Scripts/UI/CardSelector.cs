@@ -114,6 +114,8 @@ namespace TcgEngine.UI
                     CardSelectorCard selector_card = obj.GetComponent<CardSelectorCard>();
                     selector_card.SetCard(card);
                     selector_card.SetIndex(index);
+                    selector_card.selectable = false;
+                    selector_card.gameObject.SetActive(true);
 
                     Vector3 pos = GetCardPosition(selector_card);
                     Vector3 scale = (index == selection_index ? 1 : 0.5f) * Vector3.one;
