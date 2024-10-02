@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: Make_Up_Work_Club
+  m_EditorClassIdentifier: 
+  id: Make_Up_Work_Club
+  title: "\uBCF4\uCDA9\uC218\uC5C5\uBD80"
+  art_full: {fileID: 0}
+  art_board: {fileID: 0}
+  type: 7
+  mana: 0
+  attack: 0
+  hp: 0
+  clubs: []
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
+  traits: []
+  stats: []
+  abilities:
+  - {fileID: 11400000, guid: c0e3c351d9459fb48a0980ab3cf18727, type: 2}
+  text: "\uCE74\uB4DC\uB97C \uBF51\uC744 \uB54C\uB9C8\uB2E4, \uC790\uC2E0\uC758 \uBCF4\uCDA9\uC218\uC5C5\uBD80
+    \uD559\uC0DD\uB4E4\uC774 1/1\uC744 \uC5BB\uC2B5\uB2C8\uB2E4."
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 0
+  cost: 100
+  packs: []

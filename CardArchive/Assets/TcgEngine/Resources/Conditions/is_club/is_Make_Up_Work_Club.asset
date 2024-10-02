@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b848b003e799d264cba32a383c514e74, type: 3}
-  m_Name: tcg_diamond
+  m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
+  m_Name: is_Make_Up_Work_Club
   m_EditorClassIdentifier: 
-  id: tcg_diamond
-  cardback: {fileID: 21300000, guid: 3b5a4d7fd8147f9458413353ba376c1e, type: 3}
-  deck: {fileID: 21300000, guid: e91004342c1324343b81fd607a8b4827, type: 3}
-  sort_order: 10
+  has_type: 0
+  has_club: {fileID: 11400000, guid: d376f530150f6d244b99a3dea95b8867, type: 2}
+  has_trait: {fileID: 0}
+  oper: 0

@@ -295,7 +295,6 @@ namespace TcgEngine.Client
             MsgPlayCard mdata = new MsgPlayCard();
             mdata.card_uid = card.uid;
             mdata.slot = slot;
-            Debug.Log(slot.x+" "+slot.y+" "+slot.p);
             SendAction(GameAction.PlayCard, mdata);
         }
 

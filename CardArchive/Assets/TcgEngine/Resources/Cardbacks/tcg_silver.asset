@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: tcg_silver
   m_EditorClassIdentifier: 
   id: tcg_silver
-  cardback: {fileID: 21300000, guid: 0e839bd6251bf9a4697b9cb18c1565a4, type: 3}
+  cardback: {fileID: 21300000, guid: 3b5a4d7fd8147f9458413353ba376c1e, type: 3}
   deck: {fileID: 21300000, guid: 23ce0a1828f761845b5505cf96d99463, type: 3}
   sort_order: 0

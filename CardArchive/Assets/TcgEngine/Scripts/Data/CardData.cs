@@ -182,6 +182,11 @@ namespace TcgEngine
             return type == CardType.Student || type == CardType.NonStudent;
         }
 
+        public bool IsStudent()
+        {
+            return type == CardType.Student;
+        }
+
         public bool IsBuilding()
         {
             return type == CardType.Building;

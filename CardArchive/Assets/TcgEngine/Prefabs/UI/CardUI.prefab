@@ -1010,6 +1010,7 @@ MonoBehaviour:
   cost: {fileID: 925872138855219087}
   weapon_type: {fileID: 3217733422301778214}
   range: {fileID: 1350808949330436255}
+  clubs: {fileID: 8786645527477055336}
   card_title: {fileID: 8818002955700808277}
   card_text: {fileID: 1455965521662676655}
   stats: []

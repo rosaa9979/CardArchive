@@ -711,7 +711,6 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
-                Debug.Log(slot.x+" "+slot.y+" "+slot.p);
                 Player player = game_data.GetPlayer(card.player_id);
                 
                 //Cost
@@ -1021,8 +1020,11 @@ namespace TcgEngine.Gameplay
                     Card card = player.cards_deck[0];
                     player.cards_deck.RemoveAt(0);
                     player.cards_hand.Add(card);
+
+                    TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnDraw);
                 }
             }
+
 
             onCardDrawn?.Invoke(nb);
         }
@@ -1468,6 +1470,9 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(type, player.hero, player.hero);
 
             foreach (Card card in player.cards_board)
+                TriggerCardAbilityType(type, card, card);
+            
+            foreach (Card card in player.clubs)
                 TriggerCardAbilityType(type, card, card);
         }
 

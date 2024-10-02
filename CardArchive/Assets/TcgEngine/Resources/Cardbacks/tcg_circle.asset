@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: tcg_circle
   m_EditorClassIdentifier: 
   id: tcg_circle
-  cardback: {fileID: 21300000, guid: 664868bcacc6e164a8bb72881e7cbbeb, type: 3}
+  cardback: {fileID: 21300000, guid: 3b5a4d7fd8147f9458413353ba376c1e, type: 3}
   deck: {fileID: 21300000, guid: f8606ce8e07d61740a8344a644e5362e, type: 3}
   sort_order: 10

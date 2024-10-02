@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine;
@@ -31,6 +32,7 @@ namespace TcgEngine.UI
         public Text cost;
         public Text weapon_type;
         public Text range;
+        public Text clubs;
 
         public Text card_title;
         public Text card_text;
@@ -109,6 +111,8 @@ namespace TcgEngine.UI
                 range_icon.enabled = card.IsCitizen();
             if (range != null)
                 range.enabled = card.IsCitizen();
+            if (clubs != null)
+                clubs.enabled = card.IsStudent();
 
             if (cost != null)
                 cost.text = card.mana.ToString();
@@ -120,6 +124,8 @@ namespace TcgEngine.UI
                 weapon_type.text = card.weapon.GetWeaponID().ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
+            if (clubs != null)
+                clubs.text = string.Join(" / ", card.clubs.Select(club => club.title));
 
             //if (team_icon != null)
             //{
