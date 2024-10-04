@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70dc9fcaed7d5274a8381edb4e206a92, type: 3}
   m_Name: NetworkData
   m_EditorClassIdentifier: 
-  url: 15.165.24.84
+  url: 127.0.0.1
   port: 8777
   api_url: your-domain.com
   api_https: 1
