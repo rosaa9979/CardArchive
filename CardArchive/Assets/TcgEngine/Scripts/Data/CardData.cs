@@ -20,23 +20,10 @@ namespace TcgEngine
     [System.Serializable]
     public enum WeaponType
     {
-        None = 0,
-
-        SG = 1,
-        SMG = 2,
-        HG = 3,
-        H2H = 4,
-
-        AR = 11,
-        MG = 12,
-        SR = 13,
-
-        GL = 21,
-        RL = 22,
-        MT = 23,
-
-        RG = 31,
-        FT = 32,
+        NONE = 0,
+        FRONT = 1,
+        MIDDLE = 2,
+        BACK = 3,
     }
 
     /// <summary>

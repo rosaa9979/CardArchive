@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ae7a910e7612434d969d344dac68e2c, type: 3}
-  m_Name: WeaponSR
+  m_Script: {fileID: 11500000, guid: 28dea4a1b094e884996739e451b11fa9, type: 3}
+  m_Name: WeaponMIDDLE
   m_EditorClassIdentifier: 
-  SR_id: SR
-  SR_type: 13
-  SR_range: 4
+  MIDDLE_id: MIDDLE
+  MIDDLE_type: 2
+  MIDDLE_range: 2

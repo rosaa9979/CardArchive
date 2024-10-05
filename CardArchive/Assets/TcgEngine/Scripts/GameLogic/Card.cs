@@ -67,7 +67,7 @@ namespace TcgEngine
         public virtual int GetHPMax() { return Mathf.Max(hp + hp_ongoing, 0); }
         public virtual int GetMana() { return Mathf.Max(mana + mana_ongoing, 0); }
         public virtual WeaponType GetWeaponType() { return weapon.GetWeaponType(); }
-        public virtual int GetRange() { return GetWeaponType() == WeaponType.H2H ? 1 : Mathf.Max(range + range_ongoing, 0); }
+        public virtual int GetRange() { return Mathf.Max(range + range_ongoing, 0); }
 
         public virtual void SetCard(CardData icard, VariantData cvariant)
         {

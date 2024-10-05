@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2f6f3a66b19e634ea9dd38f897e0647, type: 3}
-  m_Name: WeaponAR
+  m_Script: {fileID: 11500000, guid: 60223196f9a070e448c86e4b970e1b1e, type: 3}
+  m_Name: WeaponFRONT
   m_EditorClassIdentifier: 
-  type: 11
-  range: 3
+  FRONT_id: FRONT
+  FRONT_type: 1
+  FRONT_range: 1

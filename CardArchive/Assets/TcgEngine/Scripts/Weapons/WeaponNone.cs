@@ -5,26 +5,26 @@ using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/None", order = 10)]
-    public class WeaponNone : WeaponData
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/NONE", order = 10)]
+    public class WeaponNONE : WeaponData
     {
-        public string None_id = "None";
-        public WeaponType None_type = WeaponType.None;
-        public int None_range = 0;
+        public string NONE_id = "NONE";
+        public WeaponType NONE_type = WeaponType.NONE;
+        public int NONE_range = 0;
 
         public override string GetWeaponID()
         {
-            return None_id;
+            return NONE_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return None_type;
+            return NONE_type;
         }
 
         public override int GetDefaultRange()
         {
-            return None_range;
+            return NONE_range;
         }
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)

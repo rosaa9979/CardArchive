@@ -6,26 +6,26 @@ using TcgEngine.Gameplay;
 
 namespace TcgEngine
 {
-    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/SMG", order = 10)]
-    public class WeaponSMG : WeaponData
+    [CreateAssetMenu(fileName = "weapon", menuName = "TcgEngine/Weapon/BACK", order = 10)]
+    public class WeaponBACK : WeaponData
     {
-        public string SMG_id = "SMG";
-        public WeaponType SMG_type = WeaponType.SMG;
-        public int SMG_range = 2;
+        public string BACK_id = "BACK";
+        public WeaponType BACK_type = WeaponType.BACK;
+        public int BACK_range = 3;
 
         public override string GetWeaponID()
         {
-            return SMG_id;
+            return BACK_id;
         }
 
         public override WeaponType GetWeaponType()
         {
-            return SMG_type;
+            return BACK_type;
         }
 
         public override int GetDefaultRange()
         {
-            return SMG_range;
+            return BACK_range;
         }
 
 

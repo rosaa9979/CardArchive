@@ -264,25 +264,19 @@ namespace TcgEngine
                 if (targ.HasStatus(StatusType.Stealth))
                     continue; //Stealth cant be attacked
 
-                if (attacker.GetWeaponType() != WeaponType.MG)
+                if (targ.HasStatus(StatusType.Protection))
                 {
-                    if (targ.HasStatus(StatusType.Protection))
-                    {
-                        if (!contain_taunt)
-                        {
-                            attack_list.Clear();
-                            contain_taunt = true;
-                        }
-                        attack_list.Add(targ);
-                        continue;
-                    }
-
                     if (!contain_taunt)
-                        attack_list.Add(targ);
+                    {
+                        attack_list.Clear();
+                        contain_taunt = true;
+                    }
+                    attack_list.Add(targ);
                     continue;
                 }
 
-                attack_list.Add(targ);
+                if (!contain_taunt)
+                    attack_list.Add(targ);
             }
 
             return attack_list;

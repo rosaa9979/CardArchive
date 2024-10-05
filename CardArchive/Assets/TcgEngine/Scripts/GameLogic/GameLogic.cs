@@ -410,62 +410,6 @@ namespace TcgEngine.Gameplay
                 resolve_queue.ResolveAll();
             }
         }
-
-        public virtual List<Card> AttackSearchAdditional(Card attacker, Slot target)
-        {
-            Player player = game_data.GetPlayer(attacker.player_id);
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            List<Card> additional_target = new List<Card>();
-
-            if (attacker.GetWeaponType() == WeaponType.FT)
-            {
-                HashSet<Slot> visited = new HashSet<Slot>();
-                //List<Slot> neighbor_slot = new List<Slot>();
-                Queue<(Slot slot, int distance)> queue = new Queue<(Slot slot, int distance)>();
-
-                // 시작 슬롯과 거리 0을 큐에 삽입
-                queue.Enqueue((target, 0));
-                visited.Add(target);
-                //neighbor_slot.Add(new Slot(x, y, p));
-
-                while (queue.Count > 0)
-                {
-                    // 현재 슬롯과 거리 정보를 큐에서 꺼냄
-                    var (currentSlot, currentDistance) = queue.Dequeue();
-
-                    // 현재 슬롯의 모든 이웃 슬롯 탐색
-                    foreach (var neighbor in currentSlot.GetNeighborSlot())
-                    {
-                        // 이웃 슬롯이 방문하지 않았다면
-                        if (!visited.Contains(neighbor))
-                        {
-                            Card candidate = game_data.GetSlotCard(neighbor);
-                            if (candidate != null && candidate.player_id == oplayer.player_id)
-                            {
-                                visited.Add(neighbor);
-                                additional_target.Add(candidate);
-                                queue.Enqueue((neighbor, currentDistance + 1));
-                            }
-                        }
-                    }
-                }
-            }
-
-            else if (attacker.GetWeaponType() == WeaponType.MT || attacker.GetWeaponType() == WeaponType.GL || attacker.GetWeaponType() == WeaponType.RL)
-            {
-                List<Slot> additional_slot = target.GetNeighborSlot();
-
-                foreach (Slot slot in additional_slot)
-                {
-                    Card candidate = game_data.GetSlotCard(slot);
-                    if (candidate != null && candidate.player_id == oplayer.player_id)
-                        additional_target.Add(candidate);
-                }
-            }
-
-            return additional_target;
-        }
         
         
         public virtual List<Card> GetNearestTarget(Card attacker)

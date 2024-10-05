@@ -14,7 +14,7 @@ namespace TcgEngine
     public class WeaponData : ScriptableObject
     {
         [System.NonSerialized] public string id = "Default";
-        [System.NonSerialized] public WeaponType type = WeaponType.None;
+        [System.NonSerialized] public WeaponType type = WeaponType.NONE;
         [System.NonSerialized] public int range = 0;
         public static List<WeaponData> weapon_list = new List<WeaponData>();
 

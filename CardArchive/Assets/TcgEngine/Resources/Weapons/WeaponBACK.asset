@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d9d439d4e3381544a1538ba193b1ba2, type: 3}
-  m_Name: WeaponMG
+  m_Script: {fileID: 11500000, guid: 571c0a9f9fce4ec458694a5e9a36268d, type: 3}
+  m_Name: WeaponBACK
   m_EditorClassIdentifier: 
-  MG_id: MG
-  MG_type: 12
-  MG_range: 2
+  BACK_id: BACK
+  BACK_type: 3
+  BACK_range: 3
