@@ -136,6 +136,7 @@ namespace TcgEngine.Gameplay
                     player.cards_hand.Add(card);
                 }
             }
+            Slot.GetAttackOrder(0);
 
             //Start state
             RefreshData();
@@ -315,9 +316,32 @@ namespace TcgEngine.Gameplay
             is_player_attacked = false;
             additional_slot = new Slot(0, 0, -1);
 
-            foreach (Card attacker in player.cards_board)
+            List<Slot> attack_order = Slot.GetAttackOrder(player.player_id);
+
+            // List B의 Slot을 key로, List A의 Monster를 value로 하는 Dictionary 생성
+            var citizensBySlot = player.cards_board.ToDictionary(citizen => citizen.slot, citizen => citizen);
+
+            // List B의 순서대로 Monster를 추출
+            var orderedCitizens = attack_order.Select(slot =>
             {
-                if (attacker.CanAttack())
+                if (citizensBySlot.TryGetValue(slot, out var citizen))
+                {
+                    return citizen;
+                }
+                else
+                {
+                    return null; // 또는 다른 기본값
+                }
+            }).ToList();
+
+            // orderedMonsters를 새로운 List에 복사
+            List<Card> reorderedCitizens = orderedCitizens.ToList();
+
+            // reorderedMonsters가 재배열된 결과
+
+            foreach (Card attacker in reorderedCitizens)
+            {
+                if (attacker != null && attacker.CanAttack())
                 {
                     can_attack = true;
                     resolve_queue.AddAttack(attacker, AttackSearch);

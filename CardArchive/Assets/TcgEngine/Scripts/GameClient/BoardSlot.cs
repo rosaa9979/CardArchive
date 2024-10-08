@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using TcgEngine.Client;
 using TcgEngine.UI;
@@ -99,7 +100,9 @@ namespace TcgEngine.Client
         //Find the actual slot coordinates of this board slot
         public override Slot GetSlot()
         {
-            int p = 0;
+            int p = GameClient.Get().GetPlayerID();
+            int new_x = x;
+            int new_y = y;
 
             if (type == BoardSlotType.FlipX)
             {
@@ -119,14 +122,42 @@ namespace TcgEngine.Client
                 return new Slot(x, py, p);
             }
 
+            /*
+            int pid = GameClient.Get().GetPlayerID();
+            int new_x = x;
+            int new_y = y;
+
+            if (pid % 2 == 1)
+            {
+                new_y = Slot.y_max - y + 1;
+            }
+
             if (type == BoardSlotType.PlayerSelf || type == BoardSlotType.PlayerField)
                 p = GameClient.Get().GetPlayerID();
             if (type == BoardSlotType.OpponentSelf || type == BoardSlotType.OpponentField)
                 p = GameClient.Get().GetOpponentPlayerID();
             if (type == BoardSlotType.Neutral)
                 p = 2;
+            */
+
+            int new_p = p;
+
+            if (y <= (int)Math.Floor(((double)Slot.y_max / 2)))
+                new_p = GameClient.Get().GetPlayerID();
+            else if (y > (int)Math.Ceiling(((double)Slot.y_max / 2)))
+                new_p = GameClient.Get().GetOpponentPlayerID();
+            else if (y == (int)Math.Ceiling(((double)Slot.y_max / 2)))
+                new_p = 2;
+
+
+            if (p % 2 == 1)
+            {
+                new_x = Slot.x_min + Slot.x_max - x;
+                new_y = y + 2 * ((Slot.y_max / 2 + 1) - y);
+            }
+
            
-            return new Slot(x, y, p);
+            return new Slot(new_x, new_y, new_p);
         }
 
         //When clicking on the slot
