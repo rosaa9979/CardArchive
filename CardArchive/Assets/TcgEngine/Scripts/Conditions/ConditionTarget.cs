@@ -30,6 +30,11 @@ namespace TcgEngine
         {
             return CompareBool(type == ConditionTargetType.Slot, oper); //Is Slot
         }
+
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)
+        {
+            return CompareBool(type == ConditionTargetType.Slot, oper); //Is Slot
+        }
     }
 
     public enum ConditionTargetType

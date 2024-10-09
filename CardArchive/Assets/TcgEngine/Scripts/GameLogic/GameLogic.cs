@@ -1490,7 +1490,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster)
         {
-            if (iability.target == AbilityTarget.SelectTarget || iability.target == AbilityTarget.SelectTargetRow || iability.target == AbilityTarget.SelectTargetNeighbor)
+            if (iability.target == AbilityTarget.SelectTarget || iability.target == AbilityTarget.SelectTargetRow || iability.target == AbilityTarget.SelectWideArea || iability.target == AbilityTarget.SelectTargetNeighbor)
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster);
@@ -2100,11 +2100,21 @@ namespace TcgEngine.Gameplay
                     targets = target.GetNeighborSlot(1);
                 if (ability.target == AbilityTarget.SelectTargetRow)
                     targets = target.GetRowSlot();
+                if (ability.target == AbilityTarget.SelectWideArea)
+                    targets = Slot.GetAll();
                 
                 foreach (Slot targ in targets)
                 {
-                    if (!ability.AreTargetConditionsMet(game_data, caster, targ))
-                        continue;
+                    if (ability.target == AbilityTarget.SelectWideArea)
+                    {
+                        if (!ability.AreTargetConditionsMet(game_data, caster, target, targ))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!ability.AreTargetConditionsMet(game_data, caster, targ))
+                            continue;
+                    }
 
                     ResolveEffectTarget(ability, caster, targ);
                 }

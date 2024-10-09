@@ -171,6 +171,16 @@ namespace TcgEngine
             return true;
         }
 
+        public bool AreTargetConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
+        {
+            foreach (ConditionData cond in conditions_target)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot))
+                    return false;
+            }
+            return true;
+        }
+
         //CanTarget is similar to AreTargetConditionsMet but only applies to targets on the board, with extra board-only conditions
         public bool CanTarget(Game data, Card caster, Card target)
         {
@@ -626,7 +636,7 @@ namespace TcgEngine
 
         public bool IsSelector()
         {
-            return target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectTargetRow || target == AbilityTarget.SelectTargetNeighbor || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
+            return target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectTargetRow || target == AbilityTarget.SelectWideArea || target == AbilityTarget.SelectTargetNeighbor || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
         }
 
         public static AbilityData Get(string id)
@@ -702,6 +712,8 @@ namespace TcgEngine
         SelectTarget = 30,        //Select a card, player or slot on board
         SelectTargetRow = 31,
         SelectTargetNeighbor = 32,
+        SelectWideArea = 33,
+
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
 

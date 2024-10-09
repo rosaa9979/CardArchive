@@ -55,6 +55,21 @@ namespace TcgEngine
             this.p = pid;
         }
 
+        public Slot(SlotXY slot)
+        {
+            this.x = slot.x;
+            this.y = slot.y;
+
+            if (slot.y < y_neutral)
+                this.p = 0;
+            else if (slot.y > y_neutral)
+                this.p = 1;
+            else if (slot.y == y_neutral)
+                this.p = 2;
+            else
+                this.p = -1;
+        }
+
         public bool IsInRangeX(Slot slot, int range)
         {
             return Mathf.Abs(x - slot.x) <= range;
@@ -94,7 +109,16 @@ namespace TcgEngine
         //Check if the slot is valid one (or if out of board)
         public bool IsValid()
         {
-            return x >= x_min && x <= x_max && y >= y_min && y <= y_max && p >= 0;
+            List<Slot> slots = GetAll();
+
+            foreach (Slot slot in slots)
+            {
+                if (slot.x == x && slot.y == y && slot.p == p && p >= 0)
+                    return true;
+            }
+            //return x >= x_min && x <= x_max && y >= y_min && y <= y_max && p >= 0;
+
+            return false;
         }
 
         public int GetP()
@@ -602,5 +626,11 @@ namespace TcgEngine
     {
         public int x;
         public int y;
+
+        public SlotXY(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 }

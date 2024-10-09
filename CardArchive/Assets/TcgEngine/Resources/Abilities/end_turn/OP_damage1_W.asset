@@ -10,21 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: add_machine_hp1
+  m_Name: OP_damage1_W
   m_EditorClassIdentifier: 
-  id: add_machine_hp1
-  trigger: 22
-  conditions_trigger:
-  - {fileID: 11400000, guid: 00511614df2ba714996da7ccda6c4bac, type: 2}
-  target: 10
+  id: OP_damage1_W
+  trigger: 10
+  conditions_trigger: []
+  target: 33
   conditions_target:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
-  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
-  filters_target:
-  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  - {fileID: 11400000, guid: 42b49c23d3c3c9747a9809d84dfdc1f1, type: 2}
+  - {fileID: 11400000, guid: e8059ae2736090840a1753e474fb8b05, type: 2}
+  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  filters_target: []
   effects:
-  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
+  - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}
   status: []
   value: 1
   duration: 0
