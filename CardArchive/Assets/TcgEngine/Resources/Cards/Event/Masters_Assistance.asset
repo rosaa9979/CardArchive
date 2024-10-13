@@ -17,7 +17,7 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  mana: 2
+  mana: 3
   attack: 0
   hp: 0
   clubs: []

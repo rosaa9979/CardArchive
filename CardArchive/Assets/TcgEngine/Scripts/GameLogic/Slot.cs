@@ -617,7 +617,7 @@ namespace TcgEngine
 
         public static Slot None
         {
-            get { return new Slot(0, 0, 0); }
+            get { return new Slot(0, 0, -1); }
         }
     }
 

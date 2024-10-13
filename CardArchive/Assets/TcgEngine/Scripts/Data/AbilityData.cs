@@ -492,6 +492,14 @@ namespace TcgEngine
                 }
             }
 
+            if (target == AbilityTarget.AttachedSlot)
+            {
+                Slot slot = caster.slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+
             //Filter targets
             if (filters_target != null && targets.Count > 0)
             {

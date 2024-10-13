@@ -17,11 +17,10 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  mana: 2
+  mana: 3
   attack: 0
   hp: 0
   clubs: []
-  weapon_type: 0
   weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []

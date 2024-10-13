@@ -61,7 +61,6 @@ namespace TcgEngine.Gameplay
         private List<Card> cards_to_clear = new List<Card>();
 
         private Queue<Card> attack_list = new Queue<Card>();
-        private bool is_player_attacked = false;
         private Slot additional_slot = new Slot(0, 0, -1);
 
         public GameLogic(bool is_ai)
@@ -257,7 +256,9 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             //StartTurn Abilities
-            TriggerPlayerCardsAbilityType(player, AbilityTrigger.StartOfTurn);
+            foreach (Player p in game_data.players)
+                TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
+
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
 
             resolve_queue.AddCallback(StartMainPhase);
@@ -313,8 +314,6 @@ namespace TcgEngine.Gameplay
             bool can_attack = false;
 
             attack_list.Clear(); 
-            is_player_attacked = false;
-            additional_slot = new Slot(0, 0, -1);
 
             List<Slot> attack_order = Slot.GetAttackOrder(player.player_id);
 
@@ -375,7 +374,6 @@ namespace TcgEngine.Gameplay
 
                 if (rslot.Any(element => pslot.Contains(element)))
                 {
-                    is_player_attacked = true;
                     attacker.weapon.AttackTarget(this, attacker, oplayer);
                 }
 
@@ -395,7 +393,6 @@ namespace TcgEngine.Gameplay
 
                     if (rslot.Any(element => pslot.Contains(element)))
                     {
-                        is_player_attacked = true;
                         attacker.weapon.AttackTarget(this, attacker, oplayer);
                     }
                 }
@@ -406,35 +403,6 @@ namespace TcgEngine.Gameplay
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
         }
-
-        public virtual void AttackLoop(Card attacker, bool skip_cost)
-        {
-            Player player = game_data.GetPlayer(attacker.player_id);
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            if (!is_player_attacked && attack_list.Count == 0)
-            {
-                ExhaustBattle(attacker);
-                resolve_queue.AddCallback(AttackCheck);
-                resolve_queue.ResolveAll();
-            }
-
-            else if (is_player_attacked && attack_list.Count == 0)
-            {
-                AttackPlayer(attacker, oplayer);
-                resolve_queue.AddAttack(attacker, AttackLoop);
-                resolve_queue.ResolveAll();
-            }
-
-            else if (!is_player_attacked && attack_list.Count > 0)
-            {             
-                Card target = attack_list.Dequeue();
-                AttackTarget(attacker, target);
-                resolve_queue.AddAttack(attacker, AttackLoop);
-                resolve_queue.ResolveAll();
-            }
-        }
-        
         
         public virtual List<Card> GetNearestTarget(Card attacker)
         {
@@ -583,6 +551,7 @@ namespace TcgEngine.Gameplay
             game_data.last_destroyed = null;
             game_data.last_target = null;
             game_data.last_attacked = null;
+            game_data.last_attacked_slot = Slot.None;
             game_data.last_player_attacked = false;
             game_data.last_summoned = null;
             game_data.ability_triggerer = null;
@@ -786,6 +755,7 @@ namespace TcgEngine.Gameplay
                 player.AddHistory(GameAction.Attack, attacker, target);
             
             game_data.last_attacked = target.uid;
+            game_data.last_attacked_slot = target.slot;
             game_data.last_player_attacked = false;
 
             //Trigger before attack abilities
@@ -872,8 +842,6 @@ namespace TcgEngine.Gameplay
                 return;
             
             Player player = game_data.GetPlayer(attacker.player_id);
-
-            is_player_attacked = false;
             
             game_data.last_player_attacked = true;
 
@@ -1175,8 +1143,12 @@ namespace TcgEngine.Gameplay
         {
             Card attached_card = game_data.GetAttachCard(slot);
 
-            if (slot != null && attached_card != null)
+            if (slot != null && slot.IsValid() && attached_card != null)
+            {
+                attached_card.slot = Slot.None;
                 DiscardCard(attached_card);
+            }
+
         }
 
         //Change owner of a card
@@ -1349,7 +1321,7 @@ namespace TcgEngine.Gameplay
             UnequipAll(card);
 
             //Detach card
-            //DetachAll(card.slot);
+            DetachAll(card.slot);
 
             //Remove card from board and add to discard
             player.RemoveCardFromAllGroups(card);
@@ -1442,6 +1414,10 @@ namespace TcgEngine.Gameplay
             
             foreach (Card card in player.clubs)
                 TriggerCardAbilityType(type, card, card);
+
+            foreach (Card card in player.cards_attach)
+                TriggerCardAbilityType(type, card, card);
+
         }
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null)
@@ -1760,6 +1736,13 @@ namespace TcgEngine.Gameplay
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
+                for (int i = player.cards_attach.Count - 1; i >= 0; i--)
+                {
+                    Card card = player.cards_attach[i];
+                    if (card.GetHP() <= 0)
+                        DiscardCard(card);
+                }
+
                 for (int i = player.cards_board.Count - 1; i >= 0; i--)
                 {
                     Card card = player.cards_board[i];

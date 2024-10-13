@@ -15,6 +15,25 @@ MonoBehaviour:
   id: forest_deck
   title: Forest Starter
   hero: {fileID: 11400000, guid: 04fd0777e8f567b48ad05e6bdaf97c1d, type: 2}
-  cards:
-  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
   clubs: []
+  cards:
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}
+  - {fileID: 11400000, guid: b26b00d87f4b45f4f95862a128495ae9, type: 2}

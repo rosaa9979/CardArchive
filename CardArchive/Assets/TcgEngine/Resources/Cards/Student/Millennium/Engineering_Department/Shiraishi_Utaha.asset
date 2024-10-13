@@ -19,7 +19,7 @@ MonoBehaviour:
   type: 10
   mana: 2
   attack: 1
-  hp: 4
+  hp: 3
   clubs:
   - {fileID: 11400000, guid: 21062443c6d01a74d854beec9fa30fa3, type: 2}
   weapon: {fileID: 11400000, guid: 2a041c81a77cba24bbc82eb1bc717e98, type: 2}

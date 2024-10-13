@@ -73,7 +73,8 @@ namespace TcgEngine.UI
             if (show_preview)
             {
                 CardData icard = pcard.CardData;
-                card_ui.SetCard(icard, pcard.VariantData);
+                //card_ui.SetCard(icard, pcard.VariantData);
+                card_ui.SetCard(pcard);
 
                 string cdesc = icard.GetDesc();
                 string adesc = icard.GetAbilitiesDesc();

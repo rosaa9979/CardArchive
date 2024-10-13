@@ -28,8 +28,8 @@ namespace TcgEngine.UI
 
         private Vector2 mouse_start;
         private int mouse_index_start;
-        private bool drag = false;
-        private float mouse_scroll = 0f;
+        //private bool drag = false;
+        //private float mouse_scroll = 0f;
         private float timer = 0f;
 
         private int current_index = 0;
@@ -82,8 +82,8 @@ namespace TcgEngine.UI
             foreach (CardSelectorCard card in card_img_list)
                 Destroy(card.gameObject);
             card_img_list.Clear();
-            drag = false;
-            mouse_scroll = 0f;
+            //drag = false;
+            //mouse_scroll = 0f;
 
             Card caster = data.GetCard(data.selector_caster_uid);
 
@@ -149,12 +149,12 @@ namespace TcgEngine.UI
         {
             mouse_start = GetMousePos();
             mouse_index_start = current_index;
-            drag = true;
+            //drag = true;
         }
 
         public void OnPointerUp()
         {
-            drag = false;
+            //drag = false;
             Vector2 mouse_pos = GetMousePos();
             Vector2 move = mouse_pos - mouse_start;
             if (move.magnitude < 2)

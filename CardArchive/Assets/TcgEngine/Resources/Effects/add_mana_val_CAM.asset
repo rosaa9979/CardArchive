@@ -9,17 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
-  m_Name: WideAreaRange_W
+  m_Script: {fileID: 11500000, guid: c2dad1f6bd980ea4a9e1149cf5b2a8a7, type: 3}
+  m_Name: add_mana_val_CAM
   m_EditorClassIdentifier: 
-  directions:
-  - dx: 0
-    dy: 0
-  - dx: -1
-    dy: 0
-  - dx: 1
-    dy: 0
-  - dx: -1
-    dy: -1
-  - dx: 0
-    dy: -1
+  type: 30
+  pile: 10
+  player: 10
+  has_type: 0
+  has_club: {fileID: 0}
+  has_trait: {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}

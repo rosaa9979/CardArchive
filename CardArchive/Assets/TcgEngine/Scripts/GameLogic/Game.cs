@@ -35,6 +35,7 @@ namespace TcgEngine
         public string last_played;
         public string last_target;
         public string last_attacked;
+        public Slot last_attacked_slot;
         public bool last_player_attacked;
         public string last_destroyed;
         public string last_summoned;
@@ -646,6 +647,7 @@ namespace TcgEngine
             dest.last_played = source.last_played;
             dest.last_target = source.last_target;
             dest.last_attacked = source.last_attacked;
+            dest.last_attacked_slot = source.last_attacked_slot;
             dest.last_player_attacked = source.last_player_attacked;
             dest.last_summoned = source.last_summoned;
             dest.ability_triggerer = source.ability_triggerer;

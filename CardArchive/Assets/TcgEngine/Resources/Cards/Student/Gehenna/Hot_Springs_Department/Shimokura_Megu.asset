@@ -17,18 +17,19 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 10
-  mana: 4
-  attack: 2
-  hp: 6
+  mana: 2
+  attack: 1
+  hp: 3
   clubs:
   - {fileID: 11400000, guid: 05f800c145171ee4eb4a209cc7d194c5, type: 2}
   weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: b835c12aa500c0f448a559f7b68f7a28, type: 2}
-  text: "\uB4F1\uAD50 : \uC0C1\uB300 \uAC74\uBB3C \uD558\uB098\uB97C \uC9C0\uC815\uD569\uB2C8\uB2E4. 
-    \uC628\uCC9C (0/2)\uC73C\uB85C \uAD50\uCCB4\uD569\uB2C8\uB2E4."
+  - {fileID: 11400000, guid: 3cf0d9e767327364cbf0c723dd6c575e, type: 2}
+  text: "\uACF5\uACA9\uD55C \uD0C0\uC77C\uC5D0 \"\uBD88\uD0C0\uB294 \uB300\uC9C0\"
+    \uBD80\uCC29\uBB3C\uC74B \uC124\uCE58\uD569\uB2C8\uB2E4. (2\uD134\uB3D9\uC548
+    1\uB380)"
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
