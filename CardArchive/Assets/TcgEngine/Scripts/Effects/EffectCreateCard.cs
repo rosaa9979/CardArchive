@@ -25,20 +25,23 @@ namespace TcgEngine
             if (create_opponent)
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);
 
-            Card card = Card.Create(create_card, caster.VariantData, player);
-            logic.GameData.last_summoned = card.uid;
+            for (int i = 0; i < ability.value; i++)
+            {
+                Card card = Card.Create(create_card, caster.VariantData, player);
+                logic.GameData.last_summoned = card.uid;
+                
+                if (create_pile == PileType.Deck)
+                    player.cards_deck.Add(card);
 
-            if (create_pile == PileType.Deck)
-                player.cards_deck.Add(card);
+                if (create_pile == PileType.Discard)
+                    player.cards_discard.Add(card);
 
-            if (create_pile == PileType.Discard)
-                player.cards_discard.Add(card);
+                if (create_pile == PileType.Hand)
+                    player.cards_hand.Add(card);
 
-            if (create_pile == PileType.Hand)
-                player.cards_hand.Add(card);
-
-            if (create_pile == PileType.Temp)
-                player.cards_temp.Add(card);
+                if (create_pile == PileType.Temp)
+                    player.cards_temp.Add(card);
+            }
         }
     }
 }

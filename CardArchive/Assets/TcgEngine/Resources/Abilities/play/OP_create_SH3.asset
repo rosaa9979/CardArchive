@@ -10,22 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: ODr_add_1_1_MUWC
+  m_Name: OP_create_SH3
   m_EditorClassIdentifier: 
-  id: ODr_add_1_1_MUWC
-  trigger: 45
-  conditions_trigger:
-  - {fileID: 11400000, guid: 00511614df2ba714996da7ccda6c4bac, type: 2}
-  target: 10
-  conditions_target:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 6e061e121d60faf46baaa057b72de421, type: 2}
+  id: 
+  trigger: 0
+  conditions_trigger: []
+  target: 0
+  conditions_target: []
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
-  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
+  effects: []
   status: []
-  value: 1
+  value: 0
   duration: 0
   chain_abilities: []
   mana_cost: 0
