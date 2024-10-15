@@ -9,7 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afd4095159bc7a149bacde93e89240ae, type: 3}
-  m_Name: add_mana_cost
+  m_Script: {fileID: 11500000, guid: c2dad1f6bd980ea4a9e1149cf5b2a8a7, type: 3}
+  m_Name: add_mana_val_CM
   m_EditorClassIdentifier: 
-  type: 30
+  type: 0
+  pile: 0
+  player: 0
+  has_type: 0
+  has_club: {fileID: 0}
+  has_trait: {fileID: 0}
+  is_fixed: 0

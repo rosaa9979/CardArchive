@@ -10,21 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OP_add_mana_opp_hand_CM
+  m_Name: SOT_OG_duration
   m_EditorClassIdentifier: 
-  id: OP_add_mana_opp_hand_CM
-  trigger: 10
+  id: 
+  trigger: 0
   conditions_trigger: []
-  target: 11
-  conditions_target:
-  - {fileID: 11400000, guid: 3d251f30f8378b04b8dcd6f226c81dde, type: 2}
-  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  target: 0
+  conditions_target: []
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: 8c027974dd818344ea8b9fe8f1de669e, type: 2}
+  effects: []
   status: []
-  value: 1
-  duration: 2
+  value: 0
+  duration: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0

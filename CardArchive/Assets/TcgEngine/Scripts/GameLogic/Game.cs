@@ -101,7 +101,11 @@ namespace TcgEngine
         public virtual bool CanPlayCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (card == null)
+            {
+                Debug.Log(card);
                 return false;
+            }
+
 
             Player player = GetPlayer(card.player_id);
             if (!skip_cost && !player.CanPayMana(card))

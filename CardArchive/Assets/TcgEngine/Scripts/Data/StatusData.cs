@@ -11,7 +11,8 @@ namespace TcgEngine
 
         AddAttack = 4,      //Attack status can be used for attack boost limited for X turns 
         AddHP = 5,          //HP status can be used for hp boost limited for X turns 
-        AddManaCost = 6,    //Mana Cost status can be used for mana cost increase/reduction limited for X turns 
+        AddManaCost = 6,    //Mana Cost status can be used for mana cost increase/reduction limited for X turns
+        StoreValue = 7,
 
         Stealth = 10,       //Cant be attacked until do action
         Invincibility = 12, //Cant be attacked for X turns
@@ -32,6 +33,7 @@ namespace TcgEngine
         Paralysed = 32,     //Cant do any actions for X turns
         Poisoned = 34,     //Lose hp each start of turn
         Sleep = 36,         //Doesnt untap at the start of turn
+        Explode = 40,
 
 
     }

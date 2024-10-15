@@ -41,6 +41,9 @@ namespace TcgEngine
 
                 if (create_pile == PileType.Temp)
                     player.cards_temp.Add(card);
+
+                if (create_pile == PileType.PlayerAbility)
+                    player.player_ability.Add(card);
             }
         }
     }

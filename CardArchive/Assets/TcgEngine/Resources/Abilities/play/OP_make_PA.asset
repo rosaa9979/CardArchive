@@ -10,18 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: play_transform_hot_spring
+  m_Name: OP_make_PA
   m_EditorClassIdentifier: 
-  id: play_transform_hot_spring
-  trigger: 10
+  id: 
+  trigger: 0
   conditions_trigger: []
-  target: 30
-  conditions_target:
-  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
-  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  target: 0
+  conditions_target: []
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: 76e309c5fc802574e8ca0bc536679690, type: 2}
+  effects: []
   status: []
   value: 0
   duration: 0
