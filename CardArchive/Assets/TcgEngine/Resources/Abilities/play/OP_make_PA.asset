@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OP_make_PA
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: OP_make_PA
+  trigger: 10
   conditions_trigger: []
   target: 0
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: ef3aa9d1d5e56e241a87e40c07c37b0f, type: 2}
   status: []
-  value: 0
+  value: 1
   duration: 0
   chain_abilities: []
   mana_cost: 0

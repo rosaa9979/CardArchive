@@ -1347,8 +1347,13 @@ namespace TcgEngine.Gameplay
 
             //Remove card from board and add to discard
             player.RemoveCardFromAllGroups(card);
-            player.cards_discard.Add(card);
-            game_data.last_destroyed = card.uid;
+
+            if (!card.CardData.IsPlayerAbility())
+            {
+                player.cards_discard.Add(card);
+                game_data.last_destroyed = card.uid;
+            }
+
 
             //Remove from bearer
             Card bearer = player.GetBearerCard(card);
@@ -1755,6 +1760,16 @@ namespace TcgEngine.Gameplay
                 for (int c = 0; c < player.cards_hand.Count; c++)
                 {
                     Card card = player.cards_hand[c];
+                    //Status bonus
+                    foreach (CardStatus status in card.status)
+                        AddOngoingStatusBonus(card, status);
+                    foreach (CardStatus status in card.ongoing_status)
+                        AddOngoingStatusBonus(card, status);
+                }
+
+                for (int c = 0; c < player.player_ability.Count; c++) //MP3
+                {
+                    Card card = player.player_ability[c];
                     //Status bonus
                     foreach (CardStatus status in card.status)
                         AddOngoingStatusBonus(card, status);

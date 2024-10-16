@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OG_add_mana_opp_hand_event
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: OG_add_mana_opp_hand_event
+  trigger: 2
   conditions_trigger: []
-  target: 0
-  conditions_target: []
+  target: 11
+  conditions_target:
+  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  - {fileID: 11400000, guid: 9889a367aba825b47a633d89a3659343, type: 2}
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: c5a0683a1620b9c49b27007307e08117, type: 2}
   status: []
   value: 0
   duration: 0

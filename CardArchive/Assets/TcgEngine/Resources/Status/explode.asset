@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7edf116efdfa73646a6de43812f81a4a, type: 3}
   m_Name: explode
   m_EditorClassIdentifier: 
-  effect: 0
-  title: 
+  effect: 40
+  title: "\uD3ED\uBC1C"
   icon: {fileID: 0}
   desc: 
   status_fx: {fileID: 0}

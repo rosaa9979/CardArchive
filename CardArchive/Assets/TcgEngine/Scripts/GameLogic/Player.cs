@@ -610,6 +610,7 @@ namespace TcgEngine
             Card.CloneListRef(dest.cards_all, source.cards_discard, dest.cards_discard);
             Card.CloneListRef(dest.cards_all, source.cards_secret, dest.cards_secret);
             Card.CloneListRef(dest.cards_all, source.cards_temp, dest.cards_temp);
+            Card.CloneListRef(dest.cards_all, source.player_ability, dest.player_ability);
 
             CardStatus.CloneList(source.status, dest.status);
             CardStatus.CloneList(source.ongoing_status, dest.ongoing_status);

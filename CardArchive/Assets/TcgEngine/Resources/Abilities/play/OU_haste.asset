@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OU_haste
   m_EditorClassIdentifier: 
-  id: OS_haste
+  id: OU_haste
   trigger: 13
   conditions_trigger: []
   target: 1

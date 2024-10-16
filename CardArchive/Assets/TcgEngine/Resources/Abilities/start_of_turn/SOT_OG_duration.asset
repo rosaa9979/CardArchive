@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: SOT_OG_duration
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: SOT_OG_duration
+  trigger: 20
   conditions_trigger: []
-  target: 0
+  target: 1
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
   status: []
-  value: 0
+  value: -1
   duration: 0
   chain_abilities: []
   mana_cost: 0

@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: chain_summon_HS
   m_EditorClassIdentifier: 
-  id: 
+  id: chain_summon_HS
   trigger: 0
   conditions_trigger: []
-  target: 0
+  target: 72
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: d529ff1213364634bba65eefce073798, type: 2}
   status: []
   value: 0
   duration: 0

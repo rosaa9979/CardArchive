@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c22fc0bd73323cf46a7fcd39a848d34f, type: 3}
   m_Name: is_slot_yours
   m_EditorClassIdentifier: 
-  player: 1
+  player: 0
   opponent: 1
-  neutral: 1
+  neutral: 0

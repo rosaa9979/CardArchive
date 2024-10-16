@@ -220,32 +220,6 @@ namespace TcgEngine
 
             return true;
         }
-        
-        public virtual bool CanAdditionAttackTarget(Card attacker, Card target, bool skip_cost = false)
-        {
-            if (attacker == null || target == null)
-                return false;
-
-            //if (!attacker.CanAttack(skip_cost))
-            //    return false; //Card cant attack
-
-            if (attacker.player_id == target.player_id)
-                return false; //Cant attack same player
-
-            if (!IsOnBoard(attacker) || !IsOnBoard(target))
-                return false; //Cards not on board
-
-            //if (!attacker.CardData.IsCitizen() || !target.CardData.IsBoardCard())
-            //    return false; //Only citizen can attack
-
-            //if (target.HasStatus(StatusType.Stealth))
-            //    return false; //Stealth cant be attacked
-
-            //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
-            //    return false; //Protected by adjacent card
-
-            return true;
-        }
 
         public virtual List<Card> CanAttackTarget(Card attacker, List<Card> target, bool skip_cost = false)
         {
@@ -537,6 +511,19 @@ namespace TcgEngine
             }
             return null;
         }
+
+        public Card GetPlayerAbilityCard(string card_uid)
+        {
+            foreach (Player player in players)
+            {
+                foreach (Card card in player.player_ability)
+                {
+                    if (card != null && card.uid == card_uid)
+                        return card;
+                }
+            }
+            return null;
+        }
         
         public virtual Player GetRandomPlayer(System.Random rand)
         {
@@ -599,6 +586,11 @@ namespace TcgEngine
         public bool IsCardOnSlot(Slot slot)
         {
             return GetSlotCard(slot) != null;
+        }
+
+        public bool IsInPlayerAbility(Card card)
+        {
+            return card != null && GetPlayerAbilityCard(card.uid) != null;
         }
 
         public bool HasStarted()

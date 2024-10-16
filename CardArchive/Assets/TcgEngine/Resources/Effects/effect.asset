@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afd4095159bc7a149bacde93e89240ae, type: 3}
   m_Name: effect
   m_EditorClassIdentifier: 
-  type: 0
+  type: 30
+  use_stored_value: 0

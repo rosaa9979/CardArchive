@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: chain_explode
   m_EditorClassIdentifier: 
-  id: 
+  id: chain_explode
   trigger: 0
   conditions_trigger: []
   target: 0
-  conditions_target: []
+  conditions_target:
+  - {fileID: 11400000, guid: c2a8abb55d0068c47ac19712ddd4c825, type: 2}
+  - {fileID: 11400000, guid: b85c22d7f3b5b9c438e409eacc1682f5, type: 2}
   filters_target: []
   effects: []
   status: []
