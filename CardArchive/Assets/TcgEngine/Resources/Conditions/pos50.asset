@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3cc6e13a37ff9240ac36dbff458de77, type: 3}
   m_Name: pos50
   m_EditorClassIdentifier: 
-  possibility: 0
+  possibility: 0.5
