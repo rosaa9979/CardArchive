@@ -261,11 +261,6 @@ namespace TcgEngine.Gameplay
 
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
 
-            foreach (Player p in game_data.players)
-            {
-                foreach(var pa in p.player_ability)
-                    Debug.Log(pa.card_id + " "+ pa.GetHP());
-            }
             resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
         }
@@ -554,11 +549,14 @@ namespace TcgEngine.Gameplay
             card_data_array.Clear();
             game_data.last_played = null;
             game_data.last_destroyed = null;
+            game_data.last_destroyed_slot = Slot.None;
             game_data.last_target = null;
+            game_data.last_targeted_slot = Slot.None;
             game_data.last_attacked = null;
             game_data.last_attacked_slot = Slot.None;
             game_data.last_player_attacked = false;
             game_data.last_summoned = null;
+            game_data.last_summoned_slot = Slot.None;
             game_data.ability_triggerer = null;
             game_data.ability_played.Clear();
             game_data.cards_attacked.Clear();      
@@ -1001,7 +999,6 @@ namespace TcgEngine.Gameplay
         //Create a new card and send it to the board
         public virtual Card UseCard(Player player, CardData icard, VariantData variant, Slot slot)
         {
-            Debug.Log("hello");
             //if (!slot.IsValid())
             //    return null;
 
@@ -1092,6 +1089,7 @@ namespace TcgEngine.Gameplay
             Card acard = Card.Create(card, variant, player);
             player.cards_hand.Add(acard);
             game_data.last_summoned = acard.uid;
+            game_data.last_summoned_slot = acard.slot;
             return acard;
         }
 
@@ -1352,6 +1350,7 @@ namespace TcgEngine.Gameplay
             {
                 player.cards_discard.Add(card);
                 game_data.last_destroyed = card.uid;
+                game_data.last_destroyed_slot = card.slot;
             }
 
 
@@ -1611,6 +1610,7 @@ namespace TcgEngine.Gameplay
 
             onAbilityTargetCard?.Invoke(iability, caster, target);
             game_data.last_target = target.uid;
+            game_data.last_targeted_slot = target.slot;
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target)
@@ -1815,6 +1815,7 @@ namespace TcgEngine.Gameplay
             //Clear cards
             for (int c = 0; c < cards_to_clear.Count; c++)
                 cards_to_clear[c].Clear();
+
             cards_to_clear.Clear();
 
             Profiler.EndSample();
@@ -2147,7 +2148,6 @@ namespace TcgEngine.Gameplay
                 {
                     if (ability.target == AbilityTarget.SelectWideArea)
                     {
-                        Debug.Log("hello");
                         if (!ability.AreTargetConditionsMet(game_data, caster, target, targ))
                             continue;
                     }

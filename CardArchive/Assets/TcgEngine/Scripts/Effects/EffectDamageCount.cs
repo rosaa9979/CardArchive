@@ -33,7 +33,7 @@ namespace TcgEngine
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             int damage = GetDamage(logic.GameData, caster, GetCount(logic.GetGameData(), caster) * ability.value);
-            Debug.Log(damage);
+
             logic.DamageCard(caster, target, damage, true);
         }
 

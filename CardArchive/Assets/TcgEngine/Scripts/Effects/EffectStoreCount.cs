@@ -26,8 +26,6 @@ namespace TcgEngine
         {
             int val = GetCount(logic.GetGameData(), caster);
 
-            Debug.Log(val);
-
             target.AddStatus(StatusType.StoreValue, val, 0);
         }
 

@@ -34,11 +34,14 @@ namespace TcgEngine
         //Other reference values
         public string last_played;
         public string last_target;
+        public Slot last_targeted_slot;
         public string last_attacked;
         public Slot last_attacked_slot;
         public bool last_player_attacked;
         public string last_destroyed;
+        public Slot last_destroyed_slot;
         public string last_summoned;
+        public Slot last_summoned_slot;
         public string ability_triggerer;
         public int rolled_value;
 
@@ -101,10 +104,7 @@ namespace TcgEngine
         public virtual bool CanPlayCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (card == null)
-            {
-                Debug.Log(card);
                 return false;
-            }
 
 
             Player player = GetPlayer(card.player_id);
@@ -150,7 +150,6 @@ namespace TcgEngine
         //Check if a card is allowed to move to slot
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
         {
-            Debug.Log(card.card_id);
             if (card == null || !slot.IsValid())
                 return false;
 
@@ -640,12 +639,15 @@ namespace TcgEngine
             dest.selector_ability_id = source.selector_ability_id;
 
             dest.last_destroyed = source.last_destroyed;
+            dest.last_destroyed_slot = source.last_destroyed_slot;
             dest.last_played = source.last_played;
             dest.last_target = source.last_target;
+            dest.last_targeted_slot = source.last_targeted_slot;
             dest.last_attacked = source.last_attacked;
             dest.last_attacked_slot = source.last_attacked_slot;
             dest.last_player_attacked = source.last_player_attacked;
             dest.last_summoned = source.last_summoned;
+            dest.last_summoned_slot = source.last_summoned_slot;
             dest.ability_triggerer = source.ability_triggerer;
             dest.rolled_value = source.rolled_value;
 

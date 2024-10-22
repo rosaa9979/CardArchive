@@ -502,6 +502,39 @@ namespace TcgEngine
                     targets.Add(slot);
             }
 
+            if (target == AbilityTarget.LastAttackedSlot)
+            {
+                Slot slot = data.last_attacked_slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+
+            if (target == AbilityTarget.LastSummonedSlot)
+            {
+                Slot slot = data.last_summoned_slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+
+            if (target == AbilityTarget.LastDestroyedSlot)
+            {
+                Slot slot = data.last_destroyed_slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+
+            if (target == AbilityTarget.LastTargetedSlot)
+            {
+                Slot slot = data.last_targeted_slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+            
+
             //Filter targets
             if (filters_target != null && targets.Count > 0)
             {
@@ -731,9 +764,13 @@ namespace TcgEngine
 
         LastPlayed = 70,            //Last card that was played 
         LastAttacked = 71,
-        LastTargeted = 72,          //Last card that was targeted with an ability
-        LastDestroyed = 74,            //Last card that was killed
+        LastAttackedSlot = 72,
+        LastTargeted = 73,          //Last card that was targeted with an ability
+        LastTargetedSlot = 74,
+        LastDestroyed = 75,            //Last card that was killed
+        LastDestroyedSlot = 76,
         LastSummoned = 77,            //Last card that was summoned or created
+        LastSummonedSlot = 78,
 
     }
 

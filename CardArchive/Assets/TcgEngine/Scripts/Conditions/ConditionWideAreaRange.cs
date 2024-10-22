@@ -30,9 +30,7 @@ namespace TcgEngine
                 if (new_slot.IsValid())
                     wa_slot.Add(new_slot);
             }
-
-            foreach(var slot in wa_slot)
-                Debug.Log(slot.x+" "+slot.y+" "+slot.p);
+            
             return wa_slot.Contains(target);
         }
     }
