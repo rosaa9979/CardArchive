@@ -15,6 +15,7 @@ namespace TcgEngine
         Secret = 40,
         Equipment = 50,
         Attachment = 60,
+        PlayerAbility= 70,
     }
 
     [System.Serializable]
@@ -177,6 +178,11 @@ namespace TcgEngine
         public bool IsBuilding()
         {
             return type == CardType.Building;
+        }
+
+        public bool IsPlayerAbility()
+        {
+            return type == CardType.PlayerAbility;
         }
 
         public bool IsSecret()

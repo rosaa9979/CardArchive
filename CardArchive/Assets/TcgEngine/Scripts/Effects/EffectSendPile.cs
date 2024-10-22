@@ -46,6 +46,13 @@ namespace TcgEngine
                 player.cards_temp.Add(target);
                 target.Clear();
             }
+
+            if (pile == PileType.PlayerAbility)
+            {
+                player.RemoveCardFromAllGroups(target);
+                player.player_ability.Add(target);
+                target.Clear();
+            }
         }
     }
 
@@ -61,6 +68,7 @@ namespace TcgEngine
         Equipped = 60,
         Attached = 70,
         Temp = 90,
+        PlayerAbility = 100,
     }
 
 }

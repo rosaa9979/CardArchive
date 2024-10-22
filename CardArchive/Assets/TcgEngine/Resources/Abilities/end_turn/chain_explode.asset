@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OS_haste
+  m_Name: chain_explode
   m_EditorClassIdentifier: 
-  id: OS_haste
-  trigger: 13
+  id: chain_explode
+  trigger: 0
   conditions_trigger: []
-  target: 1
-  conditions_target: []
+  target: 0
+  conditions_target:
+  - {fileID: 11400000, guid: c2a8abb55d0068c47ac19712ddd4c825, type: 2}
+  - {fileID: 11400000, guid: b85c22d7f3b5b9c438e409eacc1682f5, type: 2}
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: f9708fd6466cc0a4b805048a326a5ac3, type: 2}
+  effects: []
   status: []
   value: 0
   duration: 0
@@ -32,5 +33,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Haste
-  desc: Can attack immediately.
+  title: 
+  desc: 

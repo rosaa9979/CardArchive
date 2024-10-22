@@ -261,6 +261,11 @@ namespace TcgEngine.Gameplay
 
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
 
+            foreach (Player p in game_data.players)
+            {
+                foreach(var pa in p.player_ability)
+                    Debug.Log(pa.card_id + " "+ pa.GetHP());
+            }
             resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
         }
@@ -696,12 +701,12 @@ namespace TcgEngine.Gameplay
 
                 //Trigger abilities
                 TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
-                TriggerSecrets(AbilityTrigger.OnSummonOther, card); //After summon card
+                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After summon card
 
                 TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
-                TriggerCardAbilityType(AbilityTrigger.OnSummon, card);
+                TriggerCardAbilityType(AbilityTrigger.OnUse, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
 
                 RefreshData();
 
@@ -983,7 +988,7 @@ namespace TcgEngine.Gameplay
         public virtual Card SummonCopy(Player player, Card copy, Slot slot)
         {
             CardData icard = copy.CardData;
-            return SummonCard(player, icard, copy.VariantData, slot);
+            return UseCard(player, icard, copy.VariantData, slot);
         }
 
         //Summon copy of an exiting card into hand
@@ -994,16 +999,18 @@ namespace TcgEngine.Gameplay
         }
 
         //Create a new card and send it to the board
-        public virtual Card SummonCard(Player player, CardData icard, VariantData variant, Slot slot)
+        public virtual Card UseCard(Player player, CardData icard, VariantData variant, Slot slot)
         {
-            if (!slot.IsValid())
-                return null;
+            Debug.Log("hello");
+            //if (!slot.IsValid())
+            //    return null;
 
-            if (game_data.GetSlotCard(slot) != null)
-                return null;
+            //if (game_data.GetSlotCard(slot) != null)
+            //    return null;
 
             Card card = SummonCardHand(player, icard, variant);
 
+            Debug.Log(game_data.CanPlayCard(card, slot, true));
             if (game_data.CanPlayCard(card, slot, true))
             {
                 //Player player = game_data.GetPlayer(card.player_id);
@@ -1044,6 +1051,11 @@ namespace TcgEngine.Gameplay
                     player.cards_secret.Add(card);
                 }
 
+                else if (icard.IsPlayerAbility())
+                {
+                    player.player_ability.Add(card);
+                }
+
                 else
                 {
                     player.cards_discard.Add(card);
@@ -1059,9 +1071,9 @@ namespace TcgEngine.Gameplay
                 UpdateOngoing();
 
                 //Trigger abilities
-                TriggerSecrets(AbilityTrigger.OnSummonOther, card); //After playing card
-                TriggerCardAbilityType(AbilityTrigger.OnSummon, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnSummonOther, card);
+                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After playing card
+                TriggerCardAbilityType(AbilityTrigger.OnUse, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
 
                 RefreshData();
 
@@ -1274,6 +1286,7 @@ namespace TcgEngine.Gameplay
         //Damage a slot with attacker/caster
         public virtual void DamageCard(Card attacker, Slot target, int value, bool spell_damage = false)
         {
+            Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
@@ -1282,6 +1295,15 @@ namespace TcgEngine.Gameplay
             
             if (attach_target != null)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
+
+            if (attacker.HasStatus(StatusType.Explode))
+            {
+                foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
+                {
+                    if (slot == target)
+                        DamagePlayer(attacker, oplayer, value);
+                }  
+            }
         }
 
         //A card that kills another card
@@ -1325,8 +1347,13 @@ namespace TcgEngine.Gameplay
 
             //Remove card from board and add to discard
             player.RemoveCardFromAllGroups(card);
-            player.cards_discard.Add(card);
-            game_data.last_destroyed = card.uid;
+
+            if (!card.CardData.IsPlayerAbility())
+            {
+                player.cards_discard.Add(card);
+                game_data.last_destroyed = card.uid;
+            }
+
 
             //Remove from bearer
             Card bearer = player.GetBearerCard(card);
@@ -1416,6 +1443,9 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(type, card, card);
 
             foreach (Card card in player.cards_attach)
+                TriggerCardAbilityType(type, card, card);
+
+            foreach (Card card in player.player_ability)
                 TriggerCardAbilityType(type, card, card);
 
         }
@@ -1689,6 +1719,12 @@ namespace TcgEngine.Gameplay
                     Card card = player.clubs[c];
                     UpdateOngoingAbilities(player, card);
                 }
+
+                for (int c = 0; c < player.player_ability.Count; c++)
+                {
+                    Card card = player.player_ability[c];
+                    UpdateOngoingAbilities(player, card);
+                }
             }
 
             //Stats bonus
@@ -1730,6 +1766,16 @@ namespace TcgEngine.Gameplay
                     foreach (CardStatus status in card.ongoing_status)
                         AddOngoingStatusBonus(card, status);
                 }
+
+                for (int c = 0; c < player.player_ability.Count; c++) //MP3
+                {
+                    Card card = player.player_ability[c];
+                    //Status bonus
+                    foreach (CardStatus status in card.status)
+                        AddOngoingStatusBonus(card, status);
+                    foreach (CardStatus status in card.ongoing_status)
+                        AddOngoingStatusBonus(card, status);
+                }
             }
 
             //Kill stuff with 0 hp
@@ -1756,6 +1802,12 @@ namespace TcgEngine.Gameplay
                         DiscardCard(card);
                     Card bearer = player.GetBearerCard(card);
                     if(bearer == null)
+                        DiscardCard(card);
+                }
+                for (int i = player.player_ability.Count - 1; i >= 0; i--)
+                {
+                    Card card = player.player_ability[i];
+                    if (card.GetHP() <= 0)
                         DiscardCard(card);
                 }
             }
@@ -2001,17 +2053,22 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (!ability.CanTarget(game_data, caster, target))
-                    return; //Can't target that target
+                if (ability.target == AbilityTarget.SelectWideArea)
+                    SelectSlot(target.slot);
+                else
+                {
+                    if (!ability.CanTarget(game_data, caster, target))
+                        return; //Can't target that target
 
-                Player player = game_data.GetPlayer(caster.player_id);
-                if (!is_ai_predict)
-                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
+                    Player player = game_data.GetPlayer(caster.player_id);
+                    if (!is_ai_predict)
+                        player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
-                game_data.selector = SelectorType.None;
-                ResolveEffectTarget(ability, caster, target);
-                AfterAbilityResolved(ability, caster);
-                resolve_queue.ResolveAll();
+                    game_data.selector = SelectorType.None;
+                    ResolveEffectTarget(ability, caster, target);
+                    AfterAbilityResolved(ability, caster);
+                    resolve_queue.ResolveAll();
+                }
             }
 
             if (game_data.selector == SelectorType.SelectorCard)
@@ -2090,6 +2147,7 @@ namespace TcgEngine.Gameplay
                 {
                     if (ability.target == AbilityTarget.SelectWideArea)
                     {
+                        Debug.Log("hello");
                         if (!ability.AreTargetConditionsMet(game_data, caster, target, targ))
                             continue;
                     }

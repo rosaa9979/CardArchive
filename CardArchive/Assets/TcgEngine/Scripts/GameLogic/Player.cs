@@ -40,6 +40,7 @@ namespace TcgEngine
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area
         public List<Card> cards_temp = new List<Card>();    //Temporary cards that have just been created, not assigned to any zone yet
+        public List<Card> player_ability = new List<Card>();
 
 
         public List<CardTrait> traits = new List<CardTrait>();              //Current persistant traits the cards has
@@ -80,6 +81,7 @@ namespace TcgEngine
             cards_discard.Remove(card);
             cards_secret.Remove(card);
             cards_temp.Remove(card);
+            player_ability.Remove(card);
             UnequipFromAllCards(card);
         }
 
@@ -608,6 +610,7 @@ namespace TcgEngine
             Card.CloneListRef(dest.cards_all, source.cards_discard, dest.cards_discard);
             Card.CloneListRef(dest.cards_all, source.cards_secret, dest.cards_secret);
             Card.CloneListRef(dest.cards_all, source.cards_temp, dest.cards_temp);
+            Card.CloneListRef(dest.cards_all, source.player_ability, dest.player_ability);
 
             CardStatus.CloneList(source.status, dest.status);
             CardStatus.CloneList(source.ongoing_status, dest.ongoing_status);

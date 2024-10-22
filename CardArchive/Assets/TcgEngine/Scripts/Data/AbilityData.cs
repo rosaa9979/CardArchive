@@ -354,7 +354,9 @@ namespace TcgEngine
                     AddValidCards(data, caster, player.cards_secret, targets);
                     AddValidCards(data, caster, player.cards_board, targets);
                     AddValidCards(data, caster, player.cards_equip, targets);
+                    AddValidCards(data, caster, player.cards_attach, targets);
                     AddValidCards(data, caster, player.cards_temp, targets);
+                    AddValidCards(data, caster, player.player_ability, targets);
                 }
             }
 
@@ -602,9 +604,11 @@ namespace TcgEngine
                 bool v4 = HasValidCardTarget(game_data, caster, player.cards_hand);
                 bool v5 = HasValidCardTarget(game_data, caster, player.cards_board);
                 bool v6 = HasValidCardTarget(game_data, caster, player.cards_equip);
-                bool v7 = HasValidCardTarget(game_data, caster, player.cards_secret);
-                bool v8 = HasValidCardTarget(game_data, caster, player.cards_temp);
-                if (v1 || v2 || v3 || v4 || v5 || v6 || v7 || v8)
+                bool v7 = HasValidCardTarget(game_data, caster, player.cards_attach);
+                bool v8 = HasValidCardTarget(game_data, caster, player.cards_secret);
+                bool v9 = HasValidCardTarget(game_data, caster, player.cards_temp);
+                bool v10 = HasValidCardTarget(game_data, caster, player.player_ability);
+                if (v1 || v2 || v3 || v4 || v5 || v6 || v7 || v8 || v9 || v10)
                     return true;
             }
             return false;
@@ -674,8 +678,8 @@ namespace TcgEngine
         OnPlay = 10,  //When playeds
         OnPlayOther = 11,  //When another card played
 
-        OnSummon = 13,
-        OnSummonOther = 14,
+        OnUse = 13,
+        OnUseOther = 14,
 
         StartOfTurn = 20, //Every turn
         EndOfTurn = 22, //Every turn
