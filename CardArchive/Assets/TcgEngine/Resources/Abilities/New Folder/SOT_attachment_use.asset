@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: SOT_attachment_use
   m_EditorClassIdentifier: 
   id: SOT_attachment_use
-  trigger: 0
+  trigger: 20
   conditions_trigger: []
-  target: 0
+  target: 1
   conditions_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
   status: []
-  value: 0
+  value: -1
   duration: 0
   chain_abilities: []
   mana_cost: 0
