@@ -124,8 +124,8 @@ namespace TcgEngine
                 //    return false; //Cant play on opponent side
 
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
-                //if (GetOpponentPlayer(player.player_id).player_id == slot.p)
-                //    return false; //Cant play on opponent side
+                if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
+                    return false; //Cant play on opponent side
 
                 return true;
             }
