@@ -15,7 +15,7 @@ MonoBehaviour:
   id: chain_summon_HS
   trigger: 0
   conditions_trigger: []
-  target: 72
+  target: 76
   conditions_target: []
   filters_target: []
   effects:

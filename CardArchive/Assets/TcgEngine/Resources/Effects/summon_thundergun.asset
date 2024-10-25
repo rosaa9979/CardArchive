@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6387beb9a48f723469e5bb1532d7f51f, type: 3}
   m_Name: summon_thundergun
   m_EditorClassIdentifier: 
-  summon: {fileID: 11400000, guid: 3fde7551cb5c9664bb7c551bff049aeb, type: 2}
+  use: {fileID: 11400000, guid: 3fde7551cb5c9664bb7c551bff049aeb, type: 2}

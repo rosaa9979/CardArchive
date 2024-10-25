@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TcgEngine.Gameplay;
 
@@ -32,12 +33,30 @@ namespace TcgEngine
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
             List<Card> target = new List<Card>();
-            List<Card> targets = logic.GetNearestTarget(attacker);
+            Dictionary<int, List<Card>> targets = logic.GetAllTarget(attacker);
+            List<Card> target_list = targets.Values.SelectMany(cardList => cardList).ToList();
 
-            if (targets.Count > 0)
+            if (attacker.HasStatus(StatusType.MassShooting))
             {
-                int ran = UnityEngine.Random.Range(0, targets.Count);
-                target.Add(targets[ran]);
+                foreach(Card targ in target_list)
+                {
+                    float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                    Debug.Log(ran);
+                    if (ran < 1)
+                        target.Add(targ);
+                }
+            }
+            
+            else if (target_list.Count > 0)
+            {
+                bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
+                
+                List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                if (candidate_target.Count > 0)
+                {
+                    int ran = UnityEngine.Random.Range(0, candidate_target.Count);
+                    target.Add(candidate_target[ran]);
+                }
             }
 
             return target;

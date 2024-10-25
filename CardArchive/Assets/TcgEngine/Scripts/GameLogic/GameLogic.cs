@@ -141,8 +141,8 @@ namespace TcgEngine.Gameplay
             RefreshData();
             onGameStart?.Invoke();
 
-            //StartTurn();
-            StartMulliganPhase();
+            StartTurn();
+            //StartMulliganPhase();
         }
 
         public virtual void StartMulliganPhase()
@@ -403,56 +403,27 @@ namespace TcgEngine.Gameplay
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
         }
-        
-        public virtual List<Card> GetNearestTarget(Card attacker)
+
+        public virtual Dictionary<int, List<Card>> GetAllTarget(Card attacker)
         {
-            Player player = game_data.GetActivePlayer();
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            List<Card> target = new List<Card>();
             Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
+            Dictionary<int, List<Card>> targets = new Dictionary<int, List<Card>>();
 
+            // rangeSlots 딕셔너리를 순회
             foreach (var dis in range_slot.Keys)
             {
-                target.Clear();
-                if (range_slot[dis].Count > 0)
-                {
-                    foreach (Slot slot in range_slot[dis])
-                    {
-                        Card targ = game_data.GetSlotCard(slot);
+                // 해당 거리에서 유닛이 있는 슬롯들만 필터링하고 유닛(Card)을 리스트로 변환
+                var cards = range_slot[dis]
+                    .Select(slot => game_data.GetSlotCard(slot))   // 슬롯에서 카드 가져오기
+                    .Where(card => card != null)                   // null이 아닌 카드만 필터링
+                    .ToList();                                     // 결과를 List<Card>로 변환
 
-                        if (targ != null)
-                            target.Add(targ);
-                    }
+                // 유닛(Card) 리스트가 비어 있지 않다면 Dictionary에 추가
+                if (cards.Any())  // cards 리스트가 비어 있지 않으면
+                    targets[dis] = cards;
+            } 
 
-                    if (game_data.CanAttackTarget(attacker, target).Count > 0)
-                        return game_data.CanAttackTarget(attacker, target);
-                }
-            }
-            return game_data.CanAttackTarget(attacker, target);
-        }
-
-        public virtual List<Card> GetAllTarget(Card attacker)
-        {
-            Player player = game_data.GetActivePlayer();
-            Player oplayer = game_data.GetOpponentPlayer(player.player_id);
-
-            List<Card> target = new List<Card>();
-            List<Slot> slots = new List<Slot>();
-            Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
-
-            foreach (var dis in range_slot.Keys)
-                slots.AddRange(range_slot[dis]);
-
-            foreach (Slot slot in slots)
-            {
-                Card targ = game_data.GetSlotCard(slot);
-
-                if (targ != null)
-                    target.Add(targ);
-            }
-
-            return game_data.CanAttackTarget(attacker, target);         
+            return targets;
         }
 
         public virtual void EndTurn()
@@ -462,7 +433,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
 
-            //game_data.selector = SelectorType.None;
+            game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.EndTurn;
 
             //Reduce status effects with duration
@@ -798,10 +769,10 @@ namespace TcgEngine.Gameplay
             int datt2 = target.GetAttack();
 
             Player player = game_data.GetPlayer(attacker.player_id);
-            Slot target_slot = target.slot;
+            //Slot target_slot = target.slot;
 
             //Damage Cards
-            DamageCard(attacker, target_slot, datt1);
+            DamageCard(attacker, target, datt1);
 
             //Counter Damage
             //if(!attacker.HasStatus(StatusType.Intimidate))
@@ -1007,7 +978,6 @@ namespace TcgEngine.Gameplay
 
             Card card = SummonCardHand(player, icard, variant);
 
-            Debug.Log(game_data.CanPlayCard(card, slot, true));
             if (game_data.CanPlayCard(card, slot, true))
             {
                 //Player player = game_data.GetPlayer(card.player_id);
@@ -1288,20 +1258,17 @@ namespace TcgEngine.Gameplay
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
+            foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
+            {
+                if (slot == target)
+                    DamagePlayer(attacker, oplayer, value);
+            }  
+
             if (card_target != null)
                 DamageCard(attacker, card_target, value, spell_damage);
             
             if (attach_target != null)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
-
-            if (attacker.HasStatus(StatusType.Explode))
-            {
-                foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
-                {
-                    if (slot == target)
-                        DamagePlayer(attacker, oplayer, value);
-                }  
-            }
         }
 
         //A card that kills another card

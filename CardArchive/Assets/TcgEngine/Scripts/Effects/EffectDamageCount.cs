@@ -37,6 +37,13 @@ namespace TcgEngine
             logic.DamageCard(caster, target, damage, true);
         }
 
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            int damage = GetDamage(logic.GameData, caster, GetCount(logic.GetGameData(), caster) * ability.value);
+
+            logic.DamageCard(caster, target, damage, true);
+        }
+
         private int GetDamage(Game data, Card caster, int value)
         {
             Player player = data.GetPlayer(caster.player_id);

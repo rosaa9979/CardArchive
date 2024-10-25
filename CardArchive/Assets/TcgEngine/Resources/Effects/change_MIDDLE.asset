@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c48898a0211af1d4290fb216916c0281, type: 3}
-  m_Name: change_FRONT
+  m_Name: change_MIDDLE
   m_EditorClassIdentifier: 
-  weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
+  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}

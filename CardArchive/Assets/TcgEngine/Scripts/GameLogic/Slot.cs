@@ -471,19 +471,27 @@ namespace TcgEngine
                 int new_y = y + dir.Item2;
                 int new_p = p;
 
+                /*
                 if (new_y < y_neutral)
                     new_p = 0;
                 else if (new_y > y_neutral)
                     new_p = 1;
                 else if (new_y == y_neutral)
                     new_p = 2;
+                */
 
-                Slot new_slot = new Slot(new_x, new_y, new_p);
-
+                //Slot new_slot = new Slot(new_x, new_y, new_p);
+                Slot new_slot = new Slot(new SlotXY(new_x, new_y));
+            
                 foreach (Slot slot in slots)
                 {
+                    //Debug.Log("new slot : "+new_slot.x+" "+new_slot.y+" "+new_slot.p);
                     if (slot == new_slot)
+                    {
+                        //Debug.Log("slot : "+slot.x+" "+slot.y+" "+slot.p);
                         neighbor_slots.Add(new_slot);
+                    }
+
                 }
             }
 

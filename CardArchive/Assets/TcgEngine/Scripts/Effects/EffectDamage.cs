@@ -27,12 +27,10 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            /*
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamageCard(caster, target, damage, true);
-            */
 
-            DoEffect(logic, ability, caster, target.slot);
+            //DoEffect(logic, ability, caster, target.slot);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
