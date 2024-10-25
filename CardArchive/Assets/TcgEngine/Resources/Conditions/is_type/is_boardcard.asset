@@ -9,12 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7edf116efdfa73646a6de43812f81a4a, type: 3}
-  m_Name: explode
+  m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
+  m_Name: is_boardcard
   m_EditorClassIdentifier: 
-  effect: 40
-  title: "\uD3ED\uBC1C"
-  icon: {fileID: 0}
-  desc: 
-  status_fx: {fileID: 0}
-  hvalue: 0
+  has_type: 
+  has_club: []
+  has_trait: []
+  oper: 0

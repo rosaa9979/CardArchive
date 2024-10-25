@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OP_add_attack3
+  m_Name: ODO_summon_JTFM1
   m_EditorClassIdentifier: 
-  id: OP_add_attack3
-  trigger: 10
+  id: 
+  trigger: 0
   conditions_trigger: []
-  target: 72
+  target: 0
   conditions_target: []
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
+  effects: []
   status: []
-  value: 3
+  value: 0
   duration: 0
   chain_abilities: []
   mana_cost: 0
