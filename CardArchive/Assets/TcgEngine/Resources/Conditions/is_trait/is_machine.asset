@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
   m_Name: is_machine
   m_EditorClassIdentifier: 
-  has_type: 0
-  has_club: {fileID: 0}
-  has_trait: {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
+  has_type: 
+  has_club: []
+  has_trait:
+  - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
   oper: 0

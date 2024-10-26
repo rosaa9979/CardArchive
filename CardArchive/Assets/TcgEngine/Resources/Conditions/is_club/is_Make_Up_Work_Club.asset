@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
   m_Name: is_Make_Up_Work_Club
   m_EditorClassIdentifier: 
-  has_type: 0
-  has_club: {fileID: 11400000, guid: d376f530150f6d244b99a3dea95b8867, type: 2}
-  has_trait: {fileID: 0}
+  has_type: 
+  has_club:
+  - {fileID: 11400000, guid: d376f530150f6d244b99a3dea95b8867, type: 2}
+  has_trait: []
   oper: 0

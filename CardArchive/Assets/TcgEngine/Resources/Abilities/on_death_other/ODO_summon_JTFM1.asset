@@ -12,13 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: ODO_summon_JTFM1
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
-  conditions_trigger: []
-  target: 0
-  conditions_target: []
-  filters_target: []
-  effects: []
+  id: ODO_summon_JTFM1
+  trigger: 42
+  conditions_trigger:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 86c331d287f4fac4ba4508d8fea64c7c, type: 2}
+  - {fileID: 11400000, guid: f60e33e94dcb1524c817b1cef3fd39fd, type: 2}
+  target: 15
+  conditions_target:
+  - {fileID: 11400000, guid: 1d24aeff76360da459d3f3458041edd2, type: 2}
+  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  effects:
+  - {fileID: 11400000, guid: a46e384ba827b4741a909834a7ec5e1e, type: 2}
   status: []
   value: 0
   duration: 0

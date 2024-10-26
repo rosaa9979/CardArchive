@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feda2b44ab25b084f863d7101dbd7e84, type: 3}
   m_Name: Arius_Squad
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Arius_Squad
+  title: "\uC544\uB9AC\uC6B0\uC2A4 \uC2A4\uCFFC\uB4DC"

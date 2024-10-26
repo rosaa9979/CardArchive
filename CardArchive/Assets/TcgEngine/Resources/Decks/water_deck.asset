@@ -15,6 +15,28 @@ MonoBehaviour:
   id: water_deck
   title: Water Starter
   hero: {fileID: 11400000, guid: 111d60b13ae137f4597da2789d94ecce, type: 2}
+  clubs:
+  - {fileID: 11400000, guid: 98e964e3da2a99d4aac76bb9c40af40b, type: 2}
+  - {fileID: 11400000, guid: ec3c875c40102e94c92614c71d2231ca, type: 2}
+  - {fileID: 11400000, guid: a50d6db4d2715604c88b5ef0364e548f, type: 2}
   cards:
-  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
-  clubs: []
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}
+  - {fileID: 11400000, guid: f0f44938c436070469fd3b95ee0365d4, type: 2}

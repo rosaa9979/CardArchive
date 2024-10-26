@@ -34,6 +34,7 @@ namespace TcgEngine
         Poisoned = 34,     //Lose hp each start of turn
         Sleep = 36,         //Doesnt untap at the start of turn
         MassShooting = 41,
+        Evasion = 42,
 
 
     }

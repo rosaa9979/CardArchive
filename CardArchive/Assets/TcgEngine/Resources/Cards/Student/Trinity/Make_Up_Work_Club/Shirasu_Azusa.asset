@@ -18,8 +18,8 @@ MonoBehaviour:
   art_board: {fileID: 0}
   type: 10
   mana: 4
-  attack: 1
-  hp: 1
+  attack: 4
+  hp: 4
   clubs:
   - {fileID: 11400000, guid: d376f530150f6d244b99a3dea95b8867, type: 2}
   weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}

@@ -13,18 +13,19 @@ MonoBehaviour:
   m_Name: Justice_Task_Force
   m_EditorClassIdentifier: 
   id: Justice_Task_Force
-  title: 
+  title: "\uC815\uC758\uC2E4\uD604\uBD80"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
+  type: 7
   mana: 0
   attack: 0
   hp: 0
   clubs: []
-  weapon: {fileID: 0}
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 2d1d546c29c5fad47b158a5e385072b3, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

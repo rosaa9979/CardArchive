@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
   m_Name: is_boardcard
   m_EditorClassIdentifier: 
-  has_type: 
+  has_type: 0a0000000b0000001e000000
   has_club: []
   has_trait: []
   oper: 0

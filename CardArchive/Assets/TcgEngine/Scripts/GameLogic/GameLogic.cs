@@ -752,10 +752,20 @@ namespace TcgEngine.Gameplay
 
             if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
                 return;
-
-            onAttackStart?.Invoke(attacker, target);
+            
 
             attacker.RemoveStatus(StatusType.Stealth);
+
+            if (target.HasStatus(StatusType.Evasion))
+            {
+                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                Debug.Log(ran);
+                if (ran < 1)
+                    return;
+            }
+
+            onAttackStart?.Invoke(attacker, target);
+            //attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);

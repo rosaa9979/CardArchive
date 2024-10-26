@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6387beb9a48f723469e5bb1532d7f51f, type: 3}
   m_Name: summon_JTFM
   m_EditorClassIdentifier: 
-  use: {fileID: 0}
+  use: {fileID: 11400000, guid: aad1d8e4ac42b3749a236b2aa43624dc, type: 2}

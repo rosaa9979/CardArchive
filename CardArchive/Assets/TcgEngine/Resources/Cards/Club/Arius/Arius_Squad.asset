@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Arius_Squad
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Arius_Squad
+  title: "\uC544\uB9AC\uC6B0\uC2A4 \uC2A4\uCFFC\uB4DC"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
+  type: 7
   mana: 0
   attack: 0
   hp: 0
   clubs: []
-  weapon: {fileID: 0}
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
   abilities: []
