@@ -638,6 +638,8 @@ namespace TcgEngine.Gameplay
                     player.cards_board.Add(card);
                     card.slot = slot;
                     card.exhausted = true; //Cant attack first turn
+                    game_data.last_summoned = card.uid;
+                    game_data.last_summoned_slot = slot;
                 }
                 else if (icard.IsEquipment())
                 {
@@ -1008,6 +1010,8 @@ namespace TcgEngine.Gameplay
                     player.cards_board.Add(card);
                     card.slot = slot;
                     card.exhausted = true; //Cant attack first turn
+                    game_data.last_summoned = card.uid;
+                    game_data.last_summoned_slot = slot;
                 }
 
                 else if (icard.IsEquipment())

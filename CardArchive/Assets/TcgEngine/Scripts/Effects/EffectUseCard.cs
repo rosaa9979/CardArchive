@@ -13,34 +13,59 @@ namespace TcgEngine
     public class EffectUseCard : EffectData
     {
         public CardData use;
+        public bool use_opponent;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
             Player player = logic.GameData.GetPlayer(caster.player_id);
-            logic.UseCard(player, use, caster.VariantData, Slot.None);   
+            Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
+
+            if (use_opponent)
+                logic.UseCard(oplayer, use, caster.VariantData, Slot.None); 
+            else
+                logic.UseCard(player, use, caster.VariantData, Slot.None); 
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            logic.SummonCardHand(target, use, caster.VariantData); //Summon in hand instead of board when target a player
+            Player otarget = logic.GameData.GetOpponentPlayer(target.player_id);
+            if (use_opponent)
+                logic.SummonCardHand(otarget, use, caster.VariantData); //Summon in hand instead of board when target a player
+            else
+                logic.SummonCardHand(target, use, caster.VariantData);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             Player player = logic.GameData.GetPlayer(caster.player_id);
-            logic.UseCard(player, use, caster.VariantData, target.slot); //Assumes the target has just been killed, so the slot is empty
+            Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
+
+            if (use_opponent)
+                logic.UseCard(oplayer, use, caster.VariantData, target.slot); //Assumes the target has just been killed, so the slot is empty
+            else
+                logic.UseCard(player, use, caster.VariantData, target.slot);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
             Player player = logic.GameData.GetPlayer(caster.player_id);
-            logic.UseCard(player, use, caster.VariantData, target);
+            Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
+
+            if (use_opponent)
+                logic.UseCard(oplayer, use, caster.VariantData, target);
+            else
+                logic.UseCard(player, use, caster.VariantData, target);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target)
         {
             Player player = logic.GameData.GetPlayer(caster.player_id);
-            logic.SummonCardHand(player, target, caster.VariantData);   //Summon in hand instead of board when target a carddata
+            Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
+
+            if (use_opponent)
+                logic.SummonCardHand(oplayer, target, caster.VariantData);   //Summon in hand instead of board when target a carddata
+            else
+                logic.SummonCardHand(player, target, caster.VariantData);
         }
     }
 }

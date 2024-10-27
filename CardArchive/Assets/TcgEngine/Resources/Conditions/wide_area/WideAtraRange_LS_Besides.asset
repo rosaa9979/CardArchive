@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6387beb9a48f723469e5bb1532d7f51f, type: 3}
-  m_Name: summon_egg
+  m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
+  m_Name: WideAtraRange_LS_Besides
   m_EditorClassIdentifier: 
-  summon: {fileID: 11400000, guid: 14885a96dd1808e4a95a178583736899, type: 2}
+  type: 0
+  directions: []

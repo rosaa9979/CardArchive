@@ -494,6 +494,16 @@ namespace TcgEngine
                 }
             }
 
+            if (target == AbilityTarget.WideArea)
+            {
+                List<Slot> slots = Slot.GetAll();
+                foreach (Slot slot in slots)
+                {
+                    if (AreTargetConditionsMet(data, caster, slot))
+                        targets.Add(slot);
+                }
+            }
+
             if (target == AbilityTarget.AttachedSlot)
             {
                 Slot slot = caster.slot;
@@ -748,6 +758,7 @@ namespace TcgEngine
         AllCardsAllPiles = 12,
         AllSlots = 15,
         AllCardData = 17,       //For card Create effects only
+        WideArea = 18,
 
         PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)      
         AbilityTriggerer = 25,   //The card that triggered the trap
