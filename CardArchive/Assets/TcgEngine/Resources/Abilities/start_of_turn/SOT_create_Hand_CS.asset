@@ -10,18 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OP_summon_JTFM_besides
+  m_Name: SOT_create_Hand_CS
   m_EditorClassIdentifier: 
-  id: OP_summon_JTFM_besides
-  trigger: 10
+  id: 
+  trigger: 0
   conditions_trigger: []
-  target: 18
-  conditions_target:
-  - {fileID: 11400000, guid: 1fca94f86af6f9e478bf7d30d592bf49, type: 2}
-  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  target: 0
+  conditions_target: []
   filters_target: []
-  effects:
-  - {fileID: 11400000, guid: a46e384ba827b4741a909834a7ec5e1e, type: 2}
+  effects: []
   status: []
   value: 0
   duration: 0

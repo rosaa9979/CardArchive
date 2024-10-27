@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6387beb9a48f723469e5bb1532d7f51f, type: 3}
   m_Name: summon_sweeper
   m_EditorClassIdentifier: 
-  summon: {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
+  use: {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
+  use_opponent: 0

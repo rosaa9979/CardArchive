@@ -10,23 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Nakamasa_Ichika
+  m_Name: Commuting_Student_BACK
   m_EditorClassIdentifier: 
-  id: Nakamasa_Ichika
-  title: "\uB098\uCE74\uB9C8\uC0AC \uC774\uCE58\uCE74"
+  id: 
+  title: 
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 10
-  mana: 6
-  attack: 4
-  hp: 4
-  clubs:
-  - {fileID: 11400000, guid: 73d48fde348ab1e43a0b801b9884611e, type: 2}
-  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
+  type: 0
+  mana: 0
+  attack: 0
+  hp: 0
+  clubs: []
+  weapon: {fileID: 0}
   traits: []
   stats: []
-  abilities:
-  - {fileID: 11400000, guid: 6b3ec1855e83729489839364b9f61105, type: 2}
+  abilities: []
   text: 
   desc: 
   spawn_fx: {fileID: 0}
