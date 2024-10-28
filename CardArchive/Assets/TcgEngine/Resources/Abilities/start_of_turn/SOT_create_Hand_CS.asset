@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: SOT_create_Hand_CS
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: SOT_create_Hand_CS
+  trigger: 20
   conditions_trigger: []
-  target: 0
-  conditions_target: []
-  filters_target: []
-  effects: []
+  target: 17
+  conditions_target:
+  - {fileID: 11400000, guid: 229136683afc8e34395f1d14ade50251, type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 7c307a9075513d047962aa78aecf29c0, type: 2}
   status: []
   value: 0
   duration: 0

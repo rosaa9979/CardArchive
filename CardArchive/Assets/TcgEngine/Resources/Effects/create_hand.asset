@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0c7a36491a2fd4d89a12026a89bf8b, type: 3}
   m_Name: create_hand
   m_EditorClassIdentifier: 
-  create_pile: 0
+  create_pile: 20
   create_opponent: 0

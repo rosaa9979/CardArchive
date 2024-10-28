@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Commuting_Student_MIDDLE
   m_EditorClassIdentifier: 
-  id: 
-  title: 
+  id: Commuting_Student_MIDDLE
+  title: "\uB4F1\uAD50\uC0DD"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
-  attack: 0
-  hp: 0
+  type: 11
+  mana: 1
+  attack: 1
+  hp: 1
   clubs: []
-  weapon: {fileID: 0}
+  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
   traits: []
   stats: []
   abilities: []

@@ -28,8 +28,6 @@ namespace TcgEngine
 
             bool exists = card_types.Any(card => card.id == target.card_id);
 
-            Debug.Log(exists);
-
             // oper 값에 따라 조건을 검사
             if (oper == ConditionOperatorBool.IsTrue && exists)
             {

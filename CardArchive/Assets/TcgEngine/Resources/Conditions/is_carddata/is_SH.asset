@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dafbad6af09c6ed49bfbe03e2d2bf8f1, type: 3}
   m_Name: is_SH
   m_EditorClassIdentifier: 
-  card_type: {fileID: 11400000, guid: 553e5c1cc450e73408c29317fd0d1b95, type: 2}
+  card_types:
+  - {fileID: 11400000, guid: 553e5c1cc450e73408c29317fd0d1b95, type: 2}
   oper: 0

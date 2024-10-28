@@ -1453,7 +1453,7 @@ namespace TcgEngine.Gameplay
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
 
-            if (iability.trigger == AbilityTrigger.OnDeathOther && !game_data.IsOnBoard(caster))
+            if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
             //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id);
