@@ -387,6 +387,7 @@ namespace TcgEngine.Server
             {
                 Card target = game_data.GetCard(msg.card_uid);
                 gameplay.SelectCard(target);
+                gameplay.SelectSlot(target.slot);
             }
         }
 

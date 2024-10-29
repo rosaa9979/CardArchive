@@ -1476,7 +1476,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster)
         {
-            if (iability.target == AbilityTarget.SelectTarget || iability.target == AbilityTarget.SelectTargetRow || iability.target == AbilityTarget.SelectWideArea || iability.target == AbilityTarget.SelectTargetNeighbor)
+            if (iability.target == AbilityTarget.SelectTarget || iability.target == AbilityTarget.SelectCard || iability.target == AbilityTarget.SelectSlot)
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster);
@@ -1538,7 +1538,6 @@ namespace TcgEngine.Gameplay
             List<Card> targets = iability.GetCardTargets(game_data, caster, card_array);
 
             //ResolveEffectTarget(iability, caster, targets);
-
             
             //Resolve effects
             foreach (Card target in targets)
@@ -2035,22 +2034,17 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (ability.target == AbilityTarget.SelectWideArea)
-                    SelectSlot(target.slot);
-                else
-                {
-                    if (!ability.CanTarget(game_data, caster, target))
-                        return; //Can't target that target
+                if (!ability.CanTarget(game_data, caster, target))
+                    return; //Can't target that target
 
-                    Player player = game_data.GetPlayer(caster.player_id);
-                    if (!is_ai_predict)
-                        player.AddHistory(GameAction.CastAbility, caster, ability, target);
+                Player player = game_data.GetPlayer(caster.player_id);
+                if (!is_ai_predict)
+                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
-                    game_data.selector = SelectorType.None;
-                    ResolveEffectTarget(ability, caster, target);
-                    AfterAbilityResolved(ability, caster);
-                    resolve_queue.ResolveAll();
-                }
+                game_data.selector = SelectorType.None;
+                ResolveEffectTarget(ability, caster, target);
+                AfterAbilityResolved(ability, caster);
+                resolve_queue.ResolveAll();
             }
 
             if (game_data.selector == SelectorType.SelectorCard)
@@ -2102,6 +2096,9 @@ namespace TcgEngine.Gameplay
 
             if (caster == null || ability == null || !target.IsValid())
                 return;
+            
+            if (ability.target == AbilityTarget.SelectCard)
+                return;
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
@@ -2116,27 +2113,13 @@ namespace TcgEngine.Gameplay
 
                 List<Slot> targets = new List<Slot>();
 
-                if (ability.target == AbilityTarget.SelectTarget)
-                    targets = target.GetNeighborSlot(0);
-                if (ability.target == AbilityTarget.SelectTargetNeighbor)
-                    targets = target.GetNeighborSlot(1);
-                if (ability.target == AbilityTarget.SelectTargetRow)
-                    targets = target.GetRowSlot();
-                if (ability.target == AbilityTarget.SelectWideArea)
+                if (ability.target == AbilityTarget.SelectTarget || ability.target == AbilityTarget.SelectSlot)
                     targets = Slot.GetAll();
                 
                 foreach (Slot targ in targets)
                 {
-                    if (ability.target == AbilityTarget.SelectWideArea)
-                    {
-                        if (!ability.AreTargetConditionsMet(game_data, caster, target, targ))
-                            continue;
-                    }
-                    else
-                    {
-                        if (!ability.AreTargetConditionsMet(game_data, caster, targ))
-                            continue;
-                    }
+                    if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
+                        continue;
 
                     ResolveEffectTarget(ability, caster, targ);
                 }

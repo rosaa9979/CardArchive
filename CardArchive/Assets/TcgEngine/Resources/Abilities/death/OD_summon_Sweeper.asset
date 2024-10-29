@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OD_summon_S
+  m_Name: OD_summon_Sweeper
   m_EditorClassIdentifier: 
-  id: OD_summon_S
+  id: OD_summon_Sweeper
   trigger: 40
   conditions_trigger: []
   target: 1

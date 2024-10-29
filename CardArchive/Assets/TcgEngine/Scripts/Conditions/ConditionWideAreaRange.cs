@@ -27,7 +27,7 @@ namespace TcgEngine
         public List<Direction> directions;
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
-        {
+        {   
             Player player = data.GetPlayer(caster.player_id);
             Slot selected = Slot.None;
             List<Slot> wa_slot = new List<Slot>();

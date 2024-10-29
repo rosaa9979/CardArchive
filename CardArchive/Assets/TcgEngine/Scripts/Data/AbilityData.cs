@@ -21,6 +21,7 @@ namespace TcgEngine
         [Header("Target")]
         public AbilityTarget target;               //WHO is targeted?
         public ConditionData[] conditions_target;  //Condition checked on the target to know if its a valid taget
+        public ConditionData[] condition_wide_range;
         public FilterData[] filters_target;  //Condition checked on the target to know if its a valid taget
 
         [Header("Effect")]
@@ -181,6 +182,60 @@ namespace TcgEngine
             return true;
         }
 
+                //Check if the card target is valid
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Card target_card)
+        {
+            foreach (ConditionData cond in condition_wide_range)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                    return false;
+            }
+            return true;
+        }
+
+        //Check if the player target is valid
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Player target_player)
+        {
+            foreach (ConditionData cond in condition_wide_range)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player))
+                    return false;
+            }
+            return true;
+        }
+
+        //Check if the slot target is valid
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot target_slot)
+        {
+            foreach (ConditionData cond in condition_wide_range)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot))
+                    return false;
+            }
+            return true;
+        }
+
+        //Check if the card data target is valid
+        public bool AreWideRangeConditionsMet(Game data, Card caster, CardData target_card)
+        {
+            foreach (ConditionData cond in condition_wide_range)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                    return false;
+            }
+            return true;
+        }
+
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
+        {
+            foreach (ConditionData cond in condition_wide_range)
+            {
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot))
+                    return false;
+            }
+            return true;
+        }
+
         //CanTarget is similar to AreTargetConditionsMet but only applies to targets on the board, with extra board-only conditions
         public bool CanTarget(Game data, Card caster, Card target)
         {
@@ -319,7 +374,7 @@ namespace TcgEngine
                     targets.Add(caster);
             }
 
-            if (target == AbilityTarget.AllCardsBoard || target == AbilityTarget.SelectTarget)
+            if (target == AbilityTarget.AllCardsBoard || target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectCard)
             {
                 foreach (Player player in data.players)
                 {
@@ -494,7 +549,7 @@ namespace TcgEngine
                 }
             }
 
-            if (target == AbilityTarget.WideArea)
+            if (target == AbilityTarget.WideAreaSlot)
             {
                 List<Slot> slots = Slot.GetAll();
                 foreach (Slot slot in slots)
@@ -601,6 +656,20 @@ namespace TcgEngine
                 return false;
             }
 
+            if (target == AbilityTarget.SelectCard)
+            {
+                if (HasValidBoardCardTarget(game_data, caster))
+                    return true;
+                return false;
+            }
+
+            if (target == AbilityTarget.SelectSlot)
+            {
+                if (HasValidSlotTarget(game_data, caster))
+                    return true;
+                return false;
+            }
+
             if (target == AbilityTarget.CardSelector)
             {
                 if (HasValidCardTarget(game_data, caster))
@@ -691,7 +760,7 @@ namespace TcgEngine
 
         public bool IsSelector()
         {
-            return target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectTargetRow || target == AbilityTarget.SelectWideArea || target == AbilityTarget.SelectTargetNeighbor || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
+            return target == AbilityTarget.SelectTarget || target == AbilityTarget.SelectCard || target == AbilityTarget.SelectSlot || target == AbilityTarget.CardSelector || target == AbilityTarget.ChoiceSelector;
         }
 
         public static AbilityData Get(string id)
@@ -758,7 +827,7 @@ namespace TcgEngine
         AllCardsAllPiles = 12,
         AllSlots = 15,
         AllCardData = 17,       //For card Create effects only
-        WideArea = 18,
+
 
         PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)      
         AbilityTriggerer = 25,   //The card that triggered the trap
@@ -766,10 +835,11 @@ namespace TcgEngine
         AttachedSlot = 28,
 
         SelectTarget = 30,        //Select a card, player or slot on board
-        SelectTargetRow = 31,
-        SelectTargetNeighbor = 32,
-        SelectWideArea = 33,
-
+        SelectCard = 31,
+        SelectSlot = 32,
+        WideAreaCard = 33,
+        WideAreaSlot = 34,
+        
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
 
