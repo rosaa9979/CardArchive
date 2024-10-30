@@ -15,9 +15,9 @@ MonoBehaviour:
   id: OAA_attach_FL
   trigger: 32
   conditions_trigger: []
-  target: 15
-  conditions_target:
-  - {fileID: 11400000, guid: e40e67113d236f444b54b4229889f139, type: 2}
+  target: 72
+  conditions_target: []
+  condition_wide_range: []
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 48b2def21beac894795f26bd404867e6, type: 2}

@@ -46,8 +46,13 @@ namespace TcgEngine
         //Pick X random elements in a list (same cant be picked twice, unless it appears twice or more in the list)
         public static List<T> PickXRandom<T>(List<T> source, List<T> dest, int x)
         {
-            if (source.Count <= x || x <= 0)
+            //if (source.Count <= x || x <= 0)
+            //    return source; //No need to pick anything
+            if (source.Count <= x)
                 return source; //No need to pick anything
+            if (x <= 0)
+                return new List<T>(); //No need to pick anything
+            
 
             if (dest.Count > 0)
                 dest.Clear();

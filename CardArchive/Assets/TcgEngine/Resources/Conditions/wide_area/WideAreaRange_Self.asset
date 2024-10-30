@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
-  m_Name: WideAreaRange_None_Self
+  m_Name: WideAreaRange_Self
   m_EditorClassIdentifier: 
   type: 0
   directions:

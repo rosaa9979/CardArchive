@@ -4,13 +4,14 @@ using UnityEngine;
 
 namespace TcgEngine
 {
-    public enum ConditionSlotType
+    public enum LastType
     {
         None = 0,
         LastAttacked = 1,
         LastTargeted = 2,
         LastSummoned = 3,
         LastDestroyed = 4,
+        LastPlayed = 5,
     }
     /// <summary>
     /// SlotRange check each axis variable individualy for range between the caster and target
@@ -20,9 +21,6 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/WideAreaRange", order = 11)]
     public class ConditionWideAreaRange : ConditionData
     {
-        [Header("Reference Slot")]
-        public ConditionSlotType type;
-
         [Header("Range")]
         public List<Direction> directions;
 
@@ -32,16 +30,6 @@ namespace TcgEngine
             Slot selected = Slot.None;
             List<Slot> wa_slot = new List<Slot>();
 
-            if (type == ConditionSlotType.LastAttacked)
-                selected = data.last_attacked_slot;
-            if (type == ConditionSlotType.LastTargeted)
-                selected = data.last_targeted_slot;
-            if (type == ConditionSlotType.LastSummoned)
-                selected = data.last_summoned_slot;
-            if (type == ConditionSlotType.LastDestroyed)
-                selected = data.last_destroyed_slot;
-
-            Debug.Log("last_summoned_slopt : "+selected.x+" "+selected.y+" "+selected.p);
             foreach (var dir in directions)
             {
                 int new_x = player.player_id == 0 ? selected.x + dir.dx : selected.x + ((-1) * dir.dx);

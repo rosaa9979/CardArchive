@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
-  m_Name: WideAtraRange_LS_Besides
+  m_Script: {fileID: 11500000, guid: 80935ab13d6cbf244a1862f9c6414829, type: 3}
+  m_Name: is_not_last_summoned
   m_EditorClassIdentifier: 
   type: 3
-  directions:
-  - dx: -1
-    dy: 0
-  - dx: 1
-    dy: 0
+  oper: 1
