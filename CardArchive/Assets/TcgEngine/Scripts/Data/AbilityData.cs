@@ -579,8 +579,17 @@ namespace TcgEngine
             {
                 Slot slot = data.last_summoned_slot;
 
-                if (AreTargetConditionsMet(data, caster, slot))
-                    targets.Add(slot);
+                if (!AreTargetConditionsMet(data, caster, slot))
+                    return targets;
+                    //targets.Add(slot);
+
+                List<Slot> slots = Slot.GetAll();
+
+                foreach(Slot s in slots)
+                {
+                    if (AreWideRangeConditionsMet(data, caster, slot, s))
+                        targets.Add(s);
+                }
             }
 
             if (target == AbilityTarget.LastDestroyedSlot)
