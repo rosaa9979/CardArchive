@@ -18,8 +18,12 @@ namespace TcgEngine.UI
         public Text title;
         public Text subtitle;
         public GameObject select_button;
+        public Image select_image;
         public Text select_button_text;
         public Text mulligan_timer;
+
+        public Sprite before_select_icon;
+        public Sprite after_select_icon;
 
         private AbilityData iability;
         private List<Card> mulligan_cards;
@@ -55,6 +59,7 @@ namespace TcgEngine.UI
             foreach (CardSelectorCard card in card_img_list)
             {
                 card.SetTargetPos(GetCardPos(card));
+                card.selection_icon.sprite = card.deny_icon;
 
                 if (card.selected)
                     card.SetTargetScale(Vector3.one / 1.1f);
@@ -171,7 +176,9 @@ namespace TcgEngine.UI
         {
             Game data = GameClient.Get().GetGameData();
             title.text = "Waiting for opponent";
-            select_button.SetActive(false);
+            //select_button.SetActive(false);
+            select_image.sprite = after_select_icon;
+            select_button_text.color = Color.white;
             List<Card> discardedCards = new List<Card>();
             foreach (CardSelectorCard card in card_img_list)
             {
