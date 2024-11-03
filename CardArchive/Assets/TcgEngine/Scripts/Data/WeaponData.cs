@@ -16,6 +16,7 @@ namespace TcgEngine
         [System.NonSerialized] public string id = "Default";
         [System.NonSerialized] public WeaponType type = WeaponType.NONE;
         [System.NonSerialized] public int range = 0;
+        [System.NonSerialized] private Color32 weapon_color = new Color(0, 0, 0, 255);
         public static List<WeaponData> weapon_list = new List<WeaponData>();
 
         public static void Load(string folder = "")
@@ -52,6 +53,11 @@ namespace TcgEngine
         public virtual int GetDefaultRange()
         {
             return range;
+        }
+
+        public virtual Color32 GetWeaponColor()
+        {
+            return weapon_color;
         }
 
         public virtual List<Card> SearchTarget(GameLogic logic, Card attacker)

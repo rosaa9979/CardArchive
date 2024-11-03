@@ -13,6 +13,7 @@ namespace TcgEngine
         public string BACK_id = "BACK";
         public WeaponType BACK_type = WeaponType.BACK;
         public int BACK_range = 3;
+        private Color32 weapon_BACK_color = new Color32(0, 136, 254, 255);
 
         public override string GetWeaponID()
         {
@@ -29,6 +30,10 @@ namespace TcgEngine
             return BACK_range;
         }
 
+        public override Color32 GetWeaponColor()
+        {
+            return weapon_BACK_color;
+        }
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)
         {

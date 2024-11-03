@@ -11,6 +11,7 @@ namespace TcgEngine
         public string NONE_id = "NONE";
         public WeaponType NONE_type = WeaponType.NONE;
         public int NONE_range = 0;
+        private Color32 weapon_NONE_color = new Color32(255, 255, 255, 255);
 
         public override string GetWeaponID()
         {
@@ -25,6 +26,11 @@ namespace TcgEngine
         public override int GetDefaultRange()
         {
             return NONE_range;
+        }
+
+        public override Color32 GetWeaponColor()
+        {
+            return weapon_NONE_color;
         }
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)

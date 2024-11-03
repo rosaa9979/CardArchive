@@ -947,6 +947,14 @@ namespace TcgEngine
             return data.GetDefaultRange();
         }
 
+        public Color32 GetWeaponColor()
+        {
+            if (data == null)
+                data = WeaponData;
+
+            return data.GetWeaponColor();
+        }
+
         public List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
             return data.SearchTarget(logic, attacker);

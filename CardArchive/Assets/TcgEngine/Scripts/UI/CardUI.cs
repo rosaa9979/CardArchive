@@ -18,21 +18,24 @@ namespace TcgEngine.UI
     {
         public Image card_image;
         public Image frame_image;
-        public Image art_bg;
-        public Image art_frame;
         //public Image team_icon;
         public Image attack_icon;
         public Image hp_icon;
         public Image cost_icon;
-        public Image weapon_icon;
         public Image range_background;
         public Image range_icon;
+        public Image trait_background;
+        public Image club_background;
+        public Text type;
         public Text attack;
         public Text hp;
         public Text cost;
-        public Text weapon_type;
         public Text range;
         public Text clubs;
+        public Text trait;
+        public RectTransform club_rect;
+        public RectTransform trait_rect;
+        private float padding = 20f;
 
         public Text card_title;
         public Text card_text;
@@ -63,10 +66,26 @@ namespace TcgEngine.UI
                 attack.text = card.GetAttack().ToString();
             if (hp != null)
                 hp.text = card.GetHP().ToString();
-            if (weapon_type != null)
-                weapon_type.text = card.weapon.GetWeaponID().ToString();
+            if (range_background.enabled)
+                range_background.color = card.weapon.GetWeaponColor();
+            //if (weapon_type != null)
+            //    weapon_type.text = card.weapon.GetWeaponID().ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
+            if (trait_background != null)
+                trait_background.enabled = card.GetAllTraits().Count > 0;
+
+            if (trait != null)
+                trait.enabled = card.GetAllTraits().Count > 0;
+            if (trait != null)
+                trait.text = string.Join(" / ", card.GetAllTraits().Select(tra => tra.TraitData.GetTitle()));
+
+            if (club_background != null)
+                club_background.enabled = card.GetAllClubs().Count > 0;
+            if (clubs != null)
+                clubs.enabled = card.GetAllClubs().Count > 0;
+            if (clubs != null)
+                clubs.text = string.Join(" / ", card.GetAllClubs().Select(club => club.ClubData.GetTitle()));
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
@@ -80,6 +99,8 @@ namespace TcgEngine.UI
             this.card = card;
             this.variant = variant;
 
+            if(type != null)
+                type.text = card.GetTypeId().ToString();
             if(card_image != null)
                 card_image.sprite = card.GetFullArt(variant);
             if (frame_image != null)
@@ -101,18 +122,26 @@ namespace TcgEngine.UI
                 cost_icon.enabled = card.type != CardType.Hero;
             if (cost != null)
                 cost.enabled = card.type != CardType.Hero;
-            if (weapon_icon != null)
-                weapon_icon.enabled = card.IsCitizen();
-            if (weapon_type != null)
-                weapon_type.enabled = card.IsCitizen();
+            //if (weapon_icon != null)
+            //    weapon_icon.enabled = card.IsCitizen();
+            //if (weapon_type != null)
+            //    weapon_type.enabled = card.IsCitizen();
             if (range_background != null)
                 range_background.enabled = card.IsCitizen();
+            if (range_background.enabled)
+                range_background.color = card.weapon.GetWeaponColor();
             if (range_icon != null)
                 range_icon.enabled = card.IsCitizen();
             if (range != null)
                 range.enabled = card.IsCitizen();
+            if (club_background != null)
+                club_background.enabled = card.IsStudent();
             if (clubs != null)
                 clubs.enabled = card.IsStudent();
+            if (trait_background != null)
+                trait_background.enabled = card.traits.Length > 0;
+            if (trait != null)
+                trait.enabled = card.traits.Length > 0;
 
             if (cost != null)
                 cost.text = card.mana.ToString();
@@ -120,13 +149,14 @@ namespace TcgEngine.UI
                 attack.text = card.attack.ToString();
             if (hp != null)
                 hp.text = card.hp.ToString();
-            if (weapon_type != null)
-                weapon_type.text = card.weapon.GetWeaponID().ToString();
+            //if (weapon_type != null)
+            //    weapon_type.text = card.weapon.GetWeaponID().ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
             if (clubs != null)
                 clubs.text = string.Join(" / ", card.clubs.Select(club => club.title));
-
+            if (trait != null)
+                trait.text = string.Join(" / ", card.traits.Select(tra => tra.title));
             //if (team_icon != null)
             //{
             //    team_icon.sprite = card.team.icon;
@@ -162,10 +192,10 @@ namespace TcgEngine.UI
                 card_image.color = new Color(card_image.color.r, card_image.color.g, card_image.color.b, opacity);
             if (frame_image != null)
                 frame_image.color = new Color(frame_image.color.r, frame_image.color.g, frame_image.color.b, opacity);
-            if (art_bg != null)
-                art_bg.color = new Color(art_bg.color.r, art_bg.color.g, art_bg.color.b, opacity);
-            if (art_frame != null)
-                art_frame.color = new Color(art_frame.color.r, art_frame.color.g, art_frame.color.b, opacity);
+            //if (art_bg != null)
+            //    art_bg.color = new Color(art_bg.color.r, art_bg.color.g, art_bg.color.b, opacity);
+            //if (art_frame != null)
+            //    art_frame.color = new Color(art_frame.color.r, art_frame.color.g, art_frame.color.b, opacity);
             if (attack_icon != null)
                 attack_icon.color = new Color(attack_icon.color.r, attack_icon.color.g, attack_icon.color.b, opacity);
             if (hp_icon != null)

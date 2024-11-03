@@ -15,9 +15,11 @@ MonoBehaviour:
   id: OP_destroy_bulding_summon_HS
   trigger: 10
   conditions_trigger: []
-  target: 30
+  target: 31
   conditions_target:
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
+  condition_wide_range: []
   filters_target: []
   effects:
   - {fileID: 11400000, guid: f71d4af1506339149852f66291383dc4, type: 2}

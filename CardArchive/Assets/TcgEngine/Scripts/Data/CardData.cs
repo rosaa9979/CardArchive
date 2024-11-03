@@ -138,18 +138,18 @@ namespace TcgEngine
             if (type == CardType.Hero)
                 return "hero";
             if (type == CardType.Student)
-                return "student";
+                return "학생";
             if (type == CardType.NonStudent)
-                return "nonstudent";
+                return "비학생";
             if (type == CardType.Building)
-                return "building";
+                return "건물";
             if (type == CardType.Spell)
-                return "spell";
+                return "이벤트";
             if (type == CardType.Secret)
                 return "secret";
             if (type == CardType.Equipment)
                 return "equipment";
-            if (type == CardType.Equipment)
+            if (type == CardType.Attachment)
                 return "attachment";
             return "";
         }

@@ -13,6 +13,7 @@ namespace TcgEngine
         public string FRONT_id = "FRONT";
         public WeaponType FRONT_type = WeaponType.FRONT;
         public int FRONT_range = 1;
+        private Color32 weapon_FRONT_color = new Color32(255, 125, 125, 255);
 
         public override string GetWeaponID()
         {
@@ -28,6 +29,12 @@ namespace TcgEngine
         {
             return FRONT_range;
         }
+
+        public override Color32 GetWeaponColor()
+        {
+            return weapon_FRONT_color;
+        }
+
 
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)

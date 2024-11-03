@@ -13,6 +13,7 @@ namespace TcgEngine
         public string MIDDLE_id = "MIDDLE";
         public WeaponType MIDDLE_type = WeaponType.MIDDLE;
         public int MIDDLE_range = 2;
+        private Color32 weapon_MIDDLE_color = new Color32(255, 181, 78, 255);
 
         public override string GetWeaponID()
         {
@@ -28,6 +29,12 @@ namespace TcgEngine
         {
             return MIDDLE_range;
         }
+
+        public override Color32 GetWeaponColor()
+        {
+            return weapon_MIDDLE_color;
+        }
+
 
 
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)

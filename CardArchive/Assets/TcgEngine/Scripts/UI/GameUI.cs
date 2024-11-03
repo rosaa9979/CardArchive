@@ -24,6 +24,9 @@ namespace TcgEngine.UI
         public Text turn_count;
         public Text turn_timer;
         public Button end_turn_button;
+        public Image end_turn_image;
+        public Sprite end_turn_on;
+        public Sprite end_turn_off;
         public Animator timeout_animator;
         public AudioClip timeout_audio;
 
@@ -74,7 +77,17 @@ namespace TcgEngine.UI
 
             bool yourturn = GameClient.Get().IsYourTurn();
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
-            end_turn_button.interactable = yourturn && end_turn_timer > 1f;
+            if (yourturn && end_turn_timer > 1f)
+            {
+                end_turn_button.interactable = true;
+                end_turn_image.sprite = end_turn_on;
+            }
+            else
+            {
+                end_turn_button.interactable = false;
+                end_turn_image.sprite = end_turn_off;
+            }
+
             end_turn_timer += Time.deltaTime;
             selector_timer += Time.deltaTime;
 

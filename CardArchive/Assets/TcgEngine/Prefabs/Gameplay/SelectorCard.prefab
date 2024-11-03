@@ -58,6 +58,8 @@ MonoBehaviour:
   selectable: 1
   selection_text: {fileID: 5848286026102728799}
   selection_icon: {fileID: 6017232675403617117}
+  allow_icon: {fileID: 21300000, guid: 4157478823684b7429ffaa2019dd0bc2, type: 3}
+  deny_icon: {fileID: 21300000, guid: a88013c35a395d24f8e8dbbe6921d3c7, type: 3}
   selected: 0
 --- !u!222 &6356248583081192429
 CanvasRenderer:
@@ -297,7 +299,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6b335d3125b5c184882c8ca46fbc17ae, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4157478823684b7429ffaa2019dd0bc2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

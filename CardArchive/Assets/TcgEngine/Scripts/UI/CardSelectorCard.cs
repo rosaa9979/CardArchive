@@ -16,6 +16,8 @@ namespace TcgEngine.UI
         public bool selectable = false;
         public Text selection_text;
         public Image selection_icon;
+        public Sprite allow_icon;
+        public Sprite deny_icon;
 
         [HideInInspector] 
         public bool selected = false;
