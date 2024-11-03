@@ -15,7 +15,7 @@ MonoBehaviour:
   id: normal
   title: Normal
   frame: {fileID: 21300000, guid: 91d700ad7637bd34694f41f35e0bb32c, type: 3}
-  frame_board: {fileID: 21300000, guid: 64bccc4111cfe6845b6807b6dfb8fcd6, type: 3}
+  frame_board: {fileID: 21300000, guid: e1e10176aed90ca42a55e68f7cd0cbee, type: 3}
   color: {r: 1, g: 1, b: 1, a: 1}
   cost_factor: 1
   is_default: 1

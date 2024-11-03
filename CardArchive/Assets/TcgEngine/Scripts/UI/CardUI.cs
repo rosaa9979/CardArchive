@@ -19,7 +19,9 @@ namespace TcgEngine.UI
         public Image card_image;
         public Image frame_image;
         //public Image team_icon;
+        public Image attack_background;
         public Image attack_icon;
+        public Image hp_background;
         public Image hp_icon;
         public Image cost_icon;
         public Image range_background;
@@ -66,7 +68,7 @@ namespace TcgEngine.UI
                 attack.text = card.GetAttack().ToString();
             if (hp != null)
                 hp.text = card.GetHP().ToString();
-            if (range_background.enabled)
+            if (range_background != null)
                 range_background.color = card.weapon.GetWeaponColor();
             //if (weapon_type != null)
             //    weapon_type.text = card.weapon.GetWeaponID().ToString();
@@ -103,17 +105,21 @@ namespace TcgEngine.UI
                 type.text = card.GetTypeId().ToString();
             if(card_image != null)
                 card_image.sprite = card.GetFullArt(variant);
-            if (frame_image != null)
-                frame_image.sprite = variant.frame;
+            //if (frame_image != null)
+            //    frame_image.sprite = variant.frame;
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
             if (card_text != null)
                 card_text.text = card.GetText();
 
+            if (attack_background != null)
+                attack_background.enabled = card.IsCitizen();
             if (attack_icon != null)
                 attack_icon.enabled = card.IsCitizen();
             if (attack != null)
                 attack.enabled = card.IsCitizen();
+            if (hp_background != null)
+                hp_background.enabled = card.IsBoardCard() || card.IsEquipment();
             if (hp_icon != null)
                 hp_icon.enabled = card.IsBoardCard() || card.IsEquipment();
             if (hp != null)
@@ -128,7 +134,7 @@ namespace TcgEngine.UI
             //    weapon_type.enabled = card.IsCitizen();
             if (range_background != null)
                 range_background.enabled = card.IsCitizen();
-            if (range_background.enabled)
+            if (range_background != null)
                 range_background.color = card.weapon.GetWeaponColor();
             if (range_icon != null)
                 range_icon.enabled = card.IsCitizen();

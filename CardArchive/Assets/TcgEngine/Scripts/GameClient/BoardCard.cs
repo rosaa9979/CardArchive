@@ -33,6 +33,14 @@ namespace TcgEngine.Client
         public Color glow_ally;
         public Color glow_enemy;
 
+        public Sprite ally_frame;
+        public Sprite enemy_frame;
+        public Sprite ally_attack_bg;
+        public Sprite ally_hp_bg;
+        public Sprite enemy_attack_bg;
+        public Sprite enemy_hp_bg;
+
+
         public UnityAction onKill;
 
         private CardUI card_ui;
@@ -44,6 +52,8 @@ namespace TcgEngine.Client
         private bool focus = false;
         private float timer = 0f;
         private float status_alpha_target = 0f;
+
+        private Color32 font_color = new Color32(37, 44, 91, 255);
 
         private bool back_to_hand;
         private Vector3 back_to_hand_target;
@@ -76,7 +86,7 @@ namespace TcgEngine.Client
         {
             //Random slight rotation
             Vector3 board_rot = GameBoard.Get().GetAngles();
-            transform.rotation = Quaternion.Euler(board_rot.x, board_rot.y, board_rot.z + Random.Range(-1f, 1f));
+            //transform.rotation = Quaternion.Euler(board_rot.x, board_rot.y, board_rot.z + Random.Range(-1f, 1f));
         }
 
         void Update()
@@ -107,14 +117,18 @@ namespace TcgEngine.Client
                 target_alpha = 0f;
             if (equipment != null && equipment.IsFocus())
                 target_alpha = 0f;
+            
+            card_ui.frame_image.sprite = player.player_id == card.player_id ? ally_frame : enemy_frame;
+            card_ui.attack_background.sprite = player.player_id == card.player_id ? ally_attack_bg : enemy_attack_bg;
+            card_ui.hp_background.sprite = player.player_id == card.player_id ? ally_hp_bg : enemy_hp_bg;
 
-            Color ccolor = player.player_id == card.player_id ? glow_ally : glow_enemy;
-            float calpha = Mathf.MoveTowards(card_glow.color.a, target_alpha * ccolor.a, 4f * Time.deltaTime);
+            //Color ccolor = player.player_id == card.player_id ? glow_ally : glow_enemy;
+            //float calpha = Mathf.MoveTowards(card_glow.color.a, target_alpha * ccolor.a, 4f * Time.deltaTime);
             //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, calpha);
-            card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, 1);
-            card_shadow.enabled = !destroyed && timer > 0.4f;
+            //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, 1);
+            //card_shadow.enabled = !destroyed && timer > 0.4f;
             card_sprite.color = card.HasStatus(StatusType.Stealth) ? Color.gray : Color.white;
-            card_ui.hp.color = (destroyed || card.damage > 0) ? Color.yellow : Color.white;
+            card_ui.hp.color = (destroyed || card.damage > 0) ? Color.yellow : font_color;
 
             //armor
             int armor_val = card.GetStatusValue(StatusType.Armor);
@@ -128,9 +142,9 @@ namespace TcgEngine.Client
                 card_sprite.sprite = sprite;
 
             //Update frame image
-            Sprite frame = card.VariantData.frame_board;
-            if (frame != null && card_ui.frame_image != null)
-                card_ui.frame_image.sprite = frame;
+            //Sprite frame = card.VariantData.frame_board;
+            //if (frame != null && card_ui.frame_image != null)
+            //    card_ui.frame_image.sprite = frame;
 
             //Equipment
             if (equipment != null)

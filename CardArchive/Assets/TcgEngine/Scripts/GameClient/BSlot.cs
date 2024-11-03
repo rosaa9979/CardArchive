@@ -66,7 +66,9 @@ namespace TcgEngine.Client
 
         public virtual Vector3 GetPosition(Slot slot)
         {
-            return transform.position;
+            Vector3 new_pos = new Vector3(transform.position.x+0.005f, transform.position.y+0.05f, transform.position.z);
+            //return transform.position;
+            return new_pos;
         }
 
         public virtual Player GetPlayer()

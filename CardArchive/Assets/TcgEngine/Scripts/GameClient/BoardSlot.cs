@@ -17,6 +17,7 @@ namespace TcgEngine.Client
         public BoardSlotType type;
         public int x;
         public int y;
+        public GameObject attachment;
 
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
 
@@ -57,6 +58,11 @@ namespace TcgEngine.Client
             Card slot_card = gdata.GetSlotCard(GetSlot());
             bool your_turn = GameClient.Get().IsYourTurn();
             collide.enabled = slot_card == null; //Disable collider when a card is here
+
+            if (gdata.GetAttachCard(GetSlot()) != null)
+                attachment.SetActive(true);
+            else
+                attachment.SetActive(false);
 
             target_alpha = 1f;
             /*
