@@ -300,17 +300,19 @@ namespace TcgEngine.FX
                 Vector3 dir = target.transform.position - transform.position;
                 Vector3 target_pos = target.transform.position - dir.normalized * 1f;
                 Vector3 current_pos = transform.position;
-                bcard.SetOrder(current_order + 10);
+                //bcard.SetOrder(current_order + 10);
 
                 AnimFX anim = AnimFX.Create(gameObject);
                 anim.MoveTo(current_pos - dir.normalized * 0.5f, 0.3f);
                 anim.MoveTo(target.transform.position, 0.1f);
                 anim.MoveTo(current_pos, 0.3f);
+                /*
                 anim.Callback(0f, () =>
                 {
                     if (bcard != null)
                         bcard.SetOrder(current_order);
                 });
+                */
             }
         }
 
