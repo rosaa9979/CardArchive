@@ -1270,18 +1270,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   card_image: {fileID: 7467447581320339460}
   frame_image: {fileID: 893799607599828155}
+  attack_background: {fileID: 0}
   attack_icon: {fileID: 6563793613570039213}
+  hp_background: {fileID: 0}
   hp_icon: {fileID: 3934990318769025670}
   cost_icon: {fileID: 1338540100654684670}
   range_background: {fileID: 1390894720593559726}
   range_icon: {fileID: 8665906456359988809}
-  tarit_background: {fileID: 6616527634906696943}
+  trait_background: {fileID: 0}
+  club_background: {fileID: 0}
+  type: {fileID: 0}
   attack: {fileID: 2014538829325534164}
   hp: {fileID: 1315156635510019471}
   cost: {fileID: 4390310200170661390}
   range: {fileID: 519816653275033520}
   clubs: {fileID: 3860951629456700527}
   trait: {fileID: 8294858755883580271}
+  club_rect: {fileID: 0}
+  trait_rect: {fileID: 0}
   card_title: {fileID: 4306964292686539908}
   card_text: {fileID: 8169617557773355375}
   stats: []
@@ -1490,8 +1496,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0486, y: 57.244328}
-  m_SizeDelta: {x: 200.9117, y: 220.8011}
+  m_AnchoredPosition: {x: 0, y: 56.701}
+  m_SizeDelta: {x: 203.3265, y: 223.67}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5919850835799432981
 CanvasRenderer:

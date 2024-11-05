@@ -17,6 +17,8 @@ namespace TcgEngine.UI
         public GameObject power_mana_slot;
         public Text power_mana;
 
+        public Sprite exhausted_icon;
+
         public Material active_mat;
         public Material inactive_mat;
 
@@ -65,10 +67,10 @@ namespace TcgEngine.UI
             AbilityData ability = hero.GetAbility(AbilityTrigger.Activate);
             if (ability != null)
             {
-                power_image.sprite = hero.CardData.GetBoardArt(hero.VariantData);
-                power_image.material = !hero.exhausted ? active_mat : inactive_mat;
-                power_mana_slot?.SetActive(gdata.IsPlayerTurn(player) && !hero.exhausted);
-                power_mana.text = ability.mana_cost.ToString();
+                power_image.sprite = !hero.exhausted ? hero.CardData.GetBoardArt(hero.VariantData) : exhausted_icon;
+                //power_image.material = !hero.exhausted ? active_mat : inactive_mat;
+                //power_mana_slot?.SetActive(gdata.IsPlayerTurn(player) && !hero.exhausted);
+                //power_mana.text = ability.mana_cost.ToString();
             }
 
             if (power_button != null)

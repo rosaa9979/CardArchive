@@ -281,8 +281,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.25419617, y: 111.11755}
-  m_SizeDelta: {x: 390.8998, y: 429.5973}
+  m_AnchoredPosition: {x: 0, y: 110}
+  m_SizeDelta: {x: 394.8927, y: 434.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5380962507994276392
 CanvasRenderer:
@@ -695,7 +695,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   card_image: {fileID: 4030304212300796227}
   frame_image: {fileID: 7881334469896048387}
+  attack_background: {fileID: 0}
   attack_icon: {fileID: 3512358915374245501}
+  hp_background: {fileID: 0}
   hp_icon: {fileID: 3158506189973234902}
   cost_icon: {fileID: 1254708756618052920}
   range_background: {fileID: 8917589953504221363}

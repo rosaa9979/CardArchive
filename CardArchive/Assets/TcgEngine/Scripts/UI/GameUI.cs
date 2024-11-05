@@ -95,6 +95,7 @@ namespace TcgEngine.UI
             turn_count.text = "Turn " + data.turn_count.ToString();
             turn_timer.enabled = data.turn_timer > 0f;
             turn_timer.text = Mathf.RoundToInt(data.turn_timer).ToString();
+            turn_timer.color = new Color32(37, 44, 91, 255);
             turn_timer.enabled = data.turn_timer < 999f;
 
             //Simulate timer
@@ -105,9 +106,9 @@ namespace TcgEngine.UI
             if (data.state == GameState.Play)
             {
                 int val = Mathf.RoundToInt(data.turn_timer);
-                int tick_val = 10;
-                if (val < prev_time_val && val <= tick_val)
-                    PulseFX();
+                //int tick_val = 10;
+                //if (val < prev_time_val && val <= tick_val)
+                //    PulseFX();
                 prev_time_val = val;
             }
 

@@ -116,6 +116,14 @@ namespace TcgEngine.Client
             }
         }
 
+        public void OnMouseOver()
+        {
+            if (Input.GetMouseButtonDown(1))
+            {
+
+            }
+        }
+
         public int GetPlayerID()
         {
             return opponent ? GameClient.Get().GetOpponentPlayerID() : GameClient.Get().GetPlayerID();
