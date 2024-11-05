@@ -12,6 +12,7 @@ namespace TcgEngine.Client
     public class BoardSlotPlayer : BSlot
     {
         public bool opponent;
+        public RectTransform player_ui;
 
         public float range_x = 3f;
         public float range_y = 1f;
@@ -90,6 +91,16 @@ namespace TcgEngine.Client
 
         }
 
+        private void LateUpdate()
+        {
+            // UI 요소의 월드 위치를 SpriteRenderer의 위치로 설정
+            transform.position = player_ui.position;
+
+            // UI 요소의 회전과 크기를 그대로 따라가려면 아래 코드도 추가합니다.
+            transform.rotation = player_ui.rotation;
+            //transform.localScale = player_ui.lossyScale;
+        }
+
         private void OnAbilityEffect(AbilityData iability, Card caster, Player target)
         {
             if (iability != null && caster != null && target != null)
@@ -113,14 +124,6 @@ namespace TcgEngine.Client
             if (gdata.selector == SelectorType.SelectTarget && player_id == gdata.selector_player_id)
             {
                 GameClient.Get().SelectPlayer(GetPlayer());
-            }
-        }
-
-        public void OnMouseOver()
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-
             }
         }
 

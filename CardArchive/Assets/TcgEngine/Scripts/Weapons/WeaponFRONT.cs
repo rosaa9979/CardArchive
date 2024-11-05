@@ -47,6 +47,9 @@ namespace TcgEngine
             {
                 foreach(Card targ in target_list)
                 {
+                    if (targ == attacker || attacker.player_id == targ.player_id)
+                        continue;
+
                     float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                     Debug.Log(ran);
                     if (ran < 1)

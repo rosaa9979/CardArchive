@@ -22,6 +22,7 @@ namespace TcgEngine.UI
         public Text hp_max_txt;
 
         public Animator[] secrets;
+        public Image[] clubs;
 
         public GameObject dead_fx;
         public AudioClip dead_audio;

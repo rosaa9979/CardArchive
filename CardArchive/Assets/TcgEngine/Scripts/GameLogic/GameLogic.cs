@@ -125,6 +125,7 @@ namespace TcgEngine.Gameplay
 
                 //Draw starting cards
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
+                dcards = player.player_id == game_data.first_player ? dcards-1 : dcards;
                 DrawCard(player, dcards);
 
                 //Add coin second player
@@ -761,7 +762,7 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Evasion))
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                Debug.Log(ran);
+                Debug.Log("EVASION: " + ran);
                 if (ran < 1)
                     return;
             }

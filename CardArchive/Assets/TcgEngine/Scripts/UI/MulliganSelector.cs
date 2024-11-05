@@ -220,7 +220,7 @@ namespace TcgEngine.UI
         public void Show(List<Card> card_list, string title)
         {
             int cards_start = GameplayData.Get().cards_start;
-            this.mulligan_cards = new List<Card>(card_list.GetRange(0, cards_start));
+            this.mulligan_cards = new List<Card>(card_list.GetRange(0, card_list.Count));
             this.iability = null;
             this.title.text = title;
             subtitle.text = "";
