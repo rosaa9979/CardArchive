@@ -1256,6 +1256,7 @@ MonoBehaviour:
   move_max_rotate: 5
   deck_position: {x: 0, y: 0}
   deck_angle: 0
+  hide: 0
 --- !u!114 &32968374574918799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1268,8 +1269,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943be08264f3555448cac48ac16c1e8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  title_background: {fileID: 6537301363009658565}
   card_image: {fileID: 7467447581320339460}
   frame_image: {fileID: 893799607599828155}
+  type_background: {fileID: 4017392306085768481}
   attack_background: {fileID: 0}
   attack_icon: {fileID: 6563793613570039213}
   hp_background: {fileID: 0}
@@ -1277,9 +1280,9 @@ MonoBehaviour:
   cost_icon: {fileID: 1338540100654684670}
   range_background: {fileID: 1390894720593559726}
   range_icon: {fileID: 8665906456359988809}
-  trait_background: {fileID: 0}
-  club_background: {fileID: 0}
-  type: {fileID: 0}
+  trait_background: {fileID: 6616527634906696943}
+  club_background: {fileID: 4321519082235556229}
+  type: {fileID: 2596496719623334008}
   attack: {fileID: 2014538829325534164}
   hp: {fileID: 1315156635510019471}
   cost: {fileID: 4390310200170661390}

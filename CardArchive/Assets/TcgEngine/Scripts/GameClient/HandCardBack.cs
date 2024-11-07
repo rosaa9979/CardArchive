@@ -24,6 +24,14 @@ namespace TcgEngine.Client
             SetCardback(null);
         }
 
+        void Update()
+        {
+            if (HandCard.hide == true)
+                SetOpacity(0f);
+            else
+                SetOpacity(1f);
+        }
+
         private void OnDestroy()
         {
             card_list.Remove(this);
@@ -42,5 +50,10 @@ namespace TcgEngine.Client
             return rect;
         }
 
+        private void SetOpacity(float opacity)
+        {
+            if (card_sprite != null)
+                card_sprite.color = new Color(card_sprite.color.r, card_sprite.color.g, card_sprite.color.b, opacity);
+        }
     }
 }

@@ -28,7 +28,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0343fe0bf836fb5409aa801e80b4c7cd, type: 2}
   - {fileID: 11400000, guid: 24ddfe5ff6b9b174295cbd63fae6476e, type: 2}
   - {fileID: 11400000, guid: b2887ccb5abe08e43af7fe3714729848, type: 2}
-  text: 
+  text: "\uC790\uC2E0\uC758 \uAE30\uACC4 \uC218\uB9CC\uD07C \uB2E4\uC74C \uD134 \uB3D9\uC548
+    \uC0C1\uB300\uC758 \uC774\uBCA4\uD2B8 \uCE74\uB4DC\uC758 \uBE44\uC6A9\uC744 \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

@@ -40,6 +40,7 @@ namespace TcgEngine.Client
         private bool focus = false;
         private bool drag = false;
         private bool selected = false;
+        public static bool hide = false;
         private static bool select_target = false;
 
         private static List<HandCard> card_list = new List<HandCard>();
@@ -55,7 +56,7 @@ namespace TcgEngine.Client
 
         private void Start()
         {
-
+            hide = false;
         }
 
         private void OnDestroy()
@@ -73,6 +74,26 @@ namespace TcgEngine.Client
             Vector3 target_size = start_scale;
 
             focus_timer += Time.deltaTime;
+
+            if (hide == true)
+            {
+                SetOpacity(0f);
+                /*
+                Image[] images = GetComponentsInChildren<Image>();
+
+                // 각 Image 컴포넌트의 투명도를 0으로 설정
+                foreach (Image img in images)
+                {
+                    Color color = img.color;
+                    color.a = 0f; // 투명도를 0으로 설정
+                    img.color = color;
+                }
+                */
+            }
+            else
+            {
+                SetOpacity(1f);
+            }
 
             if (IsFocus())
             {
@@ -185,6 +206,8 @@ namespace TcgEngine.Client
         {
             if (GameUI.IsUIOpened())
                 return;
+            if (hide == true)
+                return;
 
             focus = true;
         }
@@ -198,6 +221,8 @@ namespace TcgEngine.Client
         public void OnMouseDownCard()
         {
             if (GameUI.IsOverUILayer("UI"))
+                return;
+            if (hide == true)
                 return;
 
             UnselectAll();

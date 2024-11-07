@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Commuting_Student_BACK
   m_EditorClassIdentifier: 
   id: Commuting_Student_BACK
-  title: "\uB4F1\uAD50\uC0DD"
+  title: "\uB4F1\uAD50\uC0DD (Back)"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 11

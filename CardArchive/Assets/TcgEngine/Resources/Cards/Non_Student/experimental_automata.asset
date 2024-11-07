@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: experimental_automata
+  m_Name: Experimental_Automata
   m_EditorClassIdentifier: 
-  id: experimental_automata
+  id: Experimental_Automata
   title: "\uC2E4\uD5D8\uC6A9 \uC624\uD1A0\uB9C8\uD0C0"
   art_full: {fileID: 0}
   art_board: {fileID: 0}

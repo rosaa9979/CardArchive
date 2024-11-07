@@ -218,7 +218,7 @@ namespace TcgEngine.UI
 
         public static bool IsUIOpened()
         {
-            return CardSelector.Get().IsVisible() || EndGamePanel.Get().IsVisible();
+            return CardSelector.Get().IsVisible() || EndGamePanel.Get().IsVisible() || MulliganSelector.Get().IsVisible();
         }
 
         public static bool IsOverUI()
@@ -228,6 +228,7 @@ namespace TcgEngine.UI
             eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+
             return results.Count > 0;
         }
 
@@ -249,6 +250,7 @@ namespace TcgEngine.UI
                 if (result.sortingLayer == sorting_layer)
                     count++;
             }
+
             return count > 0;
         }
 

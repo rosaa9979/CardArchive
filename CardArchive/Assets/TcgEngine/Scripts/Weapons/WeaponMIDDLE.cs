@@ -40,7 +40,7 @@ namespace TcgEngine
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
             List<Card> target = new List<Card>();
-            Dictionary<int, List<Card>> targets = logic.GetAllTarget(attacker);
+            Dictionary<int, List<Card>> targets = logic.GetAllEnemyTarget(attacker);
             List<Card> target_list = targets.Values.SelectMany(cardList => cardList).ToList();
 
             if (attacker.HasStatus(StatusType.MassShooting))
@@ -51,8 +51,7 @@ namespace TcgEngine
                         continue;
 
                     float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                    Debug.Log(ran);
-                    if (ran < 1)
+                    if (ran < 0.5)
                         target.Add(targ);
                 }
             }

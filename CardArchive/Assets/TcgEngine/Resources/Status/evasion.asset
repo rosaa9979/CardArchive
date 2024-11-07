@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7edf116efdfa73646a6de43812f81a4a, type: 3}
   m_Name: evasion
   m_EditorClassIdentifier: 
-  effect: 0
+  effect: 42
   title: Evasion
   icon: {fileID: 0}
   desc: 

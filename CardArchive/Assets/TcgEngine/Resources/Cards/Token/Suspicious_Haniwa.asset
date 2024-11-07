@@ -25,7 +25,7 @@ MonoBehaviour:
   traits: []
   stats: []
   abilities: []
-  text: "\uC218\uC0C1\uD55C \uD558\uB2C8\uC640"
+  text: "\uC218\uC0C1\uD569\uB2C8\uB2E4...."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

@@ -26,7 +26,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: cbce7867907f0a34faa4d26b41fa5a6b, type: 2}
-  text: Gain 1 mana.
+  text: "\uCCAD\uD718\uC11D\uC744 \uD558\uB098 \uC5BB\uC2B5\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

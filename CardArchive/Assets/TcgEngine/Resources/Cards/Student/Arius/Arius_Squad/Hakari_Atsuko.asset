@@ -29,7 +29,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c99f1b77631f75e4ba28c5ad8f75bc06, type: 2}
   - {fileID: 11400000, guid: 3fb963b94afee8a49bffbde260d539ea, type: 2}
   text: "\uD68C\uD53C, \uC0C1\uB300 \uD0C0\uC77C\uC5D0 \uC704\uCE58\uD558\uBA74 \uB3C4\uBC1C\uC744
-    \uC5BB\uB294\uB2E4."
+    \uC5BB\uC2B5\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

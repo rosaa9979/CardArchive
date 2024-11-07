@@ -427,6 +427,28 @@ namespace TcgEngine.Gameplay
             return targets;
         }
 
+        public virtual Dictionary<int, List<Card>> GetAllEnemyTarget(Card attacker)
+        {
+            Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
+            Dictionary<int, List<Card>> targets = new Dictionary<int, List<Card>>();
+
+            // rangeSlots 딕셔너리를 순회
+            foreach (var dis in range_slot.Keys)
+            {
+                // 해당 거리에서 유닛이 있는 슬롯들만 필터링하고 유닛(Card)을 리스트로 변환
+                var cards = range_slot[dis]
+                    .Select(slot => game_data.GetSlotCard(slot))   // 슬롯에서 카드 가져오기
+                    .Where(card => card != null && card.player_id != attacker.player_id)                   // null이 아닌 카드만 필터링
+                    .ToList();                                     // 결과를 List<Card>로 변환
+
+                // 유닛(Card) 리스트가 비어 있지 않다면 Dictionary에 추가
+                if (cards.Any())  // cards 리스트가 비어 있지 않으면
+                    targets[dis] = cards;
+            } 
+
+            return targets;
+        }
+
         public virtual void EndTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -762,8 +784,7 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Evasion))
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                Debug.Log("EVASION: " + ran);
-                if (ran < 1)
+                if (ran < 0.5)
                     return;
             }
 
@@ -1049,7 +1070,7 @@ namespace TcgEngine.Gameplay
                     player.AddHistory(GameAction.PlayCard, card);
 
                 //Update ongoing effects
-                game_data.last_played = card.uid;
+                //game_data.last_played = card.uid;
                 UpdateOngoing();
 
                 //Trigger abilities

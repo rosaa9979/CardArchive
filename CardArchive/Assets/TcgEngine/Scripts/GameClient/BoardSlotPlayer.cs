@@ -116,6 +116,11 @@ namespace TcgEngine.Client
 
         public void OnMouseDown()
         {
+            if (!GameUI.IsUIOpened() && !HandCardArea.Get().IsDragging())
+            {
+                HandCard.hide = !HandCard.hide;
+            }
+
             if (GameUI.IsUIOpened() || GameUI.IsOverUILayer("UI"))
                 return;
 

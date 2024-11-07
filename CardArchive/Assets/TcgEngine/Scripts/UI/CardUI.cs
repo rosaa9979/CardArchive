@@ -16,8 +16,10 @@ namespace TcgEngine.UI
 
     public class CardUI : MonoBehaviour, IPointerClickHandler
     {
+        public Image title_background;
         public Image card_image;
         public Image frame_image;
+        public Image type_background;
         //public Image team_icon;
         public Image attack_background;
         public Image attack_icon;
@@ -194,26 +196,46 @@ namespace TcgEngine.UI
 
         public void SetOpacity(float opacity)
         {
+            if (title_background != null)
+                title_background.color = new Color(title_background.color.r, title_background.color.g, title_background.color.b, opacity);
+            if (type_background != null)
+                type_background.color = new Color(type_background.color.r, type_background.color.g, type_background.color.b, opacity);
             if (card_image != null)
                 card_image.color = new Color(card_image.color.r, card_image.color.g, card_image.color.b, opacity);
             if (frame_image != null)
                 frame_image.color = new Color(frame_image.color.r, frame_image.color.g, frame_image.color.b, opacity);
+            if (range_background != null)
+                range_background.color = new Color(range_background.color.r, range_background.color.g, range_background.color.b, opacity);
+            if (club_background != null)
+                club_background.color = new Color(club_background.color.r, club_background.color.g, club_background.color.b, opacity);
             //if (art_bg != null)
             //    art_bg.color = new Color(art_bg.color.r, art_bg.color.g, art_bg.color.b, opacity);
             //if (art_frame != null)
             //    art_frame.color = new Color(art_frame.color.r, art_frame.color.g, art_frame.color.b, opacity);
+            if (trait_background != null)
+                trait_background.color = new Color(trait_background.color.r, trait_background.color.g, trait_background.color.b, opacity);
             if (attack_icon != null)
                 attack_icon.color = new Color(attack_icon.color.r, attack_icon.color.g, attack_icon.color.b, opacity);
             if (hp_icon != null)
                 hp_icon.color = new Color(hp_icon.color.r, hp_icon.color.g, hp_icon.color.b, opacity);
+            if (range_icon != null)
+                range_icon.color = new Color(range_icon.color.r, range_icon.color.g, range_icon.color.b, opacity);
             if (cost_icon != null)
                 cost_icon.color = new Color(cost_icon.color.r, cost_icon.color.g, cost_icon.color.b, opacity);
+            if (type != null)
+                type.color = new Color(type.color.r, type.color.g, type.color.b, opacity);
             if (attack != null)
                 attack.color = new Color(attack.color.r, attack.color.g, attack.color.b, opacity);
             if (hp != null)
                 hp.color = new Color(hp.color.r, hp.color.g, hp.color.b, opacity);
+            if (range != null)
+                range.color = new Color(range.color.r, range.color.g, range.color.b, opacity);
             if (cost != null)
                 cost.color = new Color(cost.color.r, cost.color.g, cost.color.b, opacity);
+            if (trait != null)
+                trait.color = new Color(trait.color.r, trait.color.g, trait.color.b, opacity);
+            if (clubs != null)
+                clubs.color = new Color(clubs.color.r, clubs.color.g, clubs.color.b, opacity);
             if (card_title != null)
                 card_title.color = new Color(card_title.color.r, card_title.color.g, card_title.color.b, opacity);
             if (card_text != null)
