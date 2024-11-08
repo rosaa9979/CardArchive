@@ -39,13 +39,11 @@ namespace TcgEngine.UI
 
         private void OnEnterMouse()
         {
-            Debug.Log("in");
             focus = true;
         }
 
         private void OnExitMouse()
         {
-            Debug.Log("out");
             focus = false;
         }
 

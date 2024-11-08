@@ -75,26 +75,6 @@ namespace TcgEngine.Client
 
             focus_timer += Time.deltaTime;
 
-            if (hide == true)
-            {
-                SetOpacity(0f);
-                /*
-                Image[] images = GetComponentsInChildren<Image>();
-
-                // 각 Image 컴포넌트의 투명도를 0으로 설정
-                foreach (Image img in images)
-                {
-                    Color color = img.color;
-                    color.a = 0f; // 투명도를 0으로 설정
-                    img.color = color;
-                }
-                */
-            }
-            else
-            {
-                SetOpacity(1f);
-            }
-
             if (IsFocus())
             {
                 target_position = deck_position + Vector2.up * 40f;
@@ -139,6 +119,26 @@ namespace TcgEngine.Client
             card_ui.SetCard(card);
             card_glow.enabled = IsFocus() || IsDrag();
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
+
+            if (hide == true)
+            {
+                SetOpacity(0f);
+                /*
+                Image[] images = GetComponentsInChildren<Image>();
+
+                // 각 Image 컴포넌트의 투명도를 0으로 설정
+                foreach (Image img in images)
+                {
+                    Color color = img.color;
+                    color.a = 0f; // 투명도를 0으로 설정
+                    img.color = color;
+                }
+                */
+            }
+            else
+            {
+                SetOpacity(1f);
+            }
 
             //Unselect
             if (!drag && selected && Input.GetMouseButtonDown(0))
@@ -220,7 +220,7 @@ namespace TcgEngine.Client
 
         public void OnMouseDownCard()
         {
-            if (GameUI.IsOverUILayer("UI"))
+            if (GameUI.IsOverUILayer("UI", 2))
                 return;
             if (hide == true)
                 return;

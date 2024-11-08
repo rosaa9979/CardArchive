@@ -20,7 +20,8 @@ MonoBehaviour:
   mana: 0
   attack: 0
   hp: 0
-  clubs: []
+  clubs:
+  - {fileID: 11400000, guid: d376f530150f6d244b99a3dea95b8867, type: 2}
   weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []

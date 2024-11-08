@@ -819,8 +819,8 @@ namespace TcgEngine.Gameplay
             DamageCard(attacker, target, datt1);
 
             //Counter Damage
-            //if(!attacker.HasStatus(StatusType.Intimidate))
-            //    DamageCard(target, attacker, datt2);
+            if(attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate))
+                DamageCard(target, attacker, datt2);
 
             //Save attack and exhaust
             //if (!skip_cost)
@@ -1761,6 +1761,7 @@ namespace TcgEngine.Gameplay
                     Card card = player.cards_board[c];
 
                     //Taunt effect
+                    /*
                     if (card.HasStatus(StatusType.Protection) && !card.HasStatus(StatusType.Stealth))
                     {
                         player.AddOngoingStatus(StatusType.Protected, 0);
@@ -1774,6 +1775,7 @@ namespace TcgEngine.Gameplay
                             }
                         }
                     }
+                    */
 
                     //Status bonus
                     foreach (CardStatus status in card.status)

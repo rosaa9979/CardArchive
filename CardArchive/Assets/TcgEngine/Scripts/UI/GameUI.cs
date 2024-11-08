@@ -237,6 +237,11 @@ namespace TcgEngine.UI
             return IsOverUILayer(SortingLayer.NameToID(sorting_layer));
         }
 
+        public static bool IsOverUILayer(string sorting_layer, int order_in_layer)
+        {
+            return IsOverUILayer(SortingLayer.NameToID(sorting_layer), order_in_layer);
+        }
+
         public static bool IsOverUILayer(int sorting_layer)
         {
             //return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
@@ -248,6 +253,23 @@ namespace TcgEngine.UI
             foreach (RaycastResult result in results)
             {
                 if (result.sortingLayer == sorting_layer)
+                    count++;
+            }
+
+            return count > 0;
+        }
+
+        public static bool IsOverUILayer(int sorting_layer, int order_in_layer)
+        {
+            //return UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+            eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+            int count = 0;
+            foreach (RaycastResult result in results)
+            {
+                if (result.sortingLayer == sorting_layer && result.sortingOrder == order_in_layer)
                     count++;
             }
 

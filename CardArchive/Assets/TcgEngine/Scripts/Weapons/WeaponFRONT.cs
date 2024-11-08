@@ -51,7 +51,7 @@ namespace TcgEngine
                         continue;
 
                     float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                    if (ran < 0.5)
+                    if (ran < 1)
                         target.Add(targ);
                 }
             }
@@ -61,6 +61,7 @@ namespace TcgEngine
                 bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
                 
                 List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                Debug.Log(candidate_target.Count);
                 if (candidate_target.Count > 0)
                 {
                     int ran = UnityEngine.Random.Range(0, candidate_target.Count);

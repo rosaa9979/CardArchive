@@ -187,8 +187,8 @@ namespace TcgEngine
             if (!IsOnBoard(attacker) || !attacker.CardData.IsCitizen())
                 return false; //Cards not on board
 
-            if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
-                return false; //Protected by taunt
+            //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
+            //    return false; //Protected by taunt
 
             return true;
         }
@@ -214,8 +214,8 @@ namespace TcgEngine
             if (target.HasStatus(StatusType.Stealth))
                 return false; //Stealth cant be attacked
 
-            if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
-                return false; //Protected by adjacent card
+            //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
+            //    return false; //Protected by adjacent card
 
             return true;
         }
