@@ -402,7 +402,7 @@ namespace TcgEngine
             {
                 foreach (Player player in data.players)
                 {
-                    AddValidCards(data, caster, player.clubs, targets);
+                    AddValidCards(data, caster, player.cards_club, targets);
                     AddValidCards(data, caster, player.cards_deck, targets);
                     AddValidCards(data, caster, player.cards_discard, targets);
                     AddValidCards(data, caster, player.cards_hand, targets);
@@ -719,7 +719,7 @@ namespace TcgEngine
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
-                bool v1 = HasValidCardTarget(game_data, caster, player.clubs);
+                bool v1 = HasValidCardTarget(game_data, caster, player.cards_club);
                 bool v2 = HasValidCardTarget(game_data, caster, player.cards_deck);
                 bool v3 = HasValidCardTarget(game_data, caster, player.cards_discard);
                 bool v4 = HasValidCardTarget(game_data, caster, player.cards_hand);

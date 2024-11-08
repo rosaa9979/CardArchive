@@ -128,6 +128,7 @@ namespace TcgEngine.Gameplay
                 dcards = player.player_id == game_data.first_player ? dcards-1 : dcards;
                 DrawCard(player, dcards);
 
+                /*
                 //Add coin second player
                 bool is_random = level == null || level.first_player == LevelFirst.Random;
                 if (is_random && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
@@ -135,8 +136,8 @@ namespace TcgEngine.Gameplay
                     Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
                     player.cards_hand.Add(card);
                 }
+                */
             }
-            Slot.GetAttackOrder(0);
 
             //Start state
             RefreshData();
@@ -161,6 +162,15 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state != GameState.Mulligan)
                 return;
+
+            LevelData level = game_data.settings.GetLevel();
+
+            bool is_random = level == null || level.first_player == LevelFirst.Random;
+            Player player = game_data.GetOpponentPlayer(game_data.first_player);
+
+            Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
+            player.cards_hand.Add(card);
+
 
             game_data.selector = SelectorType.None;
             game_data.state = GameState.Play;
@@ -575,7 +585,7 @@ namespace TcgEngine.Gameplay
             if (deck.clubs.Count > 0)
             {
                 foreach (CardData club in deck.clubs)
-                    player.clubs.Add(Card.Create(club, variant, player));
+                    player.cards_club.Add(Card.Create(club, variant, player));
             }
 
             foreach (CardData card in deck.cards)
@@ -1428,7 +1438,7 @@ namespace TcgEngine.Gameplay
 
                 foreach (Card card in oplayer.cards_board)
                     TriggerCardAbilityType(type, card, triggerer);
-                foreach (Card club in oplayer.clubs)
+                foreach (Card club in oplayer.cards_club)
                     TriggerCardAbilityType(type, club, triggerer);
             }
         }
@@ -1441,7 +1451,7 @@ namespace TcgEngine.Gameplay
             foreach (Card card in player.cards_board)
                 TriggerCardAbilityType(type, card, card);
             
-            foreach (Card card in player.clubs)
+            foreach (Card card in player.cards_club)
                 TriggerCardAbilityType(type, card, card);
 
             foreach (Card card in player.cards_attach)
@@ -1689,8 +1699,8 @@ namespace TcgEngine.Gameplay
 
                 for (int c = 0; c < player.cards_hand.Count; c++)
                     player.cards_hand[c].ClearOngoing();
-                for (int c = 0; c < player.clubs.Count; c++)
-                    player.clubs[c].ClearOngoing();
+                for (int c = 0; c < player.cards_club.Count; c++)
+                    player.cards_club[c].ClearOngoing();
             }
 
             for (int p = 0; p < game_data.players.Length; p++)
@@ -1698,9 +1708,22 @@ namespace TcgEngine.Gameplay
                 Player player = game_data.players[p];
                 UpdateOngoingAbilities(player, player.hero);  //Remove this line if hero is on the board
 
+                HashSet<CardClub> player_clubs = new HashSet<CardClub>();
+
+                foreach (Card pclubs in player.cards_club)
+                    player_clubs.UnionWith(pclubs.GetAllClubs());
+
                 for (int c = 0; c < player.cards_board.Count; c++)
                 {
                     Card card = player.cards_board[c];
+                    List<CardClub> card_clubs = card.GetAllClubs();
+
+                    foreach (CardClub card_club in card_clubs)
+                    {
+                        if (player_clubs.Contains(card_club) && !player.clubs_revealed.Contains(card_club))
+                            player.clubs_revealed.Add(card_club);
+                    }
+
                     UpdateOngoingAbilities(player, card);
                 }
 
@@ -1716,9 +1739,9 @@ namespace TcgEngine.Gameplay
                     UpdateOngoingAbilities(player, card);
                 }
 
-                for (int c = 0; c < player.clubs.Count; c++)
+                for (int c = 0; c < player.cards_club.Count; c++)
                 {
-                    Card card = player.clubs[c];
+                    Card card = player.cards_club[c];
                     UpdateOngoingAbilities(player, card);
                 }
 

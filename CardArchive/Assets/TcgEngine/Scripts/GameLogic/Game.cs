@@ -424,7 +424,7 @@ namespace TcgEngine
         {
             foreach (Player player in players)
             {
-                foreach (Card card in player.clubs)
+                foreach (Card card in player.cards_club)
                 {
                     if (card != null && card.uid == card_uid)
                         return card;

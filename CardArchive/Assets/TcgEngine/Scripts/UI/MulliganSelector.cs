@@ -32,6 +32,7 @@ namespace TcgEngine.UI
 
         private Vector2 mouse_start;
         private int mouse_index_start;
+        private float interval = 0f;
         //private bool drag = false;
         //private float mouse_scroll = 0f;
         private float timer = 0f;
@@ -55,6 +56,8 @@ namespace TcgEngine.UI
                 return;
             
             timer += Time.deltaTime;
+
+            interval = content.rect.width / (card_img_list.Count + 1); // 카드 간격 계산
             
             foreach (CardSelectorCard card in card_img_list)
             {
@@ -133,6 +136,7 @@ namespace TcgEngine.UI
 
         private Vector2 GetCardPos(CardSelectorCard card)
         {
+            /*
             int pos_index = card.GetIndex() - current_index;
             float card_space = ((RectTransform)card.gameObject.transform).rect.width;
             float posX = -(card_space + 100f) + (pos_index * card_space) + (pos_index * 100f);
@@ -140,6 +144,10 @@ namespace TcgEngine.UI
             //if (pos_index != 0)
             pos += Vector2.right * Mathf.Sign(pos_index);
             return pos;
+            */
+            float xPos = interval * (card.GetIndex()+1) - (content.rect.width / 2);
+            Vector2 position = new Vector2(xPos, 0);
+            return position;
         }
 
         private Vector2 GetMousePos()

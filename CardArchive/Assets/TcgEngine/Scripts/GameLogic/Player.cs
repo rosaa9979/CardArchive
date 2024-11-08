@@ -30,7 +30,7 @@ namespace TcgEngine
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
         public Card hero = null;
-        public List<Card> clubs = new List<Card>();
+        public List<Card> cards_club = new List<Card>();
 
         public List<Card> cards_deck = new List<Card>();    //Cards in the player's deck
         public List<Card> cards_hand = new List<Card>();    //Cards in the player's hand
@@ -48,6 +48,8 @@ namespace TcgEngine
 
         public List<CardStatus> status = new List<CardStatus>();    //Current persistant (or with duration) traits the cards has
         public List<CardStatus> ongoing_status = new List<CardStatus>();    //Current ongoing traits the cards has
+
+        public List<CardClub> clubs_revealed = new List<CardClub>();
 
         public List<ActionHistory> history_list = new List<ActionHistory>();  //History of actions performed by the player
 
