@@ -59,9 +59,33 @@ namespace TcgEngine
             else if (target_list.Count > 0)
             {
                 bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
+                bool contain_place = target_list.Any(card => card.CardData.IsPlace());
                 
-                List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
-                Debug.Log(candidate_target.Count);
+                //List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                //Debug.Log(candidate_target.Count);
+                List<Card> candidate_target = new List<Card>();
+
+                foreach (Card targ in target_list)
+                {
+                    if (logic.GetGameData().CanAttackTarget(attacker, targ))
+                    {
+                        if (contain_place)
+                        {
+                            if (targ.CardData.IsPlace())
+                                candidate_target.Add(targ);
+                        }
+                        else if (contain_taunt)
+                        {
+                            if (targ.HasStatus(StatusType.Protection))
+                                candidate_target.Add(targ);
+                        }
+                        else
+                        {
+                            candidate_target.Add(targ);
+                        }
+                    }
+                }
+
                 if (candidate_target.Count > 0)
                 {
                     int ran = UnityEngine.Random.Range(0, candidate_target.Count);

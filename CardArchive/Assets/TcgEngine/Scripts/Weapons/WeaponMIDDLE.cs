@@ -36,7 +36,7 @@ namespace TcgEngine
         }
 
 
-
+        /*
         public override List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
             List<Card> target = new List<Card>();
@@ -61,6 +61,66 @@ namespace TcgEngine
                 bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
                 
                 List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                if (candidate_target.Count > 0)
+                {
+                    int ran = UnityEngine.Random.Range(0, candidate_target.Count);
+                    target.Add(candidate_target[ran]);
+                }
+            }
+
+            return target;
+        }
+        */
+
+        public override List<Card> SearchTarget(GameLogic logic, Card attacker)
+        {
+            List<Card> target = new List<Card>();
+            Dictionary<int, List<Card>> targets = logic.GetAllEnemyTarget(attacker);
+            List<Card> target_list = targets.Values.SelectMany(cardList => cardList).ToList();
+
+            if (attacker.HasStatus(StatusType.MassShooting))
+            {
+                foreach(Card targ in target_list)
+                {
+                    if (targ == attacker || attacker.player_id == targ.player_id)
+                        continue;
+
+                    float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                    if (ran < 1)
+                        target.Add(targ);
+                }
+            }
+            
+            else if (target_list.Count > 0)
+            {
+                bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
+                bool contain_place = target_list.Any(card => card.CardData.IsPlace());
+                
+                //List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                //Debug.Log(candidate_target.Count);
+                List<Card> candidate_target = new List<Card>();
+
+                foreach (Card targ in target_list)
+                {
+                    if (logic.GetGameData().CanAttackTarget(attacker, targ))
+                    {
+                        if (contain_place)
+                        {
+                            if (targ.CardData.IsPlace())
+                                candidate_target.Add(targ);
+                        }
+                        else if (contain_taunt)
+                        {
+                            if (targ.HasStatus(StatusType.Protection))
+                                candidate_target.Add(targ);
+                        }
+                        else
+                        {
+                            candidate_target.Add(targ);
+                        }
+                    }
+                }
+
                 if (candidate_target.Count > 0)
                 {
                     int ran = UnityEngine.Random.Range(0, candidate_target.Count);

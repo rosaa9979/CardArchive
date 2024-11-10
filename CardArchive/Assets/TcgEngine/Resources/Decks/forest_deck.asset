@@ -14,11 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: forest_deck
   title: Forest Starter
-  hero: {fileID: 11400000, guid: 04fd0777e8f567b48ad05e6bdaf97c1d, type: 2}
+  hero: {fileID: 11400000, guid: 5a33409b706324944ac9e7c5ed177ee3, type: 2}
   clubs: []
   cards:
-  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
-  - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
-  - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
-  - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
-  - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ca2e4aa13885a0246812c31a38193e4a, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}
+  - {fileID: 11400000, guid: ce50dd2ada94b0d488842c748e3cdcbf, type: 2}

@@ -11,7 +11,7 @@ namespace TcgEngine
         Student = 10,
         NonStudent = 11,
         Spell = 20,
-        Building = 30,
+        Place = 30,
         Secret = 40,
         Equipment = 50,
         Attachment = 60,
@@ -141,8 +141,8 @@ namespace TcgEngine
                 return "학생";
             if (type == CardType.NonStudent)
                 return "비학생";
-            if (type == CardType.Building)
-                return "건물";
+            if (type == CardType.Place)
+                return "장소";
             if (type == CardType.Spell)
                 return "이벤트";
             if (type == CardType.Secret)
@@ -175,9 +175,9 @@ namespace TcgEngine
             return type == CardType.Student;
         }
 
-        public bool IsBuilding()
+        public bool IsPlace()
         {
-            return type == CardType.Building;
+            return type == CardType.Place;
         }
 
         public bool IsPlayerAbility()
@@ -192,7 +192,7 @@ namespace TcgEngine
 
         public bool IsBoardCard()
         {
-            return type == CardType.Student || type == CardType.NonStudent || type == CardType.Building;
+            return type == CardType.Student || type == CardType.NonStudent || type == CardType.Place;
         }
 
         public bool IsRequireTarget()

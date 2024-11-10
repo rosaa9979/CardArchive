@@ -49,7 +49,7 @@ namespace TcgEngine
                         continue;
 
                     float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                    if (ran < 0.5)
+                    if (ran < 1)
                         target.Add(targ);
                 }
             }
@@ -57,13 +57,41 @@ namespace TcgEngine
             else if (target_list.Count > 0)
             {
                 bool contain_taunt = target_list.Any(card => card.HasStatus(StatusType.Protection));
+                bool contain_place = target_list.Any(card => card.CardData.IsPlace());
                 
-                List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
-                if (candidate_target.Count > 0)
+                //List<Card> candidate_target = logic.GetGameData().CanAttackTarget(attacker, target_list);
+                //Debug.Log(candidate_target.Count);
+                List<Card> candidate_target = new List<Card>();
+
+                foreach (Card targ in target_list)
                 {
-                    int ran = UnityEngine.Random.Range(0, candidate_target.Count);
-                    target.Add(candidate_target[ran]);
+                    if (logic.GetGameData().CanAttackTarget(attacker, targ))
+                    {
+                        if (contain_place)
+                        {
+                            if (targ.CardData.IsPlace())
+                                candidate_target.Add(targ);
+                        }
+                        else if (contain_taunt)
+                        {
+                            if (targ.HasStatus(StatusType.Protection))
+                                candidate_target.Add(targ);
+                        }
+                        else
+                        {
+                            candidate_target.Add(targ);
+                        }
+                    }
                 }
+
+                // 1. 가장 작은 HP 값 찾기
+                int minHP = candidate_target.Min(card => card.GetHP());
+
+                // 2. 가장 작은 HP 값을 가진 카드들 찾기
+                var lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
+
+                // 3. 랜덤으로 하나 선택
+                target.Add(lowestHPCards[UnityEngine.Random.Range(0, lowestHPCards.Count)]);
             }
 
             return target;

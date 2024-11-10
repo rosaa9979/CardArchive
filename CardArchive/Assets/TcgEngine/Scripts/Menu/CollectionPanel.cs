@@ -274,7 +274,7 @@ namespace TcgEngine.UI
 
                     bool type_check = (type == CardType.Student || type == CardType.NonStudent && toggle_citizen.isOn)
                         || (type == CardType.Spell && toggle_spell.isOn)
-                        || (type == CardType.Building && toggle_building.isOn)
+                        || (type == CardType.Place && toggle_building.isOn)
                         || (type == CardType.Equipment && toggle_equipment.isOn)
                         || (type == CardType.Secret && toggle_secret.isOn)
                         || (!toggle_citizen.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);

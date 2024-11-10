@@ -17,7 +17,6 @@ namespace TcgEngine
 
         public Slot slot;
         public bool exhausted;
-        public bool addition_attack;
         public int damage = 0;
 
         public int mana = 0;
@@ -52,7 +51,7 @@ namespace TcgEngine
 
         public Card(string card_id, string uid, int player_id) { this.card_id = card_id; this.uid = uid; this.player_id = player_id; }
 
-        public virtual void Refresh() { exhausted = false; addition_attack = false; }
+        public virtual void Refresh() { exhausted = false; }
         public virtual void ClearOngoing() { ongoing_status.Clear(); ongoing_traits.Clear(); ClearOngoingAbility(); attack_ongoing = 0; hp_ongoing = 0; mana_ongoing = 0; }
 
         public virtual void Clear()
@@ -531,7 +530,7 @@ namespace TcgEngine
 
         public virtual bool CanAttack(bool skip_cost = false)
         {
-            if (CardData.IsBuilding())
+            if (CardData.IsPlace())
                 return false;
             if (HasStatus(StatusType.Paralysed))
                 return false;

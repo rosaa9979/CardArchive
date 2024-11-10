@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: water_deck
   title: Water Starter
-  hero: {fileID: 11400000, guid: cf170aea7ffb041428f37608f1561058, type: 2}
+  hero: {fileID: 11400000, guid: 5a33409b706324944ac9e7c5ed177ee3, type: 2}
   clubs:
   - {fileID: 11400000, guid: 98e964e3da2a99d4aac76bb9c40af40b, type: 2}
   - {fileID: 11400000, guid: ec3c875c40102e94c92614c71d2231ca, type: 2}

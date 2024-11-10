@@ -2135,45 +2135,57 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
+            Debug.Log("in1");
             if (game_data.selector == SelectorType.None)
                 return;
-
+            Debug.Log("in2");
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            Card target_card = game_data.GetSlotCard(target);
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
 
             if (caster == null || ability == null || !target.IsValid())
                 return;
+            Debug.Log("in3");
             
-            if (ability.target == AbilityTarget.SelectCard)
-                return;
+            //if (ability.target == AbilityTarget.SelectCard)
+            //    return;
+            Debug.Log("in4");
+
+            //SelectCard(target_card);
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if(!ability.CanTarget(game_data, caster, target))
-                    return; //Conditions not met
-
-                Player player = game_data.GetPlayer(caster.player_id);
-                if (!is_ai_predict)
-                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
-
-                game_data.selector = SelectorType.None;
-
-                List<Slot> targets = new List<Slot>();
-
-                if (ability.target == AbilityTarget.SelectTarget || ability.target == AbilityTarget.SelectSlot)
-                    targets = Slot.GetAll();
+                if (ability.target == AbilityTarget.SelectCard)
+                    SelectCard(target_card);
                 
-                foreach (Slot targ in targets)
+                else
                 {
-                    if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
-                        continue;
+                    if (!ability.CanTarget(game_data, caster, target))
+                        return; //Conditions not met
 
-                    ResolveEffectTarget(ability, caster, targ);
+                    Player player = game_data.GetPlayer(caster.player_id);
+                    if (!is_ai_predict)
+                        player.AddHistory(GameAction.CastAbility, caster, ability, target);
+
+                    game_data.selector = SelectorType.None;
+
+                    List<Slot> targets = new List<Slot>();
+
+                    if (ability.target == AbilityTarget.SelectTarget || ability.target == AbilityTarget.SelectSlot)
+                        targets = Slot.GetAll();
+                    
+                    foreach (Slot targ in targets)
+                    {
+                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
+                            continue;
+
+                        ResolveEffectTarget(ability, caster, targ);
+                    }
+
+
+                    AfterAbilityResolved(ability, caster);
+                    resolve_queue.ResolveAll();
                 }
-
-
-                AfterAbilityResolved(ability, caster);
-                resolve_queue.ResolveAll();
             }
         }
 
