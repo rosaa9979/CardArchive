@@ -58,7 +58,7 @@ namespace TcgEngine.UI
             BlackPanel.Get().Hide();
 
             if (quit_btn != null)
-                quit_btn.text = GameClient.game_settings.IsOnlinePlayer() ? "Resign" : "Quit";
+                quit_btn.text = GameClient.game_settings.IsOnlinePlayer() ? "Resign" : "항복";
         }
 
         void Update()

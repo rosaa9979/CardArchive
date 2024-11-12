@@ -49,7 +49,7 @@ namespace TcgEngine
         public List<CardStatus> status = new List<CardStatus>();    //Current persistant (or with duration) traits the cards has
         public List<CardStatus> ongoing_status = new List<CardStatus>();    //Current ongoing traits the cards has
 
-        public List<CardClub> clubs_revealed = new List<CardClub>();
+        public List<Card> clubs_revealed = new List<Card>();
 
         public List<ActionHistory> history_list = new List<ActionHistory>();  //History of actions performed by the player
 

@@ -119,15 +119,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 943be08264f3555448cac48ac16c1e8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  title_background: {fileID: 0}
   card_image: {fileID: 0}
   frame_image: {fileID: 4353264925981202626}
+  type_background: {fileID: 0}
   attack_background: {fileID: 1593662637138845159}
   attack_icon: {fileID: 1568863074443046534}
   hp_background: {fileID: 3765463020334271792}
   hp_icon: {fileID: 4725780009765445995}
   cost_icon: {fileID: 0}
   range_background: {fileID: 7396165946883078864}
-  range_icon: {fileID: 0}
+  range_icon: {fileID: 3149888590560742296}
   trait_background: {fileID: 0}
   club_background: {fileID: 0}
   type: {fileID: 0}

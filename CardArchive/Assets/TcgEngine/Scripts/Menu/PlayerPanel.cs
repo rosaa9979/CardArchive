@@ -108,7 +108,8 @@ namespace TcgEngine.UI
                 player_level.text = GameplayData.Get().GetPlayerLevel(user.xp).ToString();
 
                 AvatarData avatar = AvatarData.Get(user.avatar);
-                this.avatar.SetAvatar(avatar);
+                //this.avatar.SetAvatar(avatar);
+                this.avatar.SetDefaultAvatar();
 
                 CardbackData cb = CardbackData.Get(user.cardback);
                 this.cardback.SetCardback(cb);

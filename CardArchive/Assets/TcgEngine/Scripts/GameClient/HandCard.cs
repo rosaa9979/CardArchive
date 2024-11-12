@@ -119,7 +119,7 @@ namespace TcgEngine.Client
             card_ui.SetCard(card);
             card_glow.enabled = IsFocus() || IsDrag();
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
-
+            
             if (hide == true)
             {
                 SetOpacity(0f);

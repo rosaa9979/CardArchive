@@ -14,7 +14,11 @@ namespace TcgEngine.UI
         public bool opponent;
         public GameObject club_area;
         public Image club_image;
+        public Sprite default_icon;
+        public int index;
 
+        private List<Card> reference_clubs;
+        private Card club;
         private bool focus = false;
         // Start is called before the first frame update
         void Start()
@@ -35,6 +39,13 @@ namespace TcgEngine.UI
         {
             if (!GameClient.Get().IsReady())
                 return;
+
+            reference_clubs = opponent ? GameClient.Get().GetOpponentPlayer().clubs_revealed : GetPlayer().cards_club;
+
+            if (index + 1 <= reference_clubs.Count)
+                club = reference_clubs[index];
+            
+            club_image.sprite = club?.CardData.GetBoardArt(club.VariantData) ?? default_icon;
         }
 
         private void OnEnterMouse()

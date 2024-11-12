@@ -143,8 +143,8 @@ namespace TcgEngine.Gameplay
             RefreshData();
             onGameStart?.Invoke();
 
-            StartTurn();
-            //StartMulliganPhase();
+            //StartTurn();
+            StartMulliganPhase();
         }
 
         public virtual void StartMulliganPhase()
@@ -586,6 +586,7 @@ namespace TcgEngine.Gameplay
             {
                 foreach (CardData club in deck.clubs)
                     player.cards_club.Add(Card.Create(club, variant, player));
+
             }
 
             foreach (CardData card in deck.cards)
@@ -1708,11 +1709,6 @@ namespace TcgEngine.Gameplay
                 Player player = game_data.players[p];
                 UpdateOngoingAbilities(player, player.hero);  //Remove this line if hero is on the board
 
-                HashSet<CardClub> player_clubs = new HashSet<CardClub>();
-
-                foreach (Card pclubs in player.cards_club)
-                    player_clubs.UnionWith(pclubs.GetAllClubs());
-
                 for (int c = 0; c < player.cards_board.Count; c++)
                 {
                     Card card = player.cards_board[c];
@@ -1720,8 +1716,28 @@ namespace TcgEngine.Gameplay
 
                     foreach (CardClub card_club in card_clubs)
                     {
-                        if (player_clubs.Contains(card_club) && !player.clubs_revealed.Contains(card_club))
-                            player.clubs_revealed.Add(card_club);
+                        // player_clubs에서 모든 CardClub을 가져옴
+                        List<CardClub> playerClubList = player.cards_club.SelectMany(club => club.GetAllClubs()).ToList();
+                        List<CardClub> revealedClubList = player.clubs_revealed.SelectMany(club => club.GetAllClubs()).ToList();
+                        
+                        // 조건: player_clubs에 card_club이 포함되어 있고, 이미 공개되지 않은 경우
+                        if (playerClubList.Any(club => club.id == card_club.id) && !revealedClubList.Any(club => club.id == card_club.id))
+                        {
+                            /*
+                            // 공개되지 않은 경우에 추가
+                            Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Contains(card_club));
+                            if (matchingCard != null)
+                            player.clubs_revealed.Add(matchingCard);
+                            */
+
+                            Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Any(club => club.id == card_club.id));
+
+                            Debug.Log(matchingCard.card_id);
+                            if (matchingCard != null)
+                            {
+                                player.clubs_revealed.Add(matchingCard);
+                            }
+                        }
                     }
 
                     UpdateOngoingAbilities(player, card);
@@ -2135,23 +2151,18 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
-            Debug.Log("in1");
             if (game_data.selector == SelectorType.None)
                 return;
-            Debug.Log("in2");
+
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
             Card target_card = game_data.GetSlotCard(target);
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
 
             if (caster == null || ability == null || !target.IsValid())
                 return;
-            Debug.Log("in3");
             
             //if (ability.target == AbilityTarget.SelectCard)
             //    return;
-            Debug.Log("in4");
-
-            //SelectCard(target_card);
 
             if (game_data.selector == SelectorType.SelectTarget)
             {

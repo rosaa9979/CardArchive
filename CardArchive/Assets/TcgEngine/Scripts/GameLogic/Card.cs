@@ -870,7 +870,6 @@ namespace TcgEngine
 
         public ClubData Data => ClubData; //Alternate name
 
-
         public static CardClub CloneNew(CardClub copy)
         {
             CardClub status = new CardClub(copy.id);
