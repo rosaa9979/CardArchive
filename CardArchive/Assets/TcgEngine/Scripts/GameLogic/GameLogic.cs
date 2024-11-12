@@ -1732,11 +1732,8 @@ namespace TcgEngine.Gameplay
 
                             Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Any(club => club.id == card_club.id));
 
-                            Debug.Log(matchingCard.card_id);
                             if (matchingCard != null)
-                            {
                                 player.clubs_revealed.Add(matchingCard);
-                            }
                         }
                     }
 
