@@ -47,7 +47,7 @@ namespace TcgEngine.Client
             if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
             {
                 //Target selector, select this card
-                GameClient.Get().SelectCard(card);
+                GameClient.Get().SelectSlot(card.slot);
             }
             else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
             {

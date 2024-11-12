@@ -21,8 +21,8 @@ namespace TcgEngine
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
         {
-            if (type == LastType.LastPlayed && data.last_played == target.uid)
-                return CompareBool(true, oper);
+            if (type == LastType.LastPlayed)
+                return CompareBool(data.last_played == target.uid, oper);
 
 
             return IsTargetConditionMet(data, ability, caster, target.slot);
@@ -30,10 +30,10 @@ namespace TcgEngine
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
         {
+            bool result = false;
+            
             if (type == LastType.LastPlayed)
                 return false;
-
-            bool result = false;
 
             if (type == LastType.LastAttacked && data.last_attacked_slot.GetNeighborSlot(range).Contains(target))
                 result = true;

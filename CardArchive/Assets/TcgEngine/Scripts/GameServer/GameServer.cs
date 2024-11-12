@@ -386,8 +386,8 @@ namespace TcgEngine.Server
             if (player != null && msg != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
             {
                 Card target = game_data.GetCard(msg.card_uid);
-                //gameplay.SelectCard(target);
-                gameplay.SelectSlot(target.slot);
+                gameplay.SelectCard(target);
+                //gameplay.SelectSlot(target.slot);
             }
         }
 
