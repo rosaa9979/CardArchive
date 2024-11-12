@@ -17,6 +17,7 @@ MonoBehaviour:
   conditions_trigger: []
   target: 1
   conditions_target: []
+  condition_wide_range: []
   filters_target: []
   effects: []
   status:
@@ -32,5 +33,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Taunt
-  desc: Your other characters cannot be attacked.
+  title: "\uB3C4\uBC1C"
+  desc: "\uB3C4\uBC1C"
