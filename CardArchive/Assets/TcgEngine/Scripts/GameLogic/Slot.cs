@@ -30,6 +30,7 @@ namespace TcgEngine
         private static Dictionary<int, List<Slot>> player_slots = new Dictionary<int, List<Slot>>();
         private static Dictionary<int, List<Slot>> player_slots_include_neutral = new Dictionary<int, List<Slot>>();
         private static Dictionary<int, List<Slot>> player_self_slots = new Dictionary<int, List<Slot>>();
+        private static Dictionary<int, List<Slot>> outside_slots = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();
         private static List<Slot> neutral_slots = new List<Slot>();  
         private static Dictionary<int, List<Slot>> attack_order = new Dictionary<int, List<Slot>>();    
@@ -347,6 +348,16 @@ namespace TcgEngine
             return neutral_slots;
         }
 
+        public static List<Slot> GetPlayerSelf()
+        {
+            List<Slot> list = new List<Slot>();
+
+            list.AddRange(GetPlayerSelf(0));
+            list.AddRange(GetPlayerSelf(1));
+
+            return list;
+        }
+
         public static List<Slot> GetPlayerSelf(int pid)
         {
             int p = GetP(pid);
@@ -381,6 +392,39 @@ namespace TcgEngine
 
 
             player_self_slots[p] = list;
+            return list;
+        }
+
+        public static List<Slot> GetOutside()
+        {
+            List<Slot> list = new List<Slot>();
+
+            list.AddRange(GetOutside(0));
+            list.AddRange(GetOutside(1));
+
+            return list;
+        }
+
+        public static List<Slot> GetOutside(int pid)
+        {
+            int p = GetP(pid);
+
+            if (outside_slots.ContainsKey(p))
+                return outside_slots[p]; //Faster access
+
+
+            List<Slot> list = new List<Slot>();
+            List<Slot> all_slot = GetAll(p);
+            List<Slot> player_slot = GetPlayerSelf(p);
+
+            foreach (Slot aslot in all_slot)
+            {
+                if (!player_slot.Contains(aslot))
+                    list.Add(aslot);
+            }
+
+
+            outside_slots[p] = list;
             return list;
         }
 

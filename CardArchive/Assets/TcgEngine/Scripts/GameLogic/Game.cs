@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TcgEngine
@@ -126,6 +127,9 @@ namespace TcgEngine
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
                 if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
                     return false; //Cant play on opponent side
+                
+                if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
+                    return false; //Cant play place card in wrong slot
 
                 return true;
             }

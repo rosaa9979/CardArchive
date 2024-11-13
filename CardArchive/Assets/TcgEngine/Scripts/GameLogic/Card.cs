@@ -532,6 +532,8 @@ namespace TcgEngine
         {
             if (CardData.IsPlace())
                 return false;
+            if (GetAttack() <= 0)
+                return false;
             if (HasStatus(StatusType.Paralysed))
                 return false;
             if (!skip_cost && exhausted)
