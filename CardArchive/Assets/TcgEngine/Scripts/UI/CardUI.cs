@@ -84,12 +84,25 @@ namespace TcgEngine.UI
             if (trait != null)
                 trait.text = string.Join(" / ", card.GetAllTraits().Select(tra => tra.TraitData.GetTitle()));
 
-            if (club_background != null)
-                club_background.enabled = card.GetAllClubs().Count > 0;
             if (clubs != null)
                 clubs.enabled = card.GetAllClubs().Count > 0;
             if (clubs != null)
                 clubs.text = string.Join(" / ", card.GetAllClubs().Select(club => club.ClubData.GetTitle()));
+
+            if (club_background != null)
+                club_background.enabled = card.GetAllClubs().Count > 0;
+
+            if (clubs != null && club_background != null)
+            {
+                RectTransform imageRectTransform = club_background.GetComponent<RectTransform>();
+                float textWidth = clubs.preferredWidth;
+
+                // 2. 최종 Image의 너비 계산 (Text 너비 + 좌우 패딩)
+                float totalWidth = textWidth + (2 * padding);
+
+                // 3. Image의 RectTransform 너비 조정
+                imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
+            }
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
@@ -170,6 +183,18 @@ namespace TcgEngine.UI
             //    team_icon.sprite = card.team.icon;
             //    team_icon.enabled = team_icon.sprite != null;
             //}
+
+            if (clubs != null && club_background != null)
+            {
+                RectTransform imageRectTransform = club_background.GetComponent<RectTransform>();
+                float textWidth = clubs.preferredWidth;
+
+                // 2. 최종 Image의 너비 계산 (Text 너비 + 좌우 패딩)
+                float totalWidth = textWidth + (2 * padding);
+
+                // 3. Image의 RectTransform 너비 조정
+                imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
+            }
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
