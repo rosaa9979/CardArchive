@@ -20,6 +20,19 @@ namespace TcgEngine.UI
         private List<Card> reference_clubs;
         private Card club;
         private bool focus = false;
+
+        private static List<ClubUI> ui_list = new List<ClubUI>();
+
+        private void Awake()
+        {
+            ui_list.Add(this);
+        }
+
+        private void OnDestroy()
+        {
+            ui_list.Remove(this);
+        }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -72,6 +85,21 @@ namespace TcgEngine.UI
         {
             Game gdata = GameClient.Get().GetGameData();
             return gdata.GetPlayer(GetPlayerID());
+        }
+
+        public Card GetCard()
+        {
+            return club;
+        }
+
+        public static ClubUI GetFocus()
+        {
+            foreach (ClubUI ui in ui_list)
+            {
+                if (ui.IsFocus())
+                    return ui;
+            }
+            return null;
         }
     }
 }
