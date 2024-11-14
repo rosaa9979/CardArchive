@@ -165,6 +165,11 @@ namespace TcgEngine
             return txt;
         }
 
+        public bool IsClub()
+        {
+            return type == CardType.Club;
+        }
+
         public bool IsCitizen()
         {
             return type == CardType.Student || type == CardType.NonStudent;

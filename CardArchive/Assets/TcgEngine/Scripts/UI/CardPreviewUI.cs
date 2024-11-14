@@ -76,6 +76,24 @@ namespace TcgEngine.UI
 
             if (show_preview)
             {
+                Vector2[] final_pos = new Vector2[side_rows.Length];
+
+                if (pcard.CardData.IsClub())
+                {
+                    for (int i = 0; i < side_rows.Length; i++)
+                    {
+                        final_pos[i] = start_pos[i] + new Vector2(Screen.width*0.07f, 0);
+                    }
+                }
+
+                else
+                    final_pos = start_pos;
+
+                for (int i = 0; i < side_rows.Length; i++)
+                {
+                    side_rows[i].anchoredPosition = final_pos[i];
+                }
+
                 CardData icard = pcard.CardData;
                 //card_ui.SetCard(icard, pcard.VariantData);
                 card_ui.SetCard(pcard);
