@@ -63,8 +63,9 @@ namespace TcgEngine.Client
             Player player = GameClient.Get().GetPlayer();
             Player oplayer = GameClient.Get().GetOpponentPlayer();
 
-            target_alpha = 0f;
+            target_alpha = 1f;
             Card select_card = bcard_selected?.GetCard();
+            /*
             if (select_card != null)
             {
                 bool can_do_attack = gdata.IsPlayerActionTurn(player) && select_card.CanAttack();
@@ -88,7 +89,7 @@ namespace TcgEngine.Client
                 if (ability != null && ability.AreTargetConditionsMet(gdata, caster, GetPlayer()))
                     target_alpha = 1f; //Highlight when selecting a target and empty slots are valid
             }
-
+            */
         }
 
         private void LateUpdate()
