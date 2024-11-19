@@ -77,7 +77,8 @@ namespace TcgEngine.UI
 
             bool yourturn = GameClient.Get().IsYourTurn();
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
-            if (yourturn && end_turn_timer > 1f)
+            //if (yourturn && end_turn_timer > 1f)
+            if (yourturn && data.phase == GamePhase.Main)
             {
                 end_turn_button.interactable = true;
                 end_turn_image.sprite = end_turn_on;
