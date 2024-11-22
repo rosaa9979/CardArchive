@@ -3489,6 +3489,11 @@ PrefabInstance:
       propertyPath: player_ui
       value: 
       objectReference: {fileID: 388880605}
+    - target: {fileID: 1242784130044925630, guid: 0238b0974c923864aa29b71669692c93,
+        type: 3}
+      propertyPath: avatar_camera
+      value: 
+      objectReference: {fileID: 1477232087}
     - target: {fileID: 1242784130044925631, guid: 0238b0974c923864aa29b71669692c93,
         type: 3}
       propertyPath: m_Sprite
@@ -4598,6 +4603,11 @@ PrefabInstance:
       propertyPath: player_ui
       value: 
       objectReference: {fileID: 1548533663}
+    - target: {fileID: 1242784130044925630, guid: 0238b0974c923864aa29b71669692c93,
+        type: 3}
+      propertyPath: avatar_camera
+      value: 
+      objectReference: {fileID: 1477232087}
     - target: {fileID: 1242784130044925631, guid: 0238b0974c923864aa29b71669692c93,
         type: 3}
       propertyPath: m_Sprite

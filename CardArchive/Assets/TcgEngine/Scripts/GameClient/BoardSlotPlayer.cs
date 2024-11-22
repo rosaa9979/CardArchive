@@ -13,7 +13,7 @@ namespace TcgEngine.Client
     {
         public bool opponent;
         public RectTransform player_ui;
-        public Camera camera;
+        public Camera avatar_camera;
 
         public float range_x = 3f;
         public float range_y = 1f;
@@ -95,8 +95,8 @@ namespace TcgEngine.Client
 
         private void LateUpdate()
         {
-            Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(camera, player_ui.position);
-            Vector3 worldPoint = camera.ScreenToWorldPoint(new Vector3(screenPoint.x, screenPoint.y, camera.nearClipPlane));
+            Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(avatar_camera, player_ui.position);
+            Vector3 worldPoint = avatar_camera.ScreenToWorldPoint(new Vector3(screenPoint.x, screenPoint.y, avatar_camera.nearClipPlane));
             // UI 요소의 월드 위치를 SpriteRenderer의 위치로 설정
             //transform.position = player_ui.position;
             transform.position = worldPoint;
