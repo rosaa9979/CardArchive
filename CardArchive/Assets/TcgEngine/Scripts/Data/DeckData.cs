@@ -18,7 +18,7 @@ namespace TcgEngine
 
         [Header("Cards")]
         public CardData hero;
-        public List<CardData> clubs;
+        public CardData[] clubs;
         public CardData[] cards;
 
         public static List<DeckData> deck_list = new List<DeckData>();
@@ -36,7 +36,7 @@ namespace TcgEngine
 
         public bool IsValid()
         {
-            return cards.Length >= GameplayData.Get().deck_size && clubs.Count <=  GameplayData.Get().club_size;
+            return cards.Length == GameplayData.Get().deck_size && clubs.Length <=  GameplayData.Get().club_size;
         }
 
         public static DeckData Get(string id)

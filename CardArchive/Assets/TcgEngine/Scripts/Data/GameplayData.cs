@@ -24,9 +24,10 @@ namespace TcgEngine
         public CardData second_bonus;
 
         [Header("Deckbuilding")]
-        public int deck_size = 30;
+        public int deck_size = 20;
         public int club_size = 3;
-        public int deck_duplicate_max = 2;
+        public int deck_non_student_duplicate_max = 2;
+        public int deck_student_duplicate_max = 1;
 
         [Header("Buy/Sell")]
         public float sell_ratio = 0.8f;

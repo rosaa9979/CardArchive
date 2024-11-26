@@ -582,7 +582,7 @@ namespace TcgEngine.Gameplay
                 player.hero = Card.Create(deck.hero, variant, player);
             }
 
-            if (deck.clubs.Count > 0)
+            if (deck.clubs.Length > 0)
             {
                 foreach (CardData club in deck.clubs)
                     player.cards_club.Add(Card.Create(club, variant, player));

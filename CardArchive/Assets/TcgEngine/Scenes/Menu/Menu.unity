@@ -13883,7 +13883,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -74.13086, y: -74.75}
+  m_AnchoredPosition: {x: -74.1308, y: -74.75}
   m_SizeDelta: {x: -751.06, y: 930.51}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1120415710
@@ -26416,9 +26416,9 @@ MonoBehaviour:
     type: 3}
   toggle_owned: {fileID: 396921783669467558}
   toggle_not_owned: {fileID: 396921783698501118}
-  toggle_character: {fileID: 396921782877054059}
+  toggle_citizen: {fileID: 396921782877054059}
   toggle_spell: {fileID: 396921783076639400}
-  toggle_building: {fileID: 0}
+  toggle_building: {fileID: 396921782321292416}
   toggle_equipment: {fileID: 846689735}
   toggle_secret: {fileID: 396921782453090150}
   toggle_common: {fileID: 396921782328542644}
@@ -30669,7 +30669,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -74.13086, y: -73.48}
+  m_AnchoredPosition: {x: -74.1308, y: -73.48}
   m_SizeDelta: {x: -751.06, y: 933.05}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &396921783591273839

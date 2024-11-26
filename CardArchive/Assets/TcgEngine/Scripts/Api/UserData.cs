@@ -326,6 +326,7 @@ namespace TcgEngine
         public string tid;
         public string title;
         public UserCardData hero;
+        public UserCardData[] clubs;
         public UserCardData[] cards;
 
         public UserDeckData() {}
@@ -335,6 +336,7 @@ namespace TcgEngine
             this.tid = tid;
             this.title = title;
             hero = new UserCardData();
+            clubs = new UserCardData[0];
             cards = new UserCardData[0];
         }
 
@@ -343,7 +345,14 @@ namespace TcgEngine
             tid = deck.id;
             title = deck.title;
             hero = new UserCardData(deck.hero, VariantData.GetDefault());
+            clubs = new UserCardData[deck.clubs.Length];
             cards = new UserCardData[deck.cards.Length];
+
+            for (int i = 0; i < deck.clubs.Length; i++)
+            {
+                clubs[i] = new UserCardData(deck.clubs[i], VariantData.GetDefault());
+            }
+
             for (int i = 0; i < deck.cards.Length; i++)
             {
                 cards[i] = new UserCardData(deck.cards[i], VariantData.GetDefault());
@@ -358,9 +367,14 @@ namespace TcgEngine
             return count;
         }
 
+        public int GetClubQuantity()
+        {
+            return clubs.Length;
+        }
+
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && GetQuantity() >= GameplayData.Get().deck_size;
+            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && GetQuantity() == GameplayData.Get().deck_size && GetClubQuantity() <= GameplayData.Get().club_size;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -368,6 +382,7 @@ namespace TcgEngine
             serializer.SerializeValue(ref tid);
             serializer.SerializeValue(ref title);
             serializer.SerializeValue(ref hero);
+            NetworkTool.NetSerializeArray(serializer, ref clubs);
             NetworkTool.NetSerializeArray(serializer, ref cards);
         }
 
@@ -379,6 +394,7 @@ namespace TcgEngine
                 deck.tid = "";
                 deck.title = "";
                 deck.hero = new UserCardData();
+                deck.clubs = new UserCardData[0];
                 deck.cards = new UserCardData[0];
                 return deck;
             }

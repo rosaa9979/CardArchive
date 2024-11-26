@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,6 +68,7 @@ namespace TcgEngine.UI
         private bool update_grid = false;
         private float update_grid_timer = 0f;
 
+        private List<UserCardData> deck_clubs = new List<UserCardData>();
         private List<UserCardData> deck_cards = new List<UserCardData>();
 
         private static CollectionPanel instance;
@@ -227,7 +229,7 @@ namespace TcgEngine.UI
             card_list.Clear();
 
             UserData udata = Authenticator.Get().UserData;
-            Debug.Log(udata);
+
             if (udata == null)
                 return;
 
@@ -514,6 +516,39 @@ namespace TcgEngine.UI
             return null;
         }
 
+        private void AddDeckClub(CardData card)
+        {
+            foreach (ClubData club in card.clubs)
+            {
+                UserCardData ucard = GetDeckClub(club);
+                if (ucard == null)
+                {
+                    foreach (CardData acard in CardData.GetAllClub())
+                    {
+                        if (acard.clubs.Length > 0 && acard.clubs.Any(aclub => aclub.id == club.id))
+                        {
+                            ucard = new UserCardData(acard, VariantData.GetDefault());
+                            ucard.quantity = 1;
+                            deck_clubs.Add(ucard);
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        private UserCardData GetDeckClub(ClubData club)
+        {
+            foreach (UserCardData ucard in deck_clubs)
+            {
+                if (CardData.Get(ucard.tid).clubs.Any(uclub => uclub.id == club.id))
+                    return ucard;
+            }
+            return null;
+        }
+
         private void SaveDeck()
         {
             UserData udata = Authenticator.Get().UserData;
@@ -626,14 +661,18 @@ namespace TcgEngine.UI
             {
                 int in_deck = CountDeckCards(icard, variant);
                 int in_deck_same = CountDeckCards(icard);
+                bool club_limit = CountDeckClubs(icard) <= GameplayData.Get().club_size;
+
                 UserData udata = Authenticator.Get().UserData;
 
                 bool owner = IsCardOwned(udata, card.GetCard(), card.GetVariant(), in_deck + 1);
-                bool deck_limit = in_deck_same < GameplayData.Get().deck_duplicate_max;
+                int max_size = icard.IsStudent() ? GameplayData.Get().deck_student_duplicate_max : GameplayData.Get().deck_non_student_duplicate_max;
+                bool deck_limit = in_deck_same < max_size;
 
-                if (owner && deck_limit)
+                if (owner && deck_limit && club_limit)
                 {
                     AddDeckCard(icard, variant);
+                    AddDeckClub(icard);
                     RefreshDeckCards();
                 }
             }
@@ -730,6 +769,18 @@ namespace TcgEngine.UI
                     count += ucard.quantity;
             }
             return count;
+        }
+
+        public int CountDeckClubs(CardData card)
+        {
+            HashSet<ClubData> hash_clubs = new HashSet<ClubData>();
+
+            foreach (UserCardData dclub in deck_clubs)
+                hash_clubs.UnionWith(CardData.Get(dclub.tid).clubs);
+
+            hash_clubs.UnionWith(card.clubs);
+
+            return hash_clubs.Count;
         }
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)

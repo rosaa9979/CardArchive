@@ -16,5 +16,5 @@ MonoBehaviour:
   port: 8777
   api_url: your-domain.com
   api_https: 1
-  solo_type: 10
+  solo_type: 0
   auth_type: 0

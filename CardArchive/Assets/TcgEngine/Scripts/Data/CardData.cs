@@ -365,6 +365,17 @@ namespace TcgEngine
             return multi_list;
         }
 
+        public static List<CardData> GetAllClub()
+        {
+            List<CardData> club_list = new List<CardData>();
+            foreach (CardData acard in GetAll())
+            {
+                if (acard.IsClub())
+                    club_list.Add(acard);
+            }
+            return club_list;
+        }
+
         public static List<CardData> GetAll(PackData pack)
         {
             List<CardData> multi_list = new List<CardData>();
