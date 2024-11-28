@@ -586,7 +586,6 @@ namespace TcgEngine.Gameplay
             {
                 foreach (CardData club in deck.clubs)
                     player.cards_club.Add(Card.Create(club, variant, player));
-
             }
 
             foreach (CardData card in deck.cards)
@@ -631,6 +630,16 @@ namespace TcgEngine.Gameplay
                 if(hdata != null && hvariant != null)
                     player.hero = Card.Create(hdata, hvariant, player);
             }
+
+            foreach (UserCardData club in deck.clubs)
+            {
+                CardData iclub = CardData.Get(club.tid);
+                VariantData variant = VariantData.GetDefault();
+
+                if (iclub != null && variant != null)
+                    player.cards_club.Add(Card.Create(iclub, variant, player));
+            }
+
 
             foreach (UserCardData card in deck.cards)
             {

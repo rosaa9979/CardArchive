@@ -521,7 +521,12 @@ namespace TcgEngine.UI
             foreach (ClubData club in card.clubs)
             {
                 UserCardData ucard = GetDeckClub(club);
-                if (ucard == null)
+                if (ucard != null)
+                {
+                    ucard.quantity += 1;
+                }
+
+                else
                 {
                     foreach (CardData acard in CardData.GetAllClub())
                     {
@@ -536,6 +541,24 @@ namespace TcgEngine.UI
 
                 }
 
+            }
+        }
+
+        private void RemoveDeckClub(CardData card)
+        {
+            foreach (ClubData club in card.clubs)
+            {
+                for (int i = deck_clubs.Count - 1; i >= 0; i--)
+                {
+                    UserCardData ucard = deck_clubs[i];
+                    if (CardData.Get(ucard.tid).clubs.Any(uclub => uclub.id == club.id))
+                    {
+                        ucard.quantity--;
+
+                        if(ucard.quantity <= 0)
+                            deck_clubs.RemoveAt(i);
+                    }
+                }
             }
         }
 
@@ -558,6 +581,7 @@ namespace TcgEngine.UI
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
             udeck.hero.variant = VariantData.GetDefault().id;
+            udeck.clubs = deck_clubs.ToArray();
             udeck.cards = deck_cards.ToArray();
             saving = true;
 
@@ -701,6 +725,7 @@ namespace TcgEngine.UI
             if (card != null)
             {
                 RemoveDeckCard(card, variant);
+                RemoveDeckClub(card);
             }
 
             RefreshDeckCards();
