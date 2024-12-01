@@ -15,8 +15,11 @@ MonoBehaviour:
   id: add_spell_damage1
   trigger: 2
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 4
   conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 700b5c07ae5d5b446994cc42c800ff88, type: 2}

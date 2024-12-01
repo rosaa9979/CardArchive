@@ -15,10 +15,13 @@ MonoBehaviour:
   id: spell_add_attack_suffer
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 20
   conditions_target:
   - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: ccf7515266bb68c4d8a34c21b6b4ec8d, type: 2}

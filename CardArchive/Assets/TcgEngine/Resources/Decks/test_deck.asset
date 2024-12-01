@@ -16,8 +16,6 @@ MonoBehaviour:
   title: Test Deck
   hero: {fileID: 11400000, guid: 5a33409b706324944ac9e7c5ed177ee3, type: 2}
   clubs:
-  - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
-  - {fileID: 11400000, guid: 4ac9859dbbc608e479ec72995311fdfb, type: 2}
   - {fileID: 11400000, guid: 98e964e3da2a99d4aac76bb9c40af40b, type: 2}
   cards:
   - {fileID: 11400000, guid: 93a18dc6dd19de245857261bfe960507, type: 2}

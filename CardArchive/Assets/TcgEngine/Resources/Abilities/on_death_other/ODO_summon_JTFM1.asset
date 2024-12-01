@@ -18,11 +18,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 86c331d287f4fac4ba4508d8fea64c7c, type: 2}
   - {fileID: 11400000, guid: f60e33e94dcb1524c817b1cef3fd39fd, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 15
   conditions_target:
   - {fileID: 11400000, guid: 1d24aeff76360da459d3f3458041edd2, type: 2}
   - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
-  condition_wide_range: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target:
   - {fileID: 11400000, guid: 627d272366ef50447b724e470c9b80fa, type: 2}
   effects:

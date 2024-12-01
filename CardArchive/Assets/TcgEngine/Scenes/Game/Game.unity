@@ -3073,8 +3073,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   start_audio: {fileID: 0}
-  game_music:
-  - {fileID: 8300000, guid: b7656671f8ceee247a4a21c52cb73695, type: 3}
+  game_music: []
   game_ambience: []
 --- !u!4 &1772833730 stripped
 Transform:

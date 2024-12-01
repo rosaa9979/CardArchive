@@ -15,10 +15,13 @@ MonoBehaviour:
   id: play_discard
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 12
   conditions_target:
   - {fileID: 11400000, guid: 88ece03f2b185e7489c50fffb7fef73c, type: 2}
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target:
   - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
   effects:

@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: death_blue_draw
+  m_Name: attachment
   m_EditorClassIdentifier: 
-  id: death_blue_draw
-  trigger: 42
-  conditions_trigger:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 2ad88c4591acb394e97d4cc7b96d2757, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
-  target: 4
+  id: attachment
+  trigger: 2
+  conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  target: 28
   conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: d2f15281b01c4b347a527a3011ef430a, type: 2}
+  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
   status: []
   value: 1
   duration: 0
@@ -35,5 +35,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Draw
-  desc: When a blue creature you own dies, draw a card.
+  title: 
+  desc: 

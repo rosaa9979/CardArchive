@@ -211,7 +211,7 @@ namespace TcgEngine
         {
             if (is_resolving)
                 return;
-            
+
             is_resolving = true;
             while (CanResolve())
             {

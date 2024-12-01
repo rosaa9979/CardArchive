@@ -15,10 +15,13 @@ MonoBehaviour:
   id: spell_ally_attack_2
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 10
   conditions_target:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}

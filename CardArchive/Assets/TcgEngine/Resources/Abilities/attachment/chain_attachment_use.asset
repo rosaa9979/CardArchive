@@ -10,30 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: after_spell_attack2
+  m_Name: chain_attachment_use
   m_EditorClassIdentifier: 
-  id: after_spell_attack2
-  trigger: 12
-  conditions_trigger:
-  - {fileID: 11400000, guid: 9889a367aba825b47a633d89a3659343, type: 2}
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  id: chain_attachment_use
+  trigger: 0
+  conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 1
   conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
+  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
   status: []
-  value: 2
+  value: -1
   duration: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
-  target_fx: {fileID: 5988812109917292199, guid: be19380a491c8c245afe0dd96e02ba78,
-    type: 3}
+  target_fx: {fileID: 0}
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Heat
-  desc: After playing a spell, gain +2 attack.
+  title: 
+  desc: 

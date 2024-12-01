@@ -15,9 +15,11 @@ MonoBehaviour:
   id: OD_summon_Sweeper
   trigger: 40
   conditions_trigger: []
-  target: 1
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  target: 76
   conditions_target: []
-  condition_wide_range: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 2433380b7403d1f4f81b93c59f9f7627, type: 2}

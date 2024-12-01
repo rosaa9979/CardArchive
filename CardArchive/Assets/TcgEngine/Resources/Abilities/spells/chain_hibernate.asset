@@ -15,9 +15,12 @@ MonoBehaviour:
   id: chain_hibernate
   trigger: 0
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 20
   conditions_target:
   - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 8c612a7a76ddce64686b3fa70473349d, type: 2}

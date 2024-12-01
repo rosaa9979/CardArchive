@@ -15,10 +15,13 @@ MonoBehaviour:
   id: spell_treasure
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 40
   conditions_target:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 99c12d98b2b59f04a8441a9bc9bf5816, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target:
   - {fileID: 11400000, guid: 1701bb75d37c6a347bb6c214ce871a14, type: 2}
   effects:

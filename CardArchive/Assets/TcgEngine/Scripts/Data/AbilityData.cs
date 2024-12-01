@@ -18,10 +18,13 @@ namespace TcgEngine
         public AbilityTrigger trigger;             //WHEN does the ability trigger?
         public ConditionData[] conditions_trigger; //Condition checked on the card triggering the ability (usually the caster)
 
+        [Header("Repeat")]
+        public RepeatConditionData condition_repeat; //Condition checked on the card triggering the ability (usually the caster)
+
         [Header("Target")]
         public AbilityTarget target;               //WHO is targeted?
         public ConditionData[] conditions_target;  //Condition checked on the target to know if its a valid taget
-        public ConditionData[] condition_wide_range;
+        public ConditionData condition_wide_range;
         public FilterData[] filters_target;  //Condition checked on the target to know if its a valid taget
 
         [Header("Effect")]
@@ -127,6 +130,32 @@ namespace TcgEngine
             }
             return true;
         }
+  
+        public bool AreRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times)
+        {
+            if (condition_repeat != null && !condition_repeat.IsRepeatConditionMet(data, this, max_repeat_times, repeat_times))
+                return false;
+
+            return true;
+        }
+
+        public bool AreOngoingRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times)
+        {
+            if (condition_repeat != null && !condition_repeat.IsOngoingRepeatConditionMet(data, this, max_repeat_times, repeat_times))
+                return false;
+
+            return true;
+        }
+
+        public int GetMaxRepeatTimes(Game data)
+        {
+            if (condition_repeat != null)
+                return condition_repeat.GetMaxRepeatTimes(data, this);
+
+            return 1;
+        }
+
+        
 
         //Check if the card target is valid
         public bool AreTargetConditionsMet(Game data, Card caster, Card target_card)
@@ -185,54 +214,44 @@ namespace TcgEngine
                 //Check if the card target is valid
         public bool AreWideRangeConditionsMet(Game data, Card caster, Card target_card)
         {
-            foreach (ConditionData cond in condition_wide_range)
-            {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
-                    return false;
-            }
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card))
+                return false;
+
             return true;
         }
 
         //Check if the player target is valid
         public bool AreWideRangeConditionsMet(Game data, Card caster, Player target_player)
         {
-            foreach (ConditionData cond in condition_wide_range)
-            {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player))
-                    return false;
-            }
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_player))
+                return false;
+                    
             return true;
         }
 
         //Check if the slot target is valid
         public bool AreWideRangeConditionsMet(Game data, Card caster, Slot target_slot)
         {
-            foreach (ConditionData cond in condition_wide_range)
-            {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot))
-                    return false;
-            }
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_slot))
+                return false;
+                    
             return true;
         }
 
         //Check if the card data target is valid
         public bool AreWideRangeConditionsMet(Game data, Card caster, CardData target_card)
         {
-            foreach (ConditionData cond in condition_wide_range)
-            {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
-                    return false;
-            }
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card))
+                return false;
+                    
             return true;
         }
 
         public bool AreWideRangeConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
         {
-            foreach (ConditionData cond in condition_wide_range)
-            {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot))
-                    return false;
-            }
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, selected, target_slot))
+                return false;
+                    
             return true;
         }
 

@@ -1475,9 +1475,20 @@ namespace TcgEngine.Gameplay
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
+
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
             {
-                resolve_queue.AddAbility(iability, caster, trigger_card, ResolveCardAbility);
+                int current_repeat = 0;
+                int max_repeat = iability.GetMaxRepeatTimes(game_data);
+
+                while (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
+                {
+                    resolve_queue.AddAbility(iability, caster, trigger_card, ResolveCardAbility);
+                    Debug.Log(iability.id+" "+current_repeat+" Brfore : "+resolve_queue.IsResolving());
+                    resolve_queue.ResolveAll(0f);
+                    Debug.Log(current_repeat+" After : "+resolve_queue.IsResolving());
+                    current_repeat += 1;
+                }
             }
         }
 
@@ -1485,7 +1496,15 @@ namespace TcgEngine.Gameplay
         {
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
             {
-                resolve_queue.AddAbility(iability, caster, caster, ResolveCardAbility);
+                int current_repeat = 0;
+                int max_repeat = iability.GetMaxRepeatTimes(game_data);
+
+                while (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
+                {
+                    resolve_queue.AddAbility(iability, caster, caster, ResolveCardAbility);
+                    current_repeat += 1;
+                }
+
             }
         }
 
@@ -1498,7 +1517,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1654,6 +1673,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster)
         {
+            Debug.Log(iability.id +" after ability resolved " + System.DateTime.Now.Ticks);
             Player player = game_data.GetPlayer(caster.player_id);
 
             //Add to played
@@ -1683,7 +1703,8 @@ namespace TcgEngine.Gameplay
             }
 
             onAbilityEnd?.Invoke(iability, caster);
-            resolve_queue.ResolveAll(0.5f);
+            //resolve_queue.ResolveAll(0.5f);
+            resolve_queue.ResolveAll(0f);
             RefreshData();
         }
 

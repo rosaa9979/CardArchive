@@ -10,19 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: SOT_damage_attached_1
+  m_Name: SOT_attachment_use
   m_EditorClassIdentifier: 
-  id: SOT_damage_attached_1
+  id: SOT_attachment_use
   trigger: 20
   conditions_trigger: []
-  target: 28
-  conditions_target:
-  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  target: 1
+  conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}
+  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
   status: []
-  value: 1
+  value: -1
   duration: 0
   chain_abilities: []
   mana_cost: 0

@@ -15,8 +15,11 @@ MonoBehaviour:
   id: play_roll_attack
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 1
   conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 9b28ecfbc21cc2f4a8dcc9e77df4360e, type: 2}

@@ -15,11 +15,14 @@ MonoBehaviour:
   id: OP_draw_machine2
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 12
   conditions_target:
   - {fileID: 11400000, guid: 99c12d98b2b59f04a8441a9bc9bf5816, type: 2}
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target:
   - {fileID: 11400000, guid: d0e5f7c1ee5dd034ca29c33c670208da, type: 2}
   effects:

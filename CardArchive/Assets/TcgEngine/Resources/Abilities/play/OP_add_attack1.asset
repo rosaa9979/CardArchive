@@ -15,10 +15,11 @@ MonoBehaviour:
   id: OP_add_attack1
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 73
   conditions_target: []
-  condition_wide_range:
-  - {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}

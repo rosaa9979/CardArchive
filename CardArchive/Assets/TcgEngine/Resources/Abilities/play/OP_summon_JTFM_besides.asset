@@ -15,10 +15,11 @@ MonoBehaviour:
   id: OP_summon_JTFM_besides
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 78
   conditions_target: []
-  condition_wide_range:
-  - {fileID: 11400000, guid: cbc44634c859bda438ead1e92acc3ce1, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: a46e384ba827b4741a909834a7ec5e1e, type: 2}

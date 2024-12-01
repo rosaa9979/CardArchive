@@ -15,10 +15,13 @@ MonoBehaviour:
   id: spell_send_hand
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 20
   conditions_target:
   - {fileID: 11400000, guid: 902733d12f434e94b904de5ebf4112de, type: 2}
   - {fileID: 11400000, guid: a1fb3a7171663234280fdfb41c99ab0a, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 8f17c76aa367dd144a0665d4514588e9, type: 2}

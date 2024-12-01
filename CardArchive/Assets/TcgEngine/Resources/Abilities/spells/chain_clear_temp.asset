@@ -15,8 +15,11 @@ MonoBehaviour:
   id: chain_clear_temp
   trigger: 0
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 0
   conditions_target: []
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: c4fc50b876eb5b343a60e33323a80278, type: 2}

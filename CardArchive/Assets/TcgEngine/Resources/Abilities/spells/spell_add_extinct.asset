@@ -15,10 +15,13 @@ MonoBehaviour:
   id: spell_add_play_extinct
   trigger: 10
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 20
   conditions_target:
   - {fileID: 11400000, guid: 902733d12f434e94b904de5ebf4112de, type: 2}
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: f346e747330bcb64a9759d7dad31ef9f, type: 2}

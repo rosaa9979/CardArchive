@@ -23,7 +23,8 @@ MonoBehaviour:
   second_bonus: {fileID: 11400000, guid: 9503f60659f1df04eb3dd7fa925885fb, type: 2}
   deck_size: 20
   club_size: 3
-  deck_duplicate_max: 2
+  deck_non_student_duplicate_max: 2
+  deck_student_duplicate_max: 1
   sell_ratio: 0.8
   ai_type: 0
   ai_level: 10
@@ -41,6 +42,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
   arena_list:
   - Game
-  test_deck: {fileID: 11400000, guid: 0e6326c43c0688e40bbf592cf3ea6dec, type: 2}
-  test_deck_ai: {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
+  test_deck: {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
+  test_deck_ai: {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
   ai_vs_ai: 0

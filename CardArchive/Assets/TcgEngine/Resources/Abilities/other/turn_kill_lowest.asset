@@ -15,9 +15,12 @@ MonoBehaviour:
   id: turn_kill_lowest
   trigger: 20
   conditions_trigger: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 10
   conditions_target:
   - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   filters_target:
   - {fileID: 11400000, guid: 754120a720eb4d94c91e02e62000d362, type: 2}
   effects:
