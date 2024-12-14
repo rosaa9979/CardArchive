@@ -16,7 +16,7 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 20
+  target: 31
   conditions_target:
   - {fileID: 11400000, guid: 902733d12f434e94b904de5ebf4112de, type: 2}
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
@@ -26,7 +26,7 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: 5e489970bbb948c409125b3ab22f2aac, type: 2}
   status: []
-  value: 99
+  value: 9999
   duration: 0
   chain_abilities: []
   mana_cost: 0

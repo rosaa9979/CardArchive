@@ -839,6 +839,9 @@ namespace TcgEngine
         OnDeathOther = 42, //When another dying
 
         OnDraw = 45,
+
+        OnHeal = 50,
+        OnHealOther = 51,
     }
 
     public enum AbilityTarget

@@ -10,25 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Nekozuka_Hibiki
+  m_Name: Wanibuchi_Akari
   m_EditorClassIdentifier: 
-  id: Nekozuka_Hibiki
-  title: "\uB124\uCF54\uC988\uCE74 \uD788\uBE44\uD0A4"
+  id: Wanibuchi_Akari
+  title: "\uC640\uB2C8\uBD80\uCE58 \uC544\uCE74\uB9AC"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 10
-  mana: 4
+  mana: 3
   attack: 3
-  hp: 1
+  hp: 10
   clubs:
-  - {fileID: 11400000, guid: 21062443c6d01a74d854beec9fa30fa3, type: 2}
-  weapon: {fileID: 11400000, guid: 2a041c81a77cba24bbc82eb1bc717e98, type: 2}
+  - {fileID: 11400000, guid: 867a6cc8e3757b54aa9f188e97d885f0, type: 2}
+  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: 56dbc2076f0155c4286db571290658f8, type: 2}
-  text: "\uB4F1\uAD50 : \uC9C0\uC815\uD55C \uBC94\uC704\uC758 \uD0C0\uC77C\uC5D0\uAC8C
-    \uAD00\uD1B5 \uD53C\uD574\uB97C 1 \uC90D\uB2C8\uB2E4. (X)"
+  - {fileID: 11400000, guid: 5fbf5dc03b8d520488314be31aefe3a1, type: 2}
+  text: 
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

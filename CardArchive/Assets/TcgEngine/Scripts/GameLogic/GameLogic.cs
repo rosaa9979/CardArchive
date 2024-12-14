@@ -1222,8 +1222,14 @@ namespace TcgEngine.Gameplay
             if (target.HasStatus(StatusType.Invincibility))
                 return;
 
+            if (target.card_id == "Akashi_Junko")
+                value = 0;
+            
             target.damage -= value;
             target.damage = Mathf.Max(target.damage, 0);
+
+            TriggerCardAbilityType(AbilityTrigger.OnHeal, target);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnHealOther, target);
         }
 
         public virtual void HealPlayer(Player target, int value)
@@ -1484,11 +1490,9 @@ namespace TcgEngine.Gameplay
                 while (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
                 {
                     resolve_queue.AddAbility(iability, caster, trigger_card, ResolveCardAbility);
-                    Debug.Log(iability.id+" "+current_repeat+" Brfore : "+resolve_queue.IsResolving());
                     resolve_queue.ResolveAll(0f);
-                    Debug.Log(current_repeat+" After : "+resolve_queue.IsResolving());
                     current_repeat += 1;
-                }
+                }  
             }
         }
 
@@ -1517,7 +1521,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1673,7 +1677,6 @@ namespace TcgEngine.Gameplay
 
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster)
         {
-            Debug.Log(iability.id +" after ability resolved " + System.DateTime.Now.Ticks);
             Player player = game_data.GetPlayer(caster.player_id);
 
             //Add to played
