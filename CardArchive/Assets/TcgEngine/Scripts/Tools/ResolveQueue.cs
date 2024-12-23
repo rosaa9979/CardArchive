@@ -48,13 +48,15 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, Action<AbilityData, Card, Card> callback)
+        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, int max_repeat, int current_repeat, Action<AbilityData, Card, Card, int, int> callback)
         {
             if (ability != null && caster != null)
             {
                 AbilityQueueElement elem = ability_elem_pool.Create();
                 elem.caster = caster;
                 elem.triggerer = triggerer;
+                elem.max_repeat = max_repeat;
+                elem.current_repeat = current_repeat;
                 elem.ability = ability;
                 elem.callback = callback;
                 ability_queue.Enqueue(elem);
@@ -167,7 +169,7 @@ namespace TcgEngine
                 //Resolve Ability
                 AbilityQueueElement elem = ability_queue.Dequeue();
                 ability_elem_pool.Dispose(elem);
-                elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer);
+                elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer, elem.max_repeat, elem.current_repeat);
             }
             else if (secret_queue.Count > 0)
             {
@@ -283,7 +285,9 @@ namespace TcgEngine
         public AbilityData ability;
         public Card caster;
         public Card triggerer;
-        public Action<AbilityData, Card, Card> callback;
+        public int max_repeat;
+        public int current_repeat;
+        public Action<AbilityData, Card, Card, int, int> callback;
     }
 
     public class AttackQueueElement

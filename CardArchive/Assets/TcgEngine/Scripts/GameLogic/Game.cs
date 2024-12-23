@@ -31,6 +31,9 @@ namespace TcgEngine
         public int selector_player_id = 0;
         public string selector_ability_id;
         public string selector_caster_uid;
+        public string selector_triggerer_uid;
+        public int selector_max_repeat;
+        public int selector_current_repeat;
 
         //Other reference values
         public string last_played;
