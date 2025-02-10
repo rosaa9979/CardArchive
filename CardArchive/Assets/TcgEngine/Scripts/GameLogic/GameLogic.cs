@@ -556,6 +556,8 @@ namespace TcgEngine.Gameplay
             game_data.last_destroyed_slot = Slot.None;
             game_data.last_target = null;
             game_data.last_targeted_slot = Slot.None;
+            game_data.last_attack = null;
+            game_data.last_attack_slot = Slot.None;
             game_data.last_attacked = null;
             game_data.last_attacked_slot = Slot.None;
             game_data.last_player_attacked = false;
@@ -713,13 +715,17 @@ namespace TcgEngine.Gameplay
                 game_data.last_played = card.uid;
                 UpdateOngoing();
 
-                //Trigger abilities
-                TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
-                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After summon card
+                if (!skip_cost)
+                {
+                    //Trigger abilities
+                    TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
 
-                TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                    TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                    TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
+                }
+
+                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After summon card
                 TriggerCardAbilityType(AbilityTrigger.OnUse, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
 
                 RefreshData();
@@ -770,9 +776,15 @@ namespace TcgEngine.Gameplay
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             Player player = game_data.GetPlayer(attacker.player_id);
+
+            if (!game_data.CanAttackTarget(attacker, target, true))
+                return;
+
             if(!is_ai_predict)
                 player.AddHistory(GameAction.Attack, attacker, target);
             
+            game_data.last_attack = attacker.uid;
+            game_data.last_attack_slot = attacker.slot;
             game_data.last_attacked = target.uid;
             game_data.last_attacked_slot = target.slot;
             game_data.last_player_attacked = false;
@@ -795,8 +807,11 @@ namespace TcgEngine.Gameplay
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
+            if (!game_data.CanAttackTarget(attacker, target, true))
                 return;
+
+            //if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
+            //    return;
             
 
             attacker.RemoveStatus(StatusType.Stealth);
@@ -889,6 +904,9 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
         {
             if (!game_data.IsOnBoard(attacker))
+                return;
+
+            if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
 
             onAttackPlayerStart?.Invoke(attacker, target);
@@ -1485,9 +1503,10 @@ namespace TcgEngine.Gameplay
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
             {
                 int current_repeat = 0;
-                int max_repeat = iability.GetMaxRepeatTimes(game_data);
+                int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
 
-                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat);
+                if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
+                    RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat);
             }
         }
 
@@ -1497,6 +1516,7 @@ namespace TcgEngine.Gameplay
 
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
             {
+                Debug.Log(iability.id);
                 resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
             }
         }
@@ -1506,7 +1526,7 @@ namespace TcgEngine.Gameplay
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
             {
                 int current_repeat = 0;
-                int max_repeat = iability.GetMaxRepeatTimes(game_data);
+                int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
 
                 RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
             }
@@ -1529,7 +1549,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1662,6 +1682,7 @@ namespace TcgEngine.Gameplay
             iability.DoEffects(this, caster, target);
 
             onAbilityTargetCard?.Invoke(iability, caster, target);
+
             game_data.last_target = target.uid;
             game_data.last_targeted_slot = target.slot;
         }
@@ -1708,7 +1729,8 @@ namespace TcgEngine.Gameplay
                 {
                     if (chain_ability != null)
                     {
-                        TriggerCardAbility(iability, caster);
+                        TriggerCardAbility(chain_ability, caster);
+                        //TriggerCardAbility(iability, caster);
                     }
                 }
             }
@@ -1718,6 +1740,7 @@ namespace TcgEngine.Gameplay
 
             if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat+1))
                 RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat+1);
+
 
             RefreshData();
         }
@@ -2264,7 +2287,7 @@ namespace TcgEngine.Gameplay
                     {
                         game_data.selector = SelectorType.None;
                         AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                        ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data), 0);
+                        ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data, caster), 0);
                         resolve_queue.ResolveAll();
                     }
                 }

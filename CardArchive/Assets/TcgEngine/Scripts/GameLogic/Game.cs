@@ -39,6 +39,8 @@ namespace TcgEngine
         public string last_played;
         public string last_target;
         public Slot last_targeted_slot;
+        public string last_attack;
+        public Slot last_attack_slot;
         public string last_attacked;
         public Slot last_attacked_slot;
         public bool last_player_attacked;
@@ -111,12 +113,15 @@ namespace TcgEngine
                 return false;
 
 
+
             Player player = GetPlayer(card.player_id);
             if (!skip_cost && !player.CanPayMana(card))
                 return false; //Cant pay mana
 
-            if (!player.HasCard(player.cards_hand, card))
+
+            if (!player.HasCard(player.cards_hand, card) && !skip_cost)
                 return false; // Card not in hand
+
 
 
             if (card.CardData.IsBoardCard())
@@ -158,23 +163,38 @@ namespace TcgEngine
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (card == null || !slot.IsValid())
+            {
+                Debug.Log(slot.IsValid());
                 return false;
+            }
 
             if (!IsOnBoard(card))
+            {
+                Debug.Log("debug2");
                 return false; //Only cards in play can move
+            }
 
             if (!card.CanMove(skip_cost))
+            {
+                Debug.Log("debug3");
                 return false; //Card cant move
+            }
 
             //if (Slot.GetP(card.player_id) != slot.p)
             //    return false; //Card played wrong side
 
             if (card.slot == slot)
+            {
+                Debug.Log("debug4");
                 return false; //Cant move to same slot
+            }
 
             Card slot_card = GetSlotCard(slot);
             if (slot_card != null)
+            {
+                Debug.Log("debug5");
                 return false; //Already a card there
+            }
 
             return true;
         }
@@ -194,6 +214,9 @@ namespace TcgEngine
             if (!IsOnBoard(attacker) || !attacker.CardData.IsCitizen())
                 return false; //Cards not on board
 
+            List<Slot> pslot = Slot.GetPlayerSelf(target.player_id);
+            if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Any(element => pslot.Contains(element)))
+                return false;
             //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
             //    return false; //Protected by taunt
 
@@ -204,22 +227,55 @@ namespace TcgEngine
         public virtual bool CanAttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             if (attacker == null || target == null)
+            {
+                Debug.Log("Debug1");
                 return false;
+            }
+
 
             if (!attacker.CanAttack(skip_cost))
-                return false; //Card cant attack
+            {
+                Debug.Log("Debug2");
+                return false;
+            }
+
+                //return false; //Card cant attack
 
             if (attacker.player_id == target.player_id)
-                return false; //Cant attack same player
+            {
+                Debug.Log("Debug3");
+                return false;
+            }
+                //return false; //Cant attack same player
 
             if (!IsOnBoard(attacker) || !IsOnBoard(target))
-                return false; //Cards not on board
+            {
+                Debug.Log("Debug4");
+                return false;
+            }
+                //return false; //Cards not on board
 
             if (!attacker.CardData.IsCitizen() || !target.CardData.IsBoardCard())
-                return false; //Only citizen can attack
+            {
+                Debug.Log("Debug5");
+                return false;
+            }
+                //return false; //Only citizen can attack
 
             if (target.HasStatus(StatusType.Stealth))
-                return false; //Stealth cant be attacked
+            {
+                Debug.Log("Debug6");
+                return false;
+            }
+                //return false; //Stealth cant be attacked
+
+            if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
+            {
+                Debug.Log("Debug7");
+                return false;
+            }
+                //return false;
+
 
             //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
             //    return false; //Protected by adjacent card
@@ -650,6 +706,8 @@ namespace TcgEngine
             dest.last_played = source.last_played;
             dest.last_target = source.last_target;
             dest.last_targeted_slot = source.last_targeted_slot;
+            dest.last_attack = source.last_attack;
+            dest.last_attack_slot = source.last_attack_slot;
             dest.last_attacked = source.last_attacked;
             dest.last_attacked_slot = source.last_attacked_slot;
             dest.last_player_attacked = source.last_player_attacked;

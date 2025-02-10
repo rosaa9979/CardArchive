@@ -15,7 +15,7 @@ namespace TcgEngine
         [Header("Static Value")]
         public int value = 1;
 
-        public override int GetMaxRepeatTimes(Game data, AbilityData ability)
+        public override int GetMaxRepeatTimes(Game data, AbilityData ability, Card caster)
         {
             return value;
         }
@@ -26,7 +26,7 @@ namespace TcgEngine
         }
 
         public override bool IsOngoingRepeatConditionMet(Game data, AbilityData ability, int max_repeat_times, int repeat_times)
-        { 
+        {
             if (repeat_times < value)
                 return true;
 

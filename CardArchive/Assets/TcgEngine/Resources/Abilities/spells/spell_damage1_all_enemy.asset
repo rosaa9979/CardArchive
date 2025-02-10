@@ -15,7 +15,7 @@ MonoBehaviour:
   id: spell_damage1_all_enemy
   trigger: 10
   conditions_trigger: []
-  condition_repeat: {fileID: 11400000, guid: f395e62b2954639438d835a681d41733, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 10
   conditions_target:
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}

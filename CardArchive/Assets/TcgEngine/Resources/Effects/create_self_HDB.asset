@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 786c144473b67154a92ced8cd9a752f9, type: 3}
   m_Name: create_self_HDB
   m_EditorClassIdentifier: 
-  create_card: {fileID: 11400000, guid: 4c417b295f007744db109558cbfdee54, type: 2}
+  create_card:
+  - card: {fileID: 11400000, guid: 4c417b295f007744db109558cbfdee54, type: 2}
+    weight: 1
   create_pile: 20
+  is_same_possibility: 1
   create_opponent: 0

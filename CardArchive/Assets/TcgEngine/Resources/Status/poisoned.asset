@@ -15,6 +15,7 @@ MonoBehaviour:
   effect: 34
   title: Poisoned
   icon: {fileID: 0}
+  bad_status: 1
   desc: Each turn, will lose hp.
   status_fx: {fileID: 2865177547529958675, guid: 08ad2f4aab8ffdb40ace3902fe348812,
     type: 3}

@@ -14,6 +14,7 @@ namespace TcgEngine
     {
         [Header("Slot Range")]
         public int range = 1;
+        public LastType last_type;
         
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
         {

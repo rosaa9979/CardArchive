@@ -10,7 +10,7 @@ namespace TcgEngine
 
     public class RepeatConditionData : ScriptableObject
     {
-        public virtual int GetMaxRepeatTimes(Game data, AbilityData ability)
+        public virtual int GetMaxRepeatTimes(Game data, AbilityData ability, Card caster)
         {
             return 1;
         }

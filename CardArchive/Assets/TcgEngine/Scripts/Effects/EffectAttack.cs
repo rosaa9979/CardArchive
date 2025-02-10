@@ -12,7 +12,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/Attack", order = 10)]
     public class EffectAttack : EffectData
     {
-        public EffectAttackerType attacker_type;
+        public EffectActionType attacker_type;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
@@ -25,28 +25,31 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
+            Game data = logic.GetGameData();
             Card attack = GetAttacker(logic.GetGameData(), caster);
+
             if (attack != null)
             {
-                logic.AttackTarget(attack, target, true);
+                if (data.CanAttackTarget(attack, target, true))
+                    logic.AttackTarget(attack, target, true);
             }
         }
 
         public Card GetAttacker(Game gdata, Card caster)
         {
-            if (attacker_type == EffectAttackerType.Self)
+            if (attacker_type == EffectActionType.Self)
                 return caster;
-            if (attacker_type == EffectAttackerType.AbilityTriggerer)
+            if (attacker_type == EffectActionType.AbilityTriggerer)
                 return gdata.GetCard(gdata.ability_triggerer);
-            if (attacker_type == EffectAttackerType.LastPlayed)
+            if (attacker_type == EffectActionType.LastPlayed)
                 return gdata.GetCard(gdata.last_played);
-            if (attacker_type == EffectAttackerType.LastTargeted)
+            if (attacker_type == EffectActionType.LastTargeted)
                 return gdata.GetCard(gdata.last_target);
             return null;
         }
     }
 
-    public enum EffectAttackerType
+    public enum EffectActionType
     {
         Self = 1,                  
         AbilityTriggerer = 25, 

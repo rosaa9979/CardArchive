@@ -12,11 +12,26 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/MoveUnit", order = 10)]
     public class EffectMoveUnit : EffectData
     {
+        public EffectActionType target_type;
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
             Game game_data = logic.GetGameData();
+            Card target_unit = GetTarget(game_data, caster);
 
-            logic.MoveCard(game_data.GetCard(game_data.last_target), target);
+            logic.MoveCard(target_unit, target);
+        }
+
+        public Card GetTarget(Game gdata, Card caster)
+        {
+            if (target_type == EffectActionType.Self)
+                return caster;
+            if (target_type == EffectActionType.AbilityTriggerer)
+                return gdata.GetCard(gdata.ability_triggerer);
+            if (target_type == EffectActionType.LastPlayed)
+                return gdata.GetCard(gdata.last_played);
+            if (target_type == EffectActionType.LastTargeted)
+                return gdata.GetCard(gdata.last_target);
+            return null;
         }
     }
 }

@@ -53,6 +53,7 @@ namespace TcgEngine
         [Header("Display")]
         public string title;
         public Sprite icon;
+        public bool bad_status;
 
         [TextArea(3, 5)]
         public string desc;

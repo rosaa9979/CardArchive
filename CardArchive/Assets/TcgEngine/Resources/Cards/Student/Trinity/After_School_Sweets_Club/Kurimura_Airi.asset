@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
+  m_Name: Kurimura_Airi
+  m_EditorClassIdentifier: 
+  id: Kurimura_Airi
+  title: "\uCFE0\uB9AC\uBB34\uB77C \uC544\uC774\uB9AC"
+  art_full: {fileID: 0}
+  art_board: {fileID: 0}
+  type: 10
+  mana: 4
+  attack: 2
+  hp: 4
+  clubs:
+  - {fileID: 11400000, guid: 4403b1a4b4a5f0042a59a25fbb87fb4d, type: 2}
+  weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
+  traits: []
+  stats: []
+  abilities:
+  - {fileID: 11400000, guid: 546ab2c7fa061144097b5f4ee44017b2, type: 2}
+  text: 
+  desc: 
+  spawn_fx: {fileID: 0}
+  death_fx: {fileID: 0}
+  attack_fx: {fileID: 0}
+  damage_fx: {fileID: 0}
+  idle_fx: {fileID: 0}
+  spawn_audio: {fileID: 0}
+  death_audio: {fileID: 0}
+  attack_audio: {fileID: 0}
+  damage_audio: {fileID: 0}
+  deckbuilding: 0
+  cost: 100
+  packs: []

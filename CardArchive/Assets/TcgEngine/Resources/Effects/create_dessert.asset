@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 786c144473b67154a92ced8cd9a752f9, type: 3}
+  m_Name: create_dessert
+  m_EditorClassIdentifier: 
+  create_card:
+  - card: {fileID: 11400000, guid: 693689e6e4449394c99c23f823bfe6f9, type: 2}
+    weight: 0.35
+  - card: {fileID: 11400000, guid: 1f7ff949e0303f944b773362290ddd64, type: 2}
+    weight: 0.35
+  - card: {fileID: 11400000, guid: 28e85ec2629c7754395ad6817ae1ebb4, type: 2}
+    weight: 0.15
+  - card: {fileID: 11400000, guid: 07ac256174942b84aaf387f957cd7a8c, type: 2}
+    weight: 0.1
+  - card: {fileID: 11400000, guid: 879e076c9886ab042b3a3dcfbff81abe, type: 2}
+    weight: 0.05
+  create_pile: 20
+  is_same_possibility: 0
+  create_opponent: 0

@@ -147,10 +147,10 @@ namespace TcgEngine
             return true;
         }
 
-        public int GetMaxRepeatTimes(Game data)
+        public int GetMaxRepeatTimes(Game data, Card caster)
         {
             if (condition_repeat != null)
-                return condition_repeat.GetMaxRepeatTimes(data, this);
+                return condition_repeat.GetMaxRepeatTimes(data, this, caster);
 
             return 1;
         }
@@ -455,6 +455,13 @@ namespace TcgEngine
                     targets.Add(target);
             }
 
+            if (target == AbilityTarget.LastAttack)
+            {
+                Card target = data.GetCard(data.last_attack);
+                if (target != null && AreTargetConditionsMet(data, caster, target))
+                    targets.Add(target);
+            }
+
             if (target == AbilityTarget.LastAttacked)
             {
                 Card target = data.GetCard(data.last_attacked);
@@ -581,6 +588,14 @@ namespace TcgEngine
             if (target == AbilityTarget.AttachedSlot)
             {
                 Slot slot = caster.slot;
+
+                if (AreTargetConditionsMet(data, caster, slot))
+                    targets.Add(slot);
+            }
+
+            if (target == AbilityTarget.LastAttackSlot)
+            {
+                Slot slot = data.last_attack_slot;
 
                 if (AreTargetConditionsMet(data, caster, slot))
                     targets.Add(slot);
@@ -874,15 +889,17 @@ namespace TcgEngine
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
 
-        LastPlayed = 70,            //Last card that was played 
-        LastAttacked = 71,
-        LastAttackedSlot = 72,
-        LastTargeted = 73,          //Last card that was targeted with an ability
-        LastTargetedSlot = 74,
-        LastDestroyed = 75,            //Last card that was killed
-        LastDestroyedSlot = 76,
-        LastSummoned = 77,            //Last card that was summoned or created
-        LastSummonedSlot = 78,
+        LastPlayed = 70,            //Last card that was played
+        LastAttack = 71,
+        LastAttackSlot = 72, 
+        LastAttacked = 73,
+        LastAttackedSlot = 74,
+        LastTargeted = 75,          //Last card that was targeted with an ability
+        LastTargetedSlot = 76,
+        LastDestroyed = 77,            //Last card that was killed
+        LastDestroyedSlot = 78,
+        LastSummoned = 79,            //Last card that was summoned or created
+        LastSummonedSlot = 80,
 
     }
 

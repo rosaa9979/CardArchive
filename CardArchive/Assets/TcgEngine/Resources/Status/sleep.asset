@@ -15,6 +15,7 @@ MonoBehaviour:
   effect: 36
   title: Sleep
   icon: {fileID: 0}
+  bad_status: 1
   desc: 'Does not unexhaust.
 
     Removed if attacked.'

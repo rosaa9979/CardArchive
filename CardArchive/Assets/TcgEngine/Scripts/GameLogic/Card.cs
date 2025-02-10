@@ -725,6 +725,7 @@ namespace TcgEngine
         public StatusType type;
         public int value;
         public int duration = 1;
+        public bool bad_status;
         public bool permanent = true;
 
         [System.NonSerialized]

@@ -12,7 +12,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/AttackRedirect", order = 10)]
     public class EffectAttackRedirect : EffectData
     {
-        public EffectAttackerType attacker_type;
+        public EffectActionType attacker_type;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
@@ -34,13 +34,13 @@ namespace TcgEngine
 
         public Card GetAttacker(Game gdata, Card caster)
         {
-            if (attacker_type == EffectAttackerType.Self)
+            if (attacker_type == EffectActionType.Self)
                 return caster;
-            if (attacker_type == EffectAttackerType.AbilityTriggerer)
+            if (attacker_type == EffectActionType.AbilityTriggerer)
                 return gdata.GetCard(gdata.ability_triggerer);
-            if (attacker_type == EffectAttackerType.LastPlayed)
+            if (attacker_type == EffectActionType.LastPlayed)
                 return gdata.GetCard(gdata.last_played);
-            if (attacker_type == EffectAttackerType.LastTargeted)
+            if (attacker_type == EffectActionType.LastTargeted)
                 return gdata.GetCard(gdata.last_target);
             return null;
         }
