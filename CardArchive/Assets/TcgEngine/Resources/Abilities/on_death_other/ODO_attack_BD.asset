@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: ODO_attack_BD
   m_EditorClassIdentifier: 
-  id: ODO_damage_BD
+  id: ODO_attack_BD
   trigger: 42
   conditions_trigger:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
@@ -24,7 +24,7 @@ MonoBehaviour:
     type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 74ef7c2996a74284ba70e2ab98c7cf1a, type: 2}
+  - {fileID: 11400000, guid: 761342d48ffb19c46bb9d462a3b7e5bf, type: 2}
   status: []
   value: 0
   duration: 0

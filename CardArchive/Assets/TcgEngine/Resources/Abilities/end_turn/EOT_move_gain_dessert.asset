@@ -12,19 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: EOT_move_gain_dessert
   m_EditorClassIdentifier: 
-  id: 
-  trigger: 0
+  id: EOT_move_gain_dessert
+  trigger: 22
   conditions_trigger: []
-  condition_repeat: {fileID: 0}
-  target: 0
-  conditions_target: []
-  condition_wide_range: {fileID: 0}
-  filters_target: []
-  effects: []
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  target: 15
+  conditions_target:
+  - {fileID: 11400000, guid: 24455e8381a12484d927dd9dfe5ee5a3, type: 2}
+  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 4014e8278782cd14a95bf2e8e9282577, type: 2}
   status: []
   value: 0
   duration: 0
-  chain_abilities: []
+  chain_abilities:
+  - {fileID: 11400000, guid: 89372ab2796c99d4d9b7a9a55c7f5593, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}

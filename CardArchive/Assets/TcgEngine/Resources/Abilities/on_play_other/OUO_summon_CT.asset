@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
+  m_Name: OUO_summon_CT
+  m_EditorClassIdentifier: 
+  id: OUO_summon_CT
+  trigger: 14
+  conditions_trigger:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 5dcdbc79b39da1746b076b8fd0e589d8, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  target: 15
+  conditions_target:
+  - {fileID: 11400000, guid: 1d24aeff76360da459d3f3458041edd2, type: 2}
+  - {fileID: 11400000, guid: 2edcec6d21dfedb449ab9a263088daf9, type: 2}
+  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
+  filters_target:
+  - {fileID: 11400000, guid: a540619c02b1e8843a4321463f4f67ed, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 60760f5976479b444bfccf4c49f21db5, type: 2}
+  status: []
+  value: 1
+  duration: 0
+  chain_abilities: []
+  mana_cost: 0
+  exhaust: 0
+  board_fx: {fileID: 0}
+  caster_fx: {fileID: 0}
+  target_fx: {fileID: 0}
+  cast_audio: {fileID: 0}
+  target_audio: {fileID: 0}
+  charge_target: 0
+  title: 
+  desc: 

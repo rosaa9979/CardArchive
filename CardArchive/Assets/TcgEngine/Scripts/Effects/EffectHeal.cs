@@ -13,15 +13,30 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/Heal", order = 10)]
     public class EffectHeal : EffectData
     {
+        public ValueType heal_type;
+        public TraitData bonus_heal;
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            logic.HealPlayer(target, ability.value);
+            int heal = GetHeal(logic.GameData, caster, ability.value);
+            logic.HealPlayer(target, heal);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            logic.HealCard(target, ability.value);
+            int heal = GetHeal(logic.GameData, caster, ability.value);
+            logic.HealCard(target, heal);
         }
 
+        private int GetHeal(Game data, Card caster, int value)
+        {
+            if (heal_type == ValueType.Attack)
+                value = caster.GetAttack();
+            if (heal_type == ValueType.Health)
+                value = caster.GetHP();
+                
+            Player player = data.GetPlayer(caster.player_id);
+            int heal = value + caster.GetTraitValue(bonus_heal) + player.GetTraitValue(bonus_heal);
+            return heal;
+        }
     }
 }

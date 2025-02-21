@@ -13,18 +13,21 @@ MonoBehaviour:
   m_Name: Yutori_Natsu
   m_EditorClassIdentifier: 
   id: Yutori_Natsu
-  title: 
+  title: "\uC720\uD1A0\uB9AC \uB098\uCE20"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 0
-  mana: 0
-  attack: 0
-  hp: 0
-  clubs: []
-  weapon: {fileID: 0}
+  type: 10
+  mana: 3
+  attack: 1
+  hp: 6
+  clubs:
+  - {fileID: 11400000, guid: 4403b1a4b4a5f0042a59a25fbb87fb4d, type: 2}
+  weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: a87231bc10f17c445a9ac9f486ca7e38, type: 2}
+  - {fileID: 11400000, guid: 4776e3d175c695143a832204fed927b6, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

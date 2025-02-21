@@ -22,7 +22,6 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
-            Debug.Log("hello");
             Player player = logic.GameData.GetPlayer(caster.player_id);
             if (create_opponent)
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);

@@ -321,6 +321,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
             
+            Debug.Log("AttackCheck called");
             Player player = game_data.GetActivePlayer();
             bool can_attack = false;
 
@@ -354,8 +355,9 @@ namespace TcgEngine.Gameplay
                 if (attacker != null && attacker.CanAttack())
                 {
                     can_attack = true;
-                    resolve_queue.AddAttack(attacker, AttackSearch);
-                    resolve_queue.ResolveAll(0.2f);
+                    //resolve_queue.AddAttack(attacker, AttackSearch);
+                    //resolve_queue.ResolveAll(0.2f);
+                    AttackSearch(attacker);
                     break;
                 }
             }
@@ -406,10 +408,15 @@ namespace TcgEngine.Gameplay
                     {
                         attacker.weapon.AttackTarget(this, attacker, oplayer);
                     }
+
+                    else
+                    {
+                        ExhaustBattle(attacker);
+                    }
                 }
             }
 
-            ExhaustBattle(attacker);
+            //ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
             resolve_queue.ResolveAll();
@@ -777,8 +784,8 @@ namespace TcgEngine.Gameplay
         {
             Player player = game_data.GetPlayer(attacker.player_id);
 
-            if (!game_data.CanAttackTarget(attacker, target, true))
-                return;
+            //if (!game_data.CanAttackTarget(attacker, target))
+            //    return;
 
             if(!is_ai_predict)
                 player.AddHistory(GameAction.Attack, attacker, target);
@@ -807,7 +814,8 @@ namespace TcgEngine.Gameplay
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            if (!game_data.CanAttackTarget(attacker, target, true))
+            Debug.Log("attacker exhausted?");
+            if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
 
             //if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
@@ -848,8 +856,8 @@ namespace TcgEngine.Gameplay
                 DamageCard(target, attacker, datt2);
 
             //Save attack and exhaust
-            //if (!skip_cost)
-            //    ExhaustBattle(attacker);
+            if (!skip_cost)
+                ExhaustBattle(attacker);
 
             //Recalculate bonus
             UpdateOngoing();
@@ -881,8 +889,8 @@ namespace TcgEngine.Gameplay
             if (attacker == null || target == null)
                 return;
 
-            if (!game_data.CanAttackTarget(attacker, target, skip_cost))
-                return;
+            //if (!game_data.CanAttackTarget(attacker, target, skip_cost))
+            //    return;
             
             Player player = game_data.GetPlayer(attacker.player_id);
             
@@ -923,8 +931,8 @@ namespace TcgEngine.Gameplay
             DamagePlayer(attacker, target, attacker.GetAttack());
 
             //Save attack and exhaust
-            //if (!skip_cost)
-                //ExhaustBattle(attacker);
+            if (!skip_cost)
+                ExhaustBattle(attacker);
 
             //Recalculate bonus
             UpdateOngoing();
@@ -949,6 +957,7 @@ namespace TcgEngine.Gameplay
             game_data.cards_attacked.Add(attacker.uid);
             bool attack_again = attacker.HasStatus(StatusType.Fury) && !attacked_before;
             attacker.exhausted = !attack_again;
+            Debug.Log("attacker exhausted");
         }
 
         //Redirect attack to a new target
@@ -1516,7 +1525,6 @@ namespace TcgEngine.Gameplay
 
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
             {
-                Debug.Log(iability.id);
                 resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
             }
         }

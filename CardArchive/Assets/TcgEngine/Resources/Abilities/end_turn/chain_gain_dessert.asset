@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: chain_gain_dessert
   m_EditorClassIdentifier: 
-  id: 
+  id: chain_gain_dessert
   trigger: 0
   conditions_trigger: []
-  condition_repeat: {fileID: 0}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 0
   conditions_target: []
-  condition_wide_range: {fileID: 0}
+  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
+    type: 2}
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 40c6f39ffb6806846b96ef0653c74534, type: 2}
   status: []
   value: 0
   duration: 0
