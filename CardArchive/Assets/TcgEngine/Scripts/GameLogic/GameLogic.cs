@@ -260,7 +260,7 @@ namespace TcgEngine.Gameplay
                     card.Refresh();
 
                 if (card.HasStatus(StatusType.Poisoned))
-                    DamageCard(card, card.GetStatusValue(StatusType.Poisoned));
+                    DamageCard_Event(card, card.GetStatusValue(StatusType.Poisoned));
             }
 
             //Ongoing Abilities
@@ -321,7 +321,6 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
             
-            Debug.Log("AttackCheck called");
             Player player = game_data.GetActivePlayer();
             bool can_attack = false;
 
@@ -814,7 +813,6 @@ namespace TcgEngine.Gameplay
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            Debug.Log("attacker exhausted?");
             if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
 
@@ -957,7 +955,6 @@ namespace TcgEngine.Gameplay
             game_data.cards_attacked.Add(attacker.uid);
             bool attack_again = attacker.HasStatus(StatusType.Fury) && !attacked_before;
             attacker.exhausted = !attack_again;
-            Debug.Log("attacker exhausted");
         }
 
         //Redirect attack to a new target
@@ -1058,7 +1055,7 @@ namespace TcgEngine.Gameplay
             //    return null;
 
             Card card = SummonCardHand(player, icard, variant);
-
+            Debug.Log(game_data.CanPlayCard(card, slot, true));
             if (game_data.CanPlayCard(card, slot, true))
             {
                 //Player player = game_data.GetPlayer(card.player_id);
@@ -1239,6 +1236,18 @@ namespace TcgEngine.Gameplay
             if (attacker.HasStatus(StatusType.LifeSteal))
                 aplayer.hp += value;
         }
+        
+        public virtual void DamagePlayer_Event(Card attacker, Player target, int value)
+        {
+            //Damage player
+            target.hp -= value;
+            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
+
+            //Lifesteal
+            Player aplayer = game_data.GetPlayer(attacker.player_id);
+            if (attacker.HasStatus(StatusType.LifeSteal))
+                aplayer.hp += value;
+        }
 
         //Heal a card
         public virtual void HealCard(Card target, int value)
@@ -1251,9 +1260,15 @@ namespace TcgEngine.Gameplay
 
             if (target.card_id == "Akashi_Junko")
                 value = 0;
-            
+
+            int before = target.damage;
+
             target.damage -= value;
             target.damage = Mathf.Max(target.damage, 0);
+
+            Player p = game_data.GetPlayer(target.player_id);
+
+            p.total_heal += (before - target.damage);
 
             TriggerCardAbilityType(AbilityTrigger.OnHeal, target);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnHealOther, target);
@@ -1264,8 +1279,12 @@ namespace TcgEngine.Gameplay
             if (target == null)
                 return;
 
+            int before = target.hp;
             target.hp += value;
             target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
+            int after = target.hp;
+
+            target.total_heal += (after - before);
         }
 
         //Generic damage that doesnt come from another card
@@ -1360,6 +1379,104 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
         }
 
+        public virtual void DamageCard_Event(Card target, int value)
+        {
+            if(target == null)
+                return;
+
+            if (target.HasStatus(StatusType.Invincibility))
+                return; //Invincible
+
+            if (target.HasStatus(StatusType.SpellImmunity))
+                return; //Spell immunity
+
+            target.damage += value;
+
+            if (target.GetHP() <= 0)
+                DiscardCard(target);
+        }
+
+        //Damage a card with attacker/caster
+        public virtual void DamageCard_Event(Card attacker, Card target, int value, bool spell_damage = false)
+        {
+            if (attacker == null || target == null)
+                return;
+
+            if (target.HasStatus(StatusType.Invincibility))
+                return; //Invincible
+
+            if (target.HasStatus(StatusType.SpellImmunity) && !attacker.CardData.IsCitizen())
+                return; //Spell immunity
+
+            if (target.card_id == "Shishido_Izumi")
+            {
+                HealCard(target, value);
+                return;
+            }
+
+            //Shell
+                bool doublelife = target.HasStatus(StatusType.Shell);
+            if (doublelife && value > 0)
+            {
+                target.RemoveStatus(StatusType.Shell);
+                return;
+            }
+
+            //Armor
+            if (!spell_damage && target.HasStatus(StatusType.Armor))
+                value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
+
+            //Damage
+            int damage_max = Mathf.Min(value, target.GetHP());
+            int extra = value - target.GetHP();
+            target.damage += value;
+
+            if (value > 0)
+                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
+
+
+            //Trample
+            Player tplayer = game_data.GetPlayer(target.player_id);
+            if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
+                tplayer.hp -= extra;
+
+            //Lifesteal
+            Player player = game_data.GetPlayer(attacker.player_id);
+            if (!spell_damage && attacker.HasStatus(StatusType.LifeSteal))
+                player.hp += damage_max;
+
+            //Remove sleep on damage
+            target.RemoveStatus(StatusType.Sleep);
+
+            //Deathtouch
+            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
+                KillCard(attacker, target);
+
+            //Kill card if no hp
+            if (target.GetHP() <= 0)
+                KillCard(attacker, target);
+        }
+
+        //Damage a slot with attacker/caster
+        public virtual void DamageCard_Event(Card attacker, Slot target, int value, bool spell_damage = false)
+        {
+            Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
+            Card card_target = game_data.GetSlotCard(target);
+            Card attach_target = game_data.GetAttachCard(target);
+
+            foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
+            {
+                if (slot == target)
+                    DamagePlayer_Event(attacker, oplayer, value);
+            }  
+
+            if (card_target != null)
+                DamageCard_Event(attacker, card_target, value, spell_damage);
+            
+            if (attach_target != null)
+                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
+        }
+
         //A card that kills another card
         public virtual void KillCard(Card attacker, Card target)
         {
@@ -1417,6 +1534,9 @@ namespace TcgEngine.Gameplay
 
             if (was_on_board)
             {
+                Debug.Log("ondeath");
+                Debug.Log(game_data.GetSlotCard(card.slot));
+                Debug.Log("ondeath1");
                 //Trigger on death abilities
                 TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
@@ -1557,7 +1677,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;

@@ -18,9 +18,8 @@ MonoBehaviour:
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   target: 32
   conditions_target:
-  - {fileID: 11400000, guid: 24455e8381a12484d927dd9dfe5ee5a3, type: 2}
-  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
   - {fileID: 11400000, guid: 0d5d806335e533048a36ec0d0af3435b, type: 2}
+  - {fileID: 11400000, guid: 516b374e9a04a0746820dab5c9372774, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   filters_target: []

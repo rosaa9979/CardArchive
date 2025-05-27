@@ -10,21 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: ODO_attack_BD
+  m_Name: OD_summon_SSRFS
   m_EditorClassIdentifier: 
-  id: ODO_attack_BD
-  trigger: 42
-  conditions_trigger:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
+  id: OD_summon_SSRFS
+  trigger: 40
+  conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 71
+  target: 78
   conditions_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 761342d48ffb19c46bb9d462a3b7e5bf, type: 2}
+  - {fileID: 11400000, guid: 90b1e29dcce69794aaf7ad46078fb96c, type: 2}
   status: []
   value: 0
   duration: 0

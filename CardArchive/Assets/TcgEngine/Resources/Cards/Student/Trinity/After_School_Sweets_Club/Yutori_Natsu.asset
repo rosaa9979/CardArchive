@@ -28,7 +28,9 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: a87231bc10f17c445a9ac9f486ca7e38, type: 2}
   - {fileID: 11400000, guid: 4776e3d175c695143a832204fed927b6, type: 2}
-  text: 
+  text: "\uACF5\uACA9\uC744 \uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC790\uC2E0\uC758
+    \uD134 \uC885\uB8CC \uC2DC, \uBB34\uC791\uC704 \uC704\uCE58\uB85C \uC774\uB3D9\uD558\uBA70,
+    \uB514\uC800\uD2B8 \uD558\uB098\uB97C \uBB34\uC791\uC704\uB85C \uD328\uB85C \uAC00\uC838\uC635\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

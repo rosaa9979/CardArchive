@@ -19,14 +19,15 @@ MonoBehaviour:
   type: 10
   mana: 3
   attack: 3
-  hp: 40
+  hp: 4
   clubs:
   - {fileID: 11400000, guid: 867a6cc8e3757b54aa9f188e97d885f0, type: 2}
   weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
   traits: []
   stats: []
   abilities: []
-  text: 
+  text: "\uC790\uC2E0\uC5D0\uAC8C \uBC1B\uB294 \uCE58\uC720\uB7C9\uC744 0\uC73C\uB85C
+    \uB9CC\uB4ED\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

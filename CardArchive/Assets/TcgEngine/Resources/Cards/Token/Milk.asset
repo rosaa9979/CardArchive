@@ -26,7 +26,8 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 87670c00ea92faf4c9a8ea64c8a41dc1, type: 2}
-  text: 
+  text: "\uB300\uC0C1\uC758 \uB514\uBC84\uD504\uB97C \uC81C\uAC70\uD558\uACE0, \uCCB4\uB825\uC744
+    2 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

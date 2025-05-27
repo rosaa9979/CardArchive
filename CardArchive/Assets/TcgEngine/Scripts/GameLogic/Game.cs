@@ -112,32 +112,49 @@ namespace TcgEngine
             if (card == null)
                 return false;
 
-
-
             Player player = GetPlayer(card.player_id);
             if (!skip_cost && !player.CanPayMana(card))
+            {
+                Debug.Log("Debug1");
                 return false; //Cant pay mana
+            }
+
 
 
             if (!player.HasCard(player.cards_hand, card) && !skip_cost)
+            {
+                Debug.Log("Debug2");
                 return false; // Card not in hand
+            }
+
 
 
 
             if (card.CardData.IsBoardCard())
             {
                 if (!slot.IsValid() || IsCardOnSlot(slot))
+                {
+                    Debug.Log("Debug3");
                     return false;   //Slot already occupied
+                }
+
 
                 //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
                 //    return false; //Cant play on opponent side
 
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
                 if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
+                {
                     return false; //Cant play on opponent side
-                
+                }
+
+
                 if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
+                {
+                    Debug.Log("Debug5");
                     return false; //Cant play place card in wrong slot
+                }
+
 
                 return true;
             }
@@ -157,6 +174,31 @@ namespace TcgEngine
                 return IsPlayTargetValid(card, slot); //Check play target on slot
             }
             return true;
+        }
+
+        public virtual bool CanPlaceCard(Card card, Slot slot)
+        {
+            Player player = GetPlayer(card.player_id);
+            
+            if (card.CardData.IsBoardCard())
+            {
+                if (!slot.IsValid() || IsCardOnSlot(slot))
+                    return false;   //Slot already occupied
+
+                //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
+                //    return false; //Cant play on opponent side
+
+                // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
+                if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
+                    return false; //Cant play on opponent side
+
+                if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
+                    return false; //Cant play place card in wrong slot
+
+                return true;
+            }
+
+            return false;
         }
 
         //Check if a card is allowed to move to slot
@@ -568,7 +610,10 @@ namespace TcgEngine
                 foreach (Card card in player.cards_board)
                 {
                     if (card != null && card.slot == slot)
+                    {
                         return card;
+                    }
+
                 }
             }
             return null;
@@ -647,6 +692,9 @@ namespace TcgEngine
 
         public bool IsCardOnSlot(Slot slot)
         {
+            Debug.Log("1");
+            Debug.Log(GetSlotCard(slot));
+            Debug.Log("2");
             return GetSlotCard(slot) != null;
         }
 

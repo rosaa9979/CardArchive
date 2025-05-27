@@ -25,9 +25,9 @@ MonoBehaviour:
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   filters_target:
-  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
+  - {fileID: 11400000, guid: 9cb30413c38ca2a409f8d75dc64bb7b9, type: 2}
   effects:
-  - {fileID: 11400000, guid: 60760f5976479b444bfccf4c49f21db5, type: 2}
+  - {fileID: 11400000, guid: af4d33334d8bec34e999a72c074eee7c, type: 2}
   status: []
   value: 1
   duration: 0

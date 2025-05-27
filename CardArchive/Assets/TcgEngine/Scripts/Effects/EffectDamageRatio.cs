@@ -26,7 +26,7 @@ namespace TcgEngine
         {
             int damage = Mathf.FloorToInt(target.GetHP() * ratio);
 
-            logic.DamageCard(caster, target, damage, true);
+            logic.DamageCard_Event(caster, target, damage, true);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)

@@ -27,6 +27,7 @@ namespace TcgEngine
         public int mana = 0;
         public int mana_max = 0;
         public int kill_count = 0;
+        public int total_heal = 0;
 
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
         public Card hero = null;
@@ -602,6 +603,7 @@ namespace TcgEngine
             dest.mana = source.mana;
             dest.mana_max = source.mana_max;
             dest.kill_count = source.kill_count;
+            dest.total_heal = source.total_heal;
 
             Card.CloneNull(source.hero, ref dest.hero);
             Card.CloneDict(source.cards_all, dest.cards_all);

@@ -29,13 +29,14 @@ namespace TcgEngine
         public CardType has_type;
         //public TeamData has_team;
         public TraitData has_trait;
+        public CardData has_card;
 
         public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
         {
             int count = 0;
             if (target == ConditionPlayerType.Self || target == ConditionPlayerType.Both)
             {
-                Player player =  data.GetPlayer(caster.player_id);
+                Player player = data.GetPlayer(caster.player_id);
                 count += CountPile(player, pile);
             }
             if (target == ConditionPlayerType.Opponent || target == ConditionPlayerType.Both)
@@ -90,7 +91,8 @@ namespace TcgEngine
             //bool is_team = card.CardData.team == has_team || has_team == null;
             bool is_trait = card.HasTrait(has_trait) || has_trait == null;
             //return (is_type && is_team && is_trait);
-            return (is_type && is_trait);
+            bool is_card = has_card == null || card.card_id == has_card.id;
+            return (is_type && is_trait && is_card);
         }
     }
 }

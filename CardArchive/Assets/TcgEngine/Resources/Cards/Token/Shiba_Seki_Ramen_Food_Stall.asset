@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: "Shishid\u014D_Izumi"
+  m_Name: Shiba_Seki_Ramen_Food_Stall
   m_EditorClassIdentifier: 
-  id: "Shishid\u014D_Izumi"
-  title: "\uC2DC\uC2DC\uB3C4\uC6B0 \uC774\uC988\uBBF8"
+  id: Shiba_Seki_Ramen_Food_Stall
+  title: "\uC2DC\uBC14\uC138\uD0A4 \uB77C\uBA58\uC9D1"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
-  type: 10
-  mana: 4
-  attack: 4
-  hp: 5
-  clubs:
-  - {fileID: 11400000, guid: 867a6cc8e3757b54aa9f188e97d885f0, type: 2}
-  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
+  type: 30
+  mana: 1
+  attack: 0
+  hp: 2
+  clubs: []
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
   abilities: []
@@ -37,6 +36,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 1
+  deckbuilding: 0
   cost: 100
   packs: []

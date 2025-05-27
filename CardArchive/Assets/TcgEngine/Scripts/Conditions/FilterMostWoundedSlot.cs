@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace TcgEngine
 {
-    public enum FilterPlayerType
-    {
-        Self = 0,
-        Opponent = 1,
-        Both = 2,
-    }
 
     //Pick X number of targets at random from the source array (count)
 

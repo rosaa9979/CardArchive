@@ -17,14 +17,15 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 30
-  mana: 0
+  mana: 3
   attack: 0
-  hp: 10
+  hp: 5
   clubs: []
   weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 9fa850033c9825743aae17deb61634e9, type: 2}
   text: 
   desc: 
   spawn_fx: {fileID: 0}

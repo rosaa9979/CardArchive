@@ -17,7 +17,7 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  mana: 1
+  mana: 3
   attack: 0
   hp: 0
   clubs: []
@@ -26,7 +26,9 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 3c2500dfb0b744e4fa859b67c9821dc1, type: 2}
-  text: 
+  text: "\uBBFC\uD2B8 \uCD08\uCF54\uB97C \uC2EB\uC5B4\uD558\uB294 \uC2DC\uBBFC\uC5D0\uAC8C\uB294
+    3\uC758 \uD53C\uD574\uB97C, \uC88B\uC544\uD558\uB294 \uC2DC\uBBFC\uC5D0\uAC8C\uB294
+    3\uC744 \uCE58\uC720\uD569\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
