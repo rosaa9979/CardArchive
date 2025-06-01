@@ -52,6 +52,11 @@ namespace TcgEngine.UI
         private CardData card;
         private VariantData variant;
 
+        public Text card_name;
+        public Color32 ally_name =  new Color32(14, 165, 233, 255);
+        public Color32 enemy_name = new Color32(220, 38, 38, 255);
+
+
         void Awake()
         {
 
@@ -116,9 +121,9 @@ namespace TcgEngine.UI
             this.card = card;
             this.variant = variant;
 
-            if(type != null)
+            if (type != null)
                 type.text = card.GetTypeId().ToString();
-            if(card_image != null)
+            if (card_image != null)
                 card_image.sprite = card.GetFullArt(variant);
             //if (frame_image != null)
             //    frame_image.sprite = variant.frame;
@@ -201,6 +206,9 @@ namespace TcgEngine.UI
 
             if (!gameObject.activeSelf)
                 gameObject.SetActive(true);
+
+            if (card_name != null)
+                card_name.text = card.GetTitle();
         }
 
         public void SetMaterial(Material mat)

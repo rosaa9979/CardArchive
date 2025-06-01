@@ -102,7 +102,7 @@ namespace TcgEngine.Client
             Game data = GameClient.Get().GetGameData();
             Player player = GameClient.Get().GetPlayer();
             Card card = data.GetCard(card_uid);
-            if(!destroyed)
+            if (!destroyed)
                 card_ui.SetCard(card);
 
             //bool selected = controls.GetSelected() == this;
@@ -117,7 +117,7 @@ namespace TcgEngine.Client
                 target_alpha = 0f;
             if (equipment != null && equipment.IsFocus())
                 target_alpha = 0f;
-            
+
             card_ui.frame_image.sprite = player.player_id == card.player_id ? ally_frame : enemy_frame;
             card_ui.attack_background.sprite = player.player_id == card.player_id ? ally_attack_bg : enemy_attack_bg;
             card_ui.hp_background.sprite = player.player_id == card.player_id ? ally_hp_bg : enemy_hp_bg;
@@ -181,6 +181,9 @@ namespace TcgEngine.Client
             //Status bar
             if (status_group != null)
                 status_group.alpha = Mathf.MoveTowards(status_group.alpha, status_alpha_target, 5f * Time.deltaTime);
+            
+            if (card_ui.card_name != null)
+                card_ui.card_name.color = player.player_id == card.player_id ? card_ui.ally_name : card_ui.enemy_name;
         }
 
         private Vector3 GetTargetPos()

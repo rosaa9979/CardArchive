@@ -82,7 +82,7 @@ namespace TcgEngine.UI
                 {
                     for (int i = 0; i < side_rows.Length; i++)
                     {
-                        final_pos[i] = start_pos[i] + new Vector2(Screen.width*0.07f, 0);
+                        final_pos[i] = start_pos[i] + new Vector2(Screen.width * 0.07f, 0);
                     }
                 }
 
@@ -134,6 +134,10 @@ namespace TcgEngine.UI
                         }
                     }
                 }
+                
+                Player player = GameClient.Get().GetPlayer();
+                if (card_ui.card_name != null)
+                    card_ui.card_name.color = player.player_id == pcard.player_id ? card_ui.ally_name : card_ui.enemy_name;
             }
 
         }
