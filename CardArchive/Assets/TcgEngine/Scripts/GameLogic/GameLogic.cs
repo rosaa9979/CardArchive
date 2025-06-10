@@ -391,6 +391,9 @@ namespace TcgEngine.Gameplay
 
                 else if (candidate_target.Count != 0)
                     attacker.weapon.AttackTarget(this, attacker, candidate_target);
+
+                else
+                    ExhaustBattle(attacker);
             }
 
             else
@@ -1003,16 +1006,26 @@ namespace TcgEngine.Gameplay
         {
             for (int i = 0; i < nb; i++)
             {
-                if (player.cards_deck.Count > 0 && player.cards_hand.Count < GameplayData.Get().cards_max)
+                if (player.cards_deck.Count > 0)
                 {
                     Card card = player.cards_deck[0];
                     player.cards_deck.RemoveAt(0);
-                    player.cards_hand.Add(card);
 
-                    TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnDraw);
+                    if (player.cards_hand.Count < GameplayData.Get().cards_max)
+                    {
+                        player.cards_hand.Add(card);
+                        TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnDraw);
+                    }
+                    else
+                    {
+                        DrawDiscardCard(player); // 손패 가득 → 묘지로 보냄
+                    }
+                }
+                else
+                {
+                    DamagePlayer_Exhaust(player); // 덱 없음 → 데미지
                 }
             }
-
 
             onCardDrawn?.Invoke(nb);
         }
@@ -1247,6 +1260,15 @@ namespace TcgEngine.Gameplay
             Player aplayer = game_data.GetPlayer(attacker.player_id);
             if (attacker.HasStatus(StatusType.LifeSteal))
                 aplayer.hp += value;
+        }
+
+        public virtual void DamagePlayer_Exhaust(Player target)
+        {
+            target.exhaust_damage += 1;
+
+            //Damage player
+            target.hp -= target.exhaust_damage;
+            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
         }
 
         //Heal a card

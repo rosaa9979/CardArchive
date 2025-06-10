@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TcgEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using TcgEngine.Client;
 
 namespace TcgEngine.UI
 {
@@ -109,6 +110,20 @@ namespace TcgEngine.UI
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
 
+            if (card.CardData.IsClub())
+            {
+                int count = 0;
+                Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
+
+                foreach (Card c in player.cards_board)
+                {
+                    if (c.HasClub(card.clubs[0].ClubData))
+                        count += 1;
+                }
+
+                cost.text = count.ToString();
+            }
+            
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
         }
