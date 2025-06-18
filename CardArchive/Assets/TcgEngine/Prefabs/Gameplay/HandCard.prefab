@@ -1389,8 +1389,12 @@ MonoBehaviour:
   card_text: {fileID: 8169617557773355375}
   stats: []
   card_name: {fileID: 7721771254256182058}
-  ally_name: {r: 0.05490196, g: 0.64705884, b: 0.9137255, a: 1}
-  enemy_name: {r: 0.8627451, g: 0.14901961, b: 0.14901961, a: 1}
+  ally_name:
+    serializedVersion: 2
+    rgba: 4293502222
+  enemy_name:
+    serializedVersion: 2
+    rgba: 4280690396
 --- !u!1 &4537126804460222456
 GameObject:
   m_ObjectHideFlags: 0

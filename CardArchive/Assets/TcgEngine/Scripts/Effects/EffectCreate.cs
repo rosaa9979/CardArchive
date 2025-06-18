@@ -24,7 +24,7 @@ namespace TcgEngine
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);
 
             Card card = Card.Create(target, caster.VariantData, player);
-            logic.GameData.last_summoned = card.uid;
+            //logic.GameData.last_summoned = card.uid;
 
             if (create_pile == PileType.Deck)
                 player.cards_deck.Add(card);

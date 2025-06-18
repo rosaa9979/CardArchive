@@ -120,6 +120,10 @@ namespace TcgEngine.Client
             card_glow.enabled = IsFocus() || IsDrag();
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
 
+            Player player = GameClient.Get().GetPlayer();
+            if (card_ui.card_name != null)
+                card_ui.card_name.color = player.player_id == card.player_id ? card_ui.ally_name : card_ui.enemy_name;
+
             if (hide == true)
             {
                 SetOpacity(0f);
@@ -143,10 +147,6 @@ namespace TcgEngine.Client
             //Unselect
             if (!drag && selected && Input.GetMouseButtonDown(0))
                 selected = false;
-
-            Player player = GameClient.Get().GetPlayer();
-            if (card_ui.card_name != null)
-                card_ui.card_name.color = player.player_id == card.player_id ? card_ui.ally_name : card_ui.enemy_name;
         }
 
         private Vector2 GetTargetPosition()

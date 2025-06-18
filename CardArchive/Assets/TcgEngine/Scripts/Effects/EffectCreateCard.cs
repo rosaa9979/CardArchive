@@ -28,7 +28,7 @@ namespace TcgEngine
 
             CardData selected_card = GetRandomCardData();
             Card card = Card.Create(selected_card, caster.VariantData, player);
-            logic.GameData.last_summoned = card.uid;
+            //logic.GameData.last_summoned = card.uid;
             
             if (create_pile == PileType.Deck)
                 player.cards_deck.Add(card);
@@ -36,7 +36,7 @@ namespace TcgEngine
             if (create_pile == PileType.Discard)
                 player.cards_discard.Add(card);
 
-            if (create_pile == PileType.Hand)
+            if (create_pile == PileType.Hand && player.cards_hand.Count < GameplayData.Get().cards_max)
                 player.cards_hand.Add(card);
 
             if (create_pile == PileType.Temp)

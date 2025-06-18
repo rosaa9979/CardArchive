@@ -37,14 +37,22 @@ namespace TcgEngine.UI
         void Start()
         {
             EventTrigger trigger = club_area.GetComponent<EventTrigger>();
+
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerEnter;
             entry.callback.AddListener((eventData) => { OnEnterMouse(); });
+
             EventTrigger.Entry exit = new EventTrigger.Entry();
             exit.eventID = EventTriggerType.PointerExit;
             exit.callback.AddListener((eventData) => { OnExitMouse(); });
+
+            EventTrigger.Entry mouse_down = new EventTrigger.Entry();
+            mouse_down.eventID = EventTriggerType.PointerDown;
+            mouse_down.callback.AddListener((eventData) => { OnMouseDown(); });
+
             trigger.triggers.Add(entry);
             trigger.triggers.Add(exit);
+            trigger.triggers.Add(mouse_down);
         }
 
         // Update is called once per frame
@@ -69,6 +77,12 @@ namespace TcgEngine.UI
         private void OnExitMouse()
         {
             focus = false;
+        }
+
+        private void OnMouseDown()
+        {
+            if (GameTool.IsMobile())
+                focus = true;
         }
 
         public bool IsFocus()
