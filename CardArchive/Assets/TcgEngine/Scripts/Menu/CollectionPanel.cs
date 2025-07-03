@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,23 +23,13 @@ namespace TcgEngine.UI
 
         [Header("Left Side")]
         //public IconButton[] team_filters;
-        public Toggle toggle_owned;
-        public Toggle toggle_not_owned;
+        public Toggle toggle_student;
+        public Toggle toggle_nonstudent;
+        public Toggle toggle_place;
+        public Toggle toggle_event;
 
-        public Toggle toggle_citizen;
-        public Toggle toggle_spell;
-        public Toggle toggle_building;
-        public Toggle toggle_equipment;
-        public Toggle toggle_secret;
-
-        public Toggle toggle_common;
-        public Toggle toggle_uncommon;
-        public Toggle toggle_rare;
-        public Toggle toggle_mythic;
-
-        public Toggle toggle_foil;
-
-        public Dropdown sort_dropdown;
+        public Dropdown dropdown_academy;
+        public Dropdown dropdown_club;
         public InputField search;
 
         [Header("Right Side")]
@@ -45,16 +37,21 @@ namespace TcgEngine.UI
         public UIPanel card_list_panel;
         public DeckLine[] deck_lines;
 
+        [Header("Mana Filter")]
+        public ManaFilter mana_filter;
+
         [Header("Deckbuilding")]
         public InputField deck_title;
         public Text deck_quantity;
         public GameObject deck_cards_prefab;
         public RectTransform deck_content;
         public GridLayoutGroup deck_grid;
-        public IconButton[] hero_powers;
+        //public IconButton[] hero_powers;
+        public DeckClub[] edit_deck_club;
 
         //private TeamData filter_team = null;
-        private int filter_dropdown = 0;
+        private int filter_academy_dropdown = 0;
+        private int filter_club_dropdown = 0;
         private string filter_search = "";
 
         private List<CollectionCard> card_list = new List<CollectionCard>();
@@ -89,6 +86,8 @@ namespace TcgEngine.UI
             foreach (DeckLine line in deck_lines)
                 line.onClickDelete += OnClickDeckDelete;
 
+            mana_filter.onManaClicked.AddListener(OnManaClicked);
+
             //foreach (IconButton button in team_filters)
             //    button.onClick += OnClickTeam;
         }
@@ -97,6 +96,24 @@ namespace TcgEngine.UI
         {
             base.Start();
 
+            //Set Acdemy / Club Dropdown Option
+            List<string> academy_options = new List<string> { "전체 학원" };
+
+            foreach (AcademyData academy in AcademyData.GetAll())
+            {
+                academy_options.Add(academy.GetTitle());
+            }
+            dropdown_academy.AddOptions(academy_options);
+
+            List<string> club_options = new List<string> { "전체 동아리" };
+
+            foreach (ClubData club in ClubData.GetAll())
+            {
+                club_options.Add(club.GetTitle());
+            }
+            dropdown_club.AddOptions(club_options);
+
+            /*
             //Set power abilities hover text
             foreach (IconButton btn in hero_powers)
             {
@@ -112,6 +129,7 @@ namespace TcgEngine.UI
                     //    hover.text += " <size=16>Mana: " + iability.mana_cost + "</size>";
                 }
             }
+            */
         }
 
         protected override void Update()
@@ -197,12 +215,14 @@ namespace TcgEngine.UI
         private void RefreshFilters()
         {
             search.text = "";
-            sort_dropdown.value = 0;
+            dropdown_academy.value = 0;
+            dropdown_club.value = 0;
             //foreach (IconButton button in team_filters)
             //    button.Deactivate();
 
             //filter_team = null;
-            filter_dropdown = 0;
+            filter_academy_dropdown = 0;
+            filter_club_dropdown = 0;
             filter_search = "";
         }
 
@@ -218,7 +238,7 @@ namespace TcgEngine.UI
             deck_list_panel.Hide();
             card_list_panel.Show();
         }
-        
+
         public void RefreshCards()
         {
             if (!spawned)
@@ -236,8 +256,6 @@ namespace TcgEngine.UI
 
             VariantData variant = VariantData.GetDefault();
             VariantData special = VariantData.GetSpecial();
-            if (toggle_foil.isOn && special != null)
-                variant = special;
 
             List<CardDataQ> all_cards = new List<CardDataQ>();
             List<CardDataQ> shown_cards = new List<CardDataQ>();
@@ -251,35 +269,34 @@ namespace TcgEngine.UI
                 all_cards.Add(card);
             }
 
-            if (filter_dropdown == 0) //Name
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return a.card.title.CompareTo(b.card.title); });
-            if (filter_dropdown == 1) //Attack
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.attack == a.card.attack ? b.card.hp.CompareTo(a.card.hp) : b.card.attack.CompareTo(a.card.attack); });
-            if (filter_dropdown == 2) //hp
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.hp == a.card.hp ? b.card.attack.CompareTo(a.card.attack) : b.card.hp.CompareTo(a.card.hp); });
-            if (filter_dropdown == 3) //Cost
-                all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.mana == a.card.mana ? a.card.title.CompareTo(b.card.title) : a.card.mana.CompareTo(b.card.mana); });
+            all_cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.mana == a.card.mana ? a.card.title.CompareTo(b.card.title) : a.card.mana.CompareTo(b.card.mana); });
 
             foreach (CardDataQ card in all_cards)
             {
                 if (card.card.deckbuilding)
                 {
                     CardData icard = card.card;
-                    
+
                     bool owned = card.quantity > 0;
                     //RarityData rarity = icard.rarity;
                     CardType type = icard.type;
 
-                    bool owned_check = (owned && toggle_owned.isOn)
-                        || (!owned && toggle_not_owned.isOn)
-                        || toggle_owned.isOn == toggle_not_owned.isOn;
+                    bool type_check = (type == CardType.Student && toggle_student.isOn)
+                        || (type == CardType.NonStudent && toggle_nonstudent.isOn)
+                        || (type == CardType.Place && toggle_place.isOn)
+                        || (type == CardType.Spell && toggle_event.isOn)
+                        || (!toggle_student.isOn && !toggle_nonstudent.isOn && !toggle_place.isOn && !toggle_event.isOn);
 
-                    bool type_check = (type == CardType.Student || type == CardType.NonStudent && toggle_citizen.isOn)
-                        || (type == CardType.Spell && toggle_spell.isOn)
-                        || (type == CardType.Place && toggle_building.isOn)
-                        || (type == CardType.Equipment && toggle_equipment.isOn)
-                        || (type == CardType.Secret && toggle_secret.isOn)
-                        || (!toggle_citizen.isOn && !toggle_spell.isOn && !toggle_building.isOn && !toggle_equipment.isOn && !toggle_secret.isOn);
+                    string selected_academy = dropdown_academy.options[dropdown_academy.value].text;
+                    string selected_club = dropdown_club.options[dropdown_club.value].text;
+
+
+                    bool academy_check = 
+                        (!card.card.clubs.Any() && selected_academy == "전체 학원") ||
+                        card.card.clubs.Any(club =>
+                            (selected_academy == "전체 학원" || club.academy.GetTitle() == selected_academy) &&
+                            (selected_club == "전체 동아리" || club.GetTitle() == selected_club)
+                        );
 
                     //bool rarity_check = (rarity.rank == 1 && toggle_common.isOn)
                     //    || (rarity.rank == 2 && toggle_uncommon.isOn)
@@ -293,9 +310,12 @@ namespace TcgEngine.UI
                         || icard.title.ToLower().Contains(search)
                         || icard.GetText().ToLower().Contains(search);
 
+                    HashSet<int> filtered_mana = mana_filter.GetFilteredMana();
+                    bool mana_check = filtered_mana.Contains(icard.mana);
+
 
                     //if (owned_check && type_check && rarity_check && search_check)
-                    if (owned_check && type_check && search_check)
+                    if (type_check && academy_check && search_check && mana_check)
                     {
                         shown_cards.Add(card);
                     }
@@ -358,11 +378,7 @@ namespace TcgEngine.UI
                 index++;
             }
 
-            if (index < deck_lines.Length)
-            {
-                DeckLine line = deck_lines[index];
-                line.SetLine("+");
-            }
+
             RefreshCardsQuantities();
         }
 
@@ -371,23 +387,29 @@ namespace TcgEngine.UI
             deck_title.text = "Deck Name";
             current_deck_tid = GameTool.GenerateRandomID(7);
             deck_cards.Clear();
+            deck_clubs.Clear();
             saving = false;
             editing_deck = true;
 
-            foreach (IconButton btn in hero_powers)
-                btn.Deactivate();
+            foreach (DeckClub edit_club in edit_deck_club)
+            {
+                edit_club.Clear();
+            }
+
+            //foreach (IconButton btn in hero_powers)
+                //    btn.Deactivate();
 
             if (deck != null)
             {
                 deck_title.text = deck.title;
                 current_deck_tid = deck.tid;
 
-                foreach (IconButton btn in hero_powers)
-                {
-                    if (deck.hero != null && btn.value == deck.hero.tid)
-                        btn.Activate();
-                }
-                
+                //foreach (IconButton btn in hero_powers)
+                //{
+                //    if (deck.hero != null && btn.value == deck.hero.tid)
+                //        btn.Activate();
+                //}
+
                 for (int i = 0; i < deck.cards.Length; i++)
                 {
                     CardData card = CardData.Get(deck.cards[i].tid);
@@ -407,6 +429,11 @@ namespace TcgEngine.UI
             foreach (DeckLine line in deck_card_lines)
                 line.Hide();
 
+            foreach (DeckClub edit_club in edit_deck_club)
+            {
+                edit_club.Clear();
+            }
+
             List<CardDataQ> list = new List<CardDataQ>();
             foreach (UserCardData card in deck_cards)
             {
@@ -416,7 +443,7 @@ namespace TcgEngine.UI
                 acard.quantity = card.quantity;
                 list.Add(acard);
             }
-            list.Sort((CardDataQ a, CardDataQ b) => { return a.card.title.CompareTo(b.card.title); });
+            list.Sort((CardDataQ a, CardDataQ b) => { return a.card.mana.CompareTo(b.card.mana); });
 
             UserData udata = Authenticator.Get().UserData;
             int index = 0;
@@ -436,6 +463,15 @@ namespace TcgEngine.UI
                     }
                 }
                 index++;
+            }
+
+            index = 0;
+            foreach (UserCardData club in deck_clubs)
+            {
+                CardDataQ acard = new CardDataQ();
+                acard.card = CardData.Get(club.tid);
+                edit_deck_club[index].SetDeckClub(acard.card);
+                index ++;
             }
 
             deck_quantity.text = count + "/" + GameplayData.Get().deck_size;
@@ -469,6 +505,7 @@ namespace TcgEngine.UI
         private void AddDeckCard(CardData card, VariantData variant, int quantity = 1)
         {
             AddDeckCard(card.id, variant.id, quantity);
+            AddDeckClub(card);
         }
 
         private void RemoveDeckCard(CardData card, VariantData variant)
@@ -500,7 +537,7 @@ namespace TcgEngine.UI
                 {
                     ucard.quantity--;
 
-                    if(ucard.quantity <= 0)
+                    if (ucard.quantity <= 0)
                         deck_cards.RemoveAt(i);
                 }
             }
@@ -555,8 +592,13 @@ namespace TcgEngine.UI
                     {
                         ucard.quantity--;
 
-                        if(ucard.quantity <= 0)
+                        if (ucard.quantity <= 0)
+                        {
                             deck_clubs.RemoveAt(i);
+                            edit_deck_club[i].Clear();
+                        }
+
+
                     }
                 }
             }
@@ -657,11 +699,44 @@ namespace TcgEngine.UI
             RefreshCards();
         }
 
-        public void OnChangeDropdown()
+        public void OnChangeAcademyDropdown()
         {
-            filter_dropdown = sort_dropdown.value;
+            filter_academy_dropdown = dropdown_academy.value;
+
+            dropdown_club.options.Clear();
+
+            string selected_academy = dropdown_academy.options[dropdown_academy.value].text;
+
+            //Debug.Log(selected_academy);
+
+            List<string> club_list = new List<string> { "전체 동아리" };
+
+            foreach (ClubData club in ClubData.GetAll())
+            {
+                if (club.academy == null)
+                    continue;
+                    
+                if (selected_academy == "전체 학원" || club.academy.GetTitle() == selected_academy)
+                    club_list.Add(club.GetTitle());
+            }
+
+            dropdown_club.AddOptions(club_list);
+
+            if (selected_academy == "전체 학원")
+            {
+                dropdown_club.value = 0; // "전체 동아리"가 첫 번째 항목이므로
+                dropdown_club.RefreshShownValue();
+            }
+
             RefreshCards();
         }
+
+        public void OnChangeClubDropdown()
+        {
+            filter_club_dropdown = dropdown_academy.value;
+            RefreshCards();
+        }
+
 
         public void OnChangeSearch()
         {
@@ -696,13 +771,19 @@ namespace TcgEngine.UI
                 if (owner && deck_limit && club_limit)
                 {
                     AddDeckCard(icard, variant);
-                    AddDeckClub(icard);
                     RefreshDeckCards();
                 }
             }
         }
 
         public void OnClickCardRight(CardUI card)
+        {
+            CardZoomPanel.Get().ShowCard(card.GetCard(), card.GetVariant());
+        }
+
+        //---- Club icon clicks ----------
+
+        public void OnClickClub(CardUI card)
         {
             CardZoomPanel.Get().ShowCard(card.GetCard(), card.GetVariant());
         }
@@ -714,6 +795,22 @@ namespace TcgEngine.UI
             if (line.IsHidden() || saving)
                 return;
             UserDeckData deck = line.GetUserDeck();
+            RefreshDeck(deck);
+            ShowDeckCards();
+        }
+
+        public void OnClickCreateDeck()
+        {
+            if (saving)
+                return;
+
+            UserData udata = Authenticator.Get().UserData;
+            int deck_count = udata.decks.Length;
+
+            if (deck_count >= deck_lines.Length)
+                return;
+
+            UserDeckData deck = deck_lines[deck_count].GetUserDeck();
             RefreshDeck(deck);
             ShowDeckCards();
         }
@@ -771,7 +868,14 @@ namespace TcgEngine.UI
                 DeleteDeck(deck.tid);
             }
         }
-        
+
+        // ---- Mana Filter Click ----
+
+        public void OnManaClicked()
+        {
+            RefreshCards();
+        }
+
         // ---- Getters -----
 
         public int CountDeckCards(CardData card, VariantData cvariant)
@@ -815,11 +919,11 @@ namespace TcgEngine.UI
 
         private string GetSelectedHeroId()
         {
-            foreach (IconButton btn in hero_powers)
-            {
-                if (btn.IsActive())
-                    return btn.value;
-            }
+            //foreach (IconButton btn in hero_powers)
+            //{
+            //    if (btn.IsActive())
+            //        return btn.value;
+            //}
             return "";
         }
 

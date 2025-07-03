@@ -13,7 +13,8 @@ namespace TcgEngine
     {
         public string id;
         public string title;
-        //public Sprite icon;
+        public AcademyData academy;
+        public Sprite icon;
 
         public static List<ClubData> club_list = new List<ClubData>();
 

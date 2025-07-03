@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using TcgEngine;
+using Unity.VisualScripting;
 
 namespace TcgEngine.UI
 {
@@ -35,13 +36,12 @@ namespace TcgEngine.UI
 
         protected virtual void Update()
         {
-
             float add = visible ? display_speed : -display_speed;
             float alpha = Mathf.Clamp01(canvas_group.alpha + add * Time.deltaTime);
             canvas_group.alpha = alpha;
 
             if (!visible && alpha < 0.01f)
-                AfterHide();
+                    AfterHide();
         }
 
         public virtual void Toggle(bool instant = false)

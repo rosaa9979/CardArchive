@@ -31,6 +31,7 @@ namespace TcgEngine.UI
         public Image range_icon;
         public Image trait_background;
         public Image club_background;
+        public Image academy_logo;
         public Text type;
         public Text attack;
         public Text hp;
@@ -218,9 +219,64 @@ namespace TcgEngine.UI
                 // 3. Image의 RectTransform 너비 조정
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
+            
+            if (academy_logo != null)
+            {
+                if (card.clubs.Length > 0)
+                {
+                    academy_logo.sprite = card.clubs[0].academy.acadmey_icon;
+                    academy_logo.color = new Color(academy_logo.color.r, academy_logo.color.g, academy_logo.color.b, 0.2f);
+
+                    // 컴포넌트 가져오기
+                    AspectRatioFitter aspectFitter = academy_logo.GetComponent<AspectRatioFitter>();
+                    RectTransform rectTransform = academy_logo.GetComponent<RectTransform>();
+                    
+                    // 부모의 부모 크기 가져오기
+                    RectTransform grandParentRect = academy_logo.transform.parent.parent as RectTransform;
+                    float grandParentWidth = grandParentRect.rect.width;
+                    float grandParentHeight = grandParentRect.rect.height;
+
+                    // 중앙 정렬을 위한 앵커 설정
+                    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    rectTransform.anchoredPosition = Vector2.zero; // 중앙에 위치
+
+                    // 스프라이트 비율 계산
+                    float spriteAspectRatio = (float)academy_logo.sprite.rect.width / academy_logo.sprite.rect.height;
+                    
+                    // 너비 40% 기준으로 높이 계산
+                    float desiredWidth = grandParentWidth * 0.4f;
+                    float calculatedHeight = desiredWidth / spriteAspectRatio;
+                    
+                    // 높이가 부모의 부모의 30%를 넘는지 체크
+                    float maxHeight = grandParentHeight * 0.2f;
+                    
+                    if (calculatedHeight <= maxHeight)
+                    {
+                        // 너비 기준으로 설정
+                        aspectFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+                        aspectFitter.aspectRatio = spriteAspectRatio;
+                        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
+                    }
+
+                    else
+                    {
+                        // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
+                        aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+                        aspectFitter.aspectRatio = spriteAspectRatio;
+                        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
+                    }
+                }
+
+                else
+                {
+                    academy_logo.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+                }
+            }
 
             foreach (TraitUI stat in stats)
-                stat.SetCard(card);
+                    stat.SetCard(card);
 
             if (!gameObject.activeSelf)
                 gameObject.SetActive(true);

@@ -45,6 +45,7 @@ namespace TcgEngine.UI
         {
             base.Update();
 
+            /*
             if (card != null)
             {
                 int quantity = GetBuyQuantity();
@@ -52,6 +53,7 @@ namespace TcgEngine.UI
                 buy_cost.text = cost.ToString();
                 sell_cost.text = Mathf.RoundToInt(cost * GameplayData.Get().sell_ratio).ToString();
             }
+            */
         }
 
         public void ShowCard(CardData card, VariantData variant)
@@ -66,7 +68,7 @@ namespace TcgEngine.UI
             quantity_bar.enabled = quantity > 0;
             trade_quantity.text = "1";
             trade_error.text = "";
-            trade_area?.SetActive(card.deckbuilding && card.cost > 0);
+            //trade_area?.SetActive(card.deckbuilding && card.cost > 0);
 
             card_ui.SetCard(card, variant);
             string desc = card.GetDesc();

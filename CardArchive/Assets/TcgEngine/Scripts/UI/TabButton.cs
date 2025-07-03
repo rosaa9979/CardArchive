@@ -16,11 +16,18 @@ namespace TcgEngine.UI
         public bool active;
         public GameObject highlight;
         public UIPanel ui_panel;
+        public Text text;
 
         public UnityAction onClick;
         public static UnityAction<TabButton> onClickAny;
 
         private static List<TabButton> tab_list = new List<TabButton>();
+
+        private Image background_image;
+        private Button button;
+
+        private Color inactive_color = new Color32(255, 255, 255, 255);
+        private Color active_color = new Color32(64, 105, 143, 255);
 
         private void Awake()
         {
@@ -34,7 +41,11 @@ namespace TcgEngine.UI
 
         void Start()
         {
-            Button button = GetComponent<Button>();
+            button = GetComponent<Button>();
+            background_image = GetComponent<Image>();
+
+            SetColor();
+
             if (button != null)
                 button.onClick.AddListener(OnClick);
 
@@ -44,8 +55,7 @@ namespace TcgEngine.UI
 
         void Update()
         {
-            if (highlight != null)
-                highlight.SetActive(active);
+
         }
 
         private void OnClick()
@@ -59,6 +69,9 @@ namespace TcgEngine.UI
         {
             SetAll(group, false);
             active = true;
+
+            SetColor();
+
             if (ui_panel != null)
                 ui_panel.Show();
         }
@@ -66,6 +79,9 @@ namespace TcgEngine.UI
         public void Deactivate()
         {
             active = false;
+
+            SetColor();
+
             if (ui_panel != null)
                 ui_panel.Hide();
         }
@@ -75,6 +91,14 @@ namespace TcgEngine.UI
             return active;
         }
 
+        public void SetColor()
+        {
+            if (background_image != null)
+                background_image.color = active ? active_color : inactive_color;
+            if (text != null)
+                text.color = active ? inactive_color : active_color;
+        }
+
         public static void SetAll(string group, bool act)
         {
             foreach (TabButton btn in tab_list)
@@ -82,8 +106,10 @@ namespace TcgEngine.UI
                 if (btn.group == group)
                 {
                     btn.active = act;
-                    if(btn.ui_panel != null)
+                    if (btn.ui_panel != null)
                         btn.ui_panel.SetVisible(act);
+
+                    btn.SetColor();
                 }
             }
         }

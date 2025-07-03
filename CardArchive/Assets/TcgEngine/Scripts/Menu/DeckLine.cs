@@ -13,10 +13,9 @@ namespace TcgEngine.UI
 
     public class DeckLine : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        public Image image;
-        public Image frame;
         public Text title;
         public Text value;
+        public Image value_background;
         public IconValue cost;
         public UIPanel delete_btn;
         public AudioClip click_audio;
@@ -64,26 +63,14 @@ namespace TcgEngine.UI
                 value.text = quantity.ToString();
             if (value != null)
                 value.enabled = quantity > 1;
+            if (value_background != null)
+                value_background.enabled = quantity > 1;
             if (cost != null)
-                cost.value = card.mana;
+                    cost.value = card.mana;
             if (this.value != null)
                 this.value.color = invalid ? Color.red : Color.white;
             if(invalid)
                 title.color = Color.gray;
-
-            if (image != null)
-            {
-                image.sprite = card.GetFullArt(variant);
-                image.enabled = true;
-                image.material = invalid ? disabled_mat : default_mat;
-            }
-
-            if (frame != null)
-            {
-                frame.sprite = variant.frame;
-                frame.enabled = true;
-                frame.material = invalid ? disabled_mat : default_mat;
-            }
 
             gameObject.SetActive(true);
         }
@@ -164,10 +151,6 @@ namespace TcgEngine.UI
                 value.enabled = true;
             if (cost != null)
                 cost.value = 0;
-            if (image != null)
-                image.enabled = false;
-            if (frame != null)
-                frame.enabled = false;
             if (delete_btn != null)
                 delete_btn.SetVisible(false);
 

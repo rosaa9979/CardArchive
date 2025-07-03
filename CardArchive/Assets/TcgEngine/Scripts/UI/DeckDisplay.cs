@@ -15,7 +15,9 @@ namespace TcgEngine.UI
     {
         public Text deck_title;
         public Text card_count;
+        public Image[] ui_clubs;
         public CardUI[] ui_cards;
+
 
         private string deck_id;
 
@@ -134,6 +136,7 @@ namespace TcgEngine.UI
                 }
 
                 ShowCards(dcards);
+                ShowClubs(deck.clubs);
             }
 
             gameObject.SetActive(deck != null);
@@ -157,6 +160,21 @@ namespace TcgEngine.UI
                 }
             }
         }
+
+        public void ShowClubs(CardData[] clubs)
+        {
+            int index = 0;
+            foreach (CardData icard in clubs)
+            {
+                if (index < ui_clubs.Length)
+                {
+                    Image club_ui = ui_clubs[index];
+                    club_ui.sprite = icard.clubs[0].icon;
+                    index++;
+                }
+            }
+        }
+        
 
         public void Hide()
         {

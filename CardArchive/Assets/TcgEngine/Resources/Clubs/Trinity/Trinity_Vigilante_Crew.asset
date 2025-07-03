@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Trinity_Vigilante_Crew
   title: "\uD2B8\uB9AC\uB2C8\uD2F0 \uC790\uACBD\uB2E8"
+  academy: {fileID: 11400000, guid: 3e43456efa60a9145981f10cfef08eac, type: 2}
+  icon: {fileID: 21300000, guid: e061faa038e4f48418cb07bad1e849a4, type: 3}
