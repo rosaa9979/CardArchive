@@ -136,7 +136,7 @@ namespace TcgEngine
         public string GetTypeId()
         {
             if (type == CardType.Hero)
-                return "hero";
+                return "아로나";
             if (type == CardType.Student)
                 return "학생";
             if (type == CardType.NonStudent)
@@ -145,6 +145,8 @@ namespace TcgEngine
                 return "장소";
             if (type == CardType.Spell)
                 return "이벤트";
+            if (type == CardType.Club)
+                return "동아리";
             if (type == CardType.Secret)
                 return "secret";
             if (type == CardType.Equipment)

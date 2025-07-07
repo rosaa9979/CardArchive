@@ -71,8 +71,17 @@ namespace TcgEngine.UI
 
             SetCard(card.CardData, card.VariantData);
 
-            if (cost != null)
-                cost.text = card.GetMana().ToString();
+            if (card.CardData.IsClub())
+            {
+                //Debug.Log("Hello");
+            }
+
+            else
+            {
+                if (cost != null)
+                    cost.text = card.GetMana().ToString();
+            }
+
             if (attack != null)
                 attack.text = card.GetAttack().ToString();
             if (hp != null)
@@ -230,7 +239,7 @@ namespace TcgEngine.UI
                     // 컴포넌트 가져오기
                     AspectRatioFitter aspectFitter = academy_logo.GetComponent<AspectRatioFitter>();
                     RectTransform rectTransform = academy_logo.GetComponent<RectTransform>();
-                    
+
                     // 부모의 부모 크기 가져오기
                     RectTransform grandParentRect = academy_logo.transform.parent.parent as RectTransform;
                     float grandParentWidth = grandParentRect.rect.width;
@@ -244,14 +253,19 @@ namespace TcgEngine.UI
 
                     // 스프라이트 비율 계산
                     float spriteAspectRatio = (float)academy_logo.sprite.rect.width / academy_logo.sprite.rect.height;
-                    
+
                     // 너비 40% 기준으로 높이 계산
                     float desiredWidth = grandParentWidth * 0.4f;
                     float calculatedHeight = desiredWidth / spriteAspectRatio;
-                    
+
                     // 높이가 부모의 부모의 30%를 넘는지 체크
                     float maxHeight = grandParentHeight * 0.2f;
                     
+                    // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
+                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+                    aspectFitter.aspectRatio = spriteAspectRatio;
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
+                    /*
                     if (calculatedHeight <= maxHeight)
                     {
                         // 너비 기준으로 설정
@@ -259,6 +273,7 @@ namespace TcgEngine.UI
                         aspectFitter.aspectRatio = spriteAspectRatio;
                         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
                     }
+                    
 
                     else
                     {
@@ -267,6 +282,7 @@ namespace TcgEngine.UI
                         aspectFitter.aspectRatio = spriteAspectRatio;
                         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
                     }
+                    */
                 }
 
                 else
@@ -285,6 +301,14 @@ namespace TcgEngine.UI
 
         public void SetMaterial(Material mat)
         {
+            if (title_background != null)
+                title_background.material = mat;
+            if (type_background != null)
+                type_background.material = mat;
+            if (range_background != null)
+                range_background.material = mat;
+            if (trait_background != null)
+                trait_background.material = mat;
             if (card_image != null)
                 card_image.material = mat;
             if (frame_image != null)

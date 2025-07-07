@@ -343,7 +343,7 @@ namespace TcgEngine
                 await TimeTool.Delay(200);
                 wait += 200;
                 if (wait >= wait_max)
-                    request.Abort(); //Abort to avoid unity errors on timeout
+                    request.Abort(); //Abort to avoid unity errors on 
             }
 
             WebResponse response = WebRequest.GetResponse(request);

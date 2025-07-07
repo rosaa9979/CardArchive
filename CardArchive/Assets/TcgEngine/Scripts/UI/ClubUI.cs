@@ -71,6 +71,7 @@ namespace TcgEngine.UI
 
         private void OnEnterMouse()
         {
+            Debug.Log("On Enter Mouse");
             focus = true;
         }
 
@@ -81,6 +82,7 @@ namespace TcgEngine.UI
 
         private void OnMouseDown()
         {
+            Debug.Log("On Mouse Down");
             if (GameTool.IsMobile())
                 focus = true;
         }

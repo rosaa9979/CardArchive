@@ -18,7 +18,10 @@ namespace TcgEngine.UI
         public Image[] ui_clubs;
         public CardUI[] ui_cards;
 
-
+        [SerializeField]
+        private Color available_color;
+        [SerializeField]
+        private Color unavailable_color;
         private string deck_id;
 
         void Awake()
@@ -68,7 +71,7 @@ namespace TcgEngine.UI
                 if (card_count != null)
                 {
                     card_count.text = deck.GetQuantity().ToString() + " / " + GameplayData.Get().deck_size.ToString();
-                    card_count.color = deck.GetQuantity() >= GameplayData.Get().deck_size ? Color.white : Color.red;
+                    card_count.color = deck.GetQuantity() >= GameplayData.Get().deck_size ? available_color : unavailable_color;
                 }
 
                 List<CardDataQ> cards = new List<CardDataQ>();
@@ -82,7 +85,18 @@ namespace TcgEngine.UI
                         cards.Add(card);
                 }
 
-                ShowCards(cards);
+                List<CardDataQ> clubs = new List<CardDataQ>();
+                foreach (UserCardData ucard in deck.clubs)
+                {
+                    CardDataQ card = new CardDataQ();
+                    card.card = CardData.Get(ucard.tid);
+                    card.variant = VariantData.Get(ucard.variant);
+                    card.quantity = ucard.quantity;
+                    if (card.card != null)
+                        cards.Add(card);
+                }
+
+                ShowCards(clubs);
             }
 
             gameObject.SetActive(deck != null);
@@ -102,18 +116,18 @@ namespace TcgEngine.UI
                 if (card_count != null)
                 {
                     card_count.text = deck.GetQuantity().ToString() + " / " + GameplayData.Get().deck_size.ToString();
-                    card_count.color = deck.GetQuantity() >= GameplayData.Get().deck_size ? Color.white : Color.red;
+                    card_count.color = deck.GetQuantity() >= GameplayData.Get().deck_size ? available_color : unavailable_color;
                 }
 
                 List<CardDataQ> dcards = new List<CardDataQ>();
-                VariantData variant = VariantData.GetDefault();
+                VariantData dvariant = VariantData.GetDefault();
                 foreach (CardData icard in deck.cards)
                 {
                     if (icard != null)
                     {
                         CardDataQ card = new CardDataQ();
                         card.card = icard;
-                        card.variant = variant;
+                        card.variant = dvariant;
                         card.quantity = 1;
                         dcards.Add(card);
                     }
@@ -128,14 +142,29 @@ namespace TcgEngine.UI
                         {
                             CardDataQ card = new CardDataQ();
                             card.card = slot.card;
-                            card.variant = variant;
+                            card.variant = dvariant;
                             card.quantity = 1;
                             dcards.Add(card);
                         }
                     }
                 }
 
-                ShowCards(dcards);
+                List<CardDataQ> ccards = new List<CardDataQ>();
+                VariantData cvariant = VariantData.GetDefault();
+                foreach (CardData icard in deck.clubs)
+                {
+                    if (icard != null)
+                    {
+                        CardDataQ card = new CardDataQ();
+                        card.card = icard;
+                        card.variant = cvariant;
+                        card.quantity = 1;
+                        ccards.Add(card);
+                    }
+                }
+            
+
+                ShowCards(ccards);
                 ShowClubs(deck.clubs);
             }
 

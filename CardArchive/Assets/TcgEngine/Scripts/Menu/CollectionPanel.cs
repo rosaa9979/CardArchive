@@ -209,7 +209,7 @@ namespace TcgEngine.UI
             RefreshFilters();
             RefreshCards();
             RefreshDeckList();
-            RefreshStarterDeck();
+            //RefreshStarterDeck();
         }
 
         private void RefreshFilters()

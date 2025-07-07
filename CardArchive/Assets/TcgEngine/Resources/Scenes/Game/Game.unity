@@ -4045,6 +4045,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1920072376106784948, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1930138281048795168, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -4362,6 +4367,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: club_icon2
       objectReference: {fileID: 0}
+    - target: {fileID: 4903045159210003040, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5429410634664673421, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_SizeDelta.x
@@ -4539,6 +4549,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: f7a9c507808a232409504503ffdf1d03,
         type: 3}
+    - target: {fileID: 7321128724874701746, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7454438617028610509, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_Color.a

@@ -259,7 +259,7 @@ namespace TcgEngine.UI
         public void OnClickAdventure()
         {
             return;
-            AdventurePanel.Get().Show();
+            //AdventurePanel.Get().Show();
         }
 
         public void OnClickPlayCode()
