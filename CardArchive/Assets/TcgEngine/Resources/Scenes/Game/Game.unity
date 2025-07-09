@@ -4249,8 +4249,13 @@ PrefabInstance:
       objectReference: {fileID: 855105196}
     - target: {fileID: 3227706374420851019, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 437.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227706374420851019, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -62.2
+      value: -31.100016
       objectReference: {fileID: 0}
     - target: {fileID: 3227706374420851019, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
@@ -4333,6 +4338,12 @@ PrefabInstance:
       propertyPath: m_FontData.m_Alignment
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 3792394172826261047, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f7a9c507808a232409504503ffdf1d03,
+        type: 3}
     - target: {fileID: 3838399564704447008, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: default_icon

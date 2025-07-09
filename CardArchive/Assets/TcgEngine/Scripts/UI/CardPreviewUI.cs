@@ -98,12 +98,12 @@ namespace TcgEngine.UI
                 //card_ui.SetCard(icard, pcard.VariantData);
                 card_ui.SetCard(pcard);
 
-                string cdesc = icard.GetDesc();
-                string adesc = icard.GetAbilitiesDesc();
-                if (!string.IsNullOrWhiteSpace(cdesc))
-                    this.desc.text = cdesc + "\n\n" + adesc;
-                else
-                    this.desc.text = adesc;
+                //string cdesc = icard.GetDesc();
+                //string adesc = icard.GetAbilitiesDesc();
+                //if (!string.IsNullOrWhiteSpace(cdesc))
+                //    this.desc.text = cdesc + "\n\n" + adesc;
+                //else
+                //    this.desc.text = adesc;
 
                 //Abilities
                 int index = 0;

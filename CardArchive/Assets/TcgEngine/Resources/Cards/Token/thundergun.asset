@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Thundergun
   title: "\uCC9C\uB465\uC774"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 7d5ec966136ebb7499a362574ac311d7, type: 3}
+  art_board: {fileID: 21300000, guid: b4ce4f02d9fc95045bc0f3f1efe409d9, type: 3}
   type: 11
   mana: 1
   attack: 1

@@ -32,7 +32,6 @@ namespace TcgEngine
 
         public override Color32 GetWeaponColor()
         {
-            Debug.Log("Back Color : "+ weapon_BACK_color);
             return weapon_BACK_color;
         }
 

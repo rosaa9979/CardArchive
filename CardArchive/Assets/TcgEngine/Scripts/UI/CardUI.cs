@@ -260,7 +260,7 @@ namespace TcgEngine.UI
 
                     // 높이가 부모의 부모의 30%를 넘는지 체크
                     float maxHeight = grandParentHeight * 0.2f;
-                    
+
                     // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
                     aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
                     aspectFitter.aspectRatio = spriteAspectRatio;
@@ -277,10 +277,12 @@ namespace TcgEngine.UI
 
                     else
                     {
-                        // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
-                        aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
-                        aspectFitter.aspectRatio = spriteAspectRatio;
-                        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
+                    */
+                    // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
+                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+                    aspectFitter.aspectRatio = spriteAspectRatio;
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
+                    /*
                     }
                     */
                 }
