@@ -15,6 +15,7 @@ namespace TcgEngine.UI
     {
         public Text title;
         public Text value;
+        public Text cost_value;
         public Image value_background;
         public IconValue cost;
         public UIPanel delete_btn;
@@ -66,7 +67,9 @@ namespace TcgEngine.UI
             if (value_background != null)
                 value_background.enabled = quantity > 1;
             if (cost != null)
-                    cost.value = card.mana;
+                cost.value = card.mana;
+            if (cost_value != null)
+                cost_value.text = card.mana.ToString();
             if (this.value != null)
                 this.value.color = invalid ? Color.red : Color.white;
             if(invalid)

@@ -292,7 +292,7 @@ namespace TcgEngine.UI
 
 
                     bool academy_check = 
-                        (!card.card.clubs.Any() && selected_academy == "전체 학원") ||
+                        (!card.card.clubs.Any() && selected_academy == "전체 학원" && selected_club == "전체 동아리") ||
                         card.card.clubs.Any(club =>
                             (selected_academy == "전체 학원" || club.academy.GetTitle() == selected_academy) &&
                             (selected_club == "전체 동아리" || club.GetTitle() == selected_club)
@@ -722,11 +722,8 @@ namespace TcgEngine.UI
 
             dropdown_club.AddOptions(club_list);
 
-            if (selected_academy == "전체 학원")
-            {
-                dropdown_club.value = 0; // "전체 동아리"가 첫 번째 항목이므로
-                dropdown_club.RefreshShownValue();
-            }
+            dropdown_club.value = 0; // "전체 동아리"가 첫 번째 항목이므로
+            dropdown_club.RefreshShownValue();
 
             RefreshCards();
         }

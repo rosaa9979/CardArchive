@@ -119,6 +119,7 @@ namespace TcgEngine.Client
                 target_alpha = 0f;
 
             card_ui.frame_image.sprite = player.player_id == card.player_id ? ally_frame : enemy_frame;
+            card_ui.frame_image.color = new Color32(255, 255, 255, 255);
             card_ui.attack_background.sprite = player.player_id == card.player_id ? ally_attack_bg : enemy_attack_bg;
             card_ui.hp_background.sprite = player.player_id == card.player_id ? ally_hp_bg : enemy_hp_bg;
 

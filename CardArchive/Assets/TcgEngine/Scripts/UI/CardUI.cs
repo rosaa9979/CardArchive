@@ -73,7 +73,16 @@ namespace TcgEngine.UI
 
             if (card.CardData.IsClub())
             {
-                //Debug.Log("Hello");
+                int count = 0;
+                Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
+
+                foreach (Card c in player.cards_board)
+                {
+                    if (c.HasClub(card.clubs[0].ClubData))
+                        count += 1;
+                }
+
+                cost.text = count.ToString();
             }
 
             else
@@ -120,20 +129,6 @@ namespace TcgEngine.UI
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
 
-            if (card.CardData.IsClub())
-            {
-                int count = 0;
-                Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
-
-                foreach (Card c in player.cards_board)
-                {
-                    if (c.HasClub(card.clubs[0].ClubData))
-                        count += 1;
-                }
-
-                cost.text = count.ToString();
-            }
-
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
                 
@@ -148,6 +143,45 @@ namespace TcgEngine.UI
 
             this.card = card;
             this.variant = variant;
+
+            if (frame_image != null)
+            {
+                Color32 frame_color = new Color32();
+
+                switch (card.type)
+                {
+                    case CardType.Hero:
+                        frame_color = new Color32(155, 89, 182, 255);
+                        break;
+
+                    case CardType.Club:
+                        frame_color = new Color32(46, 204, 113, 255);
+                        break;
+
+                    case CardType.Student:
+                        frame_color = new Color32(26, 188, 156, 255);
+                        break;
+
+                    case CardType.NonStudent:
+                        frame_color = new Color32(243, 156, 18, 255);
+                        break;
+
+                    case CardType.Place:
+                        frame_color = new Color32(63, 81, 181, 255);
+                        break;
+
+                    case CardType.Spell:
+                        frame_color = new Color32(231, 76, 60, 255);
+                        break;
+
+
+                    default:
+                        frame_color = new Color(255, 255, 255, 255);
+                        break;
+                }
+
+                frame_image.color = frame_color;
+            }
 
             if (type != null)
                 type.text = card.GetTypeId().ToString();

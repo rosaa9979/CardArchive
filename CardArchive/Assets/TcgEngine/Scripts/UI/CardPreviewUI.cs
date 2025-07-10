@@ -111,8 +111,9 @@ namespace TcgEngine.UI
                 {
                     if (index < status_lines.Length)
                     {
+                        if (!string.IsNullOrWhiteSpace(ability.desc))
                         //Dont display default ability (GetAbilitiesDesc does that already)
-                        if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
+                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
                         {
                             status_lines[index].SetLine(pcard.CardData, ability);
                             index++;

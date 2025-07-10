@@ -35,5 +35,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Haste
-  desc: Can attack immediately.
+  title: "\uC18D\uC0AC"
+  desc: "\uC18C\uD658\uB41C \uCC28\uB840\uC5D0 \uACF5\uACA9 \uAC00\uB2A5"
