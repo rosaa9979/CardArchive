@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Shimokura_Megu
   title: "\uC2DC\uBAA8\uCFE0\uB77C \uBA54\uAD6C"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: a7acb48137dd0ca4abc899bec94cdc5a, type: 3}
+  art_board: {fileID: 21300000, guid: b106d6ba7f2c13343a140cfdb20e0332, type: 3}
   type: 10
   mana: 2
   attack: 1
