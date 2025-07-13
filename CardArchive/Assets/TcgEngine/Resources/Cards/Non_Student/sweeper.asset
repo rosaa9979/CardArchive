@@ -28,7 +28,7 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 3e633064b8ed24c4294c69cb519efd9f, type: 2}
   text: "\uC18D\uC0AC"
-  desc: 
+  desc: Hello
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
