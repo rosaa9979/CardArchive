@@ -7,6 +7,8 @@ using TcgEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using TcgEngine.Client;
+using UnityEngine.SocialPlatforms.GameCenter;
+using UnityEngine.AI;
 
 namespace TcgEngine.UI
 {
@@ -18,6 +20,7 @@ namespace TcgEngine.UI
     public class CardUI : MonoBehaviour, IPointerClickHandler
     {
         public Image title_background;
+        public Image club_title_background;
         public Image card_image;
         public Image frame_image;
         public Image type_background;
@@ -44,6 +47,7 @@ namespace TcgEngine.UI
         private float padding = 20f;
 
         public Text card_title;
+        public Text card_club_title;
         public Text card_text;
 
         public TraitUI[] stats;
@@ -70,6 +74,24 @@ namespace TcgEngine.UI
                 return;
 
             SetCard(card.CardData, card.VariantData);
+
+            if (cost_icon != null)
+                cost_icon.enabled = true;
+            if (cost != null)
+                cost.enabled = true;
+
+            if (title_background != null)
+                title_background.enabled = true;
+                
+            if (card_title != null)
+                card_title.enabled = true;
+
+            if (club_title_background != null)
+                club_title_background.enabled = false;
+            if (card_club_title != null)
+                card_club_title.enabled = false;
+            
+
 
             if (card.CardData.IsClub())
             {
@@ -191,6 +213,8 @@ namespace TcgEngine.UI
             //    frame_image.sprite = variant.frame;
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
+            if (card_club_title != null)
+                card_club_title.text = card.GetTitle().ToUpper();
             if (card_text != null)
                 card_text.text = card.GetText();
 
@@ -250,6 +274,44 @@ namespace TcgEngine.UI
             //    team_icon.sprite = card.team.icon;
             //    team_icon.enabled = team_icon.sprite != null;
             //}
+
+            if (card.IsClub())
+            {
+                if (cost_icon != null)
+                    cost_icon.enabled = false;
+                if (cost != null)
+                    cost.enabled = false;
+
+                if (title_background != null)
+                    title_background.enabled = false;
+                if (card_title != null)
+                    card_title.enabled = false;
+
+                if (club_title_background != null)
+                    club_title_background.enabled = true;
+
+                if (card_club_title != null)
+                    card_club_title.enabled = true;
+            }
+
+            else
+            {
+                if (cost_icon != null)
+                    cost_icon.enabled = true;
+                if (cost != null)
+                    cost.enabled = true;
+
+                if (title_background != null)
+                    title_background.enabled = true;
+                if (card_title != null)
+                    card_title.enabled = true;
+
+                if (club_title_background != null)
+                    club_title_background.enabled = false;
+
+                if (card_club_title != null)
+                    card_club_title.enabled = false;
+            }
 
             if (clubs != null && club_background != null)
             {
