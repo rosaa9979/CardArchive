@@ -44,8 +44,10 @@ namespace TcgEngine.UI
             //Loop through the rest of the child object
             for (int i = 1; i < grid.transform.childCount; i++)
             {
+                if (!grid.transform.GetChild(i).gameObject.activeSelf)
+                    continue;
                 //Get the next child
-                RectTransform currentChildObj = grid.transform.GetChild(i).GetComponent<RectTransform>();
+                    RectTransform currentChildObj = grid.transform.GetChild(i).GetComponent<RectTransform>();
                 Vector2 currentChildPos = currentChildObj.anchoredPosition;
 
                 //check if column or row

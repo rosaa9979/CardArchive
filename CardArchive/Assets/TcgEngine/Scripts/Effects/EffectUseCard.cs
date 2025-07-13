@@ -61,8 +61,6 @@ namespace TcgEngine
         {
             Game data = logic.GetGameData();
 
-            Debug.Log("use card");
-
             Player player = logic.GameData.GetPlayer(caster.player_id);
             Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
 

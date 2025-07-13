@@ -115,7 +115,6 @@ namespace TcgEngine
             Player player = GetPlayer(card.player_id);
             if (!skip_cost && !player.CanPayMana(card))
             {
-                Debug.Log("Debug1");
                 return false; //Cant pay mana
             }
 
@@ -123,7 +122,6 @@ namespace TcgEngine
 
             if (!player.HasCard(player.cards_hand, card) && !skip_cost)
             {
-                Debug.Log("Debug2");
                 return false; // Card not in hand
             }
 
@@ -134,7 +132,6 @@ namespace TcgEngine
             {
                 if (!slot.IsValid() || IsCardOnSlot(slot))
                 {
-                    Debug.Log("Debug3");
                     return false;   //Slot already occupied
                 }
 
@@ -151,7 +148,6 @@ namespace TcgEngine
 
                 if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
                 {
-                    Debug.Log("Debug5");
                     return false; //Cant play place card in wrong slot
                 }
 
@@ -692,9 +688,6 @@ namespace TcgEngine
 
         public bool IsCardOnSlot(Slot slot)
         {
-            Debug.Log("1");
-            Debug.Log(GetSlotCard(slot));
-            Debug.Log("2");
             return GetSlotCard(slot) != null;
         }
 

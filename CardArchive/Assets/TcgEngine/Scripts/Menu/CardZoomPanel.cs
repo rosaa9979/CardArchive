@@ -73,7 +73,9 @@ namespace TcgEngine.UI
             card_ui.SetCard(card, variant);
             string desc = card.GetDesc();
             string adesc = card.GetAbilitiesDesc();
-            if(!string.IsNullOrWhiteSpace(desc))
+            Debug.Log(desc);
+            Debug.Log(adesc);
+            if (!string.IsNullOrWhiteSpace(desc))
                 this.desc.text = desc + "\n\n" + adesc;
             else
                 this.desc.text = adesc;

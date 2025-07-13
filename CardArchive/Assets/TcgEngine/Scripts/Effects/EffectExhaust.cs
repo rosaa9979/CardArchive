@@ -17,7 +17,6 @@ namespace TcgEngine
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             target.exhausted = exhausted;
-            Debug.Log("attacker exhausted");
         }
 
     }

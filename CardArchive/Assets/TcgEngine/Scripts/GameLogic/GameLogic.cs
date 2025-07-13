@@ -1068,11 +1068,11 @@ namespace TcgEngine.Gameplay
             //    return null;
 
             Card card = SummonCardHand(player, icard, variant);
-            Debug.Log(game_data.CanPlayCard(card, slot, true));
+            
             if (game_data.CanPlayCard(card, slot, true))
             {
                 //Player player = game_data.GetPlayer(card.player_id);
-                
+
                 //Cost
                 /*
                 if (!skip_cost)
@@ -1123,7 +1123,7 @@ namespace TcgEngine.Gameplay
                 }
 
                 //History
-                if(!is_ai_predict && !icard.IsSecret())
+                if (!is_ai_predict && !icard.IsSecret())
                     player.AddHistory(GameAction.PlayCard, card);
 
                 //Update ongoing effects
@@ -1556,9 +1556,6 @@ namespace TcgEngine.Gameplay
 
             if (was_on_board)
             {
-                Debug.Log("ondeath");
-                Debug.Log(game_data.GetSlotCard(card.slot));
-                Debug.Log("ondeath1");
                 //Trigger on death abilities
                 TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);

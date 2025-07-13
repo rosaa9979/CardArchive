@@ -42,10 +42,10 @@ namespace TcgEngine.UI
             {
                 foreach (UserDeckData deck in udata.decks)
                 {
-                    if (udata.IsDeckValid(deck))
-                    {
-                        deck_dropdown.AddOption(deck.tid, deck.title);
-                    }
+                    //if (udata.IsDeckValid(deck))
+                    //{
+                    deck_dropdown.AddOption(deck.tid, deck.title);
+                    //}
                 }
             }
         }

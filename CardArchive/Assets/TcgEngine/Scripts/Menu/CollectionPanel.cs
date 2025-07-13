@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace TcgEngine.UI
 {
@@ -28,9 +29,9 @@ namespace TcgEngine.UI
         public Toggle toggle_place;
         public Toggle toggle_event;
 
-        public Dropdown dropdown_academy;
-        public Dropdown dropdown_club;
-        public InputField search;
+        public TMP_Dropdown dropdown_academy;
+        public TMP_Dropdown dropdown_club;
+        public TMP_InputField search;
 
         [Header("Right Side")]
         public UIPanel deck_list_panel;
@@ -41,11 +42,15 @@ namespace TcgEngine.UI
         public ManaFilter mana_filter;
 
         [Header("Deckbuilding")]
-        public InputField deck_title;
+        public TMP_InputField deck_title;
         public Text deck_quantity;
         public GameObject deck_cards_prefab;
         public RectTransform deck_content;
         public GridLayoutGroup deck_grid;
+
+        public Color32 available_color;
+        public Color32 unavailable_color;
+
         //public IconButton[] hero_powers;
         public DeckClub[] edit_deck_club;
 
@@ -97,11 +102,12 @@ namespace TcgEngine.UI
             base.Start();
 
             //Set Acdemy / Club Dropdown Option
-            List<string> academy_options = new List<string> { "전체 학원" };
+            List<TMP_Dropdown.OptionData> academy_options = new List<TMP_Dropdown.OptionData>();
+            academy_options.Add(new TMP_Dropdown.OptionData("전체 학원"));
 
             foreach (AcademyData academy in AcademyData.GetAll())
             {
-                academy_options.Add(academy.GetTitle());
+                academy_options.Add(new TMP_Dropdown.OptionData(academy.GetTitle()));
             }
             dropdown_academy.AddOptions(academy_options);
 
@@ -265,7 +271,9 @@ namespace TcgEngine.UI
                 CardDataQ card = new CardDataQ();
                 card.card = icard;
                 card.variant = variant;
-                card.quantity = udata.GetCardQuantity(icard, variant);
+                // 모든 카드를 두 장씩 지급
+                //card.quantity = udata.GetCardQuantity(icard, variant);
+                card.quantity = 2;
                 all_cards.Add(card);
             }
 
@@ -349,7 +357,9 @@ namespace TcgEngine.UI
                 CardData icard = card.GetCard();
                 VariantData ivariant = card.GetVariant();
                 bool owned = IsCardOwned(udata, icard, ivariant, 1);
-                int quantity = udata.GetCardQuantity(icard, ivariant);
+                // 모든 카드를 두 장씩 지급
+                int quantity = 2;
+                //int quantity = udata.GetCardQuantity(icard, ivariant);
                 card.SetQuantity(quantity);
                 card.SetGrayscale(!owned);
             }
@@ -475,7 +485,7 @@ namespace TcgEngine.UI
             }
 
             deck_quantity.text = count + "/" + GameplayData.Get().deck_size;
-            deck_quantity.color = count >= GameplayData.Get().deck_size ? Color.white : Color.red;
+            deck_quantity.color = count == GameplayData.Get().deck_size ? available_color : unavailable_color;
 
             RefreshCardsQuantities();
         }
@@ -765,7 +775,9 @@ namespace TcgEngine.UI
                 int max_size = icard.IsStudent() ? GameplayData.Get().deck_student_duplicate_max : GameplayData.Get().deck_non_student_duplicate_max;
                 bool deck_limit = in_deck_same < max_size;
 
-                if (owner && deck_limit && club_limit)
+                bool deck_full = deck_cards.Count < GameplayData.Get().deck_size;
+
+                if (owner && deck_limit && club_limit && deck_full)
                 {
                     AddDeckCard(icard, variant);
                     RefreshDeckCards();
@@ -911,7 +923,9 @@ namespace TcgEngine.UI
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)
         {
-            return udata.GetCardQuantity(card, variant) >= quantity;
+            // 모든 카드를 두 장씩 지급
+            return true;
+            //return udata.GetCardQuantity(card, variant) >= quantity;
         }
 
         private string GetSelectedHeroId()

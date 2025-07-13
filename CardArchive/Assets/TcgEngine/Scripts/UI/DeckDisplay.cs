@@ -22,6 +22,8 @@ namespace TcgEngine.UI
         private Color available_color;
         [SerializeField]
         private Color unavailable_color;
+        [SerializeField]
+        private Sprite default_club_icon;
         private string deck_id;
 
         void Awake()
@@ -42,6 +44,8 @@ namespace TcgEngine.UI
                 card_count.text = "";
             foreach (CardUI card in ui_cards)
                 card.Hide();
+            foreach (Image club in ui_clubs)
+                club.sprite = default_club_icon;
         }
 
         public void SetDeck(string tid)
@@ -93,10 +97,11 @@ namespace TcgEngine.UI
                     card.variant = VariantData.Get(ucard.variant);
                     card.quantity = ucard.quantity;
                     if (card.card != null)
-                        cards.Add(card);
+                        clubs.Add(card);
                 }
 
                 ShowCards(clubs);
+                ShowClubs(clubs);
             }
 
             gameObject.SetActive(deck != null);
@@ -165,7 +170,7 @@ namespace TcgEngine.UI
             
 
                 ShowCards(ccards);
-                ShowClubs(deck.clubs);
+                ShowClubs(ccards);
             }
 
             gameObject.SetActive(deck != null);
@@ -190,15 +195,15 @@ namespace TcgEngine.UI
             }
         }
 
-        public void ShowClubs(CardData[] clubs)
+        public void ShowClubs(List<CardDataQ> clubs)
         {
             int index = 0;
-            foreach (CardData icard in clubs)
+            foreach (CardDataQ icard in clubs)
             {
                 if (index < ui_clubs.Length)
                 {
                     Image club_ui = ui_clubs[index];
-                    club_ui.sprite = icard.clubs[0].icon;
+                    club_ui.sprite = icard.card.clubs[0].icon;
                     index++;
                 }
             }

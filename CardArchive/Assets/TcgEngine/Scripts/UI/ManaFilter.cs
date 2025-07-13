@@ -31,8 +31,6 @@ public class ManaFilter : MonoBehaviour
 
     public void OnManaToggleChanged(int clickedIndex, bool isOn)
     {
-        Debug.Log($"Toggle {clickedIndex} changed to {isOn}, isFiltering: {isFiltering}");
-
         if (!isFiltering)
         {
             // 모든 토글이 활성화된 상태에서 하나를 클릭

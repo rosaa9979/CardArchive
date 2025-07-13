@@ -191,7 +191,7 @@ namespace TcgEngine.FX
                 if (btarget != null)
                 {
                     //Card charge into target
-                    ChargeInto(btarget);
+                    //ChargeInto(btarget);
 
                     //Show Damage Number FX on self
                     //if(!attacker.HasStatus(StatusType.Intimidate))

@@ -231,6 +231,9 @@ namespace TcgEngine.UI
 
         public void OnClickSolo()
         {
+            //if (!GameClient.player_settings.deck.IsValid())
+            //    return;
+
             if (!Authenticator.Get().IsConnected())
             {
                 FadeToScene("LoginMenu");
@@ -247,6 +250,9 @@ namespace TcgEngine.UI
 
         public void OnClickPvP()
         {
+            if (!GameClient.player_settings.deck.IsValid())
+                return;
+                
             if (!Authenticator.Get().IsConnected())
             {
                 FadeToScene("LoginMenu");
@@ -258,12 +264,18 @@ namespace TcgEngine.UI
 
         public void OnClickAdventure()
         {
+            //if (!GameClient.player_settings.deck.IsValid())
+            //    return;
+
             return;
             //AdventurePanel.Get().Show();
         }
 
         public void OnClickPlayCode()
         {
+            if (!GameClient.player_settings.deck.IsValid())
+                return;
+
             JoinCodePanel.Get().Show();
         }
         

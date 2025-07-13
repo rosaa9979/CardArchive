@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class CustomInputFieldPlaceholder : MonoBehaviour
 {
-    public InputField inputField;
+    public TMP_InputField inputField;
     public Text placeholder;
 
     void Start()
