@@ -90,6 +90,12 @@ namespace TcgEngine.UI
                 club_title_background.enabled = false;
             if (card_club_title != null)
                 card_club_title.enabled = false;
+
+            if (type_background != null)
+                type_background.enabled = true;
+
+            if (type != null)
+                type.enabled = true;
             
 
 
@@ -292,6 +298,12 @@ namespace TcgEngine.UI
 
                 if (card_club_title != null)
                     card_club_title.enabled = true;
+
+                if (type_background != null)
+                    type_background.enabled = false;
+
+                if (type != null)
+                    type.enabled = false;
             }
 
             else

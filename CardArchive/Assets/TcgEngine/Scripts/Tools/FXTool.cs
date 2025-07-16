@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Spine.Unity;
 using TcgEngine.FX;
 using TcgEngine.Client;
 
@@ -12,6 +13,18 @@ namespace TcgEngine
 
     public class FXTool : MonoBehaviour
     {
+        private const string CHARACTER_SKELETON_DATA_PATH = "Spine/AttackShot/shot_SkeletonData";
+
+        public static GameObject DoSpineFX(Vector3 pos, Quaternion rotation)
+        {
+            SkeletonDataAsset skeletonDataAsset= Resources.Load<SkeletonDataAsset>(CHARACTER_SKELETON_DATA_PATH);
+            SkeletonAnimation spawnedSkeleton = SkeletonAnimation.NewSkeletonAnimationGameObject(skeletonDataAsset);
+            spawnedSkeleton.transform.position = pos;
+            spawnedSkeleton.transform.rotation = GetFXRotation();
+            spawnedSkeleton.Initialize(true);
+            spawnedSkeleton.AnimationState.SetAnimation(0, "animation", false);
+            return null;
+        }
         public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = 5f)
         {
             if (fx_prefab != null)

@@ -192,6 +192,9 @@ namespace TcgEngine.FX
                 {
                     //Card charge into target
                     //ChargeInto(btarget);
+                    Debug.Log("Hello");
+                    Quaternion rot = Quaternion.LookRotation(bcard.transform.position, btarget.transform.position);
+                    FXTool.DoSpineFX(bcard.transform.position, rot);
 
                     //Show Damage Number FX on self
                     //if(!attacker.HasStatus(StatusType.Intimidate))
@@ -228,7 +231,9 @@ namespace TcgEngine.FX
                 CardData icard = bcard.GetCardData();
                 BoardSlotPlayer zone = BoardSlotPlayer.Get(is_other);
 
-                ChargeIntoPlayer(zone);
+                Quaternion rot = Quaternion.LookRotation(bcard.transform.position, zone.transform.position);
+                FXTool.DoSpineFX(bcard.transform.position, rot);
+                //ChargeIntoPlayer(zone);
 
                 AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
                 AudioTool.Get().PlaySFX("card_attack", audio);
