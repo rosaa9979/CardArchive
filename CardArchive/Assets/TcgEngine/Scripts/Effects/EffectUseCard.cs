@@ -22,7 +22,6 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/UseCard", order = 10)]
     public class EffectUseCard : EffectData
     {
-        public EffectLastType last_type;
         public CardData use;
         public bool use_opponent;
 
@@ -63,24 +62,11 @@ namespace TcgEngine
 
             Player player = logic.GameData.GetPlayer(caster.player_id);
             Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
-
-            Card last_card = null;
-            
-            if (last_type == EffectLastType.LastTargeted)
-                last_card = data.GetCard(data.last_target);
-                
-            if (last_type != EffectLastType.None)
-            {
-                logic.PlayCard(last_card, target, true);
-            }
-
+ 
+            if (use_opponent)
+                logic.UseCard(oplayer, use, caster.VariantData, target);
             else
-            {
-                if (use_opponent)
-                    logic.UseCard(oplayer, use, caster.VariantData, target);
-                else
-                    logic.UseCard(player, use, caster.VariantData, target);
-            }
+                logic.UseCard(player, use, caster.VariantData, target);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target)

@@ -16,13 +16,12 @@ MonoBehaviour:
   trigger: 2
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 10
-  conditions_target:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
-  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
+  criteria_target: 10
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
+  condition_target:
+  - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 86b26ca3d37e53a448e73068cf9069b9, type: 2}
