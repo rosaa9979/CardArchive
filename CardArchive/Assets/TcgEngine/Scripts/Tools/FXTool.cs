@@ -19,15 +19,20 @@ namespace TcgEngine
         {
             SkeletonDataAsset skeletonDataAsset= Resources.Load<SkeletonDataAsset>(CHARACTER_SKELETON_DATA_PATH);
             SkeletonAnimation spawnedSkeleton = SkeletonAnimation.NewSkeletonAnimationGameObject(skeletonDataAsset);
-            spawnedSkeleton.transform.position = pos;
-            spawnedSkeleton.transform.rotation = rotation;
-            spawnedSkeleton.transform.localScale = Vector3.one * 0.3f;
+            if (spawnedSkeleton != null)
+            {
+                spawnedSkeleton.transform.position = pos;
+                spawnedSkeleton.transform.rotation = rotation;
 
-            Renderer spawnedSkeletonRenderer = spawnedSkeleton.GetComponent<Renderer>();
-            if (spawnedSkeletonRenderer != null)
-                spawnedSkeletonRenderer.sortingOrder = 999;
-            spawnedSkeleton.Initialize(true);
-            spawnedSkeleton.AnimationState.SetAnimation(0, "animation", false);
+                Renderer spawnedSkeletonRenderer = spawnedSkeleton.GetComponent<Renderer>();
+                if (spawnedSkeletonRenderer != null)
+                    spawnedSkeletonRenderer.sortingOrder = 999;
+                spawnedSkeleton.Initialize(true);
+                spawnedSkeleton.AnimationState.SetAnimation(0, "animation", false);
+
+                return spawnedSkeleton.gameObject;
+            }
+
             return null;
         }
         public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = 5f)

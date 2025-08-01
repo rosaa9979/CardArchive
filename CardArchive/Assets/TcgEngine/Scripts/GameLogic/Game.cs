@@ -403,7 +403,7 @@ namespace TcgEngine
 
             foreach (AbilityData ability in caster.GetAbilities())
             {
-                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.target == AbilityTarget.PlayTarget)
+                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.PlayTarget)
                 {
                     if (!ability.CanTarget(this, caster, target))
                         return false;
@@ -420,7 +420,7 @@ namespace TcgEngine
 
             foreach (AbilityData ability in caster.GetAbilities())
             {
-                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.target == AbilityTarget.PlayTarget)
+                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.PlayTarget)
                 {
                     if (!ability.CanTarget(this, caster, target))
                         return false;
@@ -444,7 +444,7 @@ namespace TcgEngine
 
             foreach (AbilityData ability in caster.GetAbilities())
             {
-                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.target == AbilityTarget.PlayTarget)
+                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.PlayTarget)
                 {
                     if (!ability.CanTarget(this, caster, target))
                         return false;

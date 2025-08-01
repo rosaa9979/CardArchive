@@ -479,7 +479,7 @@ namespace TcgEngine.AI
             if (player == null || caster == null || ability == null)
                 return;
 
-            if (ability.target == AbilityTarget.SelectTarget)
+            if (ability.criteria_target == AbilityTarget.SelectTarget)
             {
                 for (int p = 0; p < data.players.Length; p++)
                 {
@@ -510,7 +510,7 @@ namespace TcgEngine.AI
                 }
             }
 
-            if (ability.target == AbilityTarget.CardSelector)
+            if (ability.criteria_target == AbilityTarget.CardSelector)
             {
                 for (int p = 0; p < data.players.Length; p++)
                 {
@@ -524,7 +524,7 @@ namespace TcgEngine.AI
                 }
             }
 
-            if (ability.target == AbilityTarget.ChoiceSelector)
+            if (ability.criteria_target == AbilityTarget.ChoiceSelector)
             {
                 for(int i=0; i<ability.chain_abilities.Length; i++)
                 {

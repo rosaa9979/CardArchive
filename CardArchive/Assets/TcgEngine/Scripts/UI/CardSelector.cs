@@ -169,7 +169,7 @@ namespace TcgEngine.UI
                 {
                     Card selected_card = selector_card.GetCard();
                     Card caster = data.GetCard(data.selector_caster_uid);
-                    if (selected_card != null && iability.AreTargetConditionsMet(data, caster, selected_card))
+                    if (selected_card != null && iability.AreCriteriaTargetConditionsMet(data, caster, selected_card))
                     {
                         GameClient.Get().SelectCard(selected_card);
                         Hide();

@@ -486,7 +486,7 @@ namespace TcgEngine
         {
             foreach (AbilityData iability in GetAbilities())
             {
-                if (iability.trigger == trigger && iability.target == target)
+                if (iability.trigger == trigger && iability.criteria_target == target)
                     return true;
             }
             return false;

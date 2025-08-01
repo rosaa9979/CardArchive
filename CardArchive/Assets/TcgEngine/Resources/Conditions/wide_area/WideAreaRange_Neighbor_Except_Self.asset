@@ -9,8 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: feda2b44ab25b084f863d7101dbd7e84, type: 3}
-  m_Name: Foreclosure_Task_Force
+  m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
+  m_Name: WideAreaRange_Neighbor_Except_Self
   m_EditorClassIdentifier: 
-  id: Foreclosure_Task_Force
-  title: "\uB300\uCC45\uC704\uC6D0\uD68C"
+  directions:
+  - dx: -1
+    dy: 0
+  - dx: 0
+    dy: 1
+  - dx: 1
+    dy: 1
+  - dx: 1
+    dy: 0
+  - dx: 0
+    dy: -1
+  - dx: -1
+    dy: -1

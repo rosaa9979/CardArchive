@@ -374,6 +374,7 @@ namespace TcgEngine
 
         public bool IsValid()
         {
+            Debug.Log(title);
             return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && GetQuantity() == GameplayData.Get().deck_size && GetClubQuantity() <= GameplayData.Get().club_size;
         }
 

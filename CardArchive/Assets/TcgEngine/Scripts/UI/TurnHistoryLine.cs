@@ -83,7 +83,7 @@ namespace TcgEngine.UI
 
             if (history.type == GameAction.CastAbility && iability != null)
             {
-                if (iability.target == AbilityTarget.SelectTarget && itarget != null)
+                if (iability.criteria_target == AbilityTarget.SelectTarget && itarget != null)
                 {
                     string text = icard.title + " casted " + iability.GetTitle() + " on " + itarget.title;
                     SetLine(icard, variant, text);

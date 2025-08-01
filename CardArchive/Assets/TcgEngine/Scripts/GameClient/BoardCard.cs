@@ -166,7 +166,7 @@ namespace TcgEngine.Client
                 {
                     if (iability && data.CanCastAbility(card, iability))
                     {
-                        if (iability.target != AbilityTarget.Self || iability.AreTargetConditionsMet(data, card, card))
+                        if (iability.criteria_target != AbilityTarget.Self || iability.AreCriteriaTargetConditionsMet(data, card, card))
                         {
                             if (index < buttons.Length)
                             {

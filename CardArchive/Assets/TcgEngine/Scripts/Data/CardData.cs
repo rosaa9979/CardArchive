@@ -320,7 +320,7 @@ namespace TcgEngine
         {
             foreach (AbilityData ability in abilities)
             {
-                if (ability && ability.trigger == trigger && ability.target == target)
+                if (ability && ability.trigger == trigger && ability.criteria_target == target)
                     return true;
             }
             return false;

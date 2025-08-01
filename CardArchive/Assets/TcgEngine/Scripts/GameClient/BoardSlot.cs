@@ -65,7 +65,7 @@ namespace TcgEngine.Client
                 attachment.SetActive(false);
 
             target_alpha = 1f;
-            /*
+            
             //Find target opacity value
             if (drag_card != null)
             {
@@ -100,7 +100,7 @@ namespace TcgEngine.Client
                     target_alpha = 1f;
                 }
             }
-            */
+            
         }
 
         //Find the actual slot coordinates of this board slot

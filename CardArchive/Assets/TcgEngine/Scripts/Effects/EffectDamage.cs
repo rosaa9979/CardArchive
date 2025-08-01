@@ -49,6 +49,8 @@ namespace TcgEngine
             logic.DamageCard(caster, logic.GameData.GetSlotCard(target), damage, true);
             */
 
+            Debug.Log(target.x + " " + target.y);
+
             int damage = GetDamage(logic.GameData, caster, ability.value);
             logic.DamageCard_Event(caster, target, damage, true);
         }

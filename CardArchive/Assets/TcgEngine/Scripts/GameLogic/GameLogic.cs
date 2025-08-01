@@ -774,7 +774,7 @@ namespace TcgEngine.Gameplay
             if (game_data.CanCastAbility(card, iability))
             {
                 Player player = game_data.GetPlayer(card.player_id);
-                if (!is_ai_predict && iability.target != AbilityTarget.SelectTarget)
+                if (!is_ai_predict && iability.criteria_target != AbilityTarget.SelectTarget)
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
                 TriggerCardAbility(iability, card);
@@ -833,6 +833,9 @@ namespace TcgEngine.Gameplay
             }
 
             onAttackStart?.Invoke(attacker, target);
+
+            if (attacker.GetWeaponType() == WeaponType.FRONT)
+                onAttackStart?.Invoke(target, attacker);
             //attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
@@ -1716,18 +1719,18 @@ namespace TcgEngine.Gameplay
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
         {
-            if (iability.target == AbilityTarget.SelectTarget || iability.target == AbilityTarget.SelectCard || iability.target == AbilityTarget.SelectSlot)
+            if (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot)
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
             }
-            else if (iability.target == AbilityTarget.CardSelector)
+            else if (iability.criteria_target == AbilityTarget.CardSelector)
             {
                 GoToSelectorCard(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
             }
-            else if (iability.target == AbilityTarget.ChoiceSelector)
+            else if (iability.criteria_target == AbilityTarget.ChoiceSelector)
             {
                 GoToSelectorChoice(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
@@ -1737,7 +1740,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveCardAbilityPlayTarget(AbilityData iability, Card caster)
         {
-            if (iability.target == AbilityTarget.PlayTarget)
+            if (iability.criteria_target == AbilityTarget.PlayTarget)
             {
                 Slot slot = caster.slot;
                 Card slot_card = game_data.GetSlotCard(slot);
@@ -1813,7 +1816,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveCardAbilityNoTarget(AbilityData iability, Card caster)
         {
-            if (iability.target == AbilityTarget.None)
+            if (iability.criteria_target == AbilityTarget.None)
                 iability.DoEffects(this, caster);
         }
 
@@ -1870,7 +1873,7 @@ namespace TcgEngine.Gameplay
             CheckForWinner();
 
             //Chain ability
-            if (iability.target != AbilityTarget.ChoiceSelector && game_data.state != GameState.GameEnded)
+            if (iability.criteria_target != AbilityTarget.ChoiceSelector && game_data.state != GameState.GameEnded)
             {
                 foreach (AbilityData chain_ability in iability.chain_abilities)
                 {
@@ -2086,30 +2089,30 @@ namespace TcgEngine.Gameplay
                 AbilityData ability = cabilities[a];
                 if (ability != null && ability.trigger == AbilityTrigger.Ongoing && ability.AreTriggerConditionsMet(game_data,  card))
                 {
-                    if (ability.target == AbilityTarget.Self)
+                    if (ability.criteria_target == AbilityTarget.Self)
                     {
-                        if (ability.AreTargetConditionsMet(game_data, card, card))
+                        if (ability.AreCriteriaTargetConditionsMet(game_data, card, card))
                         {
                             ability.DoOngoingEffects(this, card, card);
                         }
                     }
 
-                    if (ability.target == AbilityTarget.PlayerSelf)
+                    if (ability.criteria_target == AbilityTarget.PlayerSelf)
                     {
-                        if (ability.AreTargetConditionsMet(game_data, card, player))
+                        if (ability.AreCriteriaTargetConditionsMet(game_data, card, player))
                         {
                             ability.DoOngoingEffects(this, card, player);
                         }
                     }
 
-                    if (ability.target == AbilityTarget.AllPlayers || ability.target == AbilityTarget.PlayerOpponent)
+                    if (ability.criteria_target == AbilityTarget.AllPlayers || ability.criteria_target == AbilityTarget.PlayerOpponent)
                     {
                         for (int tp = 0; tp < game_data.players.Length; tp++)
                         {
-                            if (ability.target == AbilityTarget.AllPlayers || tp != player.player_id)
+                            if (ability.criteria_target == AbilityTarget.AllPlayers || tp != player.player_id)
                             {
                                 Player oplayer = game_data.players[tp];
-                                if (ability.AreTargetConditionsMet(game_data, card, oplayer))
+                                if (ability.AreCriteriaTargetConditionsMet(game_data, card, oplayer))
                                 {
                                     ability.DoOngoingEffects(this, card, oplayer);
                                 }
@@ -2117,13 +2120,13 @@ namespace TcgEngine.Gameplay
                         }
                     }
 
-                    if (ability.target == AbilityTarget.EquippedCard)
+                    if (ability.criteria_target == AbilityTarget.EquippedCard)
                     {
                         if (card.CardData.IsEquipment())
                         {
                             //Get bearer of the equipment
                             Card target = player.GetBearerCard(card);
-                            if (target != null && ability.AreTargetConditionsMet(game_data, card, target))
+                            if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target))
                             {
                                 ability.DoOngoingEffects(this, card, target);
                             }
@@ -2132,14 +2135,14 @@ namespace TcgEngine.Gameplay
                         {
                             //Get equipped card
                             Card target = game_data.GetCard(card.equipped_uid);
-                            if (target != null && ability.AreTargetConditionsMet(game_data, card, target))
+                            if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target))
                             {
                                 ability.DoOngoingEffects(this, card, target);
                             }
                         }
                     }
 
-                    if (ability.target == AbilityTarget.AttachedSlot)
+                    if (ability.criteria_target == AbilityTarget.AttachedSlot)
                     {
                         if (card.CardData.IsAttachment())
                         {
@@ -2153,7 +2156,7 @@ namespace TcgEngine.Gameplay
                         }
                     }
 
-                    if (ability.target == AbilityTarget.AllCardsAllPiles || ability.target == AbilityTarget.AllCardsHand || ability.target == AbilityTarget.AllCardsBoard)
+                    if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand || ability.criteria_target == AbilityTarget.AllCardsBoard)
                     {
                         for (int tp = 0; tp < game_data.players.Length; tp++)
                         {
@@ -2161,12 +2164,12 @@ namespace TcgEngine.Gameplay
                             Player tplayer = game_data.players[tp];
 
                             //Hand Cards
-                            if (ability.target == AbilityTarget.AllCardsAllPiles || ability.target == AbilityTarget.AllCardsHand)
+                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand)
                             {
                                 for (int tc = 0; tc < tplayer.cards_hand.Count; tc++)
                                 {
                                     Card tcard = tplayer.cards_hand[tc];
-                                    if (ability.AreTargetConditionsMet(game_data, card, tcard))
+                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
                                     {
                                         ability.DoOngoingEffects(this, card, tcard);
                                     }
@@ -2174,12 +2177,12 @@ namespace TcgEngine.Gameplay
                             }
 
                             //Board Cards
-                            if (ability.target == AbilityTarget.AllCardsAllPiles || ability.target == AbilityTarget.AllCardsBoard)
+                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsBoard)
                             {
                                 for (int tc = 0; tc < tplayer.cards_board.Count; tc++)
                                 {
                                     Card tcard = tplayer.cards_board[tc];
-                                    if (ability.AreTargetConditionsMet(game_data, card, tcard))
+                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
                                     {
                                         ability.DoOngoingEffects(this, card, tcard);
                                     }
@@ -2187,12 +2190,12 @@ namespace TcgEngine.Gameplay
                             }
 
                             //Equip Cards
-                            if (ability.target == AbilityTarget.AllCardsAllPiles)
+                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles)
                             {
                                 for (int tc = 0; tc < tplayer.cards_equip.Count; tc++)
                                 {
                                     Card tcard = tplayer.cards_equip[tc];
-                                    if (ability.AreTargetConditionsMet(game_data, card, tcard))
+                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
                                     {
                                         ability.DoOngoingEffects(this, card, tcard);
                                     }
@@ -2380,7 +2383,7 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (ability.target == AbilityTarget.SelectCard)
+                if (ability.criteria_target == AbilityTarget.SelectCard)
                     SelectCard(target_card);
                 
                 else
@@ -2396,7 +2399,7 @@ namespace TcgEngine.Gameplay
 
                     List<Slot> targets = new List<Slot>();
 
-                    if (ability.target == AbilityTarget.SelectTarget || ability.target == AbilityTarget.SelectSlot)
+                    if (ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectSlot)
                         targets = Slot.GetAll();
                     
                     foreach (Slot targ in targets)
@@ -2425,7 +2428,7 @@ namespace TcgEngine.Gameplay
             if (caster == null || ability == null || choice < 0)
                 return;
 
-            if (game_data.selector == SelectorType.SelectorChoice && ability.target == AbilityTarget.ChoiceSelector)
+            if (game_data.selector == SelectorType.SelectorChoice && ability.criteria_target == AbilityTarget.ChoiceSelector)
             {
                 if (choice >= 0 && choice < ability.chain_abilities.Length)
                 {

@@ -15,4 +15,4 @@ MonoBehaviour:
   id: Hot_Springs_Department
   title: "\uC628\uCC9C\uAC1C\uBC1C\uBD80"
   academy: {fileID: 11400000, guid: a032a8902ce6c2f4a9ac3a8af10112a2, type: 2}
-  icon: {fileID: 21300000, guid: e061faa038e4f48418cb07bad1e849a4, type: 3}
+  icon: {fileID: 21300000, guid: e8f8c5a33d0e62542882acba7c1c6be8, type: 3}

@@ -103,7 +103,7 @@ namespace TcgEngine.UI
                 //CardType card_type = iability.target_type;
                 if (icard != null)
                 {
-                    if (iability == null || iability.AreTargetConditionsMet(data, caster, card))
+                    if (iability == null || iability.AreCriteriaTargetConditionsMet(data, caster, card))
                     {
                         GameObject card_obj = Instantiate(card_template, content.transform);
                         card_obj.SetActive(true);

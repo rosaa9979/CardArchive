@@ -8131,7 +8131,7 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8141,17 +8141,17 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 390
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 109
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8191,12 +8191,12 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 203.44
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -54.5
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -30050,7 +30050,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396921782448154705}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -48572,6 +48572,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: DeckSelector
       objectReference: {fileID: 0}
+    - target: {fileID: 5929360280526049822, guid: 6b3155993a1341a49af0f02e2a29df66,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5929360280526049823, guid: 6b3155993a1341a49af0f02e2a29df66,
         type: 3}
       propertyPath: m_Pivot.x
@@ -51176,6 +51181,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 947751578}
     m_Modifications:
+    - target: {fileID: 3545536692353279439, guid: 0accd4da4294124469730eded62c3d6c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5006303685396872757, guid: 0accd4da4294124469730eded62c3d6c,
         type: 3}
       propertyPath: m_SizeDelta.y

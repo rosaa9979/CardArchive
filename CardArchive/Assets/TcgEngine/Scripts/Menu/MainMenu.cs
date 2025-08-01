@@ -219,7 +219,7 @@ namespace TcgEngine.UI
         public void StartMathmaking(GameMode mode, string group)
         {
             UserDeckData deck = deck_selector.GetDeck();
-            if (deck != null)
+            if (deck != null && deck.IsValid())
             {
                 GameClient.game_settings.game_type = GameType.Multiplayer;
                 GameClient.game_settings.game_mode = mode;
@@ -250,8 +250,8 @@ namespace TcgEngine.UI
 
         public void OnClickPvP()
         {
-            if (!GameClient.player_settings.deck.IsValid())
-                return;
+            //if (!GameClient.player_settings.deck.IsValid())
+            //    return;
                 
             if (!Authenticator.Get().IsConnected())
             {

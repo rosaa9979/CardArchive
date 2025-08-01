@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: shot_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: ade1903e9da659641a2c1d3faa1537fa, type: 2}
+  - {fileID: 11400000, guid: 8d7487c3aa087884ba89770827f2d6f7, type: 2}
   scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: 94fa07d677ea23a4c89482331b2a8d07, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: e84314255a213884f9c694a2ca3bda10, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
-    requiresBlendModeMaterials: 1
+    requiresBlendModeMaterials: 0
     applyAdditiveMaterial: 1
     additiveMaterials:
     - pageName: shot.png
-      material: {fileID: 2100000, guid: 9bbacd4aee4fd884cbf62575f40ecb4b, type: 2}
+      material: {fileID: 2100000, guid: 23f9c1a4c3e06fd498a63c4d6aecc7aa, type: 2}
     multiplyMaterials: []
     screenMaterials: []
   skeletonDataModifiers: []

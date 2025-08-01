@@ -192,7 +192,7 @@ namespace TcgEngine.FX
                 {
                     //Card charge into target
                     //ChargeInto(btarget);
-                    Debug.Log("Hello");
+
                     Vector3 direction = btarget.transform.position - bcard.transform.position;
         
                     // 2D에서는 Z축 회전만 필요

@@ -221,7 +221,7 @@ namespace TcgEngine.AI
             {
                 int target_player = player_id;
                 AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-                if (ability != null && ability.target == AbilityTarget.SelectTarget)
+                if (ability != null && ability.criteria_target == AbilityTarget.SelectTarget)
                     target_player = (player_id == 0 ? 1 : 0);
 
                 Player tplayer = game_data.GetPlayer(target_player);

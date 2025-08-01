@@ -71,6 +71,7 @@ namespace TcgEngine.UI
             //Make sure deck exists, to prevent assigning invalid deck
             UserData udata = Authenticator.Get().UserData;
             UserDeckData udeck = udata?.GetDeck(deck);
+
             if (udeck != null)
             {
                 SelectDeck(udeck);
