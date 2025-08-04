@@ -265,8 +265,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.06}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000211, y: 0}
-  m_SizeDelta: {x: 37.6346, y: 50.4166}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 37.6346, y: 30.1464}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6103272506533275862
 CanvasRenderer:
@@ -298,9 +298,9 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: d8d0b46439e0bcb459188adbb43d2f64, type: 3}
-    m_FontSize: 42
+    m_FontSize: 25
     m_FontStyle: 0
-    m_BestFit: 1
+    m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 116
     m_Alignment: 4
@@ -1364,6 +1364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title_background: {fileID: 6537301363009658565}
+  club_title_background: {fileID: 0}
   card_image: {fileID: 7467447581320339460}
   frame_image: {fileID: 893799607599828155}
   type_background: {fileID: 4017392306085768481}
@@ -1387,6 +1388,7 @@ MonoBehaviour:
   club_rect: {fileID: 0}
   trait_rect: {fileID: 0}
   card_title: {fileID: 4306964292686539908}
+  card_club_title: {fileID: 0}
   card_text: {fileID: 8169617557773355375}
   stats: []
   card_name: {fileID: 7721771254256182058}

@@ -128,8 +128,12 @@ namespace TcgEngine.Client
             //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, calpha);
             //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, 1);
             //card_shadow.enabled = !destroyed && timer > 0.4f;
+
+            card_ui.attack.color = (card.GetAttack() > card.CardData.attack) ? new Color32(50, 160, 100, 255) : font_color;
+            card_ui.hp.color = (card.GetHP() > card.CardData.hp) ? new Color32(50, 160, 100, 255) : font_color;
+
             card_sprite.color = card.HasStatus(StatusType.Stealth) ? Color.gray : Color.white;
-            card_ui.hp.color = (destroyed || card.damage > 0) ? Color.yellow : font_color;
+            card_ui.hp.color = (destroyed || card.damage > 0) ? Color.yellow : card_ui.hp.color;
 
             //armor
             int armor_val = card.GetStatusValue(StatusType.Armor);

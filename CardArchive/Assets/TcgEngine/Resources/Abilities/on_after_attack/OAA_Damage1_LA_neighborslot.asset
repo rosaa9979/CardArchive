@@ -16,11 +16,12 @@ MonoBehaviour:
   trigger: 32
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 0
+  criteria_target: 73
   conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 389caf6e10cc56a4188d2455106d548d,
     type: 2}
-  condition_target: []
+  condition_target:
+  - {fileID: 11400000, guid: 47221d412dc0a014b8a33abb0cbfc773, type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}

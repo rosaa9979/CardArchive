@@ -2184,7 +2184,22 @@ namespace TcgEngine.Gameplay
                                     Card tcard = tplayer.cards_board[tc];
                                     if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
                                     {
-                                        ability.DoOngoingEffects(this, card, tcard);
+                                        List<Slot> all_slot = Slot.GetAll();
+                                        List<Card> targets = new List<Card>();
+
+                                        foreach(Slot s in all_slot)
+                                        {
+                                            if (ability.AreWideRangeConditionsMet(game_data, card, tcard.slot, s) && game_data.GetSlotCard(s) != null)
+                                            {
+                                                targets.Add(game_data.GetSlotCard(s));
+                                            }
+                                        }
+
+                                        foreach(Card t in targets)
+                                        {
+                                            if (ability.AreTargetConditionsMet(game_data, card, t))
+                                                ability.DoOngoingEffects(this, card, t);
+                                        }
                                     }
                                 }
                             }

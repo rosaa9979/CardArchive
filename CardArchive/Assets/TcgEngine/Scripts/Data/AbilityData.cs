@@ -559,7 +559,7 @@ namespace TcgEngine
                 }
             }
 
-            List<Card> targets = new List<Card>();
+            List<Card> final_candidate_target = new List<Card>();
             List<Slot> all_slots = Slot.GetAll();
             
 
@@ -571,28 +571,38 @@ namespace TcgEngine
                     {
                         if (AreWideRangeConditionsMet(data, caster, candidate.slot, s) && data.GetSlotCard(s) != null)
                         {
-                            targets.Add(data.GetSlotCard(s));
+                            final_candidate_target.Add(data.GetSlotCard(s));
                         }
                     }
 
                 }
                 else
                 {
-                    targets.Add(candidate);
+                    final_candidate_target.Add(candidate);
                 }
             }
 
+            List<Card> targets = new List<Card>();
 
+            if (final_candidate_target.Count > 0)
+            {
+                foreach (Card c in final_candidate_target)
+                {
+                    if (AreTargetConditionsMet(data, caster, c))
+                        targets.Add(c);
+                }
+
+            }
 
             //Filter targets
-                if (filters_target != null && targets.Count > 0)
+            if (filters_target != null && targets.Count > 0)
+            {
+                foreach (FilterData filter in filters_target)
                 {
-                    foreach (FilterData filter in filters_target)
-                    {
-                        if (filter != null)
-                            targets = filter.FilterTargets(data, this, caster, targets, memory_array.GetOther(targets));
-                    }
+                    if (filter != null)
+                        targets = filter.FilterTargets(data, this, caster, targets, memory_array.GetOther(targets));
                 }
+            }
 
             return targets;
         }
@@ -645,7 +655,7 @@ namespace TcgEngine
             if (memory_array == null)
                 memory_array = new ListSwap<Slot>(); //Slow operation
 
-            List<Slot> candiidate_targets = memory_array.Get();
+            List<Slot> candiidate_targets = new List<Slot>();
 
             if (criteria_target == AbilityTarget.AllSlots)
             {
@@ -715,7 +725,7 @@ namespace TcgEngine
                     candiidate_targets.Add(slot);
             }
 
-            List<Slot> targets = new List<Slot>();
+            List<Slot> final_candidate_target = new List<Slot>();
             List<Slot> all_slots = Slot.GetAll();
 
             //WideAreaRange targets
@@ -727,11 +737,26 @@ namespace TcgEngine
                     {
                         if (AreWideRangeConditionsMet(data, caster, s, a))
                         {
-                            targets.Add(a);
+                            final_candidate_target.Add(a);
                         }
                     }
                 }
             }
+
+            List<Slot> targets = memory_array.Get();
+
+            //Final Condition Check
+            if (final_candidate_target.Count > 0)
+            {
+                foreach(Slot s in final_candidate_target)
+                {
+                    if (AreTargetConditionsMet(data, caster, s))
+                    {
+                        targets.Add(s);
+                    }
+                }
+            }
+
 
             //Filter targets
             if (filters_target != null && targets.Count > 0)
