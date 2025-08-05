@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Bluetooth_Gun
   title: "\uBE14\uB8E8\uD22C\uC2A4 \uAD8C\uCD1D"
-  art_full: {fileID: 0}
+  art_full: {fileID: 21300000, guid: edfcb2acd4587cc419f9136d908ef10c, type: 3}
   art_board: {fileID: 0}
   type: 20
   mana: 1

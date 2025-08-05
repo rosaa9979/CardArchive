@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using TcgEngine.Client;
 using TcgEngine.UI;
+using Unity.VisualScripting;
 
 namespace TcgEngine.Client
 {
@@ -19,18 +20,24 @@ namespace TcgEngine.Client
         public int y;
         public GameObject attachment;
 
+        public SlotSelectorPanel select_panel;
+
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
 
         protected override void Awake()
         {
             base.Awake();
             slot_list.Add(this);
+
+            select_panel.onSlotSelected += OnSelected;
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
             slot_list.Remove(this);
+
+            select_panel.onSlotSelected -= OnSelected;
         }
 
         private void Start()
@@ -65,8 +72,9 @@ namespace TcgEngine.Client
                 attachment.SetActive(false);
 
             target_alpha = 1f;
-            
+
             //Find target opacity value
+            /*
             if (drag_card != null)
             {
                 //target_alpha = 1f;
@@ -84,12 +92,12 @@ namespace TcgEngine.Client
                 {
                     Card caster = gdata.GetCard(gdata.selector_caster_uid);
                     AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
-                    if(ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot))
+                    if (ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot))
                         target_alpha = 1f; //Highlight when selecting a target and slot are valid
                     if (ability != null && slot_card != null && ability.CanTarget(gdata, caster, slot_card))
                         target_alpha = 1f; //Highlight when selecting a target and cards are valid
                 }
-            
+
 
                 Card select_card = bcard_selected?.GetCard();
                 bool can_do_move = your_turn && select_card != null && slot_card == null && gdata.CanMoveCard(select_card, slot);
@@ -100,6 +108,7 @@ namespace TcgEngine.Client
                     target_alpha = 1f;
                 }
             }
+            */
             
         }
 
@@ -166,12 +175,18 @@ namespace TcgEngine.Client
             return new Slot(new_x, new_y, new_p);
         }
 
+        public void OnSelected(Slot selected_slot)
+        {
+            if (GetSlot() == selected_slot)
+                Debug.Log("Hello");
+        }
+
         //When clicking on the slot
         public void OnMouseDown()
         {
             if (GameUI.IsOverUI())
                 return;
-            
+
             GameClient.Get().SelectSlot(GetSlot());
         }
     }
