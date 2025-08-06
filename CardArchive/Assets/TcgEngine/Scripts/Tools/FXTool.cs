@@ -13,7 +13,7 @@ namespace TcgEngine
 
     public class FXTool : MonoBehaviour
     {
-        private const string CHARACTER_SKELETON_DATA_PATH = "Spine/AttackShot/shot_SkeletonData";
+        private const string CHARACTER_SKELETON_DATA_PATH = "Spine/Explosion/explosion_SkeletonData";
 
         public static GameObject DoSpineFX(Vector3 pos, Quaternion rotation)
         {
@@ -23,6 +23,7 @@ namespace TcgEngine
             {
                 spawnedSkeleton.transform.position = pos;
                 spawnedSkeleton.transform.rotation = rotation;
+                spawnedSkeleton.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
 
                 Renderer spawnedSkeletonRenderer = spawnedSkeleton.GetComponent<Renderer>();
                 if (spawnedSkeletonRenderer != null)

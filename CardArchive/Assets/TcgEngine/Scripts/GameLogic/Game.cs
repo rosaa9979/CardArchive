@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TcgEngine.Client;
 using UnityEngine;
 
 namespace TcgEngine

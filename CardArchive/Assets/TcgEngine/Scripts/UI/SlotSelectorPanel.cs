@@ -4,6 +4,7 @@ using TcgEngine.Client;
 using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 namespace TcgEngine
 {
@@ -11,7 +12,9 @@ namespace TcgEngine
     {
         public GameObject selected_group;
         public Image panel_background;
-        public UnityAction<Slot> onSlotSelected;
+        public UnityAction<Card, Slot> onSlotSelectedByCard;
+        public UnityAction<AbilityData, Slot> onSlotSelectedByAbility;
+        public UnityAction onSlotSelectedClear;
 
         private Slot current_selected_slot;
 
@@ -22,25 +25,33 @@ namespace TcgEngine
 
             if (game_data != null)
             {
-                if (hcard != null || game_data.selector == SelectorType.SelectTarget || game_data.selector == SelectorType.SelectorCard || game_data.selector == SelectorType.SelectorChoice)
+                if (GameClient.Get().IsYourTurn())
                 {
                     Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
 
-                    if (current_selected_slot == null || current_selected_slot != GetSelectedSlot(board_pos))
-                    {
-                        current_selected_slot = GetSelectedSlot(board_pos);
+                    current_selected_slot = GetSelectedSlot(board_pos);
 
-                        onSlotSelected?.Invoke(current_selected_slot);
+                    if (hcard != null && hcard.CardData.IsBoardCard())
+                    {
+                        onSlotSelectedByCard?.Invoke(hcard.GetCard(), current_selected_slot);
+
+                        panel_background.enabled = true;
                     }
 
-                    panel_background.enabled = true;
-                }
+                    else if (game_data.selector == SelectorType.SelectTarget)
+                    {
+                        AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+                        onSlotSelectedByAbility?.Invoke(ability, current_selected_slot);
 
-                else
-                {
-                    panel_background.enabled = false;
-                }
+                        panel_background.enabled = true;
+                    }
 
+                    else
+                    {
+                        onSlotSelectedClear?.Invoke();
+                        panel_background.enabled = false;
+                    }
+                }
             }
 
         }
@@ -59,7 +70,6 @@ namespace TcgEngine
             {
                 slot = bslot.GetSlot(board_pos);
             }
-
 
             return slot;
         }

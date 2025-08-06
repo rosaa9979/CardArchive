@@ -29,7 +29,9 @@ namespace TcgEngine.Client
             base.Awake();
             slot_list.Add(this);
 
-            select_panel.onSlotSelected += OnSelected;
+            select_panel.onSlotSelectedByCard += OnSelectedByDragCard;
+            select_panel.onSlotSelectedByAbility += OnSelectedByAbility;
+            select_panel.onSlotSelectedClear += OnSelectedClear;
         }
 
         protected override void OnDestroy()
@@ -37,7 +39,9 @@ namespace TcgEngine.Client
             base.OnDestroy();
             slot_list.Remove(this);
 
-            select_panel.onSlotSelected -= OnSelected;
+            select_panel.onSlotSelectedByCard -= OnSelectedByDragCard;
+            select_panel.onSlotSelectedByAbility -= OnSelectedByAbility;
+            select_panel.onSlotSelectedClear -= OnSelectedClear;
         }
 
         private void Start()
@@ -175,10 +179,82 @@ namespace TcgEngine.Client
             return new Slot(new_x, new_y, new_p);
         }
 
-        public void OnSelected(Slot selected_slot)
+        public void OnSelectedByDragCard(Card card, Slot selected_slot)
         {
-            if (GetSlot() == selected_slot)
-                Debug.Log("Hello");
+            OnSelectedClear();
+ 
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+            Game game_data = GameClient.Get().GetGameData();
+
+            if (game_data != null)
+            {
+                if (card != null)
+                {
+                    if (game_data.CanPlaceCard(card, GetSlot()))
+                    {
+                        renderer.sortingOrder = 20;
+                    }
+
+                    else
+                    {
+                        renderer.sortingOrder = 0;
+                    }
+                }
+
+                else
+                {
+                    renderer.sortingOrder = 0;
+                }
+            }
+
+            if (!selected_slot.IsValid())
+                return;
+
+            List<Slot> range_slots = new List<Slot>();
+
+            if (game_data.CanPlaceCard(card, selected_slot))
+            {
+                range_slots = selected_slot.GetNeighborSlot(card.GetRange());
+
+                foreach (Slot slot in range_slots)
+                {
+                    if (GetSlot() == slot && GetSlot() != selected_slot)
+                    {
+                        renderer.sortingOrder = 20;
+                        renderer.color = new Color(1f, 0f, 0f, 0.5f);
+                    }
+                }
+            }
+        }
+
+        public void OnSelectedByAbility(AbilityData ability, Slot selected_slot)
+        {
+            OnSelectedClear();
+
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+            Game game_data = GameClient.Get().GetGameData();
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (game_data != null)
+            {
+                if (ability.CanTarget(game_data, caster, GetSlot()))
+                {
+                    renderer.sortingOrder = 20;
+                }
+
+                else
+                {
+                    renderer.sortingOrder = 0;
+                }
+            }
+        }
+
+        public void OnSelectedClear()
+        {
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+            renderer.sortingOrder = 0;
+            renderer.color = new Color(1f, 1f, 1f, 1f);
         }
 
         //When clicking on the slot
@@ -187,6 +263,7 @@ namespace TcgEngine.Client
             if (GameUI.IsOverUI())
                 return;
 
+            Debug.Log("Hello");
             GameClient.Get().SelectSlot(GetSlot());
         }
     }
