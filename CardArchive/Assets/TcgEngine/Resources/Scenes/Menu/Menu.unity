@@ -13747,7 +13747,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 235.89996, y: 0}
+  m_AnchoredPosition: {x: 235.90002, y: 0}
   m_SizeDelta: {x: 450, y: 154}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1024204030
@@ -15678,7 +15678,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -74.1308, y: -74.75}
+  m_AnchoredPosition: {x: -74.13074, y: -74.75}
   m_SizeDelta: {x: -751.06, y: 930.51}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1120415710
@@ -22683,7 +22683,7 @@ PrefabInstance:
     - target: {fileID: 3846283343658581240, guid: b7b11226992a4a04ab430d137b91cce7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 430.97012
+      value: 430.9701
       objectReference: {fileID: 0}
     - target: {fileID: 3846283343658581240, guid: b7b11226992a4a04ab430d137b91cce7,
         type: 3}
@@ -23149,7 +23149,7 @@ PrefabInstance:
     - target: {fileID: 3846283343658581240, guid: b7b11226992a4a04ab430d137b91cce7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 430.97012
+      value: 430.9701
       objectReference: {fileID: 0}
     - target: {fileID: 3846283343658581240, guid: b7b11226992a4a04ab430d137b91cce7,
         type: 3}
@@ -25420,7 +25420,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -289.9}
+  m_AnchoredPosition: {x: 960, y: -289.90002}
   m_SizeDelta: {x: 578.2, y: 116.81}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1865385363
@@ -29936,7 +29936,7 @@ MonoBehaviour:
       m_Calls: []
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
-  m_SelectionColor: {r: 0.2509804, g: 0.4117647, b: 0.56078434, a: 1}
+  m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
   m_Text: 
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1

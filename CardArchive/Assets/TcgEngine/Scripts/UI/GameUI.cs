@@ -155,7 +155,7 @@ namespace TcgEngine.UI
             Game data = GameClient.Get().GetGameData();
             int player_id = GameClient.Get().GetPlayerID();
             Player player = data.GetPlayer(player_id);
-            MulliganSelector.Get().Show(player.cards_hand, "Select Cards you want to Send Back and Redraw");
+            MulliganSelector.Get().Show(player.cards_hand, "버릴 카드를 골라주세요");
         }
 
         private void OnNewTurn(int player_id)

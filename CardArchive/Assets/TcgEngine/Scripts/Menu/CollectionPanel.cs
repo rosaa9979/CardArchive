@@ -394,7 +394,7 @@ namespace TcgEngine.UI
 
         private void RefreshDeck(UserDeckData deck)
         {
-            deck_title.text = "Deck Name";
+            //deck_title.text = "Deck Name";
             current_deck_tid = GameTool.GenerateRandomID(7);
             deck_cards.Clear();
             deck_clubs.Clear();
@@ -630,6 +630,7 @@ namespace TcgEngine.UI
             UserDeckData udeck = new UserDeckData();
             udeck.tid = current_deck_tid;
             udeck.title = deck_title.text;
+
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
             udeck.hero.variant = VariantData.GetDefault().id;

@@ -48,6 +48,7 @@ namespace TcgEngine
 
                     else
                     {
+                        Debug.Log("Hello");
                         onSlotSelectedClear?.Invoke();
                         panel_background.enabled = false;
                     }

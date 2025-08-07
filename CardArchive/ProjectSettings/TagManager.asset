@@ -44,6 +44,9 @@ TagManager:
   - name: UI
     uniqueID: 3127249329
     locked: 0
-  - name: Unit_Image
+  - name: BoardSelectorUI
     uniqueID: 934095357
+    locked: 0
+  - name: TopUI
+    uniqueID: 2568857955
     locked: 0

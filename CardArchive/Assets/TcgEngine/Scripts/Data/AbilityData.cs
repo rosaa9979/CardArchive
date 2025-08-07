@@ -315,6 +315,9 @@ namespace TcgEngine
         //CanTarget is similar to AreTargetConditionsMet but only applies to targets on the board, with extra board-only conditions
         public bool CanTarget(Game data, Card caster, Card target)
         {
+            if (caster == null || target == null)
+                return false;
+                
             if (target.HasStatus(StatusType.Stealth))
                 return false; //Hidden
 

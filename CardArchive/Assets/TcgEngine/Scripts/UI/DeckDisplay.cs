@@ -91,14 +91,15 @@ namespace TcgEngine.UI
 
                 List<CardDataQ> clubs = new List<CardDataQ>();
                 foreach (UserCardData ucard in deck.clubs)
-                {
-                    CardDataQ card = new CardDataQ();
-                    card.card = CardData.Get(ucard.tid);
-                    card.variant = VariantData.Get(ucard.variant);
-                    card.quantity = ucard.quantity;
-                    if (card.card != null)
-                        clubs.Add(card);
-                }
+                    {
+                        CardDataQ card = new CardDataQ();
+                        card.card = CardData.Get(ucard.tid);
+                        card.variant = VariantData.Get(ucard.variant);
+                        card.quantity = ucard.quantity;
+                        if (card.card != null)
+                            clubs.Add(card);
+                    }
+
 
                 ShowCards(clubs);
                 ShowClubs(clubs);

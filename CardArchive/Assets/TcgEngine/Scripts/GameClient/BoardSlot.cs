@@ -53,7 +53,7 @@ namespace TcgEngine.Client
         protected override void Update()
         {
             // 매 프레임마다 플레이어의 행동에 따라 투명도를 계산해서 반영
-            
+
             base.Update();
 
             if (!GameClient.Get().IsReady())
@@ -113,7 +113,7 @@ namespace TcgEngine.Client
                 }
             }
             */
-            
+
         }
 
         //Find the actual slot coordinates of this board slot
@@ -175,14 +175,14 @@ namespace TcgEngine.Client
                 new_y = y + 2 * ((Slot.y_max / 2 + 1) - y);
             }
 
-           
+
             return new Slot(new_x, new_y, new_p);
         }
 
         public void OnSelectedByDragCard(Card card, Slot selected_slot)
         {
             OnSelectedClear();
- 
+
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 
             Game game_data = GameClient.Get().GetGameData();
@@ -193,18 +193,21 @@ namespace TcgEngine.Client
                 {
                     if (game_data.CanPlaceCard(card, GetSlot()))
                     {
-                        renderer.sortingOrder = 20;
+                        //renderer.sortingOrder = 20;
+                        SetSelected(true);
                     }
 
                     else
                     {
-                        renderer.sortingOrder = 0;
+                        //renderer.sortingOrder = 0;
+                        SetSelected(false);
                     }
                 }
 
                 else
                 {
-                    renderer.sortingOrder = 0;
+                    //renderer.sortingOrder = 0;
+                    SetSelected(false);
                 }
             }
 
@@ -221,7 +224,8 @@ namespace TcgEngine.Client
                 {
                     if (GetSlot() == slot && GetSlot() != selected_slot)
                     {
-                        renderer.sortingOrder = 20;
+                        //renderer.sortingOrder = 20;
+                        SetSelected(true);
                         renderer.color = new Color(1f, 0f, 0f, 0.5f);
                     }
                 }
@@ -237,14 +241,16 @@ namespace TcgEngine.Client
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
             if (game_data != null)
             {
-                if (ability.CanTarget(game_data, caster, GetSlot()))
+                if (ability.CanTarget(game_data, caster, GetSlot()) || ability.CanTarget(game_data, caster, game_data.GetSlotCard(GetSlot())))
                 {
-                    renderer.sortingOrder = 20;
+                    //renderer.sortingOrder = 20;
+                    SetSelected(true);
                 }
 
                 else
                 {
-                    renderer.sortingOrder = 0;
+                    //renderer.sortingOrder = 0;
+                    SetSelected(false);
                 }
             }
         }
@@ -253,7 +259,8 @@ namespace TcgEngine.Client
         {
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 
-            renderer.sortingOrder = 0;
+            //renderer.sortingOrder = 0;
+            SetSelected(false);
             renderer.color = new Color(1f, 1f, 1f, 1f);
         }
 
@@ -263,8 +270,14 @@ namespace TcgEngine.Client
             if (GameUI.IsOverUI())
                 return;
 
-            Debug.Log("Hello");
             GameClient.Get().SelectSlot(GetSlot());
+        }
+
+        private void SetSelected(bool is_selected)
+        {
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+            renderer.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
         }
     }
 }

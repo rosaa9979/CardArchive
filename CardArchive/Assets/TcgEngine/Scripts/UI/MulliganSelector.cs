@@ -183,7 +183,7 @@ namespace TcgEngine.UI
         public void OnClickOK()
         {
             Game data = GameClient.Get().GetGameData();
-            title.text = "Waiting for opponent";
+            title.text = "상대방이 선택 중이에요";
             //select_button.SetActive(false);
             select_image.sprite = after_select_icon;
             select_button_text.color = Color.white;
