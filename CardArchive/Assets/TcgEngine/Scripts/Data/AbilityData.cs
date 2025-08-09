@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Gameplay;
 using System.Runtime.ExceptionServices;
-using UnityEditor.ShaderGraph.Drawing;
 
 namespace TcgEngine
 {

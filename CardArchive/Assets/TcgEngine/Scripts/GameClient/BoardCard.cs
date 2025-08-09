@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +46,8 @@ namespace TcgEngine.Client
 
         private CardUI card_ui;
         private BoardCardFX card_fx;
-        private Canvas canvas;
+        private Canvas ui_canvas;
+        private Canvas stat_canvas;
 
         private string card_uid = "";
         private bool destroyed = false;
@@ -66,9 +68,16 @@ namespace TcgEngine.Client
             card_list.Add(this);
             card_ui = GetComponent<CardUI>();
             card_fx = GetComponent<BoardCardFX>();
-            canvas = GetComponentInChildren<Canvas>();
+            //ui_canvas = GetComponentInChildren<Canvas>();
             card_glow.color = new Color(card_glow.color.r, card_glow.color.g, card_glow.color.b, 0f);
-            canvas.gameObject.SetActive(false);
+
+            Canvas[] canvases = GetComponentsInChildren<Canvas>();
+
+            ui_canvas = canvases.FirstOrDefault(c => c.gameObject.name == "CanvasUI");
+            stat_canvas = canvases.FirstOrDefault(c => c.gameObject.name == "StatUI");
+
+            ui_canvas.gameObject.SetActive(false);
+            stat_canvas.gameObject.SetActive(false);
             status_alpha_target = 0f;
 
             if (equipment != null)
@@ -96,8 +105,11 @@ namespace TcgEngine.Client
                 return;
 
             timer += Time.deltaTime;
-            if (timer > 0.15f && !destroyed && !canvas.gameObject.activeSelf)
-                canvas.gameObject.SetActive(true);
+            if (timer > 0.15f && !destroyed && !ui_canvas.gameObject.activeSelf)
+                ui_canvas.gameObject.SetActive(true);
+
+            if (timer > 0.15f && !destroyed && !stat_canvas.gameObject.activeSelf)
+                stat_canvas.gameObject.SetActive(true);
 
             PlayerControls controls = PlayerControls.Get();
             Game data = GameClient.Get().GetGameData();
@@ -230,7 +242,7 @@ namespace TcgEngine.Client
         public void SetOrder(int order)
         {
             card_sprite.sortingOrder = order;
-            canvas.sortingOrder = order + 1;
+            ui_canvas.sortingOrder = order + 1;
         }
 
         public void Kill()
@@ -252,7 +264,8 @@ namespace TcgEngine.Client
 
                 TimeTool.WaitFor(0.8f, () =>
                 {
-                    canvas.gameObject.SetActive(false);
+                    ui_canvas.gameObject.SetActive(false);
+                    stat_canvas.gameObject.SetActive(false);
                 });
 
                 GameBoard board = GameBoard.Get();
@@ -481,6 +494,13 @@ namespace TcgEngine.Client
                 }
             }
             return nearest;
+        }
+
+        public void SetSelected(bool is_selected)
+        {
+            ui_canvas.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+            stat_canvas.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+            card_sprite.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
         }
 
         public static BoardCard GetFocus()

@@ -22,11 +22,20 @@ namespace TcgEngine
         public ClubData has_club;
         public TraitData has_trait;
 
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
+        {
+            int val = GetCount(logic.GetGameData(), caster);
+
+            caster.AddStatus(StatusType.StoreValue, val, 0);
+            Debug.Log(val);
+        }
+
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             int val = GetCount(logic.GetGameData(), caster);
 
             target.AddStatus(StatusType.StoreValue, val, 0);
+            Debug.Log(val);
         }
 
         private int GetCount(Game data, Card caster)
@@ -90,7 +99,7 @@ namespace TcgEngine
             bool is_club = card.HasClub(has_club) || has_club == null;
             bool is_trait = card.HasTrait(has_trait) || has_trait == null;
             //return (is_type && is_team && is_trait);
-            return (is_type && is_club && is_trait);
+            return is_type && is_club && is_trait;
         }
     }
 }

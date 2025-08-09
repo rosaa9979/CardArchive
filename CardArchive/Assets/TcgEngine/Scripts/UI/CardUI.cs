@@ -7,8 +7,6 @@ using TcgEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using TcgEngine.Client;
-using UnityEngine.SocialPlatforms.GameCenter;
-using UnityEngine.AI;
 
 namespace TcgEngine.UI
 {

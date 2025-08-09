@@ -93,7 +93,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
-
+                
             //Choose first player
             game_data.state = GameState.Play;
             game_data.first_player = random.NextDouble() < 0.5 ? 0 : 1;
@@ -1061,7 +1061,7 @@ namespace TcgEngine.Gameplay
             return SummonCardHand(player, icard, copy.VariantData);
         }
 
-        //Create a new card and send it to the board
+        //Create a new card and send it to the board with no mana
         public virtual Card UseCard(Player player, CardData icard, VariantData variant, Slot slot)
         {
             //if (!slot.IsValid())
@@ -1071,17 +1071,9 @@ namespace TcgEngine.Gameplay
             //    return null;
 
             Card card = SummonCardHand(player, icard, variant);
-            
+
             if (game_data.CanPlayCard(card, slot, true))
             {
-                //Player player = game_data.GetPlayer(card.player_id);
-
-                //Cost
-                /*
-                if (!skip_cost)
-                    player.PayMana(card);
-                */
-
                 //Play card
                 player.RemoveCardFromAllGroups(card);
 

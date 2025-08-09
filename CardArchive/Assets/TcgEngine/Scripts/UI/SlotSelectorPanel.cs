@@ -22,6 +22,7 @@ namespace TcgEngine
         {
             Game game_data = GameClient.Get().GetGameData();
             HandCard hcard = HandCard.GetDrag();
+            BoardCard bcard = BoardCard.GetFocus();
 
             if (game_data != null)
             {
@@ -48,7 +49,6 @@ namespace TcgEngine
 
                     else
                     {
-                        Debug.Log("Hello");
                         onSlotSelectedClear?.Invoke();
                         panel_background.enabled = false;
                     }

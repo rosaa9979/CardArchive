@@ -126,9 +126,6 @@ namespace TcgEngine
                 return false; // Card not in hand
             }
 
-
-
-
             if (card.CardData.IsBoardCard())
             {
                 if (!slot.IsValid() || IsCardOnSlot(slot))
@@ -152,7 +149,6 @@ namespace TcgEngine
                     return false; //Cant play place card in wrong slot
                 }
 
-
                 return true;
             }
             if (card.CardData.IsEquipment())
@@ -170,6 +166,7 @@ namespace TcgEngine
             {
                 return IsPlayTargetValid(card, slot); //Check play target on slot
             }
+
             return true;
         }
 

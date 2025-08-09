@@ -295,6 +295,7 @@ namespace TcgEngine.UI
                         || (type == CardType.Spell && toggle_event.isOn)
                         || (!toggle_student.isOn && !toggle_nonstudent.isOn && !toggle_place.isOn && !toggle_event.isOn);
 
+                    Debug.Log(dropdown_academy.value);
                     string selected_academy = dropdown_academy.options[dropdown_academy.value].text;
                     string selected_club = dropdown_club.options[dropdown_club.value].text;
 

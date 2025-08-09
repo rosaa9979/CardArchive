@@ -5,6 +5,7 @@ using UnityEngine;
 using TcgEngine.Client;
 using TcgEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.AI;
 
 namespace TcgEngine.Client
 {
@@ -21,6 +22,7 @@ namespace TcgEngine.Client
         public GameObject attachment;
 
         public SlotSelectorPanel select_panel;
+        public SpriteRenderer overlay_renderer;
 
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
 
@@ -183,8 +185,6 @@ namespace TcgEngine.Client
         {
             OnSelectedClear();
 
-            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-
             Game game_data = GameClient.Get().GetGameData();
 
             if (game_data != null)
@@ -193,20 +193,17 @@ namespace TcgEngine.Client
                 {
                     if (game_data.CanPlaceCard(card, GetSlot()))
                     {
-                        //renderer.sortingOrder = 20;
                         SetSelected(true);
                     }
 
                     else
                     {
-                        //renderer.sortingOrder = 0;
                         SetSelected(false);
                     }
                 }
 
                 else
                 {
-                    //renderer.sortingOrder = 0;
                     SetSelected(false);
                 }
             }
@@ -224,9 +221,12 @@ namespace TcgEngine.Client
                 {
                     if (GetSlot() == slot && GetSlot() != selected_slot)
                     {
-                        //renderer.sortingOrder = 20;
                         SetSelected(true);
-                        renderer.color = new Color(1f, 0f, 0f, 0.5f);
+
+                        if (overlay_renderer)
+                        {
+                            overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
+                        }
                     }
                 }
             }
@@ -257,11 +257,9 @@ namespace TcgEngine.Client
 
         public void OnSelectedClear()
         {
-            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-
             //renderer.sortingOrder = 0;
             SetSelected(false);
-            renderer.color = new Color(1f, 1f, 1f, 1f);
+            overlay_renderer.color = new Color(overlay_renderer.color.r, overlay_renderer.color.g, overlay_renderer.color.b, 0);
         }
 
         //When clicking on the slot
@@ -278,6 +276,15 @@ namespace TcgEngine.Client
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 
             renderer.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+            overlay_renderer.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+
+            Game game_data = GameClient.Get().GetGameData();
+            Card slot_card = game_data.GetSlotCard(GetSlot());
+            if (slot_card != null)
+            {
+                BoardCard board_card = BoardCard.Get(slot_card.uid);
+                board_card.SetSelected(is_selected);
+            }
         }
     }
 }
