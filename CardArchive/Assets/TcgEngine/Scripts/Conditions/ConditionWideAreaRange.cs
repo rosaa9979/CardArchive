@@ -14,8 +14,7 @@ namespace TcgEngine
         LastPlayed = 5,
     }
     /// <summary>
-    /// SlotRange check each axis variable individualy for range between the caster and target
-    /// If you want to check the travel distance instead (all at once) use SlotDist
+    /// ability의 widerangearea condition에서만 사용하며, 선택한 슬롯을 기점으로 효과 범위를 정의한다
     /// </summary>
 
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/WideAreaRange", order = 11)]

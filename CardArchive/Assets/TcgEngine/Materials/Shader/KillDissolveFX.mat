@@ -108,7 +108,7 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - noise_fade: 0.91
+    - noise_fade: 1
     - noise_size: 4
     - outline_size: 0.04
     m_Colors:

@@ -266,12 +266,24 @@ namespace TcgEngine.Client
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
             Game game_data = GameClient.Get().GetGameData();
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
+
+            if (!selected_slot.IsValid())
+                return;
+                
             if (game_data != null)
             {
                 if (ability.CanTarget(game_data, caster, GetSlot()) || ability.CanTarget(game_data, caster, game_data.GetSlotCard(GetSlot())))
                 {
                     //renderer.sortingOrder = 20;
                     SetSelected(true);
+
+                    if (ability.condition_wide_range != null && ability.condition_wide_range.IsTargetConditionMet(game_data, ability, caster, selected_slot, GetSlot()))
+                    {
+                        SetSelected(true);
+
+                        if (overlay_renderer)
+                            overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
+                    }
                 }
 
                 else
