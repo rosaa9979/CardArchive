@@ -147,11 +147,8 @@ namespace TcgEngine.UI
             {
                 RectTransform imageRectTransform = club_background.GetComponent<RectTransform>();
                 float textWidth = clubs.preferredWidth;
-
-                // 2. 최종 Image의 너비 계산 (Text 너비 + 좌우 패딩)
                 float totalWidth = textWidth + (2 * padding);
 
-                // 3. Image의 RectTransform 너비 조정
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
 

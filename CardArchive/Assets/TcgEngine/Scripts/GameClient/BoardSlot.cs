@@ -32,6 +32,7 @@ namespace TcgEngine.Client
             slot_list.Add(this);
 
             select_panel.onSlotSelectedByCard += OnSelectedByDragCard;
+            select_panel.onSlotSelectedByBoardCard += OnSelectedByBoardCard;
             select_panel.onSlotSelectedByAbility += OnSelectedByAbility;
             select_panel.onSlotSelectedClear += OnSelectedClear;
         }
@@ -42,6 +43,7 @@ namespace TcgEngine.Client
             slot_list.Remove(this);
 
             select_panel.onSlotSelectedByCard -= OnSelectedByDragCard;
+            select_panel.onSlotSelectedByBoardCard -= OnSelectedByBoardCard;
             select_panel.onSlotSelectedByAbility -= OnSelectedByAbility;
             select_panel.onSlotSelectedClear -= OnSelectedClear;
         }
@@ -227,6 +229,31 @@ namespace TcgEngine.Client
                         {
                             overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
                         }
+                    }
+                }
+            }
+        }
+
+        public void OnSelectedByBoardCard(Card card, Slot selected_slot)
+        {
+            OnSelectedClear();
+
+            Game game_data = GameClient.Get().GetGameData();
+
+            if (!selected_slot.IsValid())
+                return;
+
+            List<Slot> range_slots = selected_slot.GetNeighborSlot(card.GetRange());
+
+            foreach (Slot slot in range_slots)
+            {
+                if (GetSlot() == slot && GetSlot() != selected_slot)
+                {
+                    SetSelected(true);
+
+                    if (overlay_renderer)
+                    {
+                        overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TcgEngine.UI;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -22,14 +23,14 @@ public class ManaFilter : MonoBehaviour
         for (int i = 0; i < manaToggles.Count; i++)
         {
             int manaValue = i;
-            manaToggles[i].onValueChanged.AddListener((isOn) => OnManaToggleChanged(manaValue, isOn));
+            manaToggles[i].onValueChanged.AddListener((isOn) => OnManaToggleChanged(manaValue));
         }
 
-        UpdateFilterState(); // 초기 상태 갱신
-        UpdateAllVisuals(); // 초기 비주얼 설정
+        //UpdateFilterState(); // 초기 상태 갱신
+        //UpdateAllVisuals(); // 초기 비주얼 설정
     }
 
-    public void OnManaToggleChanged(int clickedIndex, bool isOn)
+    public void OnManaToggleChanged(int clickedIndex)
     {
         if (!isFiltering)
         {
@@ -41,13 +42,13 @@ public class ManaFilter : MonoBehaviour
                 {
                     manaToggles[i].onValueChanged.RemoveAllListeners();
                     manaToggles[i].isOn = true;
-                    manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(i, value));
+                    manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(i));
                 }
                 else
                 {
                     manaToggles[i].onValueChanged.RemoveAllListeners();
                     manaToggles[i].isOn = false;
-                    manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(i, value));
+                    manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(i));
                 }
             }
             isFiltering = true;
@@ -78,18 +79,15 @@ public class ManaFilter : MonoBehaviour
         // 필터링 상태에서 아무것도 선택되지 않은 경우 → 전부 다시 켜기
         if (isFiltering && filteredManaValues.Count == 0)
         {
+            filteredManaValues.Clear();
+
             for (int i = 0; i < manaToggles.Count; i++)
             {
                 manaToggles[i].onValueChanged.RemoveAllListeners();
                 manaToggles[i].isOn = true;
                 int index = i;
-                manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(index, value));
-            }
+                manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(index));
 
-            // selectedManaValues 다시 채우기
-            filteredManaValues.Clear();
-            for (int i = 0; i < manaToggles.Count; i++)
-            {
                 filteredManaValues.Add(i);
             }
         }
@@ -128,6 +126,26 @@ public class ManaFilter : MonoBehaviour
         {
             backgroundImage.sprite = normalSprite;
         }
+    }
+
+    public void Clear()
+    {
+        filteredManaValues.Clear();
+
+        for (int i = 0; i < manaToggles.Count; i++)
+        {
+            manaToggles[i].onValueChanged.RemoveAllListeners();
+            manaToggles[i].isOn = true;
+            int index = i;
+            manaToggles[i].onValueChanged.AddListener((value) => OnManaToggleChanged(index));
+
+            filteredManaValues.Add(i);
+        }
+
+        isFiltering = false;
+
+        UpdateFilterState();
+        UpdateAllVisuals();
     }
 
     public HashSet<int> GetFilteredMana()

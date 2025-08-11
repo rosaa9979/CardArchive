@@ -146,6 +146,14 @@ namespace TcgEngine.UI
 
         private void LateUpdate()
         {
+            GridLayoutGroup grid_layout = grid_content.GetGrid();
+
+            float grid_width = grid_content.GetRect().rect.width;
+
+            float cell_width = (grid_width - (grid_layout.spacing.x * (grid_layout.constraintCount - 1))) / grid_layout.constraintCount;
+
+            grid_layout.cellSize = new Vector2(cell_width, cell_width * 1.428f);
+
             //Resize grid
             update_grid_timer += Time.deltaTime;
             if (update_grid && update_grid_timer > 0.2f)
@@ -230,6 +238,8 @@ namespace TcgEngine.UI
             filter_academy_dropdown = 0;
             filter_club_dropdown = 0;
             filter_search = "";
+
+            mana_filter.Clear();
         }
 
         private void ShowDeckList()
@@ -295,7 +305,6 @@ namespace TcgEngine.UI
                         || (type == CardType.Spell && toggle_event.isOn)
                         || (!toggle_student.isOn && !toggle_nonstudent.isOn && !toggle_place.isOn && !toggle_event.isOn);
 
-                    Debug.Log(dropdown_academy.value);
                     string selected_academy = dropdown_academy.options[dropdown_academy.value].text;
                     string selected_club = dropdown_club.options[dropdown_club.value].text;
 

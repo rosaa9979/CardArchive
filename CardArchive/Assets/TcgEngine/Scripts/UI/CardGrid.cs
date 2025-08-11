@@ -21,6 +21,11 @@ namespace TcgEngine.UI
             rect = GetComponent<RectTransform>();
         }
 
+        public void Update()
+        {
+            
+        }
+
         public void GetColumnAndRow(out int rows, out int columns)
         {
             rows = 0;
@@ -47,7 +52,7 @@ namespace TcgEngine.UI
                 if (!grid.transform.GetChild(i).gameObject.activeSelf)
                     continue;
                 //Get the next child
-                    RectTransform currentChildObj = grid.transform.GetChild(i).GetComponent<RectTransform>();
+                RectTransform currentChildObj = grid.transform.GetChild(i).GetComponent<RectTransform>();
                 Vector2 currentChildPos = currentChildObj.anchoredPosition;
 
                 //check if column or row

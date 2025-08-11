@@ -367,6 +367,7 @@ namespace TcgEngine.Client
                 return;
 
             focus = true;
+
             ShowStatusBar();
         }
 
