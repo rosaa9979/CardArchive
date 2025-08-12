@@ -29,6 +29,11 @@ namespace TcgEngine
             canvasGroup = GetComponent<CanvasGroup>();
         }
 
+        void Start()
+        {
+            panel_background.enabled = true;
+        }
+
         void Update()
         {
             Game game_data = GameClient.Get().GetGameData();
@@ -47,7 +52,6 @@ namespace TcgEngine
                 {
                     onSlotSelectedByCard?.Invoke(hcard.GetCard(), current_selected_slot);
 
-                    //panel_background.enabled = true;
                     should_show = true;
                 }
 
@@ -56,21 +60,18 @@ namespace TcgEngine
                     AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
                     onSlotSelectedByAbility?.Invoke(ability, current_selected_slot);
 
-                    //panel_background.enabled = true;
                     should_show = true;
                 }
 
                 else if (bcard != null)
                 {
                     onSlotSelectedByBoardCard?.Invoke(bcard.GetCard(), current_selected_slot);
-                    //panel_background.enabled = false;
                     should_show = false;
                 }
 
                 else
                 {
                     onSlotSelectedClear?.Invoke();
-                    //panel_background.enabled = false;
                     should_show = false;
                 }
             }

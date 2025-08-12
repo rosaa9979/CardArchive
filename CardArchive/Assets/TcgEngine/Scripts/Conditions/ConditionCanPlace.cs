@@ -13,9 +13,14 @@ namespace TcgEngine
     public class ConditionCanPlace : ConditionData
     {
         public ConditionOperatorBool oper;
+        
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        { 
+            return CompareBool(data.CanPlaceCard(caster, target.slot), oper);
+        }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
-        { 
+        {
             return CompareBool(data.CanPlaceCard(caster, target), oper);
         }
     }

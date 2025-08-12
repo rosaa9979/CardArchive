@@ -21,6 +21,7 @@ namespace TcgEngine.UI
         public Image club_title_background;
         public Image card_image;
         public Image frame_image;
+        public Image description_image;
         public Image type_background;
         //public Image team_icon;
         public Image attack_background;
@@ -368,26 +369,11 @@ namespace TcgEngine.UI
                     aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
                     aspectFitter.aspectRatio = spriteAspectRatio;
                     rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
-                    /*
-                    if (calculatedHeight <= maxHeight)
-                    {
-                        // 너비 기준으로 설정
-                        aspectFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
-                        aspectFitter.aspectRatio = spriteAspectRatio;
-                        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
-                    }
-                    
 
-                    else
-                    {
-                    */
                     // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
                     aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
                     aspectFitter.aspectRatio = spriteAspectRatio;
                     rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
-                    /*
-                    }
-                    */
                 }
 
                 else
@@ -438,6 +424,8 @@ namespace TcgEngine.UI
                 card_image.color = new Color(card_image.color.r, card_image.color.g, card_image.color.b, opacity);
             if (frame_image != null)
                 frame_image.color = new Color(frame_image.color.r, frame_image.color.g, frame_image.color.b, opacity);
+            if (description_image != null)
+                description_image.color = new Color(description_image.color.r, description_image.color.g, description_image.color.b, opacity);
             if (range_background != null)
                 range_background.color = new Color(range_background.color.r, range_background.color.g, range_background.color.b, opacity);
             if (club_background != null)

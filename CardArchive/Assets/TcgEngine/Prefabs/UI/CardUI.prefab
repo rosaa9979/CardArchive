@@ -1062,6 +1062,7 @@ MonoBehaviour:
   club_title_background: {fileID: 781052868054669818}
   card_image: {fileID: 4030304212300796227}
   frame_image: {fileID: 7881334469896048387}
+  description_image: {fileID: 757339552694649655}
   type_background: {fileID: 6800381465141227355}
   attack_background: {fileID: 3512358915374245501}
   attack_icon: {fileID: 3512358915374245501}

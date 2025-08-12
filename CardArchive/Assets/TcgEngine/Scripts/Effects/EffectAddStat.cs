@@ -71,7 +71,6 @@ namespace TcgEngine
                 target.hp_ongoing += val;
             if (type == EffectStatType.Mana)
             {
-                Debug.Log("val : " + val);
                 target.mana_ongoing += val;
             }
             if (type == EffectStatType.Range)

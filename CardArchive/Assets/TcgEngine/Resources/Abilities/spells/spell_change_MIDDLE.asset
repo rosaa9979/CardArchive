@@ -27,7 +27,8 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
-  chain_abilities: []
+  chain_abilities:
+  - {fileID: 11400000, guid: 1b4945b6d4e398947a9fbb8c6ecd79ca, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
