@@ -30,6 +30,7 @@ namespace TcgEngine.UI
         public Image hp_background;
         public Image hp_icon;
         public Image cost_icon;
+        public Image club_icon;
         public Image range_background;
         public Image range_icon;
         public Image trait_background;
@@ -39,6 +40,7 @@ namespace TcgEngine.UI
         public Text attack;
         public Text hp;
         public Text cost;
+        public Text members;
         public Text range;
         public Text clubs;
         public Text trait;
@@ -97,10 +99,17 @@ namespace TcgEngine.UI
             if (type != null)
                 type.enabled = true;
 
-
-
             if (card.CardData.IsClub())
             {
+                if (cost_icon != null)
+                    cost_icon.enabled = false;
+                if (cost != null)
+                    cost.enabled = false;
+                if (club_icon != null)
+                    club_icon.enabled = true;
+                if (members != null)
+                    members.enabled = true;
+
                 int count = 0;
                 Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
 
@@ -110,11 +119,20 @@ namespace TcgEngine.UI
                         count += 1;
                 }
 
-                cost.text = count.ToString();
+                members.text = count.ToString();
             }
 
             else
             {
+                if (cost_icon != null)
+                    cost_icon.enabled = true;
+                if (cost != null)
+                    cost.enabled = true;
+                if (club_icon != null)
+                    club_icon.enabled = false;
+                if (members != null)
+                    members.enabled = false;
+
                 if (cost != null)
                     cost.text = card.GetMana().ToString();
             }
@@ -416,8 +434,11 @@ namespace TcgEngine.UI
             if (cost != null)
                 cost.enabled = !is_club;
 
+            if (club_icon != null)
+                club_icon.enabled = is_club;
+
             if (title_background != null)
-                title_background.enabled = !is_club;
+                    title_background.enabled = !is_club;
             if (card_title != null)
                 card_title.enabled = !is_club;
 

@@ -27,7 +27,7 @@ namespace TcgEngine.FX
         {
             AudioTool.Get().PlaySFX("turn", AssetData.Get().new_turn_audio);
 
-            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, 1.0f);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);
         }
