@@ -34,13 +34,15 @@ MonoBehaviour:
     type: 3}
   hover_text_box: {fileID: 498548249271810415, guid: 8736207e88e73ca46bd477d91bc5e282,
     type: 3}
-  new_turn_fx: {fileID: 0}
+  new_turn_fx: {fileID: 4433550434688390599, guid: 9b23ab51cd483ff49bdf89c612caf254,
+    type: 3}
   win_fx: {fileID: 0}
   lose_fx: {fileID: 0}
   tied_fx: {fileID: 0}
   card_spawn_audio: {fileID: 0}
   card_destroy_audio: {fileID: 0}
   card_attack_audio: {fileID: 0}
+  card_move_audio: {fileID: 0}
   card_damage_audio: {fileID: 0}
   player_damage_audio: {fileID: 0}
   hand_card_click_audio: {fileID: 0}

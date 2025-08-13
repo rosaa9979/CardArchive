@@ -213,26 +213,27 @@ namespace TcgEngine.Client
             if (!selected_slot.IsValid())
                 return;
 
-            List<Slot> range_slots = new List<Slot>();
-
             if (game_data.CanPlaceCard(card, selected_slot))
             {
                 OnSelectedClear();
 
-                range_slots = selected_slot.GetNeighborSlot(card.GetRange());
+                List<Slot> range_slots = selected_slot.GetNeighborSlot(card.GetRange());
+
+                if (selected_slot == GetSlot())
+                    SetSelected(true);
 
                 foreach (Slot slot in range_slots)
-                {
-                    if (GetSlot() == slot && GetSlot() != selected_slot)
                     {
-                        SetSelected(true);
-
-                        if (overlay_renderer)
+                        if (GetSlot() == slot && GetSlot() != selected_slot)
                         {
-                            overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
+                            SetSelected(true);
+
+                            if (overlay_renderer)
+                            {
+                                overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
+                            }
                         }
                     }
-                }
             }
         }
 

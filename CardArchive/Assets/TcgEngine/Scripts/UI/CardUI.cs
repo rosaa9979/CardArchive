@@ -7,6 +7,7 @@ using TcgEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using TcgEngine.Client;
+using System;
 
 namespace TcgEngine.UI
 {
@@ -58,7 +59,7 @@ namespace TcgEngine.UI
         private VariantData variant;
 
         public Text card_name;
-        public Color32 ally_name =  new Color32(14, 165, 233, 255);
+        public Color32 ally_name = new Color32(14, 165, 233, 255);
         public Color32 enemy_name = new Color32(220, 38, 38, 255);
 
 
@@ -81,7 +82,7 @@ namespace TcgEngine.UI
 
             if (title_background != null)
                 title_background.enabled = true;
-                
+
             if (card_title != null)
                 card_title.enabled = true;
 
@@ -95,7 +96,7 @@ namespace TcgEngine.UI
 
             if (type != null)
                 type.enabled = true;
-            
+
 
 
             if (card.CardData.IsClub())
@@ -155,7 +156,7 @@ namespace TcgEngine.UI
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
-                
+
             if (card_name != null)
                 card_name.text = card.CardData.GetTitle();
         }
@@ -172,37 +173,7 @@ namespace TcgEngine.UI
             {
                 Color32 frame_color = new Color32();
 
-                switch (card.type)
-                {
-                    case CardType.Hero:
-                        frame_color = new Color32(155, 89, 182, 255);
-                        break;
-
-                    case CardType.Club:
-                        frame_color = new Color32(46, 204, 113, 255);
-                        break;
-
-                    case CardType.Student:
-                        frame_color = new Color32(26, 188, 156, 255);
-                        break;
-
-                    case CardType.NonStudent:
-                        frame_color = new Color32(243, 156, 18, 255);
-                        break;
-
-                    case CardType.Place:
-                        frame_color = new Color32(63, 81, 181, 255);
-                        break;
-
-                    case CardType.Spell:
-                        frame_color = new Color32(231, 76, 60, 255);
-                        break;
-
-
-                    default:
-                        frame_color = new Color(255, 255, 255, 255);
-                        break;
-                }
+                frame_color = GetFrameColor(card);
 
                 frame_image.color = frame_color;
             }
@@ -211,8 +182,6 @@ namespace TcgEngine.UI
                 type.text = card.GetTypeId().ToString();
             if (card_image != null)
                 card_image.sprite = card.GetFullArt(variant);
-            //if (frame_image != null)
-            //    frame_image.sprite = variant.frame;
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
             if (card_club_title != null)
@@ -236,10 +205,6 @@ namespace TcgEngine.UI
                 cost_icon.enabled = card.type != CardType.Hero;
             if (cost != null)
                 cost.enabled = card.type != CardType.Hero;
-            //if (weapon_icon != null)
-            //    weapon_icon.enabled = card.IsCitizen();
-            //if (weapon_type != null)
-            //    weapon_type.enabled = card.IsCitizen();
             if (range_background != null)
                 range_background.enabled = card.IsCitizen();
             if (range_background != null)
@@ -263,63 +228,14 @@ namespace TcgEngine.UI
                 attack.text = card.attack.ToString();
             if (hp != null)
                 hp.text = card.hp.ToString();
-            //if (weapon_type != null)
-            //    weapon_type.text = card.weapon.GetWeaponID().ToString();
             if (range != null)
                 range.text = card.GetRange().ToString();
             if (clubs != null)
                 clubs.text = string.Join(" / ", card.clubs.Select(club => club.title));
             if (trait != null)
                 trait.text = string.Join(" / ", card.traits.Select(tra => tra.title));
-            //if (team_icon != null)
-            //{
-            //    team_icon.sprite = card.team.icon;
-            //    team_icon.enabled = team_icon.sprite != null;
-            //}
 
-            if (card.IsClub())
-            {
-                if (cost_icon != null)
-                    cost_icon.enabled = false;
-                if (cost != null)
-                    cost.enabled = false;
-
-                if (title_background != null)
-                    title_background.enabled = false;
-                if (card_title != null)
-                    card_title.enabled = false;
-
-                if (club_title_background != null)
-                    club_title_background.enabled = true;
-
-                if (card_club_title != null)
-                    card_club_title.enabled = true;
-
-                if (type_background != null)
-                    type_background.enabled = false;
-
-                if (type != null)
-                    type.enabled = false;
-            }
-
-            else
-            {
-                if (cost_icon != null)
-                    cost_icon.enabled = true;
-                if (cost != null)
-                    cost.enabled = true;
-
-                if (title_background != null)
-                    title_background.enabled = true;
-                if (card_title != null)
-                    card_title.enabled = true;
-
-                if (club_title_background != null)
-                    club_title_background.enabled = false;
-
-                if (card_club_title != null)
-                    card_club_title.enabled = false;
-            }
+            SetClubUI(card.IsClub());
 
             if (clubs != null && club_background != null)
             {
@@ -332,7 +248,7 @@ namespace TcgEngine.UI
                 // 3. Image의 RectTransform 너비 조정
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
-            
+
             if (academy_logo != null)
             {
                 if (card.clubs.Length > 0)
@@ -383,7 +299,7 @@ namespace TcgEngine.UI
             }
 
             foreach (TraitUI stat in stats)
-                    stat.SetCard(card);
+                stat.SetCard(card);
 
             if (!gameObject.activeSelf)
                 gameObject.SetActive(true);
@@ -430,10 +346,6 @@ namespace TcgEngine.UI
                 range_background.color = new Color(range_background.color.r, range_background.color.g, range_background.color.b, opacity);
             if (club_background != null)
                 club_background.color = new Color(club_background.color.r, club_background.color.g, club_background.color.b, opacity);
-            //if (art_bg != null)
-            //    art_bg.color = new Color(art_bg.color.r, art_bg.color.g, art_bg.color.b, opacity);
-            //if (art_frame != null)
-            //    art_frame.color = new Color(art_frame.color.r, art_frame.color.g, art_frame.color.b, opacity);
             if (trait_background != null)
                 trait_background.color = new Color(trait_background.color.r, trait_background.color.g, trait_background.color.b, opacity);
             if (attack_icon != null)
@@ -495,6 +407,58 @@ namespace TcgEngine.UI
         public VariantData GetVariant()
         {
             return variant;
+        }
+
+        private void SetClubUI(bool is_club)
+        {
+            if (cost_icon != null)
+                cost_icon.enabled = !is_club;
+            if (cost != null)
+                cost.enabled = !is_club;
+
+            if (title_background != null)
+                title_background.enabled = !is_club;
+            if (card_title != null)
+                card_title.enabled = !is_club;
+
+            if (club_title_background != null)
+                club_title_background.enabled = is_club;
+
+            if (card_club_title != null)
+                card_club_title.enabled = is_club;
+
+            if (type_background != null)
+                type_background.enabled = !is_club;
+
+            if (type != null)
+                type.enabled = !is_club;
+        }
+
+        private Color GetFrameColor(CardData card)
+        {
+            switch (card.type)
+            {
+                case CardType.Hero:
+                    return new Color32(155, 89, 182, 255);
+
+                case CardType.Club:
+                    return new Color32(46, 204, 113, 255);
+
+                case CardType.Student:
+                    return new Color32(26, 188, 156, 255);
+
+                case CardType.NonStudent:
+                    return new Color32(243, 156, 18, 255);
+
+                case CardType.Place:
+                    return new Color32(63, 81, 181, 255);
+
+                case CardType.Spell:
+                    return new Color32(231, 76, 60, 255);
+
+                default:
+                    return new Color(255, 255, 255, 255);
+            }
         }
     }
 }

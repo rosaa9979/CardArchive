@@ -69,6 +69,10 @@ namespace TcgEngine.UI
                 mana_bar.value = player.mana;
                 mana_bar.max_value = player.mana_max;
                 hp_txt.text = player.hp.ToString();
+
+                if (player.hp < player.hp_max)
+                    hp_txt.color = Color.red;
+
                 hp_max_txt.text = "/" + player.hp_max.ToString();
 
                 AvatarData adata = AvatarData.Get(player.avatar);

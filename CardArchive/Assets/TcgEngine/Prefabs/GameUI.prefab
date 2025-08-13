@@ -6074,7 +6074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &3854792290635439009
 GameObject:
@@ -11150,6 +11150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selected_group: {fileID: 4324014387024358234}
   panel_background: {fileID: 3265138801750673236}
+  fadeDuration: 0
 --- !u!1 &7722218794268789765
 GameObject:
   m_ObjectHideFlags: 0
@@ -11625,7 +11626,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &8103814447907952914
 GameObject:

@@ -26,7 +26,10 @@ namespace TcgEngine.FX
         void OnNewTurn(int player_id)
         {
             AudioTool.Get().PlaySFX("turn", AssetData.Get().new_turn_audio);
-            FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
+
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
+            TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
+            ui.SetTurn(player_id);
         }
 
         void OnPlayCard(Card card, Slot slot)
