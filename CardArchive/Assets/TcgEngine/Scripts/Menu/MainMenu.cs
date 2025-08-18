@@ -23,10 +23,14 @@ namespace TcgEngine.UI
 
         [Header("UI")]
         public Text version_text;
-        public DeckSelector deck_selector;
-        public DeckDisplay deck_preview;
+        //public DeckSelector deck_selector;
+        public DeckSelectorPanel deck_selector_panel;
+        //public DeckDisplay deck_preview;
 
         private bool starting = false;
+
+        private GameMode current_game_mode;
+        private GameType current_game_type;
 
         private static MainMenu instance;
 
@@ -48,7 +52,7 @@ namespace TcgEngine.UI
             username_txt.text = "";
             credits_txt.text = "";
             version_text.text = "Version " + Application.version;
-            deck_selector.onChange += OnChangeDeck;
+            deck_selector_panel.onChange += OnChangeDeck;
 
             if (Authenticator.Get().IsConnected())
                 AfterLogin();
@@ -117,24 +121,13 @@ namespace TcgEngine.UI
 
         public void RefreshDeckList()
         {
-            deck_selector.RefreshDeckList();
-            deck_selector.SelectDeck(GameClient.player_settings.deck.tid);
-            RefreshDeck(deck_selector.GetDeckID());
-        }
-
-        private void RefreshDeck(string tid)
-        {
-            if (deck_preview != null)
-            {
-                deck_preview.SetDeck(tid);
-            }
+            deck_selector_panel.RefreshDeckList();
         }
 
         private void OnChangeDeck(string tid)
         {
-            GameClient.player_settings.deck = deck_selector.GetDeck();
+            GameClient.player_settings.deck = deck_selector_panel.GetDeck();
             PlayerPrefs.SetString("tcg_deck_" + Authenticator.Get().Username, tid);
-            RefreshDeck(tid);
         }
 
         private void OnMatchmakingDone(MatchmakingResult result)
@@ -218,7 +211,7 @@ namespace TcgEngine.UI
 
         public void StartMathmaking(GameMode mode, string group)
         {
-            UserDeckData deck = deck_selector.GetDeck();
+            UserDeckData deck = deck_selector_panel.GetDeck();
             if (deck != null && deck.IsValid())
             {
                 GameClient.game_settings.game_type = GameType.Multiplayer;
@@ -240,26 +233,30 @@ namespace TcgEngine.UI
                 return;
             }
 
-            GameClient.player_settings.deck.tid = deck_selector.GetDeckID();
+            DeckSelectorPanel.Get().Show();
+            /*
+            GameClient.player_settings.deck.tid = deck_selector_panel.GetDeckID();
             GameClient.ai_settings.deck.tid = GameplayData.Get().GetRandomAIDeck();
             GameClient.ai_settings.ai_level = GameplayData.Get().ai_level;
             GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
 
             StartGame(GameType.Solo, GameMode.Casual);
+            */
         }
 
         public void OnClickPvP()
         {
             //if (!GameClient.player_settings.deck.IsValid())
             //    return;
-                
+
             if (!Authenticator.Get().IsConnected())
             {
                 FadeToScene("LoginMenu");
                 return;
             }
 
-            StartMathmaking(GameMode.Ranked, "");
+            //StartMathmaking(GameMode.Ranked, "");
+            DeckSelectorPanel.Get().Show();
         }
 
         public void OnClickAdventure()
@@ -273,8 +270,8 @@ namespace TcgEngine.UI
 
         public void OnClickPlayCode()
         {
-            if (!GameClient.player_settings.deck.IsValid())
-                return;
+            //if (!GameClient.player_settings.deck.IsValid())
+            //    return;
 
             JoinCodePanel.Get().Show();
         }

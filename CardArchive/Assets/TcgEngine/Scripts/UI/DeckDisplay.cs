@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -13,11 +14,15 @@ namespace TcgEngine.UI
 
     public class DeckDisplay : MonoBehaviour
     {
+        public Image background;
         public Text deck_title;
         public Text card_count;
         public Image[] ui_clubs;
-        public CardUI[] ui_cards;
 
+        [SerializeField]
+        private Sprite unselected_sprite;
+        [SerializeField]
+        private Sprite selected_sprite;
         [SerializeField]
         private Color available_color;
         [SerializeField]
@@ -25,6 +30,8 @@ namespace TcgEngine.UI
         [SerializeField]
         private Sprite default_club_icon;
         private string deck_id;
+        private bool is_selected = false;
+        public UnityAction<string> onDeckClicked;
 
         void Awake()
         {
@@ -33,7 +40,8 @@ namespace TcgEngine.UI
 
         void Update()
         {
-
+            if (background != null)
+                background.sprite = is_selected ? selected_sprite : unselected_sprite;
         }
 
         public void Clear()
@@ -42,8 +50,6 @@ namespace TcgEngine.UI
                 deck_title.text = "";
             if (card_count != null)
                 card_count.text = "";
-            foreach (CardUI card in ui_cards)
-                card.Hide();
             foreach (Image club in ui_clubs)
                 club.sprite = default_club_icon;
         }
@@ -78,30 +84,17 @@ namespace TcgEngine.UI
                     card_count.color = deck.GetQuantity() >= GameplayData.Get().deck_size ? available_color : unavailable_color;
                 }
 
-                List<CardDataQ> cards = new List<CardDataQ>();
-                foreach (UserCardData ucard in deck.cards)
+                List<CardDataQ> clubs = new List<CardDataQ>();
+                foreach (UserCardData ucard in deck.clubs)
                 {
                     CardDataQ card = new CardDataQ();
                     card.card = CardData.Get(ucard.tid);
                     card.variant = VariantData.Get(ucard.variant);
                     card.quantity = ucard.quantity;
                     if (card.card != null)
-                        cards.Add(card);
+                        clubs.Add(card);
                 }
 
-                List<CardDataQ> clubs = new List<CardDataQ>();
-                foreach (UserCardData ucard in deck.clubs)
-                    {
-                        CardDataQ card = new CardDataQ();
-                        card.card = CardData.Get(ucard.tid);
-                        card.variant = VariantData.Get(ucard.variant);
-                        card.quantity = ucard.quantity;
-                        if (card.card != null)
-                            clubs.Add(card);
-                    }
-
-
-                ShowCards(clubs);
                 ShowClubs(clubs);
             }
 
@@ -168,32 +161,11 @@ namespace TcgEngine.UI
                         ccards.Add(card);
                     }
                 }
-            
 
-                ShowCards(ccards);
                 ShowClubs(ccards);
             }
 
             gameObject.SetActive(deck != null);
-        }
-
-        public void ShowCards(List<CardDataQ> cards)
-        {
-            cards.Sort((CardDataQ a, CardDataQ b) => { return b.card.mana.CompareTo(a.card.mana); });
-
-            int index = 0;
-            foreach (CardDataQ icard in cards)
-            {
-                for (int i = 0; i < icard.quantity; i++)
-                {
-                    if (index < ui_cards.Length)
-                    {
-                        CardUI card_ui = ui_cards[index];
-                        card_ui.SetCard(icard.card, icard.variant);
-                        index++;
-                    }
-                }
-            }
         }
 
         public void ShowClubs(List<CardDataQ> clubs)
@@ -209,7 +181,21 @@ namespace TcgEngine.UI
                 }
             }
         }
-        
+
+        public bool IsSelected()
+        {
+            return is_selected;
+        }
+
+        public void SetSelected(bool selected)
+        {
+            is_selected = selected;
+        }
+
+        public string GetDeckID()
+        {
+            return deck_id;
+        }
 
         public void Hide()
         {
@@ -219,6 +205,11 @@ namespace TcgEngine.UI
         public string GetDeck()
         {
             return deck_id;
+        }
+
+        public void OnDeckClicked()
+        {
+            onDeckClicked?.Invoke(deck_id);
         }
     }
 }

@@ -11,7 +11,8 @@ namespace TcgEngine.UI
 
     public class EndGamePanel : UIPanel
     {
-        public Text winner_text;
+        public Image winner_text;
+        public Image winner_bg;
         public Image winner_glow;
 
         public Text player_name;
@@ -29,6 +30,11 @@ namespace TcgEngine.UI
         private int target_xp = 0;
         private float coins = 0;
         private float xp = 0;
+
+        [SerializeField] private Sprite winner_text_sprite;
+        [SerializeField] private Sprite loser_text_sprite;
+        [SerializeField] private Sprite winner_bg_sprite;
+        [SerializeField] private Sprite loser_bg_sprite;
 
         private static EndGamePanel _instance;
 
@@ -81,30 +87,42 @@ namespace TcgEngine.UI
             Game data = GameClient.Get().GetGameData();
             Player pwinner = data.GetPlayer(winner);
             Player player = GameClient.Get().GetPlayer();
-            Player oplayer = GameClient.Get().GetOpponentPlayer();
 
+            // 플레이어 아바타 정보 사용 안함
+            /*
             player_name.text = player.username;
             other_name.text = oplayer.username;
 
             AvatarData avat1 = AvatarData.Get(player.avatar);
             AvatarData avat2 = AvatarData.Get(oplayer.avatar);
-            if(avat1 != null)
+            if (avat1 != null)
                 player_avatar.sprite = avat1.avatar;
             if (avat2 != null)
                 other_avatar.sprite = avat2.avatar;
+            */
 
             if (pwinner != null && pwinner == player)
-                winner_text.text = "Victory";
-            else if (pwinner != null)
-                winner_text.text = "Defeat";
-            else
-                winner_text.text = "Tie";
+            {
+                winner_text.sprite = winner_text_sprite;
+                winner_bg.sprite = winner_bg_sprite;
+            }
 
+            else if (pwinner != null)
+            {
+                winner_text.sprite = loser_text_sprite;
+                winner_bg.sprite = loser_bg_sprite;
+            }
+
+            winner_bg.SetNativeSize();
+
+            // Glow 사용 안함
+            /*
             if (pwinner == player)
                 winner_glow.rectTransform.anchoredPosition = player_avatar.rectTransform.anchoredPosition;
             if (pwinner == oplayer)
                 winner_glow.rectTransform.anchoredPosition = other_avatar.rectTransform.anchoredPosition;
             winner_glow.gameObject.SetActive(pwinner != null);
+            */
         }
 
         private async void RefreshRewards()
