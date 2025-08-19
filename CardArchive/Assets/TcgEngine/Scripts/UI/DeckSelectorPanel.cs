@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Data.Common;
+using TcgEngine.Client;
 
 namespace TcgEngine.UI
 {
@@ -112,6 +113,41 @@ namespace TcgEngine.UI
             else if (deck != null)
                 return new UserDeckData(deck);
             return null;
+        }
+
+        public void OnClickPlay()
+        {
+            if (!GameClient.player_settings.deck.IsValid())
+                return;
+                
+            GameMode current_game_mode = GameClient.game_settings.game_mode;
+            GameType current_game_type = GameClient.game_settings.game_type;
+
+            if (current_game_type == GameType.Solo)
+            {
+                GameClient.player_settings.deck.tid = GetDeckID();
+                GameClient.ai_settings.deck.tid = GameplayData.Get().GetRandomAIDeck();
+                GameClient.ai_settings.ai_level = GameplayData.Get().ai_level;
+                GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
+
+                MainMenu.Get().StartGame(GameType.Solo, GameMode.Casual);
+            }
+
+            if (current_game_type == GameType.Multiplayer)
+            {
+                if (GameClient.game_settings.game_mode == GameMode.Ranked)
+                {
+                    MainMenu.Get().StartMathmaking(current_game_mode, "");
+                }
+
+                if (GameClient.game_settings.game_mode == GameMode.Casual)
+                {
+                    string game_code = JoinCodePanel.Get().GetCode();
+                    MainMenu.Get().StartMathmaking(current_game_mode, "code_" + game_code);
+                }
+            }
+
+            Hide();
         }
 
         private void OnClickTab()

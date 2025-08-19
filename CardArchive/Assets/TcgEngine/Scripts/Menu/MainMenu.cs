@@ -19,7 +19,6 @@ namespace TcgEngine.UI
         public Text username_txt;
         public Text credits_txt;
         public AvatarUI avatar;
-        public GameObject loader;
 
         [Header("UI")]
         public Text version_text;
@@ -28,9 +27,6 @@ namespace TcgEngine.UI
         //public DeckDisplay deck_preview;
 
         private bool starting = false;
-
-        private GameMode current_game_mode;
-        private GameType current_game_type;
 
         private static MainMenu instance;
 
@@ -69,8 +65,6 @@ namespace TcgEngine.UI
             }
 
             bool matchmaking = GameClientMatchmaker.Get().IsMatchmaking();
-            if (loader.activeSelf != matchmaking)
-                loader.SetActive(matchmaking);
             if (MatchmakingPanel.Get().IsVisible() != matchmaking)
                 MatchmakingPanel.Get().SetVisible(matchmaking);
         }
@@ -233,7 +227,11 @@ namespace TcgEngine.UI
                 return;
             }
 
+            GameClient.game_settings.game_type = GameType.Solo;
+            GameClient.game_settings.game_mode = GameMode.Casual;
+
             DeckSelectorPanel.Get().Show();
+
             /*
             GameClient.player_settings.deck.tid = deck_selector_panel.GetDeckID();
             GameClient.ai_settings.deck.tid = GameplayData.Get().GetRandomAIDeck();
@@ -256,6 +254,9 @@ namespace TcgEngine.UI
             }
 
             //StartMathmaking(GameMode.Ranked, "");
+
+            GameClient.game_settings.game_type = GameType.Multiplayer;
+            GameClient.game_settings.game_mode = GameMode.Ranked;
             DeckSelectorPanel.Get().Show();
         }
 
@@ -273,6 +274,8 @@ namespace TcgEngine.UI
             //if (!GameClient.player_settings.deck.IsValid())
             //    return;
 
+            GameClient.game_settings.game_type = GameType.Multiplayer;
+            GameClient.game_settings.game_mode = GameMode.Casual;
             JoinCodePanel.Get().Show();
         }
         

@@ -38,7 +38,8 @@ namespace TcgEngine.UI
                 return;
 
             game_code = code_field.text.ToUpper();
-            MainMenu.Get().StartMathmaking(GameMode.Casual, "code_" + game_code);
+            //MainMenu.Get().StartMathmaking(GameMode.Casual, "code_" + game_code);
+            DeckSelectorPanel.Get().Show();
             Hide();
         }
 

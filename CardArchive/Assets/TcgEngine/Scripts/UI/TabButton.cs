@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System.Data.Common;
+using Unity.VisualScripting;
+using TcgEngine.Client;
 
 namespace TcgEngine.UI
 {
@@ -60,6 +63,9 @@ namespace TcgEngine.UI
 
         private void OnClick()
         {
+            if (GameClientMatchmaker.Get().IsMatchmaking())
+                return;
+                
             Activate();
             onClick?.Invoke();
             onClickAny?.Invoke(this);

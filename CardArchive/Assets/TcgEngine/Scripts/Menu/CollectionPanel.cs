@@ -641,6 +641,9 @@ namespace TcgEngine.UI
             udeck.tid = current_deck_tid;
             udeck.title = deck_title.text;
 
+            if (string.IsNullOrWhiteSpace(udeck.title))
+                udeck.title = "Deck Name";
+
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
             udeck.hero.variant = VariantData.GetDefault().id;
