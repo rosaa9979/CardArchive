@@ -147,7 +147,7 @@ namespace TcgEngine.Client
 
             /*
             int pid = GameClient.Get().GetPlayerID();
-            int new_x = x;
+            int new_x = x;u
             int new_y = y;
 
             if (pid % 2 == 1)
