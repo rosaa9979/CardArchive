@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 522a281bdee2be84ab86c9e9783de07d, type: 3}
   m_Name: Repeat_2
   m_EditorClassIdentifier: 
-  value: 1
+  value: 2

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: OP_draw_machine2
   trigger: 10
   conditions_trigger: []
-  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  condition_repeat: {fileID: 11400000, guid: eeae8455cccc12c499f855003e3ad69a, type: 2}
   criteria_target: 12
   conditions_criteria_target:
   - {fileID: 11400000, guid: 99c12d98b2b59f04a8441a9bc9bf5816, type: 2}
@@ -25,7 +25,7 @@ MonoBehaviour:
     type: 2}
   condition_target: []
   filters_target:
-  - {fileID: 11400000, guid: d0e5f7c1ee5dd034ca29c33c670208da, type: 2}
+  - {fileID: 11400000, guid: 507a3373a2fe2e7419a20621a468048f, type: 2}
   effects:
   - {fileID: 11400000, guid: 8f17c76aa367dd144a0665d4514588e9, type: 2}
   status: []
