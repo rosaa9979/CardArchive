@@ -12,6 +12,7 @@ namespace TcgEngine
         [Header("FX")]
         public GameObject card_spawn_fx;
         public GameObject card_destroy_fx;
+        public GameObject card_dissolve_fx;
         public GameObject card_attack_fx;
         public GameObject card_damage_fx;
         public GameObject card_exhausted_fx;

@@ -191,14 +191,7 @@ namespace TcgEngine.FX
                 if (btarget != null)
                 {
                     //Card charge into target
-                    //ChargeInto(btarget);
-
-                    Vector3 direction = btarget.transform.position - bcard.transform.position;
-        
-                    // 2D에서는 Z축 회전만 필요
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    
-                    FXTool.DoSpineFX(bcard.transform.position, Quaternion.AngleAxis(angle, Vector3.forward));
+                    ChargeInto(btarget);
 
                     //Show Damage Number FX on self
                     //if(!attacker.HasStatus(StatusType.Intimidate))
@@ -235,12 +228,7 @@ namespace TcgEngine.FX
                 CardData icard = bcard.GetCardData();
                 BoardSlotPlayer zone = BoardSlotPlayer.Get(is_other);
 
-                Vector3 direction = zone.transform.position - bcard.transform.position;
-        
-                // 2D에서는 Z축 회전만 필요
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                FXTool.DoSpineFX(bcard.transform.position, Quaternion.AngleAxis(angle, Vector3.forward));
-                //ChargeIntoPlayer(zone);
+                ChargeIntoPlayer(zone);
 
                 AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
                 AudioTool.Get().PlaySFX("card_attack", audio);

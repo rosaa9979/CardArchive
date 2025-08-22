@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Gameplay;
+using Unity.VisualScripting;
+using TcgEngine.Client;
 
 namespace TcgEngine
 {
@@ -29,7 +31,19 @@ namespace TcgEngine
             if (pile == PileType.Hand)
             {
                 player.RemoveCardFromAllGroups(target);
-                player.cards_hand.Add(target);
+
+                if (player.cards_hand.Count < GameplayData.Get().cards_max)
+                {
+                    player.cards_hand.Add(target);
+                }
+
+                else
+                {
+                    player.cards_discard.Add(target);
+
+                    GameClient.Get().onCardDissolved?.Invoke(target);
+                }
+
                 target.Clear();
             }
 

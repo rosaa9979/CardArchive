@@ -1374,6 +1374,7 @@ MonoBehaviour:
   hp_background: {fileID: 0}
   hp_icon: {fileID: 3934990318769025670}
   cost_icon: {fileID: 1338540100654684670}
+  club_icon: {fileID: 0}
   range_background: {fileID: 1390894720593559726}
   range_icon: {fileID: 8665906456359988809}
   trait_background: {fileID: 6616527634906696943}
@@ -1383,6 +1384,7 @@ MonoBehaviour:
   attack: {fileID: 2014538829325534164}
   hp: {fileID: 1315156635510019471}
   cost: {fileID: 4390310200170661390}
+  members: {fileID: 0}
   range: {fileID: 519816653275033520}
   clubs: {fileID: 3860951629456700527}
   trait: {fileID: 8294858755883580271}
@@ -1399,6 +1401,7 @@ MonoBehaviour:
   enemy_name:
     serializedVersion: 2
     rgba: 4280690396
+  default_mat: {fileID: 2100000, guid: ff5c2956c7739d24c96c8b46e54a087c, type: 2}
 --- !u!1 &4537126804460222456
 GameObject:
   m_ObjectHideFlags: 0

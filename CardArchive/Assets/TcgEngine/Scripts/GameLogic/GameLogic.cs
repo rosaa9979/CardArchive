@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TcgEngine.Client;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -1022,6 +1023,8 @@ namespace TcgEngine.Gameplay
                     else
                     {
                         DrawDiscardCard(player); // 손패 가득 → 묘지로 보냄
+
+                        GameClient.Get().onCardDissolved?.Invoke(card);
                     }
                 }
                 else

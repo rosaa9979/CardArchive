@@ -18,6 +18,7 @@ namespace TcgEngine.FX
             GameClient client = GameClient.Get();
             client.onNewTurn += OnNewTurn;
             client.onCardPlayed += OnPlayCard;
+            client.onCardDissolved += OnDissolveCard;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -57,6 +58,19 @@ namespace TcgEngine.FX
                     AudioClip spawn_audio = icard.spawn_audio != null ? icard.spawn_audio : AssetData.Get().card_spawn_audio;
                     AudioTool.Get().PlaySFX("card_spell", spawn_audio);
                 }
+            }
+        }
+
+        void OnDissolveCard(Card card)
+        {
+            if (card != null)
+            {
+                GameObject prefab = AssetData.Get().card_dissolve_fx;
+                GameObject obj = FXTool.DoFX(prefab, Vector3.zero, 2.0f);
+                CardUI ui = obj.GetComponentInChildren<CardUI>();
+
+                CardData icard = CardData.Get(card.card_id);
+                ui.SetCard(icard, card.VariantData);
             }
         }
 

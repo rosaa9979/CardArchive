@@ -36,6 +36,7 @@ namespace TcgEngine.Client
         public UnityAction<int> onNewTurn;              //current player_id
 
         public UnityAction<Card, Slot> onCardPlayed;
+        public UnityAction<Card> onCardDissolved;
         public UnityAction<Card, Slot> onCardMoved;
         public UnityAction<Slot> onCardSummoned;
         public UnityAction<Card> onCardTransformed;

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Spine.Unity;
 using TcgEngine.FX;
 using TcgEngine.Client;
 
@@ -13,29 +12,6 @@ namespace TcgEngine
 
     public class FXTool : MonoBehaviour
     {
-        private const string CHARACTER_SKELETON_DATA_PATH = "Spine/Explosion/explosion_SkeletonData";
-
-        public static GameObject DoSpineFX(Vector3 pos, Quaternion rotation)
-        {
-            SkeletonDataAsset skeletonDataAsset= Resources.Load<SkeletonDataAsset>(CHARACTER_SKELETON_DATA_PATH);
-            SkeletonAnimation spawnedSkeleton = SkeletonAnimation.NewSkeletonAnimationGameObject(skeletonDataAsset);
-            if (spawnedSkeleton != null)
-            {
-                spawnedSkeleton.transform.position = pos;
-                spawnedSkeleton.transform.rotation = rotation;
-                spawnedSkeleton.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-
-                Renderer spawnedSkeletonRenderer = spawnedSkeleton.GetComponent<Renderer>();
-                if (spawnedSkeletonRenderer != null)
-                    spawnedSkeletonRenderer.sortingOrder = 999;
-                spawnedSkeleton.Initialize(true);
-                spawnedSkeleton.AnimationState.SetAnimation(0, "animation", false);
-
-                return spawnedSkeleton.gameObject;
-            }
-
-            return null;
-        }
         public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = 5f)
         {
             if (fx_prefab != null)

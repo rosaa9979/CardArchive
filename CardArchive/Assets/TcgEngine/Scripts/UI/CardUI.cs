@@ -64,6 +64,11 @@ namespace TcgEngine.UI
         public Color32 ally_name = new Color32(14, 165, 233, 255);
         public Color32 enemy_name = new Color32(220, 38, 38, 255);
 
+        [Header("Mat")]
+        public Material default_mat;
+        private static readonly int DissolveAmountProperty = Shader.PropertyToID("_DissolveAmount");
+
+
 
         void Awake()
         {
@@ -186,6 +191,8 @@ namespace TcgEngine.UI
 
             this.card = card;
             this.variant = variant;
+
+            //SetMaterial(default_mat);
 
             if (frame_image != null)
             {
@@ -327,25 +334,116 @@ namespace TcgEngine.UI
         public void SetMaterial(Material mat)
         {
             if (title_background != null)
-                title_background.material = mat;
+                title_background.material = new Material(mat);
+            if (club_title_background != null)
+                club_title_background.material = new Material(mat);
             if (type_background != null)
-                type_background.material = mat;
+                type_background.material = new Material(mat);
+            if (description_image != null)
+                description_image.material = new Material(mat);
             if (range_background != null)
-                range_background.material = mat;
+                range_background.material = new Material(mat);
+            if (club_background != null)
+                club_background.material = new Material(mat);
             if (trait_background != null)
-                trait_background.material = mat;
+                trait_background.material = new Material(mat);
             if (card_image != null)
-                card_image.material = mat;
+                card_image.material = new Material(mat);
             if (frame_image != null)
-                frame_image.material = mat;
-            //if (team_icon != null)
-            //    team_icon.material = mat;
+                frame_image.material = new Material(mat);
             if (attack_icon != null)
-                attack_icon.material = mat;
+                attack_icon.material = new Material(mat);
             if (hp_icon != null)
-                hp_icon.material = mat;
+                hp_icon.material = new Material(mat);
+            if (range_icon != null)
+                range_icon.material = new Material(mat);
             if (cost_icon != null)
-                cost_icon.material = mat;
+                cost_icon.material = new Material(mat);
+            if (club_icon != null)
+                club_icon.material = new Material(mat);
+            if (academy_logo != null)
+                academy_logo.material = new Material(mat);
+
+            if (type != null)
+                type.material = new Material(mat);
+            if (attack != null)
+                attack.material = new Material(mat);
+            if (hp != null)
+                hp.material = new Material(mat);
+            if (cost != null)
+                cost.material = new Material(mat);
+            if (members != null)
+                members.material = new Material(mat);
+            if (range != null)
+                range.material = new Material(mat);
+            if (clubs != null)
+                clubs.material = new Material(mat);
+            if (trait != null)
+                trait.material = new Material(mat);
+            if (card_title != null)
+                card_title.material = new Material(mat);
+            if (card_club_title != null)
+                card_club_title.material = new Material(mat);
+            if (card_text != null)
+                card_text.material = new Material(mat);
+        }
+
+        public void Dissolve(float alpha)
+        {
+            if (title_background.material != null && title_background.material.HasProperty(DissolveAmountProperty))
+                title_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (club_title_background.material != null && club_title_background.material.HasProperty(DissolveAmountProperty))
+                club_title_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (type_background.material != null && type_background.material.HasProperty(DissolveAmountProperty))
+                type_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (description_image.material != null && description_image.material.HasProperty(DissolveAmountProperty))
+                description_image.material.SetFloat(DissolveAmountProperty, alpha);
+            if (range_background.material != null && range_background.material.HasProperty(DissolveAmountProperty))
+                range_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (club_background.material != null && club_background.material.HasProperty(DissolveAmountProperty))
+                club_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (trait_background.material != null && trait_background.material.HasProperty(DissolveAmountProperty))
+                trait_background.material.SetFloat(DissolveAmountProperty, alpha);
+            if (card_image.material != null && card_image.material.HasProperty(DissolveAmountProperty))
+                card_image.material.SetFloat(DissolveAmountProperty, alpha);
+            if (frame_image.material != null && frame_image.material.HasProperty(DissolveAmountProperty))
+                frame_image.material.SetFloat(DissolveAmountProperty, alpha);
+            if (attack_icon.material != null && attack_icon.material.HasProperty(DissolveAmountProperty))
+                attack_icon.material.SetFloat(DissolveAmountProperty, alpha);
+            if (hp_icon.material != null && hp_icon.material.HasProperty(DissolveAmountProperty))
+                hp_icon.material.SetFloat(DissolveAmountProperty, alpha);
+            if (range_icon.material != null && range_icon.material.HasProperty(DissolveAmountProperty))
+                range_icon.material.SetFloat(DissolveAmountProperty, alpha);
+            if (cost_icon.material != null && cost_icon.material.HasProperty(DissolveAmountProperty))
+                cost_icon.material.SetFloat(DissolveAmountProperty, alpha);
+            if (club_icon.material != null && club_icon.material.HasProperty(DissolveAmountProperty))
+                club_icon.material.SetFloat(DissolveAmountProperty, alpha);
+            if (academy_logo.material != null && academy_logo.material.HasProperty(DissolveAmountProperty))
+                academy_logo.material.SetFloat(DissolveAmountProperty, alpha);
+
+            if (type.material != null && type.material.HasProperty(DissolveAmountProperty))
+                type.material.SetFloat(DissolveAmountProperty, alpha);
+            if (attack.material != null && attack.material.HasProperty(DissolveAmountProperty))
+                attack.material.SetFloat(DissolveAmountProperty, alpha);
+            if (hp.material != null && hp.material.HasProperty(DissolveAmountProperty))
+                hp.material.SetFloat(DissolveAmountProperty, alpha);
+            if (cost.material != null && cost.material.HasProperty(DissolveAmountProperty))
+                cost.material.SetFloat(DissolveAmountProperty, alpha);
+            if (members.material != null && members.material.HasProperty(DissolveAmountProperty))
+                members.material.SetFloat(DissolveAmountProperty, alpha);
+            if (range.material != null && range.material.HasProperty(DissolveAmountProperty))
+                range.material.SetFloat(DissolveAmountProperty, alpha);
+            if (clubs.material != null && clubs.material.HasProperty(DissolveAmountProperty))
+                clubs.material.SetFloat(DissolveAmountProperty, alpha);
+            if (trait.material != null && trait.material.HasProperty(DissolveAmountProperty))
+                trait.material.SetFloat(DissolveAmountProperty, alpha);
+            if (card_title.material != null && card_title.material.HasProperty(DissolveAmountProperty))
+                card_title.material.SetFloat(DissolveAmountProperty, alpha);
+            if (card_club_title.material != null && card_club_title.material.HasProperty(DissolveAmountProperty))
+                card_club_title.material.SetFloat(DissolveAmountProperty, alpha);
+            if (card_text.material != null && card_text.material.HasProperty(DissolveAmountProperty))
+                card_text.material.SetFloat(DissolveAmountProperty, alpha);
+                
         }
 
         public void SetOpacity(float opacity)
