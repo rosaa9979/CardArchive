@@ -27,10 +27,10 @@ namespace TcgEngine.UI
         {
             base.Start();
 
-            foreach (TabButton Tab in TabButton.GetAll())
-            {
-                Tab.onClick += OnClickTab;
-            }
+            //foreach (TabButton Tab in TabButton.GetAll())
+            //{
+            //    Tab.onClick += OnClickTab;
+            //}
 
             foreach (DeckDisplay deck in deck_list)
             {

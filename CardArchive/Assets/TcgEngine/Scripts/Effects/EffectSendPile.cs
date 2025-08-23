@@ -41,7 +41,7 @@ namespace TcgEngine
                 {
                     player.cards_discard.Add(target);
 
-                    GameClient.Get().onCardDissolved?.Invoke(target);
+                    logic.onCardDissolved?.Invoke(target, player.player_id);
                 }
 
                 target.Clear();

@@ -44,6 +44,7 @@ namespace TcgEngine
 
 
         public const ushort CardPlayed = 2020;
+        public const ushort CardDissolved = 2021;
         public const ushort CardSummoned = 2022;
         public const ushort CardTransformed = 2023;
         public const ushort CardDiscarded = 2025;

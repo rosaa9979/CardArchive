@@ -186,6 +186,18 @@ namespace TcgEngine
         }
     }
 
+    public class MsgDissolveCard : INetworkSerializable
+    {
+        public string card_uid;
+        public int player_id;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref card_uid);
+            serializer.SerializeValue(ref player_id);
+        }
+    }
+
     public class MsgCards : INetworkSerializable
     {
         public string[] card_uids;

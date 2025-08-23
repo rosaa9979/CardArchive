@@ -84,6 +84,7 @@ namespace TcgEngine.Server
             gameplay.onCardMoved += OnCardMoved;
             gameplay.onCardTransformed += OnCardTransformed;
             gameplay.onCardDiscarded += OnCardDiscarded;
+            gameplay.onCardDissolved += OnCardDissolved;
             gameplay.onCardDrawn += OnCardDraw;
             gameplay.onRollValue += OnValueRolled;
 
@@ -116,6 +117,7 @@ namespace TcgEngine.Server
             gameplay.onCardMoved -= OnCardMoved;
             gameplay.onCardTransformed -= OnCardTransformed;
             gameplay.onCardDiscarded -= OnCardDiscarded;
+            gameplay.onCardDissolved -= OnCardDissolved;
             gameplay.onCardDrawn -= OnCardDraw;
             gameplay.onRollValue -= OnValueRolled;
 
@@ -768,6 +770,14 @@ namespace TcgEngine.Server
             MsgCard mdata = new MsgCard();
             mdata.card_uid = card.uid;
             SendToAll(GameAction.CardDiscarded, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnCardDissolved(Card card, int player_id)
+        {
+            MsgDissolveCard mdata = new MsgDissolveCard();
+            mdata.card_uid = card.uid;
+            mdata.player_id = player_id;
+            SendToAll(GameAction.CardDissolved, mdata, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnCardDraw(int nb)

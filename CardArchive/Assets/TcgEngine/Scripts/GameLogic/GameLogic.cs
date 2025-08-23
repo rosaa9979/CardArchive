@@ -29,6 +29,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Slot> onCardMoved;
         public UnityAction<Card> onCardTransformed;
         public UnityAction<Card> onCardDiscarded;
+        public UnityAction<Card, int> onCardDissolved;
         public UnityAction<int> onCardDrawn;
         public UnityAction<int> onRollValue;
 
@@ -1024,7 +1025,7 @@ namespace TcgEngine.Gameplay
                     {
                         DrawDiscardCard(player); // 손패 가득 → 묘지로 보냄
 
-                        GameClient.Get().onCardDissolved?.Invoke(card);
+                        onCardDissolved?.Invoke(card, player.player_id);
                     }
                 }
                 else

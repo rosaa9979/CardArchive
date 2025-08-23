@@ -93,6 +93,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.CardSummoned, OnCardSummoned);
             RegisterRefresh(GameAction.CardTransformed, OnCardTransformed);
             RegisterRefresh(GameAction.CardDiscarded, OnCardDiscarded);
+            RegisterRefresh(GameAction.CardDissolved, OnCardDissolved);
             RegisterRefresh(GameAction.CardDrawn, OnCardDraw);
             RegisterRefresh(GameAction.ValueRolled, OnValueRolled);
 
@@ -520,6 +521,16 @@ namespace TcgEngine.Client
             MsgCard msg = sdata.Get<MsgCard>();
             Card card = game_data.GetCard(msg.card_uid);
             onCardDiscarded?.Invoke(card);
+        }
+
+        private void OnCardDissolved(SerializedData sdata)
+        {
+            MsgDissolveCard msg = sdata.Get<MsgDissolveCard>();
+            Card card = game_data.GetCard(msg.card_uid);
+            int player_id = msg.player_id;
+
+            if (player_id == 2 || GetPlayerID() == player_id)
+                onCardDissolved?.Invoke(card);
         }
 
         private void OnCardDraw(SerializedData sdata)

@@ -6,12 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/TcgEngine/Resources/Scenes/Menu/LoginMenu.unity
-    guid: 35845f83f169a8249ba97386e43cc114
-  - enabled: 1
-    path: Assets/TcgEngine/Resources/Scenes/Menu/Menu.unity
-    guid: 4566b59cd2acb7347b68ebb689bbe171
-  - enabled: 1
-    path: Assets/TcgEngine/Resources/Scenes/Game/Game.unity
-    guid: be2ace95e45905b49ad984cce7ea70e5
+    path: Assets/TcgEngine/Resources/Scenes/Server/Server.unity
+    guid: acefba10b24d5f14aa51f6451ec467bf
   m_configObjects: {}

@@ -63,9 +63,9 @@ namespace TcgEngine.UI
 
         private void OnClick()
         {
-            if (GameClientMatchmaker.Get().IsMatchmaking())
-                return;
-                
+            //if (GameClientMatchmaker.Get().IsMatchmaking())
+            //    return;
+            Debug.Log("Hello");
             Activate();
             onClick?.Invoke();
             onClickAny?.Invoke(this);
