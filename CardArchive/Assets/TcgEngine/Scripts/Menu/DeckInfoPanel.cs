@@ -15,7 +15,10 @@ namespace TcgEngine.UI
 
     public class DeckInfoPanel : UIPanel
     {
-        private DeckInfoPanel instance;
+        [SerializeField] private GameObject[] mana_bars;
+        private Dictionary<int, int> mana_distribution;
+        private List<UserCardData> deck_info;
+        private static DeckInfoPanel instance;
 
         protected override void Awake()
         {
@@ -26,11 +29,53 @@ namespace TcgEngine.UI
         protected override void Start()
         {
             base.Start();
+            mana_distribution = new Dictionary<int, int>();
+            deck_info = CollectionPanel.Get().GetDeckCards();
         }
 
         protected override void Update()
         {
             base.Update();
+        }
+
+        public override void Show(bool instance = false)
+        {
+            base.Show(instance);
+            RefreshAll();
+        }
+
+        public void RefreshAll()
+        {
+            RefreshManaCurve();
+        }
+
+        public void RefreshManaCurve()
+        {
+            mana_distribution.Clear();
+
+            deck_info.Clear();
+            deck_info = CollectionPanel.Get().GetDeckCards();
+
+            foreach (UserCardData utid in deck_info)
+            {
+                CardData ucard = CardData.Get(utid.tid);
+                if (mana_distribution.ContainsKey(ucard.mana))
+                    mana_distribution[ucard.mana] = utid.quantity;
+                else
+                    mana_distribution[ucard.mana] += utid.quantity;
+            }
+
+            DrawManaCurve();
+        }
+
+        public void DrawManaCurve()
+        {
+
+        }
+
+        public static DeckInfoPanel Get()
+        {
+            return instance;
         }
     }
 }

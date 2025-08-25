@@ -873,6 +873,11 @@ namespace TcgEngine.UI
             ShowDeckList();
         }
 
+        public void OnClickDeckInfo()
+        {
+            DeckInfoPanel.Get().Show();
+        }
+
         public void OnClickDeleteDeck()
         {
             if (editing_deck && !string.IsNullOrEmpty(current_deck_tid))
@@ -933,6 +938,11 @@ namespace TcgEngine.UI
             hash_clubs.UnionWith(card.clubs);
 
             return hash_clubs.Count;
+        }
+
+        public List<UserCardData> GetDeckCards()
+        {
+            return deck_cards;
         }
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)
