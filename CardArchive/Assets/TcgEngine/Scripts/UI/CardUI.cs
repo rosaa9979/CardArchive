@@ -288,7 +288,6 @@ namespace TcgEngine.UI
                     // 부모의 부모 크기 가져오기
                     RectTransform grandParentRect = academy_logo.transform.parent.parent as RectTransform;
                     float grandParentWidth = grandParentRect.rect.width;
-                    float grandParentHeight = grandParentRect.rect.height;
 
                     // 중앙 정렬을 위한 앵커 설정
                     rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
@@ -299,22 +298,13 @@ namespace TcgEngine.UI
                     // 스프라이트 비율 계산
                     float spriteAspectRatio = (float)academy_logo.sprite.rect.width / academy_logo.sprite.rect.height;
 
-                    // 너비 40% 기준으로 높이 계산
-                    float desiredWidth = grandParentWidth * 0.4f;
-                    float calculatedHeight = desiredWidth / spriteAspectRatio;
+                    // 너비를 부모의 30%로 설정
+                    float desiredWidth = grandParentWidth * 0.3f;
+                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
 
-                    // 높이가 부모의 부모의 30%를 넘는지 체크
-                    float maxHeight = grandParentHeight * 0.2f;
-
-                    // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
-                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
+                    // AspectRatioFitter를 너비 기준 모드로 전환
+                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
                     aspectFitter.aspectRatio = spriteAspectRatio;
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
-
-                    // 높이 기준으로 설정 (높이 30% 고정, 너비 자동 조절)
-                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
-                    aspectFitter.aspectRatio = spriteAspectRatio;
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, maxHeight);
                 }
 
                 else
@@ -531,24 +521,20 @@ namespace TcgEngine.UI
                 cost_icon.enabled = !is_club;
             if (cost != null)
                 cost.enabled = !is_club;
-
             if (club_icon != null)
                 club_icon.enabled = is_club;
-
+            if (members != null)
+                members.enabled = is_club;
             if (title_background != null)
                     title_background.enabled = !is_club;
             if (card_title != null)
                 card_title.enabled = !is_club;
-
             if (club_title_background != null)
                 club_title_background.enabled = is_club;
-
             if (card_club_title != null)
                 card_club_title.enabled = is_club;
-
             if (type_background != null)
                 type_background.enabled = !is_club;
-
             if (type != null)
                 type.enabled = !is_club;
         }

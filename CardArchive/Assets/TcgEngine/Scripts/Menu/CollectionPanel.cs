@@ -91,8 +91,6 @@ namespace TcgEngine.UI
             foreach (DeckLine line in deck_lines)
                 line.onClickDelete += OnClickDeckDelete;
 
-            mana_filter.onManaClicked.AddListener(OnManaClicked);
-
             //foreach (IconButton button in team_filters)
             //    button.onClick += OnClickTeam;
         }
@@ -100,6 +98,8 @@ namespace TcgEngine.UI
         protected override void Start()
         {
             base.Start();
+
+            mana_filter.onManaClicked += OnManaClicked;
 
             //Set Acdemy / Club Dropdown Option
             List<TMP_Dropdown.OptionData> academy_options = new List<TMP_Dropdown.OptionData>();
@@ -239,7 +239,7 @@ namespace TcgEngine.UI
             filter_club_dropdown = 0;
             filter_search = "";
 
-            mana_filter.Clear();
+            mana_filter.Reset();
         }
 
         private void ShowDeckList()
