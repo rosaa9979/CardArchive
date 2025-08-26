@@ -9,7 +9,7 @@ namespace TcgEngine.UI
 {
     public class ManaFilter : MonoBehaviour
     {
-        public List<Mana> mana_list; // Index = 마나값 (0 ~ 10)
+        public List<ManaFilterItem> mana_list; // Index = 마나값 (0 ~ 10)
         public UnityAction onManaClicked;
         private HashSet<int> filteredManaValues;
         private bool isFiltering;
@@ -18,7 +18,7 @@ namespace TcgEngine.UI
         {
             filteredManaValues = new HashSet<int>();
 
-            foreach (Mana mana in mana_list)
+            foreach (ManaFilterItem mana in mana_list)
             {
                 mana.SetActive(true);
                 filteredManaValues.Add(mana.GetValue());
@@ -54,7 +54,7 @@ namespace TcgEngine.UI
             }
             else
             {
-                foreach (Mana m in mana_list)
+                foreach (ManaFilterItem m in mana_list)
                 {
                     if (filteredManaValues.Contains(m.GetValue()))
                         m.SetActive(true);
@@ -71,7 +71,7 @@ namespace TcgEngine.UI
         {
             filteredManaValues.Clear();
 
-            foreach (Mana mana in mana_list)
+            foreach (ManaFilterItem mana in mana_list)
             {
                 mana.SetActive(true);
                 filteredManaValues.Add(mana.GetValue());

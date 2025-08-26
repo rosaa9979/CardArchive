@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace TcgEngine.UI
 {
@@ -15,9 +16,13 @@ namespace TcgEngine.UI
 
     public class DeckInfoPanel : UIPanel
     {
-        [SerializeField] private GameObject[] mana_bars;
-        private Dictionary<int, int> mana_distribution;
-        private List<UserCardData> deck_info;
+        [Header("Mana Curve")]
+        [SerializeField] ManaCurve mana_curve;
+
+        [Header("Deck Entry")]
+        [SerializeField] DeckEntry deck_entry;
+
+
         private static DeckInfoPanel instance;
 
         protected override void Awake()
@@ -29,8 +34,6 @@ namespace TcgEngine.UI
         protected override void Start()
         {
             base.Start();
-            mana_distribution = new Dictionary<int, int>();
-            deck_info = CollectionPanel.Get().GetDeckCards();
         }
 
         protected override void Update()
@@ -45,32 +48,25 @@ namespace TcgEngine.UI
         }
 
         public void RefreshAll()
-        {
-            RefreshManaCurve();
+        { 
+            List<UserCardData> deck_info = CollectionPanel.Get().GetDeckCards();
+            RefreshManaCurve(deck_info);
+            RefreshDeckEntry(deck_info);
         }
 
-        public void RefreshManaCurve()
+        public void RefreshManaCurve(List<UserCardData> deck_info)
         {
-            mana_distribution.Clear();
-
-            deck_info.Clear();
-            deck_info = CollectionPanel.Get().GetDeckCards();
-
-            foreach (UserCardData utid in deck_info)
+            if (mana_curve != null)
             {
-                CardData ucard = CardData.Get(utid.tid);
-                if (mana_distribution.ContainsKey(ucard.mana))
-                    mana_distribution[ucard.mana] = utid.quantity;
-                else
-                    mana_distribution[ucard.mana] += utid.quantity;
-            }
 
-            DrawManaCurve();
+                mana_curve.Refresh(deck_info);
+            }
         }
 
-        public void DrawManaCurve()
+        public void RefreshDeckEntry(List<UserCardData> deck_info)
         {
-
+            if (deck_entry != null)
+                deck_entry.Refresh(deck_info);
         }
 
         public static DeckInfoPanel Get()

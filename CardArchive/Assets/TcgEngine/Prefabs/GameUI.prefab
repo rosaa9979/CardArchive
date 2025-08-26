@@ -7924,6 +7924,7 @@ MonoBehaviour:
   ui_panel: {fileID: 6960011823002556013}
   card_ui: {fileID: 2561586199873643978}
   desc: {fileID: 2173916491619295069}
+  hover_delay_ability: 0
   hover_delay_board: 0.7
   hover_delay_hand: 0.4
   hover_delay_mobile: 0.1
@@ -12027,8 +12028,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 195.68, y: -433.83}
-  m_SizeDelta: {x: 333.93, y: 759.43}
+  m_AnchoredPosition: {x: 312, y: -438.4491}
+  m_SizeDelta: {x: 420, y: 801.1317}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8329706628497582803
 GameObject:
@@ -16701,12 +16702,12 @@ PrefabInstance:
     - target: {fileID: 3868195550748869321, guid: 90f1aa482afcc9c4f87470c4d4557bc4,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 394.44
+      value: 420
       objectReference: {fileID: 0}
     - target: {fileID: 3868195550748869321, guid: 90f1aa482afcc9c4f87470c4d4557bc4,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 558.78
+      value: 680
       objectReference: {fileID: 0}
     - target: {fileID: 3868195550748869321, guid: 90f1aa482afcc9c4f87470c4d4557bc4,
         type: 3}

@@ -416,6 +416,12 @@ namespace TcgEngine
             this.variant = variant != null ? variant.id : "";
             this.quantity = 1;
         }
+        public UserCardData(UserCardData other)
+        {
+            this.tid = other.tid;
+            this.variant = other.variant;
+            this.quantity = other.quantity;
+        }
 
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace TcgEngine.UI
 {
-    public class Mana : MonoBehaviour
+    public class ManaFilterItem : MonoBehaviour
     {
         Image mana_image;
         private Button button;

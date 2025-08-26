@@ -942,7 +942,7 @@ namespace TcgEngine.UI
 
         public List<UserCardData> GetDeckCards()
         {
-            return deck_cards;
+            return deck_cards.Select(c => new UserCardData(c)).ToList();
         }
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)
