@@ -599,6 +599,8 @@ namespace TcgEngine.UI
                 }
 
             }
+
+            deck_clubs.Sort((a, b) => string.Compare(a.tid, b.tid, StringComparison.Ordinal));
         }
 
         private void RemoveDeckClub(CardData card)

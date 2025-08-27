@@ -35,6 +35,7 @@ namespace TcgEngine
         private async void Login()
         {
             LoginResponse res = await ApiClient.Get().Login(username_txt.text, password_txt.text);
+            Debug.Log(res.error);
             if (res.success && res.permission_level >= 10)
             {
                 UploadAll();
