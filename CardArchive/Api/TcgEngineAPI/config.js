@@ -7,11 +7,11 @@ module.exports = {
   api_url: "",                  //If you set the URL, will block all direct IP access, or wrong url access, leave blank to allow all url access
 
   //HTTPS config, certificate is required if you want to enable HTTPS
-  https_key: "/etc/letsencrypt/live/yoursite.com/privkey.pem",
-  https_ca: "/etc/letsencrypt/live/yoursite.com/chain.pem",
-  https_cert: "/etc/letsencrypt/live/yoursite.com/cert.pem",
+  https_key: "/etc/letsencrypt/live/your-domain.com/privkey.pem",
+  https_ca: "/etc/letsencrypt/live/your-domain.com/chain.pem",
+  https_cert: "/etc/letsencrypt/live/your-domain.com/cert.pem",
   allow_http: true,
-  allow_https: false,
+  allow_https: true,
 
   //JS Web Token Config
   jwt_secret: "JWT_123456789",     //Change this to a unique secret value

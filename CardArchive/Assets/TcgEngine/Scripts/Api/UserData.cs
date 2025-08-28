@@ -178,12 +178,15 @@ namespace TcgEngine
 
         public bool HasDeckCards(UserDeckData deck)
         {
+            // 모든 카드를 2장씩 지금했으므로 항상 가지고 있다고 가정
+            /*
             foreach (UserCardData card in deck.cards)
             {
                 bool default_variant = true; //Count "" variant as valid for compatibilty with older vers
                 if (GetCardQuantity(card.tid, card.variant, default_variant) < card.quantity)
                     return false;
             }
+            */
 
             return true;
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,9 +23,9 @@ namespace TcgEngine.UI
         [Header("Register")]
         public UIPanel register_panel;
         public InputField register_username;
-        public InputField register_email;
+        //public InputField register_email;
         public InputField register_password;
-        public InputField register_password_confirm;
+        //public InputField register_password_confirm;
         public Button register_button;
 
         [Header("Other")]
@@ -68,8 +69,10 @@ namespace TcgEngine.UI
         void Update()
         {
             login_button.interactable = !clicked && !string.IsNullOrWhiteSpace(login_user.text);
-            register_button.interactable = !clicked && !string.IsNullOrWhiteSpace(register_username.text) && !string.IsNullOrWhiteSpace(register_email.text)
-                && !string.IsNullOrWhiteSpace(register_password.text) && register_password.text == register_password_confirm.text;
+            //register_button.interactable = !clicked && !string.IsNullOrWhiteSpace(register_username.text) && !string.IsNullOrWhiteSpace(register_email.text)
+            //    && !string.IsNullOrWhiteSpace(register_password.text) && register_password.text == register_password_confirm.text;
+
+            register_button.interactable = !clicked && !string.IsNullOrWhiteSpace(register_username.text) && !string.IsNullOrWhiteSpace(register_password.text);
 
             if (login_panel.IsVisible())
             {
@@ -93,13 +96,15 @@ namespace TcgEngine.UI
                 if (Input.GetKeyDown(KeyCode.Tab))
                 {
                     if (register_username.isFocused)
-                        SelectField(register_email);
+                        SelectField(register_password);
+                    /*
                     else if (register_email.isFocused)
                         SelectField(register_password);
                     else if (register_password.isFocused)
                         SelectField(register_password_confirm);
                     else
                         SelectField(register_username);
+                    */
                 }
 
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -147,7 +152,11 @@ namespace TcgEngine.UI
             clicked = true;
             error_msg.text = "";
 
-            bool success = await Authenticator.Get().Register(register_email.text, register_username.text, register_password.text);
+            string email_text = "";
+
+            email_text = !String.IsNullOrWhiteSpace(email) ? email : "example@your-domain.com";
+
+            bool success = await Authenticator.Get().Register(email_text, register_username.text, register_password.text);
             if (success)
             {
                 login_user.text = register_username.text;
@@ -174,18 +183,18 @@ namespace TcgEngine.UI
 
         public void OnClickRegister()
         {
-            if (string.IsNullOrWhiteSpace(register_username.text))
-                return;
-            if (string.IsNullOrWhiteSpace(register_email.text))
-                return;
+            //if (string.IsNullOrWhiteSpace(register_username.text))
+            //    return;
+            //if (string.IsNullOrWhiteSpace(register_email.text))
+            //    return;
 
-            if (register_password.text != register_password_confirm.text)
-                return;
+            //if (register_password.text != register_password_confirm.text)
+            //    return;
 
-            if (clicked)
-                return;
+            //if (clicked)
+            //    return;
 
-            Register(register_email.text, register_username.text, register_password.text);
+            Register("example@your-domain.com", register_username.text, register_password.text);
         }
 
         public void OnClickSwitchLogin()

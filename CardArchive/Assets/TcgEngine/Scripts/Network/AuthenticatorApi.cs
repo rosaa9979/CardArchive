@@ -22,7 +22,6 @@ namespace TcgEngine
         public override async Task<bool> Login(string username, string password)
         {
             LoginResponse res = await Client.Login(username, password);
-            Debug.Log(res.error);
             if (res.success)
             {
                 this.logged_in = true;

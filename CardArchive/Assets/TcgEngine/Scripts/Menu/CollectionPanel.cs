@@ -70,6 +70,7 @@ namespace TcgEngine.UI
         private bool update_grid = false;
         private float update_grid_timer = 0f;
 
+        private UserCardData deck_hero = new UserCardData();
         private List<UserCardData> deck_clubs = new List<UserCardData>();
         private List<UserCardData> deck_cards = new List<UserCardData>();
 
