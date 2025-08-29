@@ -167,6 +167,11 @@ namespace TcgEngine
             return txt;
         }
 
+        public bool IsArona()
+        {
+            return type == CardType.Hero;
+        }
+
         public bool IsClub()
         {
             return type == CardType.Club;

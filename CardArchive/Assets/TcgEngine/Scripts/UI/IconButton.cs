@@ -69,6 +69,11 @@ namespace TcgEngine.UI
                 onClick.Invoke(this);
         }
 
+        public void SetValue(string new_value)
+        {
+            value = new_value;
+        }
+
         public void SetActive(bool act)
         {
             if (act) Activate();

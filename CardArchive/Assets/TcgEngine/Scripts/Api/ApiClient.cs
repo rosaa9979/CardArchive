@@ -175,11 +175,12 @@ namespace TcgEngine
             login_res.error = res.error;
 
             //Uncomment to force having same client version as api
-            /*if (!IsVersionValid())
+            //if (!IsVersionValid())
+            if (ClientVersion != login_res.version)
             {
                 login_res.error = "Invalid Version";
                 login_res.success = false;
-            }*/
+            }
 
             return login_res;
         }

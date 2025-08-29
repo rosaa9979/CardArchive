@@ -16,6 +16,9 @@ namespace TcgEngine.UI
 
     public class DeckInfoPanel : UIPanel
     {
+        [Header("Arona Ability")]
+        [SerializeField] AronaSelection arona_selection;
+
         [Header("Mana Curve")]
         [SerializeField] ManaCurve mana_curve;
 
@@ -48,17 +51,18 @@ namespace TcgEngine.UI
         }
 
         public void RefreshAll()
-        { 
+        {
             List<UserCardData> deck_info = CollectionPanel.Get().GetDeckCards();
+            UserCardData hero_info = CollectionPanel.Get().GetDeckHero();
             RefreshManaCurve(deck_info);
             RefreshDeckEntry(deck_info);
+            RefreshAronaList(hero_info);
         }
 
         public void RefreshManaCurve(List<UserCardData> deck_info)
         {
             if (mana_curve != null)
             {
-
                 mana_curve.Refresh(deck_info);
             }
         }
@@ -67,6 +71,12 @@ namespace TcgEngine.UI
         {
             if (deck_entry != null)
                 deck_entry.Refresh(deck_info);
+        }
+
+        public void RefreshAronaList(UserCardData hero_info)
+        {
+            if (arona_selection != null)
+                arona_selection.Refresh(hero_info);
         }
 
         public static DeckInfoPanel Get()

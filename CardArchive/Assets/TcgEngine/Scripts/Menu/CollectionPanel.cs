@@ -649,6 +649,7 @@ namespace TcgEngine.UI
 
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
+            Debug.Log(udeck.hero.tid);
             udeck.hero.variant = VariantData.GetDefault().id;
             udeck.clubs = deck_clubs.ToArray();
             udeck.cards = deck_cards.ToArray();
@@ -943,6 +944,17 @@ namespace TcgEngine.UI
             return hash_clubs.Count;
         }
 
+        public UserCardData GetDeckHero()
+        {
+            return new UserCardData(deck_hero);
+        }
+
+        public void SetDeckHero(string tid)
+        {
+            deck_hero = new UserCardData(CardData.Get(tid), VariantData.GetDefault());
+        }
+
+
         public List<UserCardData> GetDeckCards()
         {
             return deck_cards.Select(c => new UserCardData(c)).ToList();
@@ -962,7 +974,7 @@ namespace TcgEngine.UI
             //    if (btn.IsActive())
             //        return btn.value;
             //}
-            return "";
+            return deck_hero != null ? deck_hero.tid : "";
         }
 
         //-----
