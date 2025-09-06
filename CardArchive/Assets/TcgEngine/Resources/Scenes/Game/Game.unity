@@ -2439,6 +2439,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1108122615}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1275971630 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1953698056625233284, guid: b2cda006105c05b428bace831c06c984,
+    type: 3}
+  m_PrefabInstance: {fileID: 962576083989124239}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1296424942 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7426997187891162979, guid: 683a057051c59804eb32a44954f69029,
@@ -4851,6 +4863,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8236030736308582322, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: clubs.Array.data[1]
+      value: 
+      objectReference: {fileID: 1275971630}
     - target: {fileID: 8602402450329033153, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_Camera

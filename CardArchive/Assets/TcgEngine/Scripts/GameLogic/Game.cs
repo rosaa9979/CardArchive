@@ -469,6 +469,22 @@ namespace TcgEngine
             return GetPlayer(oid);
         }
 
+        public int GetClubCount(Player player, ClubData club)
+        {
+            int result = 0;
+            if (player != null && club != null)
+            {
+                foreach (Card card in player.cards_board)
+                {
+                    if (card.HasClub(club))
+                        result += 1;
+                }
+
+                return result;
+            }
+            return 0;
+        }
+
         public Card GetCard(string card_uid)
         {
             foreach (Player player in players)

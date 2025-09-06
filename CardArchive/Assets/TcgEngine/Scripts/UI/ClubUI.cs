@@ -15,6 +15,8 @@ namespace TcgEngine.UI
         public GameObject club_area;
         public Image club_image;
         public Sprite default_icon;
+        public Image count_image;
+        public Text count_text;
         public int index;
 
         private List<Card> reference_clubs;
@@ -61,12 +63,18 @@ namespace TcgEngine.UI
             if (!GameClient.Get().IsReady())
                 return;
 
+            Game game = GameClient.Get().GetGameData();
+            Player player = opponent ? GameClient.Get().GetOpponentPlayer() : GetPlayer();
+
             reference_clubs = opponent ? GameClient.Get().GetOpponentPlayer().clubs_revealed : GetPlayer().cards_club;
 
             if (index + 1 <= reference_clubs.Count)
                 club = reference_clubs[index];
-            
+
             club_image.sprite = club?.CardData.GetBoardArt(club.VariantData) ?? default_icon;
+            count_image.enabled = club != null ? true : false;
+            count_text.enabled = club != null ? true : false;
+            count_text.text = club != null ? game.GetClubCount(player, club.clubs[0].ClubData).ToString() : "0";
         }
 
         private void OnEnterMouse()

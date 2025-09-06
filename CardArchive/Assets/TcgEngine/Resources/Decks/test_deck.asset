@@ -17,6 +17,7 @@ MonoBehaviour:
   hero: {fileID: 11400000, guid: 5a33409b706324944ac9e7c5ed177ee3, type: 2}
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
+  - {fileID: 11400000, guid: d733ea28c6fa6cf47ba4c301a406b557, type: 2}
   cards:
   - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
   - {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}

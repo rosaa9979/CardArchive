@@ -41,6 +41,7 @@ namespace TcgEngine.Gameplay
 
         public UnityAction<Card, Card> onAttackStart;  //Attacker, Defender
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
+        public UnityAction<Card, Card> onAttackHit;
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
 
@@ -803,8 +804,8 @@ namespace TcgEngine.Gameplay
             //Trigger before attack abilities
             TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
             TriggerCardAbilityType(AbilityTrigger.OnBeforeDefend, target, attacker);
-            TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
-            TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
+            //TriggerSecrets(AbilityTrigger.OnBeforeAttack, attacker);
+            //TriggerSecrets(AbilityTrigger.OnBeforeDefend, target);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeDefendOther, target);
 
@@ -836,8 +837,8 @@ namespace TcgEngine.Gameplay
 
             onAttackStart?.Invoke(attacker, target);
 
-            if (attacker.GetWeaponType() == WeaponType.FRONT)
-                onAttackStart?.Invoke(target, attacker);
+            //if (attacker.GetWeaponType() == WeaponType.FRONT)
+            //    onAttackStart?.Invoke(target, attacker);
             //attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
@@ -885,6 +886,7 @@ namespace TcgEngine.Gameplay
 
             resolve_queue.ResolveAll(0.2f);
 
+            onAttackHit?.Invoke(attacker, target);
             onAttackEnd?.Invoke(attacker, target);
             RefreshData();
             CheckForWinner();

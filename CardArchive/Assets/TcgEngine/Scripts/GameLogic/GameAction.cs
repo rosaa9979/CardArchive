@@ -52,6 +52,7 @@ namespace TcgEngine
         public const ushort CardMoved = 2027;
 
         public const ushort AttackStart = 2030;
+        public const ushort AttackHit = 2031;
         public const ushort AttackEnd = 2032;
         public const ushort AttackPlayerStart = 2034;
         public const ushort AttackPlayerEnd = 2036;

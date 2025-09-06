@@ -48,5 +48,19 @@ namespace TcgEngine
             Vector3 facing = board != null ? board.transform.forward : Vector3.forward;
             return Quaternion.LookRotation(facing, Vector3.up);
         }
+
+        public static Quaternion GetFXRotation(GameObject start, GameObject end)
+        {
+            if (start != null && end != null)
+            {
+                Vector3 dir = (end.transform.position - start.transform.position).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                Quaternion rot = Quaternion.Euler(0f, 0f, angle);
+
+                return rot;
+            }
+
+            return GetFXRotation();
+        }
     }
 }

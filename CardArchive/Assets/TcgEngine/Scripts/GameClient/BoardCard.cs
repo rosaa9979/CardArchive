@@ -259,7 +259,7 @@ namespace TcgEngine.Client
                 card_glow.enabled = false;
                 card_shadow.enabled = false;
 
-                SetOrder(card_sprite.sortingOrder - 2);
+                //SetOrder(card_sprite.sortingOrder - 2);
                 Destroy(gameObject, 1.3f);
 
                 TimeTool.WaitFor(0.8f, () =>

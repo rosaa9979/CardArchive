@@ -14,6 +14,7 @@ namespace TcgEngine
         public GameObject card_destroy_fx;
         public GameObject card_dissolve_fx;
         public GameObject card_attack_fx;
+        public GameObject card_attack_hit_fx;
         public GameObject card_damage_fx;
         public GameObject card_exhausted_fx;
         public GameObject player_damage_fx;

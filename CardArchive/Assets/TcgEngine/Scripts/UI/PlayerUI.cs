@@ -20,6 +20,8 @@ namespace TcgEngine.UI
         public IconBar mana_bar;
         public Text hp_txt;
         public Text hp_max_txt;
+        public Text deck_count;
+        public Text hand_count;
 
         public Animator[] secrets;
         public Image[] clubs;
@@ -48,6 +50,8 @@ namespace TcgEngine.UI
             pname.text = "";
             hp_txt.text = "";
             hp_max_txt.text = "";
+            deck_count.text = "";
+            hand_count.text = "";
 
             for (int i = 0; i < secrets.Length; i++)
                 secrets[i].gameObject.SetActive(false);
@@ -69,6 +73,8 @@ namespace TcgEngine.UI
                 mana_bar.value = player.mana;
                 mana_bar.max_value = player.mana_max;
                 hp_txt.text = player.hp.ToString();
+                deck_count.text = player.cards_deck.Count.ToString();
+                hand_count.text = player.cards_hand.Count.ToString();
 
                 if (player.hp < player.hp_max)
                     hp_txt.color = Color.red;
