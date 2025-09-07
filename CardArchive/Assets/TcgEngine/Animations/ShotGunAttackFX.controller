@@ -33,7 +33,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 8987534870668814547}
-    m_Position: {x: 370, y: 130, z: 0}
+    m_Position: {x: 360, y: 120, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -78,8 +78,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c29eae44b739c884e96a743837e551a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyOnExit: 1
-  exitDelay: 0
+  completionThreshold: 0.99
+  fireOnLoop: 0
+  alsoWhenInterrupted: 0
 --- !u!1102 &8987534870668814547
 AnimatorState:
   serializedVersion: 6

@@ -99,6 +99,25 @@ namespace TcgEngine.UI
             return active;
         }
 
+        public static string GetCurrentValue(string group)
+        {
+            List<IconButton> toggles = GetAll(group);
+
+            foreach (IconButton toggle in toggles)
+            {
+                if (toggle.IsActive())
+                    return toggle.value;
+            }
+
+            foreach (IconButton toggle in toggles)
+            {
+                if (toggle.on_if_all_off)
+                    return toggle.value;
+            }
+
+            return "";
+        }
+
         public static bool IsAllOff(string group)
         {
             bool all_off = true;

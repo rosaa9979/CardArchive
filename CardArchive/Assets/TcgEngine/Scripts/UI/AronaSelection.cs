@@ -25,10 +25,14 @@ namespace TcgEngine.UI
 
                 if (arona_icon != null)
                 {
+                    arona_icon.group = "arona";
                     arona_icon.SetValue(arona.id);
                     arona_icon.onClick += OnClickArona;
                     arona_list.Add(arona_icon);
                     all_arona_list.Add(arona_icon.value);
+
+                    if (arona.id == CollectionPanel.Get().default_hero.id)
+                        arona_icon.on_if_all_off = true;
                 }
             }
         }
@@ -36,12 +40,7 @@ namespace TcgEngine.UI
         public void OnClickArona(IconButton button)
         {
             CollectionPanel.Get().SetDeckHero(null);
-
-            foreach (string arona_id in all_arona_list)
-            {
-                if (arona_id == button.value)
-                    CollectionPanel.Get().SetDeckHero(button.value);
-            }
+            CollectionPanel.Get().SetDeckHero(IconButton.GetCurrentValue("arona"));
         }
 
         public void Refresh(UserCardData hero_info)

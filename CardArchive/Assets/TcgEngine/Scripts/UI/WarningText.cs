@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TcgEngine.FX;
 
 namespace TcgEngine.UI
 {
@@ -9,7 +10,7 @@ namespace TcgEngine.UI
     /// Text that is displayed at the bottom of the screen when things cant be done
     /// </summary>
 
-    public class WarningText : MonoBehaviour
+    public class WarningText : MonoBehaviour, IAnimationEndHandler
     {
         public AudioClip warning_audio;
         public Text text;
@@ -40,6 +41,16 @@ namespace TcgEngine.UI
             AudioTool.Get().PlaySFX("warning", warning_audio, 0.7f, false);
         }
 
+        public void Hide()
+        {
+            canvas_group.alpha = 0f;
+        }
+
+        public void OnAnimationEnd(int fullPathHash, int layerIndex)
+        {
+            Hide();
+        }
+
         public static void ShowText(string txt)
         {
             WarningText w = WarningText.Get();
@@ -58,7 +69,7 @@ namespace TcgEngine.UI
 
         public static void ShowNoMana()
         {
-            ShowText("Not enough mana");
+            ShowText("청휘석이 부족합니다");
         }
 
         public static void ShowSpellImmune()
@@ -68,7 +79,7 @@ namespace TcgEngine.UI
 
         public static void ShowInvalidTarget()
         {
-            ShowText("Invalid target");
+            ShowText("잘못된 대상입니다");
         }
 
         public static WarningText Get()

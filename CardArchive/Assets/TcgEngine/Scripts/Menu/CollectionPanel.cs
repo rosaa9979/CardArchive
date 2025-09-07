@@ -47,6 +47,7 @@ namespace TcgEngine.UI
         public GameObject deck_cards_prefab;
         public RectTransform deck_content;
         public GridLayoutGroup deck_grid;
+        public CardData default_hero;
 
         public Color32 available_color;
         public Color32 unavailable_color;
@@ -409,6 +410,7 @@ namespace TcgEngine.UI
             current_deck_tid = GameTool.GenerateRandomID(7);
             deck_cards.Clear();
             deck_clubs.Clear();
+            deck_hero = null;
             saving = false;
             editing_deck = true;
 
@@ -418,7 +420,7 @@ namespace TcgEngine.UI
             }
 
             //foreach (IconButton btn in hero_powers)
-                //    btn.Deactivate();
+            //    btn.Deactivate();
 
             if (deck != null)
             {
@@ -440,6 +442,8 @@ namespace TcgEngine.UI
                         AddDeckCard(card, variant, deck.cards[i].quantity);
                     }
                 }
+
+                deck_hero = deck.hero != null ? deck.hero : new UserCardData(default_hero, VariantData.GetDefault());
             }
 
             RefreshDeckCards();
@@ -649,7 +653,6 @@ namespace TcgEngine.UI
 
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
-            Debug.Log(udeck.hero.tid);
             udeck.hero.variant = VariantData.GetDefault().id;
             udeck.clubs = deck_clubs.ToArray();
             udeck.cards = deck_cards.ToArray();
@@ -946,12 +949,12 @@ namespace TcgEngine.UI
 
         public UserCardData GetDeckHero()
         {
-            return new UserCardData(deck_hero);
+            return deck_hero != null ? new UserCardData(deck_hero) : new UserCardData(default_hero, VariantData.GetDefault());
         }
 
         public void SetDeckHero(string tid)
         {
-            deck_hero = new UserCardData(CardData.Get(tid), VariantData.GetDefault());
+            deck_hero = tid != "" ? new UserCardData(CardData.Get(tid), VariantData.GetDefault()) : new UserCardData(default_hero, VariantData.GetDefault());
         }
 
 
@@ -974,7 +977,7 @@ namespace TcgEngine.UI
             //    if (btn.IsActive())
             //        return btn.value;
             //}
-            return deck_hero != null ? deck_hero.tid : "";
+            return deck_hero != null ? deck_hero.tid : default_hero.id;
         }
 
         //-----
