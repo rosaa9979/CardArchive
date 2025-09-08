@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3824950064294669014}
   - component: {fileID: 1543273980202483573}
+  - component: {fileID: 6982052713657264889}
   m_Layer: 0
   m_Name: ShotGunHitFX
   m_TagString: Untagged
@@ -138,3 +139,15 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6982052713657264889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6063264509963397680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a0c0347ee238f45ab6b2c3a148fff7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

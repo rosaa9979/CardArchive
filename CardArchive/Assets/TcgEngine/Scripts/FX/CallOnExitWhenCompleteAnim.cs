@@ -36,6 +36,7 @@ namespace TcgEngine.FX
             // normalizedTime: 0~1 한 번 재생, 그 이후 1.0 이상
             if (!_completed && stateInfo.normalizedTime >= completionThreshold)
             {
+                Debug.Log("Hello");
                 _completed = true; // 한 번만 True로 전환
             }
         }
