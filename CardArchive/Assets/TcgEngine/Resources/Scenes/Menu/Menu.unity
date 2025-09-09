@@ -25477,7 +25477,6 @@ GameObject:
   - component: {fileID: 1849260754}
   - component: {fileID: 1849260757}
   - component: {fileID: 1849260756}
-  - component: {fileID: 1849260755}
   m_Layer: 5
   m_Name: AronPreview
   m_TagString: Untagged
@@ -25505,21 +25504,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 294, y: 476}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1849260755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1849260753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b61d26ddd717b741bd849e8b866f8c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ui_panel: {fileID: 1849260756}
-  card_ui: {fileID: 2021474045}
-  hover_delay: 0.7
 --- !u!114 &1849260756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25677,6 +25661,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   display_speed: 4
   arona_selection: {fileID: 526378552}
+  ui_panel: {fileID: 1849260756}
+  card_ui: {fileID: 2021474045}
+  hover_delay: 0.7
   mana_curve: {fileID: 1421107451}
   deck_entry: {fileID: 1259651500}
 --- !u!225 &1868588606
