@@ -28,7 +28,7 @@ namespace TcgEngine.UI
 
         public GameObject dead_fx;
         public AudioClip dead_audio;
-        public Sprite avatar_dead;
+        public Image avatar_dead;
 
         private bool killed = false;
         private float timer = 0f;
@@ -52,6 +52,8 @@ namespace TcgEngine.UI
             hp_max_txt.text = "";
             deck_count.text = "";
             hand_count.text = "";
+
+            avatar_dead.enabled = false;
 
             for (int i = 0; i < secrets.Length; i++)
                 secrets[i].gameObject.SetActive(false);
@@ -116,7 +118,8 @@ namespace TcgEngine.UI
         public void Kill()
         {
             killed = true;
-            avatar.SetImage(avatar_dead);
+            //avatar.SetImage(avatar_dead);
+            avatar_dead.enabled = true;
             AudioTool.Get().PlaySFX("fx", dead_audio);
             FXTool.DoFX(dead_fx, avatar.transform.position);
         }

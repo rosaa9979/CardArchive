@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace TcgEngine.UI
 {
@@ -10,18 +11,20 @@ namespace TcgEngine.UI
     /// A toggle button that will disable other buttons in same group when clicked
     /// </summary>
 
-    public class IconButton : MonoBehaviour
+    public class IconButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public string group;
         public string value;
 
         public Image active_img;
-        public Image disabled_img;
+        public Sprite selected_ui;
+        public Sprite unselected_ui;
         public bool on_if_all_off;
 
         public UnityAction<IconButton> onClick;
 
         private bool active = false;
+        private bool focus = false;
         private Button button;
         private static List<IconButton> toggle_list = new List<IconButton>();
 
@@ -31,8 +34,11 @@ namespace TcgEngine.UI
             button = GetComponent<Button>();
             button.onClick.AddListener(OnClick);
 
-            if(!on_if_all_off && active_img != null)
-                active_img.enabled = false;
+            if (!on_if_all_off && active_img != null)
+            {
+                active_img.sprite = unselected_ui;
+                active_img.SetNativeSize();
+            }
         }
 
         private void OnDestroy()
@@ -51,7 +57,8 @@ namespace TcgEngine.UI
             {
                 if (active_img != null && IsAllOff(group))
                 {
-                    active_img.enabled = true;
+                    active_img.sprite = selected_ui;
+                    active_img.SetNativeSize();
                 }
             }
         }
@@ -69,6 +76,19 @@ namespace TcgEngine.UI
                 onClick.Invoke(this);
         }
 
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (GameTool.IsMobile())
+                return;
+
+            focus = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            focus = false;
+        }
+
         public void SetValue(string new_value)
         {
             value = new_value;
@@ -84,14 +104,25 @@ namespace TcgEngine.UI
         {
             active = true;
             if (active_img != null)
-                active_img.enabled = true;
+            {
+                active_img.sprite = selected_ui;
+                active_img.SetNativeSize();
+            }
         }
 
         public void Deactivate()
         {
             active = false;
             if (active_img != null)
-                active_img.enabled = false;
+            {
+                active_img.sprite = unselected_ui;
+                active_img.SetNativeSize();
+            }
+        }
+
+        public bool IsFocus()
+        {
+            return focus;
         }
 
         public bool IsActive()
@@ -116,6 +147,21 @@ namespace TcgEngine.UI
             }
 
             return "";
+        }
+
+        public static IconButton GetFocus(string group)
+        {
+            List<IconButton> toggles = GetAll(group);
+
+            foreach (IconButton toggle in toggles)
+            {
+                if (toggle.IsFocus())
+                {
+                    return toggle;
+                }
+            }
+
+            return null;
         }
 
         public static bool IsAllOff(string group)

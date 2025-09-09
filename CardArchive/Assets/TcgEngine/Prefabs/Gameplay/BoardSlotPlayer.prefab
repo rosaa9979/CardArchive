@@ -120,5 +120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   opponent: 0
+  player_ui: {fileID: 0}
+  avatar_camera: {fileID: 0}
   range_x: 3
   range_y: 1
