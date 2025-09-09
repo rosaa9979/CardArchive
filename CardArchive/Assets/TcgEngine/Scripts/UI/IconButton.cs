@@ -11,7 +11,7 @@ namespace TcgEngine.UI
     /// A toggle button that will disable other buttons in same group when clicked
     /// </summary>
 
-    public class IconButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class IconButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
         public string group;
         public string value;
@@ -87,6 +87,12 @@ namespace TcgEngine.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             focus = false;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (GameTool.IsMobile())
+                focus = true;
         }
 
         public void SetValue(string new_value)

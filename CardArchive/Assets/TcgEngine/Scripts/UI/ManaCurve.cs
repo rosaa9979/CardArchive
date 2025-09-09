@@ -50,14 +50,15 @@ namespace TcgEngine.UI
                 if (pair.Value > maxValue)
                     maxValue = pair.Value;
             }
-            float max_height = mana_graph.rect.height * 0.8f; 
+            float max_height = mana_graph.rect.height * 0.8f;
+            float min_height = mana_graph.rect.height * 0.05f;
             foreach (ManaCurveItem mana_bar in mana_bars)
             {
                 int mana = mana_bar.GetValue();
                 int quantity = mana_distribution.ContainsKey(mana) ? mana_distribution[mana] : 0;
                 float ratio = maxValue > 0 ? (float)quantity / maxValue : 0f;
-                
-                mana_bar.SetHeightRatio(max_height, ratio);
+
+                mana_bar.SetHeightRatio(max_height, min_height, ratio);
                 mana_bar.SetText(quantity.ToString());
             }
         }

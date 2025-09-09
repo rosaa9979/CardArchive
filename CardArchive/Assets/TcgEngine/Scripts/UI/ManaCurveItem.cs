@@ -12,9 +12,9 @@ namespace TcgEngine.UI
         [SerializeField] private Text bar_text;
         [SerializeField] private Image bar;
 
-        public void SetHeightRatio(float max_height, float ratio)
+        public void SetHeightRatio(float max_height, float min_height, float ratio)
         {
-            float new_height = max_height * ratio;
+            float new_height = min_height + (max_height - min_height) * ratio;
 
             if (bar != null)
             {

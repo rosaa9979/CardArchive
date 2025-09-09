@@ -9,7 +9,7 @@ namespace TcgEngine.UI
 {
     
 
-    public class ClubUI : MonoBehaviour
+    public class ClubUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
         public bool opponent;
         public GameObject club_area;
@@ -38,6 +38,7 @@ namespace TcgEngine.UI
         // Start is called before the first frame update
         void Start()
         {
+            /*
             EventTrigger trigger = club_area.GetComponent<EventTrigger>();
 
             EventTrigger.Entry entry = new EventTrigger.Entry();
@@ -55,6 +56,7 @@ namespace TcgEngine.UI
             trigger.triggers.Add(entry);
             trigger.triggers.Add(exit);
             trigger.triggers.Add(mouse_down);
+            */
         }
 
         // Update is called once per frame
@@ -77,20 +79,21 @@ namespace TcgEngine.UI
             count_text.text = club != null ? game.GetClubCount(player, club.clubs[0].ClubData).ToString() : "0";
         }
 
-        private void OnEnterMouse()
+        public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.Log("On Enter Mouse");
+            if (GameTool.IsMobile())
+                return;
+
             focus = true;
         }
 
-        private void OnExitMouse()
+        public void OnPointerExit(PointerEventData eventData)
         {
             focus = false;
         }
 
-        private void OnMouseDown()
+        public void OnPointerDown(PointerEventData eventData)
         {
-            Debug.Log("On Mouse Down");
             if (GameTool.IsMobile())
                 focus = true;
         }
