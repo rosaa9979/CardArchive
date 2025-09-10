@@ -51,7 +51,6 @@ namespace TcgEngine.UI
             BoardCard bcard = BoardCard.GetFocus();
             HeroUI hero_ui = HeroUI.GetFocus();
             Card histcard = TurnHistoryLine.GetHoverCard();
-            ClubUI club_card = ClubUI.GetFocus();
 
             float delay = scard != null ? hover_delay_ability : 0.0f;
             delay = hcard != null ? hover_delay_hand : hover_delay_board;
@@ -65,11 +64,11 @@ namespace TcgEngine.UI
                 pcard = histcard;
             if (pcard == null)
                 pcard = hero_ui?.GetCard();
-            if (pcard == null)
-                pcard = club_card?.GetCard();
             
 
             bool hover_only = !Input.GetMouseButton(0) && !HandCardArea.Get().IsDragging();
+            if (pcard == scard)
+                hover_only = true;
             bool should_show_preview = hover_only && !GameUI.IsUIOpened() && pcard != null;
             
 

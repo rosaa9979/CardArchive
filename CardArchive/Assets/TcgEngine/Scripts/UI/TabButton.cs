@@ -65,6 +65,9 @@ namespace TcgEngine.UI
         {
             if (GameClientMatchmaker.Get().IsMatchmaking())
                 return;
+            if (DeckInfoPanel.Get().IsShow())
+                return;
+                
             Activate();
             onClick?.Invoke();
             onClickAny?.Invoke(this);

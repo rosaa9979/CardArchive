@@ -40,7 +40,6 @@ namespace TcgEngine.Client
         private bool focus = false;
         private bool drag = false;
         private bool selected = false;
-        public static bool hide = false;
         private static bool select_target = false;
 
         private static List<HandCard> card_list = new List<HandCard>();
@@ -56,7 +55,7 @@ namespace TcgEngine.Client
 
         private void Start()
         {
-            hide = false;
+
         }
 
         private void OnDestroy()
@@ -124,20 +123,9 @@ namespace TcgEngine.Client
             if (card_ui.card_name != null)
                 card_ui.card_name.color = player.player_id == card.player_id ? card_ui.ally_name : card_ui.enemy_name;
 
-            if (hide == true)
+            if (GameUI.Get().GetHideUI())
             {
                 SetOpacity(0f);
-                /*
-                Image[] images = GetComponentsInChildren<Image>();
-
-                // 각 Image 컴포넌트의 투명도를 0으로 설정
-                foreach (Image img in images)
-                {
-                    Color color = img.color;
-                    color.a = 0f; // 투명도를 0으로 설정
-                    img.color = color;
-                }
-                */
             }
             else
             {
@@ -210,7 +198,7 @@ namespace TcgEngine.Client
         {
             if (GameUI.IsUIOpened())
                 return;
-            if (hide == true)
+            if (GameUI.Get().GetHideUI())
                 return;
 
             focus = true;
@@ -226,7 +214,7 @@ namespace TcgEngine.Client
         {
             if (GameUI.IsOverUILayer("UI", 2))
                 return;
-            if (hide == true)
+            if (GameUI.Get().GetHideUI())
                 return;
 
             UnselectAll();

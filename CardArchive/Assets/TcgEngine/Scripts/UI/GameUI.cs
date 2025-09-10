@@ -34,6 +34,8 @@ namespace TcgEngine.UI
         private float end_turn_timer = 0f;
         private int prev_time_val = 0;
 
+        private bool hide_ui = false;
+
         private static GameUI instance;
 
         void Awake()
@@ -215,6 +217,16 @@ namespace TcgEngine.UI
         {
             int other = GameClient.Get().GetPlayerID() == 0 ? 1 : 0;
             GameClient.Get().SetObserverMode(other);
+        }
+
+        public void SetHideUI(bool new_value)
+        {
+            hide_ui = new_value;
+        }
+
+        public bool GetHideUI()
+        {
+            return hide_ui;
         }
 
         public static bool IsUIOpened()

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using TcgEngine;
 using TcgEngine.Client;
+using Unity.VisualScripting;
 
 namespace TcgEngine.UI
 {
@@ -69,9 +70,15 @@ namespace TcgEngine.UI
 
         private void OnClick()
         {
-            if (!GameUI.IsUIOpened() && !HandCardArea.Get().IsDragging() && GameClient.Get()?.GetGameData().selector == SelectorType.None)
+            if (!GameUI.IsUIOpened() && !HandCardArea.Get().IsDragging())
             {
-                HandCard.hide = !HandCard.hide;
+                Game game_data = GameClient.Get()?.GetGameData();
+                if ((game_data.selector == SelectorType.None) || (game_data.selector != SelectorType.None && game_data.selector_player_id != GameClient.Get().GetPlayerID()))
+                {
+                    //HandCard.hide = !HandCard.hide;
+                    bool current_option = GameUI.Get().GetHideUI();
+                    GameUI.Get().SetHideUI(!current_option);
+                }
             }
 
             onClick?.Invoke(avatar);

@@ -182,6 +182,7 @@ namespace TcgEngine.FX
 
         private void OnAttack(Card attacker, Card target)
         {
+            /*
             Card card = bcard.GetCard();
             CardData icard = bcard.GetCardData();
             if (attacker == null || target == null)
@@ -217,15 +218,38 @@ namespace TcgEngine.FX
                     DamageFX(attacker, target, transform);
                 }
             }
-
+            */
         }
 
         private void OnAttackHit(Card attacker, Card target)
         {
             Card card = bcard.GetCard();
             CardData icard = bcard.GetCardData();
+
             if (attacker == null || target == null)
                 return;
+
+            if (card.uid == attacker.uid)
+            {
+                BoardCard battacker = BoardCard.Get(attacker.uid);
+                BoardCard btarget = BoardCard.Get(target.uid);
+                if (btarget != null)
+                {
+                    //Card charge into target
+                    //ChargeInto(btarget);
+
+                    //Show Damage Number FX on self
+                    //if(!attacker.HasStatus(StatusType.Intimidate))
+                    //    DamageFX(target, attacker, transform);
+
+                    //Attack FX and Audio
+                    GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                    GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
+                    fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
+                    AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                    AudioTool.Get().PlaySFX("card_attack", audio);
+                }
+            }
 
             if (card.uid == target.uid)
             {

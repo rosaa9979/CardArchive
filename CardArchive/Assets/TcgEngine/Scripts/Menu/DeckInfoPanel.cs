@@ -29,6 +29,8 @@ namespace TcgEngine.UI
         [Header("Deck Entry")]
         [SerializeField] DeckEntry deck_entry;
 
+        private bool is_show = false;
+
 
         private static DeckInfoPanel instance;
 
@@ -69,7 +71,19 @@ namespace TcgEngine.UI
         public override void Show(bool instance = false)
         {
             base.Show(instance);
+            is_show = true;
             RefreshAll();
+        }
+
+        public override void Hide(bool instant = false)
+        {
+            base.Hide(instant);
+            is_show = false;
+        }
+
+        public bool IsShow()
+        {
+            return is_show;
         }
 
         public void RefreshAll()

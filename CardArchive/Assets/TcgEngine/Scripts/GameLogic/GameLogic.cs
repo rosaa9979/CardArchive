@@ -1717,6 +1717,9 @@ namespace TcgEngine.Gameplay
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
         {
+            if (!iability.HasValidSelectTarget(game_data, caster))
+                return false;
+
             if (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot)
             {
                 //Wait for target

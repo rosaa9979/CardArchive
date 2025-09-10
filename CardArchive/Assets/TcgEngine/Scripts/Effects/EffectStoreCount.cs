@@ -35,7 +35,6 @@ namespace TcgEngine
             int val = GetCount(logic.GetGameData(), caster);
 
             target.AddStatus(StatusType.StoreValue, val, 0);
-            Debug.Log(val);
         }
 
         private int GetCount(Game data, Card caster)

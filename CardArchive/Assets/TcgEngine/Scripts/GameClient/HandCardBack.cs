@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TcgEngine.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ namespace TcgEngine.Client
 
         void Update()
         {
-            if (HandCard.hide == true)
+            if (GameUI.Get().GetHideUI())
                 SetOpacity(0f);
             else
                 SetOpacity(1f);

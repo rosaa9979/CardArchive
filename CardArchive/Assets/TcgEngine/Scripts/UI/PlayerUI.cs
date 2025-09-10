@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine;
+using Unity.VisualScripting;
 
 namespace TcgEngine.UI
 {
@@ -20,8 +21,10 @@ namespace TcgEngine.UI
         public IconBar mana_bar;
         public Text hp_txt;
         public Text hp_max_txt;
-        public Text deck_count;
-        public Text hand_count;
+        public Image deck_count_image;
+        public Text deck_count_text;
+        public Image hand_count_image;
+        public Text hand_count_text;
 
         public Animator[] secrets;
         public Image[] clubs;
@@ -32,6 +35,7 @@ namespace TcgEngine.UI
 
         private bool killed = false;
         private float timer = 0f;
+
 
         private static List<PlayerUI> ui_list = new List<PlayerUI>();
 
@@ -50,8 +54,8 @@ namespace TcgEngine.UI
             pname.text = "";
             hp_txt.text = "";
             hp_max_txt.text = "";
-            deck_count.text = "";
-            hand_count.text = "";
+            deck_count_text.text = "";
+            hand_count_text.text = "";
 
             avatar_dead.enabled = false;
 
@@ -75,8 +79,8 @@ namespace TcgEngine.UI
                 mana_bar.value = player.mana;
                 mana_bar.max_value = player.mana_max;
                 hp_txt.text = player.hp.ToString();
-                deck_count.text = player.cards_deck.Count.ToString();
-                hand_count.text = player.cards_hand.Count.ToString();
+                deck_count_text.text = player.cards_deck.Count.ToString();
+                hand_count_text.text = player.cards_hand.Count.ToString();
 
                 if (player.hp < player.hp_max)
                     hp_txt.color = Color.red;
@@ -87,6 +91,11 @@ namespace TcgEngine.UI
                 if (avatar != null && adata != null && !killed)
                     avatar.SetAvatar(adata);
             }
+
+            deck_count_image.enabled = GameUI.Get().GetHideUI() ? false : true;
+            deck_count_text.enabled = GameUI.Get().GetHideUI() ? false : true;
+            hand_count_image.enabled = GameUI.Get().GetHideUI() ? false : true;
+            hand_count_text.enabled = GameUI.Get().GetHideUI() ? false : true;
 
             timer += Time.deltaTime;
             if (timer > 0.4f)
