@@ -17,6 +17,7 @@ namespace TcgEngine
         public const ushort PlayMulligan = 1002;
         public const ushort Attack = 1010;
         public const ushort AttackPlayer = 1012;
+        public const ushort AttackPlayerHit = 1012;
         public const ushort Move = 1015;
         public const ushort CastAbility = 1020;
         public const ushort SelectCard = 1030;

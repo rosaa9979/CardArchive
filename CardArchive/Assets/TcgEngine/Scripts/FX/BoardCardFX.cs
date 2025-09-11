@@ -36,6 +36,7 @@ namespace TcgEngine.FX
             client.onAttackStart += OnAttack;
             client.onAttackHit += OnAttackHit;
             client.onAttackPlayerStart += OnAttackPlayer;
+            client.onAttackPlayerHit += OnAttackPlayerHit;
             client.onAbilityStart += OnAbilityStart;
             client.onAbilityTargetCard += OnAbilityEffect;
             client.onAbilityEnd += OnAbilityAfter;
@@ -50,6 +51,7 @@ namespace TcgEngine.FX
             client.onAttackStart -= OnAttack;
             client.onAttackHit -= OnAttackHit;
             client.onAttackPlayerStart -= OnAttackPlayer;
+            client.onAttackPlayerHit -= OnAttackPlayerHit;
             client.onAbilityStart -= OnAbilityStart;
             client.onAbilityTargetCard -= OnAbilityEffect;
             client.onAbilityEnd -= OnAbilityAfter;
@@ -266,6 +268,7 @@ namespace TcgEngine.FX
 
         private void OnAttackPlayer(Card attacker, Player player)
         {
+            /*
             if (attacker == null || player == null)
                 return;
 
@@ -284,6 +287,38 @@ namespace TcgEngine.FX
                 int value = bcard.GetCard().GetAttack();
                 DamageFX(zone.transform, value);
             }
+            */
+        }
+        
+        private void OnAttackPlayerHit(Card attacker, Player player)
+        {
+            if (attacker == null || player == null)
+                return;
+
+
+            Card card = bcard.GetCard();
+            if (card.uid == attacker.uid)
+            {
+                BoardCard battacker = BoardCard.Get(attacker.uid);
+                bool is_other = player.player_id != GameClient.Get().GetPlayerID();
+                CardData icard = bcard.GetCardData();
+                BoardSlotPlayer zone = BoardSlotPlayer.Get(is_other);
+
+                //ChargeIntoPlayer(zone);
+                GameObject attack_fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                GameObject attack_fx_result = FXTool.DoFX(attack_fx, battacker.transform.position);
+                attack_fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, zone.gameObject);
+
+                AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                AudioTool.Get().PlaySFX("card_attack", audio);
+
+                GameObject hit_fx = AssetData.Get().card_attack_hit_fx;
+                GameObject hit_fx_result = FXTool.DoFX(hit_fx, zone.transform.position);
+                hit_fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, zone.gameObject);
+
+                int value = bcard.GetCard().GetAttack();
+                DamageFX(zone.transform, value);
+            }
         }
 
         private void DamageFX(Card attacker, Card target, Transform target_trans, float delay = 0.5f)
@@ -291,7 +326,7 @@ namespace TcgEngine.FX
             if (!target.HasStatus(StatusType.Invincibility))
             {
                 int value = attacker.GetAttack();
-                
+
                 value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
                 DamageFX(target_trans, value, delay);
             }

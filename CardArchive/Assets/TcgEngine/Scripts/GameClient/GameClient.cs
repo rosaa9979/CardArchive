@@ -56,6 +56,7 @@ namespace TcgEngine.Client
         public UnityAction<Card, Card> onAttackHit;
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
+        public UnityAction<Card, Player> onAttackPlayerHit;
         public UnityAction<Card, Player> onAttackPlayerEnd;
 
         public UnityAction<int, string> onChatMsg;  //player_id, msg
@@ -102,6 +103,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.AttackHit, OnAttackHit);
             RegisterRefresh(GameAction.AttackEnd, OnAttackEnd);
             RegisterRefresh(GameAction.AttackPlayerStart, OnAttackPlayerStart);
+            RegisterRefresh(GameAction.AttackPlayerHit, OnAttackPlayerHit);
             RegisterRefresh(GameAction.AttackPlayerEnd, OnAttackPlayerEnd);
 
             RegisterRefresh(GameAction.AbilityTrigger, OnAbilityTrigger);
@@ -577,6 +579,14 @@ namespace TcgEngine.Client
             Card attacker = game_data.GetCard(msg.attacker_uid);
             Player target = game_data.GetPlayer(msg.target_id);
             onAttackPlayerStart?.Invoke(attacker, target);
+        }
+
+        private void OnAttackPlayerHit(SerializedData sdata)
+        {
+            MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
+            Card attacker = game_data.GetCard(msg.attacker_uid);
+            Player target = game_data.GetPlayer(msg.target_id);
+            onAttackPlayerHit?.Invoke(attacker, target);
         }
 
         private void OnAttackPlayerEnd(SerializedData sdata)

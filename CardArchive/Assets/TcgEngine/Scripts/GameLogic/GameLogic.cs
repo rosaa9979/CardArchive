@@ -44,6 +44,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Card> onAttackHit;
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
+        public UnityAction<Card, Player> onAttackPlayerHit;
 
         public UnityAction<Card, Card> onSecretTrigger;    //Secret, Triggerer
         public UnityAction<Card, Card> onSecretResolve;    //Secret, Triggerer
@@ -951,6 +952,7 @@ namespace TcgEngine.Gameplay
             TriggerSecrets(AbilityTrigger.OnAfterAttack, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
 
+            onAttackPlayerHit?.Invoke(attacker, target);
             onAttackPlayerEnd?.Invoke(attacker, target);
             RefreshData();
             CheckForWinner();

@@ -99,6 +99,7 @@ namespace TcgEngine.Server
             gameplay.onAttackHit += OnAttackHit;
             gameplay.onAttackPlayerStart += OnAttackPlayerStart;
             gameplay.onAttackPlayerEnd += OnAttackPlayerEnd;
+            gameplay.onAttackPlayerHit += OnAttackPlayerHit;
 
             gameplay.onSecretTrigger += OnSecretTriggered;
             gameplay.onSecretResolve += OnSecretResolved;
@@ -133,6 +134,7 @@ namespace TcgEngine.Server
             gameplay.onAttackHit -= OnAttackHit;
             gameplay.onAttackPlayerStart -= OnAttackPlayerStart;
             gameplay.onAttackPlayerEnd -= OnAttackPlayerEnd;
+            gameplay.onAttackPlayerHit -= OnAttackPlayerHit;
 
             gameplay.onSecretTrigger -= OnSecretTriggered;
             gameplay.onSecretResolve -= OnSecretResolved;
@@ -840,6 +842,16 @@ namespace TcgEngine.Server
             mdata.damage = 0;
             SendToAll(GameAction.AttackPlayerEnd, mdata, NetworkDelivery.Reliable);
         }
+
+        protected virtual void OnAttackPlayerHit(Card attacker, Player target)
+        {
+            MsgAttackPlayer mdata = new MsgAttackPlayer();
+            mdata.attacker_uid = attacker.uid;
+            mdata.target_id = target.player_id;
+            mdata.damage = 0;
+            SendToAll(GameAction.AttackPlayerHit, mdata, NetworkDelivery.Reliable);
+        }
+
 
         protected virtual void OnAbilityStart(AbilityData ability, Card caster)
         {
