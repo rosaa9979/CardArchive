@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: The_Way_To_School
   title: "\uB4F1\uAD50\uAE38"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 85deddbb353954547b4c92aa280883b6, type: 3}
+  art_board: {fileID: 21300000, guid: 608e1c1946806824c83856ed2fac9f85, type: 3}
   type: 30
   mana: 2
   attack: 0
