@@ -60,7 +60,6 @@ namespace TcgEngine.UI
         private CardData card;
         private VariantData variant;
 
-        public Text card_name;
         public Color32 ally_name = new Color32(14, 165, 233, 255);
         public Color32 enemy_name = new Color32(220, 38, 38, 255);
 
@@ -179,9 +178,6 @@ namespace TcgEngine.UI
 
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
-
-            if (card_name != null)
-                card_name.text = card.CardData.GetTitle();
         }
 
         public void SetCard(CardData card, VariantData variant)
@@ -480,8 +476,6 @@ namespace TcgEngine.UI
                 card_title.color = new Color(card_title.color.r, card_title.color.g, card_title.color.b, opacity);
             if (card_text != null)
                 card_text.color = new Color(card_text.color.r, card_text.color.g, card_text.color.b, opacity);
-            if (card_name != null)
-                card_name.color = new Color(card_name.color.r, card_name.color.g, card_name.color.b, opacity);
         }
 
         public void Hide()

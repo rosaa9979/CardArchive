@@ -142,10 +142,6 @@ namespace TcgEngine.UI
                         }
                     }
                 }
-                
-                Player player = GameClient.Get().GetPlayer();
-                if (card_ui.card_name != null)
-                    card_ui.card_name.color = player.player_id == pcard.player_id ? card_ui.ally_name : card_ui.enemy_name;
             }
 
         }

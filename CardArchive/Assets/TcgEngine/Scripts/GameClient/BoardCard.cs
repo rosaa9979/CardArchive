@@ -199,9 +199,6 @@ namespace TcgEngine.Client
             //Status bar
             if (status_group != null)
                 status_group.alpha = Mathf.MoveTowards(status_group.alpha, status_alpha_target, 5f * Time.deltaTime);
-            
-            if (card_ui.card_name != null)
-                card_ui.card_name.color = player.player_id == card.player_id ? card_ui.ally_name : card_ui.enemy_name;
         }
 
         private Vector3 GetTargetPos()
