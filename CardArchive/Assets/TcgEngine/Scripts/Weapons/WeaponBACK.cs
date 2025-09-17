@@ -84,14 +84,11 @@ namespace TcgEngine
                     }
                 }
 
-                // 1. 가장 작은 HP 값 찾기
-                int minHP = candidate_target.Min(card => card.GetHP());
-
-                // 2. 가장 작은 HP 값을 가진 카드들 찾기
-                var lowestHPCards = candidate_target.Where(card => card.GetHP() == minHP).ToList();
-
-                // 3. 랜덤으로 하나 선택
-                target.Add(lowestHPCards[UnityEngine.Random.Range(0, lowestHPCards.Count)]);
+                if (candidate_target.Count > 0)
+                {
+                    int ran = UnityEngine.Random.Range(0, candidate_target.Count);
+                    target.Add(candidate_target[ran]);
+                }
             }
 
             return target;

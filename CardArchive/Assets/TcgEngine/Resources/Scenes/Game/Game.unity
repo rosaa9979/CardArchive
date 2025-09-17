@@ -834,6 +834,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 247042730}
+  - component: {fileID: 247042731}
   m_Layer: 5
   m_Name: ClubPreview
   m_TagString: Untagged
@@ -861,6 +862,33 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &247042731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247042729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83b5d82d7ada39042ac621f93dc66d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ui_panel: {fileID: 1707425807}
+  card_ui: {fileID: 1198175665}
+  desc: {fileID: 0}
+  hover_delay: 0
+  hover_delay_mobile: 0.1
+  side_rows:
+  - {fileID: 518069384}
+  - {fileID: 36662759}
+  status_lines:
+  - {fileID: 148104271}
+  - {fileID: 776242769}
+  - {fileID: 1606291999}
+  - {fileID: 1089207093}
+  - {fileID: 57534960}
+  - {fileID: 2133424923}
 --- !u!850595691 &254397389
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1523,6 +1551,8 @@ GameObject:
   m_Component:
   - component: {fileID: 661987517}
   - component: {fileID: 661987520}
+  - component: {fileID: 661987522}
+  - component: {fileID: 661987521}
   m_Layer: 0
   m_Name: BG
   m_TagString: Untagged
@@ -1597,6 +1627,47 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &661987521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661987516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85da422df4777d1498317ca74753bb39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &661987522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661987516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 661987521}
+          m_TargetAssemblyTypeName: Test, Assembly-CSharp
+          m_MethodName: OnMouseDown
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &679643786
 GameObject:
   m_ObjectHideFlags: 0
@@ -4312,6 +4383,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1198175664}
+  - component: {fileID: 1198175665}
   m_Layer: 5
   m_Name: ClubCardUI
   m_TagString: Untagged
@@ -4342,6 +4414,46 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1354, y: 436}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1198175665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198175663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 943be08264f3555448cac48ac16c1e8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title_background: {fileID: 0}
+  card_image: {fileID: 1176079257}
+  frame_image: {fileID: 0}
+  description_image: {fileID: 0}
+  type_background: {fileID: 0}
+  attack_background: {fileID: 0}
+  attack_icon: {fileID: 0}
+  hp_background: {fileID: 0}
+  hp_icon: {fileID: 0}
+  cost_icon: {fileID: 0}
+  range_background: {fileID: 0}
+  range_icon: {fileID: 0}
+  trait_background: {fileID: 0}
+  club_background: {fileID: 0}
+  academy_logo: {fileID: 0}
+  type: {fileID: 0}
+  attack: {fileID: 0}
+  hp: {fileID: 0}
+  cost: {fileID: 1084928230}
+  range: {fileID: 0}
+  clubs: {fileID: 0}
+  trait: {fileID: 0}
+  club_rect: {fileID: 0}
+  trait_rect: {fileID: 0}
+  card_title: {fileID: 1101997527}
+  card_text: {fileID: 834007741}
+  stats: []
+  default_mat: {fileID: 0}
 --- !u!1 &1294322351
 GameObject:
   m_ObjectHideFlags: 0

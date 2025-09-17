@@ -19,7 +19,6 @@ namespace TcgEngine.UI
     public class CardUI : MonoBehaviour, IPointerClickHandler
     {
         public Image title_background;
-        public Image club_title_background;
         public Image card_image;
         public Image frame_image;
         public Image description_image;
@@ -84,9 +83,6 @@ namespace TcgEngine.UI
 
             if (card_title != null)
                 card_title.enabled = true;
-
-            if (club_title_background != null)
-                club_title_background.enabled = false;
 
             if (type_background != null)
                 type_background.enabled = true;
@@ -291,8 +287,6 @@ namespace TcgEngine.UI
         {
             if (title_background != null)
                 title_background.material = new Material(mat);
-            if (club_title_background != null)
-                club_title_background.material = new Material(mat);
             if (type_background != null)
                 type_background.material = new Material(mat);
             if (description_image != null)
@@ -342,8 +336,6 @@ namespace TcgEngine.UI
         {
             if (title_background.material != null && title_background.material.HasProperty(DissolveAmountProperty))
                 title_background.material.SetFloat(DissolveAmountProperty, alpha);
-            if (club_title_background.material != null && club_title_background.material.HasProperty(DissolveAmountProperty))
-                club_title_background.material.SetFloat(DissolveAmountProperty, alpha);
             if (type_background.material != null && type_background.material.HasProperty(DissolveAmountProperty))
                 type_background.material.SetFloat(DissolveAmountProperty, alpha);
             if (description_image.material != null && description_image.material.HasProperty(DissolveAmountProperty))
