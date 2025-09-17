@@ -24,13 +24,11 @@ namespace TcgEngine.UI
         public Image frame_image;
         public Image description_image;
         public Image type_background;
-        //public Image team_icon;
         public Image attack_background;
         public Image attack_icon;
         public Image hp_background;
         public Image hp_icon;
         public Image cost_icon;
-        public Image club_icon;
         public Image range_background;
         public Image range_icon;
         public Image trait_background;
@@ -40,7 +38,6 @@ namespace TcgEngine.UI
         public Text attack;
         public Text hp;
         public Text cost;
-        public Text members;
         public Text range;
         public Text clubs;
         public Text trait;
@@ -49,7 +46,6 @@ namespace TcgEngine.UI
         private float padding = 20f;
 
         public Text card_title;
-        public Text card_club_title;
         public Text card_text;
 
         public TraitUI[] stats;
@@ -59,9 +55,6 @@ namespace TcgEngine.UI
 
         private CardData card;
         private VariantData variant;
-
-        public Color32 ally_name = new Color32(14, 165, 233, 255);
-        public Color32 enemy_name = new Color32(220, 38, 38, 255);
 
         [Header("Mat")]
         public Material default_mat;
@@ -94,8 +87,6 @@ namespace TcgEngine.UI
 
             if (club_title_background != null)
                 club_title_background.enabled = false;
-            if (card_club_title != null)
-                card_club_title.enabled = false;
 
             if (type_background != null)
                 type_background.enabled = true;
@@ -105,15 +96,6 @@ namespace TcgEngine.UI
 
             if (card.CardData.IsClub())
             {
-                if (cost_icon != null)
-                    cost_icon.enabled = false;
-                if (cost != null)
-                    cost.enabled = false;
-                if (club_icon != null)
-                    club_icon.enabled = true;
-                if (members != null)
-                    members.enabled = true;
-
                 int count = 0;
                 Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
 
@@ -123,19 +105,11 @@ namespace TcgEngine.UI
                         count += 1;
                 }
 
-                members.text = count.ToString();
+                cost.text = count.ToString();
             }
 
             else
             {
-                if (cost_icon != null)
-                    cost_icon.enabled = true;
-                if (cost != null)
-                    cost.enabled = true;
-                if (club_icon != null)
-                    club_icon.enabled = false;
-                if (members != null)
-                    members.enabled = false;
 
                 if (cost != null)
                     cost.text = card.GetMana().ToString();
@@ -205,8 +179,6 @@ namespace TcgEngine.UI
                 card_image.sprite = card.GetFullArt(variant);
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
-            if (card_club_title != null)
-                card_club_title.text = card.GetTitle().ToUpper();
             if (card_text != null)
                 card_text.text = card.GetText();
 
@@ -255,8 +227,6 @@ namespace TcgEngine.UI
                 clubs.text = string.Join(" / ", card.clubs.Select(club => club.title));
             if (trait != null)
                 trait.text = string.Join(" / ", card.traits.Select(tra => tra.title));
-
-            SetClubUI(card.IsClub());
 
             if (clubs != null && club_background != null)
             {
@@ -345,8 +315,6 @@ namespace TcgEngine.UI
                 range_icon.material = new Material(mat);
             if (cost_icon != null)
                 cost_icon.material = new Material(mat);
-            if (club_icon != null)
-                club_icon.material = new Material(mat);
             if (academy_logo != null)
                 academy_logo.material = new Material(mat);
 
@@ -358,8 +326,6 @@ namespace TcgEngine.UI
                 hp.material = new Material(mat);
             if (cost != null)
                 cost.material = new Material(mat);
-            if (members != null)
-                members.material = new Material(mat);
             if (range != null)
                 range.material = new Material(mat);
             if (clubs != null)
@@ -368,8 +334,6 @@ namespace TcgEngine.UI
                 trait.material = new Material(mat);
             if (card_title != null)
                 card_title.material = new Material(mat);
-            if (card_club_title != null)
-                card_club_title.material = new Material(mat);
             if (card_text != null)
                 card_text.material = new Material(mat);
         }
@@ -402,8 +366,6 @@ namespace TcgEngine.UI
                 range_icon.material.SetFloat(DissolveAmountProperty, alpha);
             if (cost_icon.material != null && cost_icon.material.HasProperty(DissolveAmountProperty))
                 cost_icon.material.SetFloat(DissolveAmountProperty, alpha);
-            if (club_icon.material != null && club_icon.material.HasProperty(DissolveAmountProperty))
-                club_icon.material.SetFloat(DissolveAmountProperty, alpha);
             if (academy_logo.material != null && academy_logo.material.HasProperty(DissolveAmountProperty))
                 academy_logo.material.SetFloat(DissolveAmountProperty, alpha);
 
@@ -415,8 +377,6 @@ namespace TcgEngine.UI
                 hp.material.SetFloat(DissolveAmountProperty, alpha);
             if (cost.material != null && cost.material.HasProperty(DissolveAmountProperty))
                 cost.material.SetFloat(DissolveAmountProperty, alpha);
-            if (members.material != null && members.material.HasProperty(DissolveAmountProperty))
-                members.material.SetFloat(DissolveAmountProperty, alpha);
             if (range.material != null && range.material.HasProperty(DissolveAmountProperty))
                 range.material.SetFloat(DissolveAmountProperty, alpha);
             if (clubs.material != null && clubs.material.HasProperty(DissolveAmountProperty))
@@ -425,8 +385,6 @@ namespace TcgEngine.UI
                 trait.material.SetFloat(DissolveAmountProperty, alpha);
             if (card_title.material != null && card_title.material.HasProperty(DissolveAmountProperty))
                 card_title.material.SetFloat(DissolveAmountProperty, alpha);
-            if (card_club_title.material != null && card_club_title.material.HasProperty(DissolveAmountProperty))
-                card_club_title.material.SetFloat(DissolveAmountProperty, alpha);
             if (card_text.material != null && card_text.material.HasProperty(DissolveAmountProperty))
                 card_text.material.SetFloat(DissolveAmountProperty, alpha);
                 
@@ -507,30 +465,6 @@ namespace TcgEngine.UI
         public VariantData GetVariant()
         {
             return variant;
-        }
-
-        private void SetClubUI(bool is_club)
-        {
-            if (cost_icon != null)
-                cost_icon.enabled = !is_club;
-            if (cost != null)
-                cost.enabled = !is_club;
-            if (club_icon != null)
-                club_icon.enabled = is_club;
-            if (members != null)
-                members.enabled = is_club;
-            if (title_background != null)
-                    title_background.enabled = !is_club;
-            if (card_title != null)
-                card_title.enabled = !is_club;
-            if (club_title_background != null)
-                club_title_background.enabled = is_club;
-            if (card_club_title != null)
-                card_club_title.enabled = is_club;
-            if (type_background != null)
-                type_background.enabled = !is_club;
-            if (type != null)
-                type.enabled = !is_club;
         }
 
         private Color GetFrameColor(CardData card)
