@@ -17,6 +17,6 @@ MonoBehaviour:
   icon: {fileID: 0}
   bad_status: 1
   desc: Cannot perform any actions.
-  status_fx: {fileID: 7895921366975009591, guid: c54fbb409d9ffcd4db321c31945eb001,
+  status_fx: {fileID: 333339856484750616, guid: 7b4fb318f22132249b71d750fcff75bf,
     type: 3}
   hvalue: -1

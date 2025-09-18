@@ -281,7 +281,6 @@ RectTransform:
   - {fileID: 3969018848918357070}
   - {fileID: 7071674103025143898}
   - {fileID: 8197888988113745815}
-  - {fileID: 4253775736881105845}
   - {fileID: 7549181853801946949}
   - {fileID: 1705193841562037376}
   m_Father: {fileID: 2552961730338996592}
@@ -5757,7 +5756,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6993081696455686038}
-  m_Father: {fileID: 4775531534372317089}
+  m_Father: {fileID: 6431766693133922997}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -6023,8 +6022,10 @@ MonoBehaviour:
   mana_bar: {fileID: 22293539287746189}
   hp_txt: {fileID: 2707362691269905591}
   hp_max_txt: {fileID: 6118869853573220837}
-  deck_count: {fileID: 1531962813059872934}
-  hand_count: {fileID: 6767718130763751792}
+  deck_count_image: {fileID: 0}
+  deck_count_text: {fileID: 0}
+  hand_count_image: {fileID: 0}
+  hand_count_text: {fileID: 0}
   secrets:
   - {fileID: 1558559621894068331}
   - {fileID: 5815503370203404345}
@@ -13339,6 +13340,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4253775736881105845}
   - {fileID: 962576084419251300}
   - {fileID: 7882156172402234031}
   - {fileID: 4567806190161476157}
@@ -14076,8 +14078,10 @@ MonoBehaviour:
   mana_bar: {fileID: 209928453693938780}
   hp_txt: {fileID: 2717240966054619028}
   hp_max_txt: {fileID: 2758233282428094638}
-  deck_count: {fileID: 5658970417170472608}
-  hand_count: {fileID: 4124773169792138402}
+  deck_count_image: {fileID: 0}
+  deck_count_text: {fileID: 0}
+  hand_count_image: {fileID: 0}
+  hand_count_text: {fileID: 0}
   secrets:
   - {fileID: 8716197153276748957}
   - {fileID: 299805819320743137}

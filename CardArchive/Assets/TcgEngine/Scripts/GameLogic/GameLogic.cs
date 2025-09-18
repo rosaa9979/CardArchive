@@ -147,8 +147,8 @@ namespace TcgEngine.Gameplay
             RefreshData();
             onGameStart?.Invoke();
 
-            //StartTurn();
-            StartMulliganPhase();
+            StartTurn();
+            //StartMulliganPhase();
         }
 
         public virtual void StartMulliganPhase()

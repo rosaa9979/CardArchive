@@ -317,7 +317,7 @@ namespace TcgEngine.FX
                 hit_fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, zone.gameObject);
 
                 int value = bcard.GetCard().GetAttack();
-                DamageFX(zone.transform, value);
+                DamageFX(zone.transform, value, 0.0f);
             }
         }
 
