@@ -25,7 +25,7 @@ namespace TcgEngine
         [Header("Target")]
         public AbilityTarget criteria_target;               //WHO is targeted?
         public ConditionData[] conditions_criteria_target;  //Condition checked on the target to know if its a valid taget
-        public ConditionData condition_wide_range;
+        public ConditionWideAreaRange condition_wide_range;
         public ConditionData[] condition_target;
         public FilterData[] filters_target;  //Condition checked on the target to know if its a valid taget
 

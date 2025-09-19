@@ -27,6 +27,9 @@ namespace TcgEngine.UI
         private float preview_timer = 0f;
         private Vector2[] start_pos;
 
+        [Header("Default Setting")]
+        public ConditionWideAreaRange default_wide_area_range;
+
         private void Start()
         {
             start_pos = new Vector2[side_rows.Length];
@@ -114,6 +117,20 @@ namespace TcgEngine.UI
 
                 //Abilities
                 int index = 0;
+                foreach (AbilityData ability in pcard.GetAbilities())
+                {
+                    if (index < status_lines.Length)
+                    {
+                        if (ability.condition_wide_range != default_wide_area_range)
+                        //Dont display default ability (GetAbilitiesDesc does that already)
+                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
+                        {
+                            status_lines[index].SetLine(pcard.CardData, ability.condition_wide_range.thumnail);
+                            index++;
+                        }
+                    }
+                }
+
                 foreach (AbilityData ability in pcard.GetAbilities())
                 {
                     if (index < status_lines.Length)

@@ -496,9 +496,9 @@ namespace TcgEngine.Client
 
         public void SetSelected(bool is_selected)
         {
-            ui_canvas.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
-            stat_canvas.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
-            card_sprite.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+            ui_canvas.sortingLayerName = is_selected ? "UI" : "Default";
+            stat_canvas.sortingLayerName = is_selected ? "UI" : "Default";
+            card_sprite.sortingLayerName = is_selected ? "UI" : "Default";
         }
 
         public static BoardCard GetFocus()

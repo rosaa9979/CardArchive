@@ -46,7 +46,7 @@ MonoBehaviour:
   tied_fx: {fileID: 0}
   card_spawn_audio: {fileID: 0}
   card_destroy_audio: {fileID: 0}
-  card_attack_audio: {fileID: 0}
+  card_attack_audio: {fileID: 8300000, guid: 235737f52ae44c44284b518e73526bc6, type: 3}
   card_move_audio: {fileID: 0}
   card_damage_audio: {fileID: 0}
   player_damage_audio: {fileID: 0}

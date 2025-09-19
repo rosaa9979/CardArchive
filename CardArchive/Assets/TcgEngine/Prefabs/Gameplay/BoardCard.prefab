@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title_background: {fileID: 0}
-  club_title_background: {fileID: 0}
   card_image: {fileID: 0}
   frame_image: {fileID: 4353264925981202626}
   description_image: {fileID: 0}
@@ -130,7 +129,6 @@ MonoBehaviour:
   hp_background: {fileID: 3765463020334271792}
   hp_icon: {fileID: 4725780009765445995}
   cost_icon: {fileID: 0}
-  club_icon: {fileID: 0}
   range_background: {fileID: 7396165946883078864}
   range_icon: {fileID: 3149888590560742296}
   trait_background: {fileID: 0}
@@ -140,22 +138,14 @@ MonoBehaviour:
   attack: {fileID: 1095425094801124750}
   hp: {fileID: 2630487396038922837}
   cost: {fileID: 0}
-  members: {fileID: 0}
   range: {fileID: 540963428016409334}
   clubs: {fileID: 0}
   trait: {fileID: 0}
   club_rect: {fileID: 0}
   trait_rect: {fileID: 0}
   card_title: {fileID: 3046232166395948562}
-  card_club_title: {fileID: 0}
   card_text: {fileID: 0}
   stats: []
-  ally_name:
-    serializedVersion: 2
-    rgba: 4293502222
-  enemy_name:
-    serializedVersion: 2
-    rgba: 4280690396
   default_mat: {fileID: 0}
 --- !u!1 &105562412579017727
 GameObject:
@@ -1693,7 +1683,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 7
+  m_SortingOrder: -7
   m_Sprite: {fileID: 21300000, guid: c6eb9964a5b701f4ea0e602a84b216d4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2102,7 +2092,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 6
+  m_SortingOrder: -8
   m_TargetDisplay: 0
 --- !u!114 &6132934038323766916
 MonoBehaviour:
@@ -2757,7 +2747,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 8
+  m_SortingOrder: -6
   m_TargetDisplay: 0
 --- !u!114 &2287281292605727359
 MonoBehaviour:

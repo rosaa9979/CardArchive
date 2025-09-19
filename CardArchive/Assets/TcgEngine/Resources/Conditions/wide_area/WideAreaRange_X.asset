@@ -23,3 +23,4 @@ MonoBehaviour:
     dy: -1
   - dx: 0
     dy: -1
+  thumnail: {fileID: 21300000, guid: 6f267ca3200aac548b0799273d3450e1, type: 3}

@@ -6,14 +6,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.VisualScripting;
 using System.Runtime.CompilerServices;
+using TcgEngine.UI;
 
 namespace TcgEngine
 {
     public class SlotSelectorPanel : MonoBehaviour
     {
-        public GameObject selected_group;
-        public Image panel_background;
-        public float fadeDuration;
+        public UIPanel ui_panel;
         public UnityAction<Card, Slot> onSlotSelectedByCard;
         public UnityAction<Card, Slot> onSlotSelectedByBoardCard;
         public UnityAction<AbilityData, Slot> onSlotSelectedByAbility;
@@ -21,17 +20,15 @@ namespace TcgEngine
 
         private Slot current_selected_slot;
         private bool should_show = false;
-        private CanvasGroup canvasGroup;
-        private Coroutine fadeCoroutine;
 
         void Awake()
         {
-            canvasGroup = GetComponent<CanvasGroup>();
+
         }
 
         void Start()
         {
-            panel_background.enabled = true;
+
         }
 
         void Update()
@@ -77,9 +74,9 @@ namespace TcgEngine
             }
 
             if (should_show)
-                FadeIn();
+                ui_panel.Show();
             else
-                FadeOut();
+                ui_panel.Hide();
         }
 
         public Slot GetSelectedSlot(Vector3 board_pos)
@@ -98,30 +95,6 @@ namespace TcgEngine
             }
 
             return slot;
-        }
-
-        public void FadeIn()
-        {
-            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-            fadeCoroutine = StartCoroutine(FadeCoroutine(canvasGroup.alpha, 1f));
-        }
-
-        public void FadeOut()
-        {
-            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-            fadeCoroutine = StartCoroutine(FadeCoroutine(canvasGroup.alpha, 0f));
-        }
-
-        private IEnumerator FadeCoroutine(float start, float end)
-        {
-            float elapsed = 0f;
-            while (elapsed < fadeDuration)
-            {
-                elapsed += Time.deltaTime;
-                canvasGroup.alpha = Mathf.Lerp(start, end, elapsed / fadeDuration);
-                yield return null;
-            }
-            canvasGroup.alpha = end;
         }
     }
 

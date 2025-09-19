@@ -319,8 +319,8 @@ namespace TcgEngine.Client
         {
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 
-            renderer.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
-            overlay_renderer.sortingLayerName = is_selected ? "BoardSelectorUI" : "Default";
+            renderer.sortingLayerName = is_selected ? "UI" : "Default";
+            overlay_renderer.sortingLayerName = is_selected ? "UI" : "Default";
 
             Game game_data = GameClient.Get().GetGameData();
             Card slot_card = game_data.GetSlotCard(GetSlot());

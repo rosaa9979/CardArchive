@@ -14,6 +14,7 @@ namespace TcgEngine.UI
     {
         public Text title;
         public Text desc;
+        public Image thumnail;
 
         private float timer = 0f;
 
@@ -27,11 +28,26 @@ namespace TcgEngine.UI
             timer += Time.deltaTime;
         }
 
+        public void SetLine(CardData icard, Sprite new_thumnail)
+        {
+            if (new_thumnail != null)
+            {
+                title.text = "범위";
+                desc.gameObject.SetActive(false);
+                thumnail.gameObject.SetActive(true);
+                thumnail.sprite = new_thumnail;
+                gameObject.SetActive(true);
+                timer = 0f;
+            }
+        }
+
         public void SetLine(CardData icard, AbilityData ability)
         {
             if (!string.IsNullOrWhiteSpace(ability.desc))
             {
                 title.text = ability.GetTitle();
+                desc.gameObject.SetActive(true);
+                thumnail.gameObject.SetActive(false);
                 desc.text = ability.GetDesc(icard);
                 gameObject.SetActive(true);
                 timer = 0f;
@@ -50,6 +66,8 @@ namespace TcgEngine.UI
             if (!string.IsNullOrWhiteSpace(effect.desc))
             {
                 title.text = effect.GetTitle();
+                desc.gameObject.SetActive(true);
+                thumnail.gameObject.SetActive(false);
                 desc.text = effect.GetDesc(value);
                 gameObject.SetActive(true);
                 timer = 0f;

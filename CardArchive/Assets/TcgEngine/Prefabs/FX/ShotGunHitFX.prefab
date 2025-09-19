@@ -70,9 +70,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1726109341
-  m_SortingLayer: 3
-  m_SortingOrder: 100
+  m_SortingLayerID: -1167717967
+  m_SortingLayer: 1
+  m_SortingOrder: -2
   m_Sprite: {fileID: 21300000, guid: 4316ef0abbececb4f8b98ec037e0538b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 3824950064294669014}
   - component: {fileID: 1543273980202483573}
   - component: {fileID: 6982052713657264889}
+  - component: {fileID: 54876974281597466}
   m_Layer: 0
   m_Name: ShotGunHitFX
   m_TagString: Untagged
@@ -151,3 +152,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a0c0347ee238f45ab6b2c3a148fff7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &54876974281597466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6063264509963397680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f1b1fbe200e2864f906b32a88efcda0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotation_option: 10

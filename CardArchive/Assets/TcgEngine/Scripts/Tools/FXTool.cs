@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.FX;
 using TcgEngine.Client;
+using UnityEditor;
+using Unity.Netcode;
 
 namespace TcgEngine
 {
@@ -49,18 +51,45 @@ namespace TcgEngine
             return Quaternion.LookRotation(facing, Vector3.up);
         }
 
-        public static Quaternion GetFXRotation(GameObject start, GameObject end)
+        public static Quaternion GetFXRotation(GameObject fx, GameObject caster = null, GameObject target = null)
         {
-            if (start != null && end != null)
-            {
-                Vector3 dir = (end.transform.position - start.transform.position).normalized;
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                Quaternion rot = Quaternion.Euler(0f, 0f, angle);
+            FXSetting setting = fx.GetComponentInChildren<FXSetting>();
+            Quaternion? rot = null;
+            if (setting == null)
+                return GetFXRotation();
 
-                return rot;
+            switch (setting.rotation_option)
+            {
+                case FXRotationOption.NoRotation:
+                    rot = GetFXRotation();
+                    break;
+
+                case FXRotationOption.CasterToTarget:
+                    if (caster != null && target != null)
+                    {
+                        Vector3 dir = (target.transform.position - caster.transform.position).normalized;
+                        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                        rot = Quaternion.Euler(0f, 0f, angle);
+                    }
+                    break;
+
+                case FXRotationOption.TargetToCaster:
+                    if (caster != null && target != null)
+                    {
+                        Vector3 dir = (caster.transform.position - target.transform.position).normalized;
+                        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                        rot = Quaternion.Euler(0f, 0f, angle);
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
-            return GetFXRotation();
+            if (rot == null)
+                return GetFXRotation();
+
+            return rot.Value;
         }
     }
 }

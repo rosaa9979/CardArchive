@@ -4,15 +4,6 @@ using UnityEngine;
 
 namespace TcgEngine
 {
-    public enum LastType
-    {
-        None = 0,
-        LastAttacked = 1,
-        LastTargeted = 2,
-        LastSummoned = 3,
-        LastDestroyed = 4,
-        LastPlayed = 5,
-    }
     /// <summary>
     /// ability의 widerangearea condition에서만 사용하며, 선택한 슬롯을 기점으로 효과 범위를 정의한다
     /// </summary>
@@ -22,9 +13,10 @@ namespace TcgEngine
     {
         [Header("Range")]
         public List<Direction> directions;
+        public Sprite thumnail;
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
-        {   
+        {
             Player player = data.GetPlayer(caster.player_id);
             Slot selected = Slot.None;
             List<Slot> wa_slot = new List<Slot>();
@@ -39,7 +31,7 @@ namespace TcgEngine
                 if (new_slot.IsValid())
                     wa_slot.Add(new_slot);
             }
-            
+
             return wa_slot.Contains(target);
         }
 

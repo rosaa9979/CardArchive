@@ -34,6 +34,7 @@ namespace TcgEngine.UI
         private float end_turn_timer = 0f;
         private int prev_time_val = 0;
 
+        private bool hide_ui_option = false;
         private bool hide_ui = false;
 
         private static GameUI instance;
@@ -66,7 +67,7 @@ namespace TcgEngine.UI
         void Update()
         {
             Game data = GameClient.Get().GetGameData();
-			bool is_connecting = data == null || data.state == GameState.Connecting;
+            bool is_connecting = data == null || data.state == GameState.Connecting;
             bool connection_lost = !is_connecting && !GameClient.Get().IsReady();
             ConnectionPanel.Get().SetVisible(connection_lost);
 
@@ -139,6 +140,9 @@ namespace TcgEngine.UI
                 SelectorPanel.HideAll();
             }
 
+            Game game_data = GameClient.Get().GetGameData();
+
+            hide_ui = (game_data.selector == SelectorType.None || game_data.selector_player_id != GameClient.Get().GetPlayerID()) ? hide_ui_option : true;
         }
 
         private void PulseFX()
@@ -221,7 +225,7 @@ namespace TcgEngine.UI
 
         public void SetHideUI(bool new_value)
         {
-            hide_ui = new_value;
+            hide_ui_option = new_value;
         }
 
         public bool GetHideUI()

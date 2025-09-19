@@ -10,6 +10,16 @@ namespace TcgEngine
     /// 카드의 경우 last_played는 거리 조건을 따지지 않음 (play는 이벤트 카드도 가능하기 때문)
     /// </summary>
 
+    public enum LastType
+    {
+        None = 0,
+        LastAttacked = 1,
+        LastTargeted = 2,
+        LastSummoned = 3,
+        LastDestroyed = 4,
+        LastPlayed = 5,
+    }
+
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/LastType", order = 10)]
     public class ConditionLastType : ConditionData
     {
