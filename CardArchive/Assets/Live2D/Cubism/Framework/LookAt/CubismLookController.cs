@@ -171,11 +171,10 @@ namespace Live2D.Cubism.Framework.LookAt
                 return;
             }
 
-
             // Update position.
             var position = LastPosition;
             GoalPosition = transform.InverseTransformPoint(target.GetPosition()) - Center.localPosition;
-
+            Debug.Log(GoalPosition);
 
             if (position != GoalPosition)
             {

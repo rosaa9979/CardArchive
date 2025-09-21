@@ -44,6 +44,7 @@ namespace Live2D.Cubism.Framework
             foreach(var component in sortedComponents)
             {
 #if UNITY_EDITOR
+                Debug.Log(component.GetType().Name);
                 if (!Application.isPlaying && !component.NeedsUpdateOnEditing)
                 {
                     continue;
