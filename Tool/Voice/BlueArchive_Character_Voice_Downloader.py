@@ -16,8 +16,11 @@ if not os.path.exists(DOWNLOAD_DIR):
 
 # 웹 드라이버 설정 (Chrome)
 print("웹 드라이버를 설정하는 중...")
-service = Service(ChromeDriverManager().install())
+driver_path = "C:/Works/CardArchive/Tool/Voice/chromedriver.exe" 
+service = Service(executable_path=driver_path)
 driver = webdriver.Chrome(service=service)
+#service = Service(ChromeDriverManager().install())
+#driver = webdriver.Chrome(service=service)
 
 # 기본 URL
 base_url = "https://bluearchive.wiki/wiki/Category:Dialogs_by_character"
@@ -119,3 +122,6 @@ for character_url in character_urls:
 
     except Exception as e:
         print(f"예기치 않은 오류가 발생했습니다: {e}")
+
+driver.quit()
+print("\n모든 작업을 완료하고 웹 드라이버를 종료합니다. 🥳")

@@ -137,7 +137,7 @@ namespace TcgEngine.Client
             card_ui.hp_background.sprite = player.player_id == card.player_id ? ally_hp_bg : enemy_hp_bg;
 
             //Color ccolor = player.player_id == card.player_id ? glow_ally : glow_enemy;
-            //float calpha = Mathf.MoveTowards(card_glow.color.a, target_alpha * ccolor.a, 4f * Time.deltaTime);
+            //float calpha = Mathf.MoveTowulow.color.a, target_alpha * ccolor.a, 4f * Time.deltaTime);
             //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, calpha);
             //card_glow.color = new Color(ccolor.r, ccolor.g, ccolor.b, 1);
             //card_shadow.enabled = !destroyed && timer > 0.4f;

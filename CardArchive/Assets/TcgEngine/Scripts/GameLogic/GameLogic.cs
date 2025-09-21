@@ -1489,10 +1489,15 @@ namespace TcgEngine.Gameplay
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
-            foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
+            foreach (var slot in Slot.GetPlayerSelf()) 
             {
                 if (slot == target)
-                    DamagePlayer_Event(attacker, oplayer, value);
+                {
+                    Player player = game_data.GetPlayer(target.GetP());
+                    if (player != null)
+                        DamagePlayer_Event(attacker, player, value);
+                }
+
             }  
 
             if (card_target != null)

@@ -59,8 +59,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 934095357
-  m_SortingOrder: 999
+  m_SortingLayerID: -1726109341
+  m_SortingOrder: -1
   m_TargetDisplay: 0
 --- !u!95 &8626446344560852379
 Animator:
@@ -95,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f1b1fbe200e2864f906b32a88efcda0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotation_option: 0
 --- !u!1 &2991762236820715645
 GameObject:
   m_ObjectHideFlags: 0
