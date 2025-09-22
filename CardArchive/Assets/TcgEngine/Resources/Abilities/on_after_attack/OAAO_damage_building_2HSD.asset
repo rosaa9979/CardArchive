@@ -17,8 +17,10 @@ MonoBehaviour:
   conditions_trigger:
   - {fileID: 11400000, guid: 00511614df2ba714996da7ccda6c4bac, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 0
-  conditions_criteria_target: []
+  criteria_target: 73
+  conditions_criteria_target:
+  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
+  - {fileID: 11400000, guid: 707ab85bffdfd2643a7375e15b2fa634, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
