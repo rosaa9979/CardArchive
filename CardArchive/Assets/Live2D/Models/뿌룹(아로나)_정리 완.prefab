@@ -6253,7 +6253,7 @@ MonoBehaviour:
           Minimum: -10
           Default: 0
     Gravity: {x: 0, y: -1}
-    Wind: {x: 10, y: 10}
+    Wind: {x: 0, y: 0}
     Fps: 30
 --- !u!1 &4128424025224950725
 GameObject:

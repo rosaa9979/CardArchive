@@ -21,6 +21,7 @@ MonoBehaviour:
   cards_max: 10
   turn_duration: 90
   second_bonus: {fileID: 11400000, guid: 9503f60659f1df04eb3dd7fa925885fb, type: 2}
+  mulligan: 1
   deck_size: 20
   club_size: 3
   deck_non_student_duplicate_max: 2

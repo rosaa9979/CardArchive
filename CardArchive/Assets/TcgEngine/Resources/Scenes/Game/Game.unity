@@ -1132,7 +1132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.18039216, g: 0.5921569, b: 1, a: 1}
+  m_Color: {r: 0.18039216, g: 0.5882353, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1198,7 +1198,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -258, y: 235}
+  m_AnchoredPosition: {x: -243, y: 0}
   m_SizeDelta: {x: 1353.6802, y: 436.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &531038259
@@ -7682,6 +7682,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5292825395981987856, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 482
+      objectReference: {fileID: 0}
+    - target: {fileID: 5292825395981987856, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -519
+      objectReference: {fileID: 0}
     - target: {fileID: 5479468785191769373, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -7887,6 +7897,11 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1477232087}
+    - target: {fileID: 7071674103025143898, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 151
+      objectReference: {fileID: 0}
     - target: {fileID: 7233559093397816097, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_SizeDelta.y
@@ -8023,6 +8038,16 @@ PrefabInstance:
       propertyPath: hand_count_image
       value: 
       objectReference: {fileID: 1857296071}
+    - target: {fileID: 8197888988113745815, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -380.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8197888988113745815, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -151
+      objectReference: {fileID: 0}
     - target: {fileID: 8236030736308582322, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: deck_count_text

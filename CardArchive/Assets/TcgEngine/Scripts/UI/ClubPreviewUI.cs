@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 namespace TcgEngine.UI
 {
@@ -24,6 +25,7 @@ namespace TcgEngine.UI
 
         private float preview_timer = 0f;
         private Vector2[] start_pos;
+        private Vector2[] final_pos;
 
         private void Start()
         {
@@ -67,6 +69,12 @@ namespace TcgEngine.UI
 
             if (show_preview)
             {
+                bool owner_player = club_card.player_id == GameClient.Get().GetPlayerID();
+                for (int idx = 0; idx < side_rows.Length; idx++)
+                {
+                    side_rows[idx].anchoredPosition = owner_player ? start_pos[idx] : -start_pos[idx];
+                }
+
                 CardData icard = club_card.CardData;
                 //card_ui.SetCard(icard, pcard.VariantData);
                 card_ui.SetCard(club_card);

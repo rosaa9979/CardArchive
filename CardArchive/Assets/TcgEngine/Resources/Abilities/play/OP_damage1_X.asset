@@ -35,7 +35,7 @@ MonoBehaviour:
   target_fx: {fileID: 6150708438573729787, guid: f097f7d1b47b78c4ea78145d69f0484d,
     type: 3}
   cast_audio: {fileID: 0}
-  target_audio: {fileID: 0}
+  target_audio: {fileID: 8300000, guid: d749e3d6c49e4e344af86ffee27567f4, type: 3}
   charge_target: 0
   title: 
   desc: 

@@ -22,6 +22,7 @@ namespace TcgEngine
         public int cards_max = 10;
         public float turn_duration = 30f;
         public CardData second_bonus;
+        public bool mulligan;
 
         [Header("Deckbuilding")]
         public int deck_size = 20;

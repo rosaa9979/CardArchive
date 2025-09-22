@@ -97,12 +97,14 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
-                
+
             //Choose first player
             game_data.state = GameState.Play;
             game_data.first_player = random.NextDouble() < 0.5 ? 0 : 1;
             game_data.current_player = game_data.first_player;
             game_data.turn_count = 1;
+
+            bool should_mulligan = GameplayData.Get().mulligan;
 
             //Adventure settings
             LevelData level = game_data.settings.GetLevel();
@@ -129,7 +131,7 @@ namespace TcgEngine.Gameplay
 
                 //Draw starting cards
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
-                dcards = player.player_id == game_data.first_player ? dcards-1 : dcards;
+                dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
                 DrawCard(player, dcards);
 
                 /*
@@ -147,8 +149,11 @@ namespace TcgEngine.Gameplay
             RefreshData();
             onGameStart?.Invoke();
 
-            StartTurn();
-            //StartMulliganPhase();
+            if (should_mulligan)
+                StartMulliganPhase();
+            else
+                StartTurn();
+
         }
 
         public virtual void StartMulliganPhase()

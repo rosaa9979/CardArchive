@@ -583,6 +583,7 @@ namespace TcgEngine.Client
 
         private void OnAttackPlayerHit(SerializedData sdata)
         {
+            Debug.Log("ReceiveHit");
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
             Card attacker = game_data.GetCard(msg.attacker_uid);
             Player target = game_data.GetPlayer(msg.target_id);

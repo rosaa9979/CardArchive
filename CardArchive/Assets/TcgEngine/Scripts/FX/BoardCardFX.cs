@@ -314,8 +314,8 @@ namespace TcgEngine.FX
 
                 //ChargeIntoPlayer(zone);
                 GameObject attack_fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
-                //TimeTool.WaitFor(0.75f, () =>
-                //{
+                TimeTool.WaitFor(0.75f, () =>
+                {
                     GameObject attack_fx_result = FXTool.DoFX(attack_fx, battacker.transform.position);
                     attack_fx_result.transform.rotation = FXTool.GetFXRotation(attack_fx_result, battacker.gameObject, zone.gameObject);
 
@@ -325,7 +325,7 @@ namespace TcgEngine.FX
 
                     int value = bcard.GetCard().GetAttack();
                     DamageFX(zone.transform, value, 0.0f);
-                //});
+                });
             }
         }
 

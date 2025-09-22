@@ -36,7 +36,7 @@ MonoBehaviour:
   attack_fx: {fileID: 0}
   damage_fx: {fileID: 0}
   idle_fx: {fileID: 0}
-  spawn_audio: {fileID: 0}
+  spawn_audio: {fileID: 8300000, guid: de8d42e9edae2514ab1d247bf1805580, type: 3}
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
