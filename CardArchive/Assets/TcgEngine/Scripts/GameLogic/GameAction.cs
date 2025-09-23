@@ -24,6 +24,7 @@ namespace TcgEngine
         public const ushort SelectPlayer = 1032;
         public const ushort SelectSlot = 1034;
         public const ushort SelectChoice = 1036;
+        public const ushort SelectMulligan = 1038;
         public const ushort CancelSelect = 1039;
         public const ushort EndTurn = 1040;
         public const ushort Resign = 1050;

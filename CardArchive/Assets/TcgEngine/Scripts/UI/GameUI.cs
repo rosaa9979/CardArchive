@@ -54,7 +54,6 @@ namespace TcgEngine.UI
         private void Start()
         {
             GameClient.Get().onGameStart += OnGameStart;
-            GameClient.Get().onMulliganStart += OnMulliganStart;
             GameClient.Get().onNewTurn += OnNewTurn;
             LoadPanel.Get().Show(true);
             BlackPanel.Get().Show(true);
@@ -135,12 +134,14 @@ namespace TcgEngine.UI
             }
 
             //Hide
-            if (!yourturn)
+            if (!yourturn && data.phase != GamePhase.Mulligan)
             {
                 SelectorPanel.HideAll();
             }
 
             Game game_data = GameClient.Get().GetGameData();
+
+
 
             hide_ui = (game_data.selector == SelectorType.None || game_data.selector_player_id != GameClient.Get().GetPlayerID()) ? hide_ui_option : true;
         }
@@ -154,14 +155,6 @@ namespace TcgEngine.UI
         private void OnGameStart()
         {
             
-        }
-
-        private void OnMulliganStart()
-        {
-            Game data = GameClient.Get().GetGameData();
-            int player_id = GameClient.Get().GetPlayerID();
-            Player player = data.GetPlayer(player_id);
-            MulliganSelector.Get().Show(player.cards_hand, "버릴 카드를 골라주세요");
         }
 
         private void OnNewTurn(int player_id)

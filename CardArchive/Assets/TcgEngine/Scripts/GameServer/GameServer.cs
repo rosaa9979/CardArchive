@@ -65,6 +65,7 @@ namespace TcgEngine.Server
             RegisterAction(GameAction.SelectPlayer, ReceiveSelectPlayer);
             RegisterAction(GameAction.SelectSlot, ReceiveSelectSlot);
             RegisterAction(GameAction.SelectChoice, ReceiveSelectChoice);
+            RegisterAction(GameAction.SelectMulligan, ReceiveSelectMulligan);
             RegisterAction(GameAction.CancelSelect, ReceiveCancelSelection);
             RegisterAction(GameAction.EndTurn, ReceiveEndTurn);
             RegisterAction(GameAction.Resign, ReceiveResign);
@@ -73,8 +74,6 @@ namespace TcgEngine.Server
 
             //Events
             gameplay.onGameStart += OnGameStart;
-            gameplay.onMulliganStart += OnMulliganStart;
-            gameplay.onMulliganPlayed += OnMulliganPlayed;
             gameplay.onGameEnd += OnGameEnd;
             gameplay.onTurnStart += OnTurnStart;
             gameplay.onRefresh += RefreshAll;
@@ -108,8 +107,6 @@ namespace TcgEngine.Server
         protected virtual void Clear()
         {
             gameplay.onGameStart -= OnGameStart;
-            gameplay.onMulliganStart -= OnMulliganStart;
-            gameplay.onMulliganPlayed -= OnMulliganPlayed;
             gameplay.onGameEnd -= OnGameEnd;
             gameplay.onTurnStart -= OnTurnStart;
             gameplay.onRefresh -= RefreshAll;
@@ -162,19 +159,6 @@ namespace TcgEngine.Server
                 {
                     //Time expired during turn
                     gameplay.NextStep();
-                }
-            }
-
-            //Timer during Mulligan phase
-            if (game_data.state == GameState.Mulligan)
-            {
-                game_data.mulligan_timer -= Time.deltaTime;
-
-                if (game_data.mulligan_timer <= 0f)
-                {
-                    //Time expired
-                    gameplay.CancelSelection();
-                    gameplay.EndMulligan();
                 }
             }
 
@@ -428,6 +412,17 @@ namespace TcgEngine.Server
                 gameplay.SelectChoice(msg.value);
             }
         }
+
+        public void ReceiveSelectMulligan(ClientData iclient, SerializedData sdata)
+        {
+            MsgMulligan msg = sdata.Get<MsgMulligan>();
+            Player player = GetPlayer(iclient);
+            if (player != null && msg != null && game_data.IsPlayerMulliganTurn(player) && !gameplay.IsResolving())
+            {
+                gameplay.Mulligan(player, msg.cards);
+            }
+        }
+
 
         public void ReceiveCancelSelection(ClientData iclient, SerializedData sdata)
         {
@@ -695,26 +690,6 @@ namespace TcgEngine.Server
             {
                 //Create Match
                 ApiClient.Get().CreateMatch(game_data);
-            }
-        }
-
-        protected virtual void OnMulliganStart()
-        {
-            SendToAll(GameAction.MulliganStart);
-            RefreshAll();
-        }
-
-        protected virtual void OnMulliganPlayed(Player player)
-        {
-            MsgPlayer mdata = new MsgPlayer();
-            mdata.player_id = player.player_id;
-            SendToAll(GameAction.MulliganPlayed, mdata, NetworkDelivery.Reliable);
-            
-            //check if both players are done;
-            Player opponent = game_data.GetOpponentPlayer(player.player_id);
-            if (opponent.mulligan_played)
-            {
-                gameplay.EndMulligan();
             }
         }
 

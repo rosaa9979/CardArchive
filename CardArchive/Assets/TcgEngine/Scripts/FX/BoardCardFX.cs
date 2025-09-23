@@ -246,11 +246,8 @@ namespace TcgEngine.FX
 
                     //Attack FX and Audio
                     GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
-                    TimeTool.WaitFor(0.25f, () =>
-                    {
-                        GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
-                        fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
-                    });
+                    GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
+                    fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
                     //GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     //fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
                     AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
@@ -264,9 +261,12 @@ namespace TcgEngine.FX
                 BoardCard btarget = BoardCard.Get(target.uid);
                 if (btarget != null)
                 {
-                    GameObject fx = AssetData.Get().card_attack_hit_fx;
-                    GameObject fx_result = FXTool.DoFX(fx, transform.position);
-                    fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
+                    TimeTool.WaitFor(0.15f, () =>
+                    {
+                        GameObject fx = AssetData.Get().card_attack_hit_fx;
+                        GameObject fx_result = FXTool.DoFX(fx, transform.position);
+                        fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
+                    });
                 }
             }
         }
@@ -314,11 +314,11 @@ namespace TcgEngine.FX
 
                 //ChargeIntoPlayer(zone);
                 GameObject attack_fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
-                TimeTool.WaitFor(0.75f, () =>
-                {
-                    GameObject attack_fx_result = FXTool.DoFX(attack_fx, battacker.transform.position);
-                    attack_fx_result.transform.rotation = FXTool.GetFXRotation(attack_fx_result, battacker.gameObject, zone.gameObject);
+                GameObject attack_fx_result = FXTool.DoFX(attack_fx, battacker.transform.position);
+                attack_fx_result.transform.rotation = FXTool.GetFXRotation(attack_fx_result, battacker.gameObject, zone.gameObject);
 
+                TimeTool.WaitFor(0.15f, () =>
+                {
                     GameObject hit_fx = AssetData.Get().card_attack_hit_fx;
                     GameObject hit_fx_result = FXTool.DoFX(hit_fx, zone.transform.position);
                     hit_fx_result.transform.rotation = FXTool.GetFXRotation(hit_fx_result, battacker.gameObject, zone.gameObject);

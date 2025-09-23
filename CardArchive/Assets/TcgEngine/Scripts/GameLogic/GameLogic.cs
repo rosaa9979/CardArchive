@@ -150,41 +150,10 @@ namespace TcgEngine.Gameplay
             onGameStart?.Invoke();
 
             if (should_mulligan)
-                StartMulliganPhase();
+                GoToMulligan();
             else
                 StartTurn();
 
-        }
-
-        public virtual void StartMulliganPhase()
-        {
-            if (game_data.state == GameState.GameEnded)
-                return;
-
-            game_data.selector = SelectorType.SelectorMulligan;
-            game_data.mulligan_timer = 30f;
-            game_data.state = GameState.Mulligan;
-            onMulliganStart?.Invoke();
-        }
-
-        public virtual void EndMulligan()
-        {
-            if (game_data.state != GameState.Mulligan)
-                return;
-
-            LevelData level = game_data.settings.GetLevel();
-
-            bool is_random = level == null || level.first_player == LevelFirst.Random;
-            Player player = game_data.GetOpponentPlayer(game_data.first_player);
-
-            Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
-            player.cards_hand.Add(card);
-
-
-            game_data.selector = SelectorType.None;
-            game_data.state = GameState.Play;
-            game_data.phase = GamePhase.EndTurn;
-            StartTurn();
         }
 
         public virtual void PlayMulliganAction(Player player, string[] card_uids)
@@ -315,12 +284,12 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Main)
                 return;
-
+            Debug.Log("StartAttackPhase");
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
             
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll();
+            resolve_queue.ResolveAll(0.2f);
         }
 
         public virtual void AttackCheck()
@@ -329,7 +298,7 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Attack)
                 return;
-            
+            Debug.Log("StartCheck");
             Player player = game_data.GetActivePlayer();
             bool can_attack = false;
 
@@ -359,7 +328,7 @@ namespace TcgEngine.Gameplay
             // reorderedMonsters가 재배열된 결과
 
             foreach (Card attacker in reorderedCitizens)
-            {
+            { 
                 if (attacker != null && attacker.CanAttack())
                 {
                     can_attack = true;
@@ -380,6 +349,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
+            Debug.Log("AttackSearch");
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -430,7 +400,7 @@ namespace TcgEngine.Gameplay
             //ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll();
+            resolve_queue.ResolveAll(0.5f);
         }
 
         public virtual Dictionary<int, List<Card>> GetAllTarget(Card attacker)
@@ -817,7 +787,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
-            resolve_queue.ResolveAll();
+            resolve_queue.ResolveAll(0.2f);
         }
 
         protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
@@ -849,7 +819,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
-            resolve_queue.ResolveAll(0.3f);
+            resolve_queue.ResolveAll(0.2f);
         }
 
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
@@ -902,7 +872,7 @@ namespace TcgEngine.Gameplay
         {
             if (attacker == null || target == null)
                 return;
-
+            Debug.Log("AttackPlayer");
             //if (!game_data.CanAttackTarget(attacker, target, skip_cost))
             //    return;
             
@@ -920,7 +890,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost);
-            resolve_queue.ResolveAll();
+            resolve_queue.ResolveAll(0.2f);
         }
 
         protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
@@ -930,18 +900,19 @@ namespace TcgEngine.Gameplay
 
             if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
-
+            Debug.Log("ResolveAttackPlayer");
             onAttackPlayerStart?.Invoke(attacker, target);
 
             attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost);
-            resolve_queue.ResolveAll(0.3f);
+            resolve_queue.ResolveAll(0.2f);
         }
 
         protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
         {
+            Debug.Log("ResolveAttackPlayerHit");
             DamagePlayer(attacker, target, attacker.GetAttack());
 
             //Save attack and exhaust
@@ -2482,6 +2453,38 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        public virtual void Mulligan(Player player, string[] cards)
+        {
+            if (game_data.phase == GamePhase.Mulligan && !player.ready)
+            {
+                int count = 0;
+                List<Card> remove_list = new List<Card>();
+                foreach (Card card in player.cards_hand)
+                {
+                    if (cards.Contains(card.uid))
+                    {
+                        remove_list.Add(card);
+                        count++;
+                    }
+                }
+
+                foreach (Card card in remove_list)
+                {
+                    player.RemoveCardFromAllGroups(card);
+                    player.cards_discard.Add(card);
+                }
+
+                player.ready = true;
+                DrawCard(player, count);
+                RefreshData();
+
+                if (game_data.AreAllPlayersReady())
+                {
+                    StartTurn();
+                }
+            }
+        }
+
         //-----Trigger Selector-----
 
         protected virtual void GoToSelectTarget(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
@@ -2517,6 +2520,15 @@ namespace TcgEngine.Gameplay
             game_data.selector_triggerer_uid = triggerer.uid;
             game_data.selector_max_repeat = max_repeat;
             game_data.selector_current_repeat = current_repeat;
+            RefreshData();
+        }
+
+        protected virtual void GoToMulligan()
+        {
+            game_data.phase = GamePhase.Mulligan;
+            game_data.turn_timer = GameplayData.Get().turn_duration;
+            foreach (Player player in game_data.players)
+                player.ready = false;
             RefreshData();
         }
 

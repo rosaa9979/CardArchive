@@ -27,13 +27,13 @@ namespace TcgEngine.AI
         {
             if (!CanPlay())
                 return;
-
+            Debug.Log("Hello");
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
-
+            
             if (game_data.IsPlayerTurn(player) && !gameplay.IsResolving())
             {
-                if(!is_playing && game_data.selector == SelectorType.None && game_data.current_player == player_id)
+                if (!is_playing && game_data.selector == SelectorType.None && game_data.current_player == player_id)
                 {
                     is_playing = true;
                     TimeTool.StartCoroutine(AiTurn());
@@ -61,6 +61,12 @@ namespace TcgEngine.AI
                         is_selecting = true;
                         TimeTool.StartCoroutine(AiSelectChoice());
                     }
+                }
+
+                if (!is_selecting && game_data.IsPlayerMulliganTurn(player))
+                {
+                    is_selecting = true;
+                    TimeTool.StartCoroutine(AiSelectMulligan());
                 }
             }
         }
@@ -133,6 +139,16 @@ namespace TcgEngine.AI
             CancelSelect();
             is_selecting = false;
         }
+        
+        private IEnumerator AiSelectMulligan()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            SelectMulligan();
+
+            yield return new WaitForSeconds(0.5f);
+            is_selecting = false;
+        }
 
         //----------
 
@@ -151,7 +167,7 @@ namespace TcgEngine.AI
                 if (random != null && random.CardData.IsRequireTargetSpell())
                     slot = game_data.GetRandomSlot(rand); //Spell can target any slot, not just your side
 
-                if(random != null && random.CardData.IsEquipment())
+                if (random != null && random.CardData.IsEquipment())
                     slot = player.GetRandomOccupiedSlot(rand);
 
                 if (random != null)
@@ -256,6 +272,20 @@ namespace TcgEngine.AI
             if (CanPlay())
             {
                 gameplay.CancelSelection();
+            }
+        }
+
+        public void SelectMulligan()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            if (game_data.phase == GamePhase.Mulligan)
+            {
+                Player player = game_data.GetPlayer(player_id);
+                string[] cards = new string[0]; //Don't mulligan
+                gameplay.Mulligan(player, cards);
             }
         }
 

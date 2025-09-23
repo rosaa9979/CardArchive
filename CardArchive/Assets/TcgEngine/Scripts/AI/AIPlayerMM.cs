@@ -28,23 +28,16 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
 
-            if (game_data.state == GameState.Play)
+            if (!is_playing && game_data.IsPlayerTurn(player))
             {
-                if (!is_playing && CanPlay())
-                {
-                    is_playing = true;
-                    TimeTool.StartCoroutine(AiTurn());
-                }
+                is_playing = true;
+                TimeTool.StartCoroutine(AiTurn());
             }
 
-            else if (game_data.state == GameState.Mulligan)
+            if (!is_playing && game_data.IsPlayerMulliganTurn(player))
             {
-                if (!player.mulligan_played)
-                {
-                    PlayMulligan();
-                }
+                SkipMulligan();
             }
-
 
             if (!game_data.IsPlayerTurn(player) && ai_logic.IsRunning())
                 Stop();
@@ -250,6 +243,19 @@ namespace TcgEngine.AI
             {
                 gameplay.CancelSelection();
             }
+        }
+
+        private void SkipMulligan()
+        {
+            string[] cards = new string[0]; //Don't mulligan
+            SelectMulligan(cards);
+        }
+
+        private void SelectMulligan(string[] cards)
+        {
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            gameplay.Mulligan(player, cards);
         }
 
         private void EndTurn()

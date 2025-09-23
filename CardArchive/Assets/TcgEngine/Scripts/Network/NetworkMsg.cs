@@ -319,6 +319,16 @@ namespace TcgEngine
         }
     }
 
+    public class MsgMulligan : INetworkSerializable
+    {
+        public string[] cards;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            NetworkTool.NetSerializeArray(serializer, ref cards);
+        }
+    }
+
     public class MsgInt : INetworkSerializable
     {
         public int value;

@@ -86,8 +86,6 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.Connected, OnConnectedToGame);
             RegisterRefresh(GameAction.PlayerReady, OnPlayerReady);
             RegisterRefresh(GameAction.GameStart, OnGameStart);
-            RegisterRefresh(GameAction.MulliganStart, OnMulliganStart);
-            RegisterRefresh(GameAction.MulliganPlayed, OnMulliganPlayed);
             RegisterRefresh(GameAction.GameEnd, OnGameEnd);
             RegisterRefresh(GameAction.NewTurn, OnNewTurn);
             RegisterRefresh(GameAction.CardPlayed, OnCardPlayed);
@@ -363,6 +361,13 @@ namespace TcgEngine.Client
             SendAction(GameAction.SelectChoice, choice);
         }
 
+        public void Mulligan(string[] cards)
+        {
+            MsgMulligan mdata = new MsgMulligan();
+            mdata.cards = cards;
+            SendAction(GameAction.SelectMulligan, mdata);
+        }
+
         public void CancelSelection()
         {
             SendAction(GameAction.CancelSelect);
@@ -470,17 +475,6 @@ namespace TcgEngine.Client
             onGameStart?.Invoke();
         }
 
-        private void OnMulliganStart( SerializedData sdata)
-        {
-            onMulliganStart?.Invoke();
-        }
-        
-        private void OnMulliganPlayed(SerializedData sdata)
-        {
-            MsgPlayer msg = sdata.Get<MsgPlayer>();
-            onMulliganPlayed?.Invoke(msg.player_id);
-        }
-
         private void OnGameEnd(SerializedData sdata)
         {
             MsgPlayer msg = sdata.Get<MsgPlayer>();
@@ -583,7 +577,6 @@ namespace TcgEngine.Client
 
         private void OnAttackPlayerHit(SerializedData sdata)
         {
-            Debug.Log("ReceiveHit");
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
             Card attacker = game_data.GetCard(msg.attacker_uid);
             Player target = game_data.GetPlayer(msg.target_id);

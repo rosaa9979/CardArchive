@@ -493,6 +493,7 @@ namespace TcgEngine
                 }
             }
 
+            /*
             if (criteria_target == AbilityTarget.LastPlayed)
             {
                 Card target = data.GetCard(data.last_played);
@@ -534,6 +535,7 @@ namespace TcgEngine
                 if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
                     candidate_targets.Add(target);
             }
+            */
 
             if (criteria_target == AbilityTarget.AbilityTriggerer)
             {
@@ -687,6 +689,7 @@ namespace TcgEngine
                     candiidate_targets.Add(slot);
             }
 
+            /*
             if (criteria_target == AbilityTarget.LastAttackSlot)
             {
                 Slot slot = data.last_attack_slot;
@@ -726,6 +729,7 @@ namespace TcgEngine
                 if (AreCriteriaTargetConditionsMet(data, caster, slot))
                     candiidate_targets.Add(slot);
             }
+            */
 
             List<Slot> final_candidate_target = new List<Slot>();
             List<Slot> all_slots = Slot.GetAll();
@@ -1008,6 +1012,7 @@ namespace TcgEngine
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
 
+        /*
         LastPlayed = 70,            //Last card that was played
         LastAttack = 71,
         LastAttackSlot = 72, 
@@ -1019,6 +1024,7 @@ namespace TcgEngine
         LastDestroyedSlot = 78,
         LastSummoned = 79,            //Last card that was summoned or created
         LastSummonedSlot = 80,
+        */
 
     }
 
