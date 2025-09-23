@@ -20,6 +20,8 @@ namespace TcgEngine
         public DeckData ai_deck;
         public int ai_level = 10; //From 1 to 10
         public LevelFirst first_player;
+        public GameObject tuto_prefab;
+        public bool mulligan = true;
 
         [Header("Rewards")]
         public int reward_xp = 100;

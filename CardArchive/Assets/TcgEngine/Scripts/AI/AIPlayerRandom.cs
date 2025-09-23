@@ -27,10 +27,10 @@ namespace TcgEngine.AI
         {
             if (!CanPlay())
                 return;
-            Debug.Log("Hello");
+            
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
-            
+
             if (game_data.IsPlayerTurn(player) && !gameplay.IsResolving())
             {
                 if (!is_playing && game_data.selector == SelectorType.None && game_data.current_player == player_id)
@@ -62,12 +62,14 @@ namespace TcgEngine.AI
                         TimeTool.StartCoroutine(AiSelectChoice());
                     }
                 }
-
-                if (!is_selecting && game_data.IsPlayerMulliganTurn(player))
-                {
-                    is_selecting = true;
-                    TimeTool.StartCoroutine(AiSelectMulligan());
-                }
+            }
+            
+            //Debug.Log("is_slecting:"+is_selecting);
+            //Debug.Log(game_data.IsPlayerMulliganTurn(player));
+            if (!is_selecting && game_data.IsPlayerMulliganTurn(player))
+            {
+                is_selecting = true;
+                TimeTool.StartCoroutine(AiSelectMulligan());
             }
         }
 
@@ -283,6 +285,7 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             if (game_data.phase == GamePhase.Mulligan)
             {
+                Debug.Log("AI Mulligan");
                 Player player = game_data.GetPlayer(player_id);
                 string[] cards = new string[0]; //Don't mulligan
                 gameplay.Mulligan(player, cards);

@@ -115,6 +115,7 @@ namespace TcgEngine.Gameplay
                 if (level != null && level.first_player == LevelFirst.AI)
                     game_data.first_player = 1;
                 game_data.current_player = game_data.first_player;
+                should_mulligan = level.mulligan;
             }
 
             //Init each players
@@ -134,7 +135,7 @@ namespace TcgEngine.Gameplay
                 dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
                 DrawCard(player, dcards);
 
-                /*
+                
                 //Add coin second player
                 bool is_random = level == null || level.first_player == LevelFirst.Random;
                 if (is_random && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
@@ -142,7 +143,6 @@ namespace TcgEngine.Gameplay
                     Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
                     player.cards_hand.Add(card);
                 }
-                */
             }
 
             //Start state
@@ -206,6 +206,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             Player player = game_data.GetActivePlayer();
+            Debug.Log(player);
 
             //Cards draw
             if (game_data.turn_count > 1 || player.player_id != game_data.first_player)
@@ -2529,6 +2530,7 @@ namespace TcgEngine.Gameplay
             game_data.turn_timer = GameplayData.Get().turn_duration;
             foreach (Player player in game_data.players)
                 player.ready = false;
+
             RefreshData();
         }
 

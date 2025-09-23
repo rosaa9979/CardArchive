@@ -26,7 +26,7 @@ namespace TcgEngine.AI
         {
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
-            bool can_play = game_data.IsPlayerTurn(player);
+            bool can_play = game_data.IsPlayerTurn(player) || game_data.IsPlayerMulliganTurn(player);
             return can_play && !gameplay.IsResolving();
         }
 
