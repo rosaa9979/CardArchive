@@ -30,8 +30,6 @@ namespace TcgEngine.Client
         public UnityAction<int> onPlayerReady;
 
         public UnityAction onGameStart;
-        public UnityAction onMulliganStart;
-        public UnityAction<int> onMulliganPlayed;       //who played it player_id
         public UnityAction<int> onGameEnd;              //winner player_id
         public UnityAction<int> onNewTurn;              //current player_id
 
@@ -285,13 +283,6 @@ namespace TcgEngine.Client
         public void SendGameplaySettings(GameSettings settings)
         {
             SendAction(GameAction.GameSettings, settings, NetworkDelivery.ReliableFragmentedSequenced);
-        }
-
-        public void PlayMulligan(Card[] cards)
-        {
-            MsgCards mdata = new MsgCards();
-            mdata.card_uids =  cards.Select(c => c.uid).ToArray();
-            SendAction(GameAction.PlayMulligan, mdata);
         }
 
         public void PlayCard(Card card, Slot slot)

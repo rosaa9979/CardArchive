@@ -17,9 +17,6 @@ namespace TcgEngine.Gameplay
         public UnityAction onGameStart;
         public UnityAction<Player> onGameEnd;          //Winner
 
-        public UnityAction onMulliganStart;
-        public UnityAction<Player> onMulliganPlayed;
-
         public UnityAction onTurnStart;
         public UnityAction onTurnPlay;
         public UnityAction onTurnEnd;
@@ -155,45 +152,6 @@ namespace TcgEngine.Gameplay
                 StartTurn();
 
         }
-
-        public virtual void PlayMulliganAction(Player player, string[] card_uids)
-        {
-            if (IsResolving())
-                return;
-
-            RedrawMulligan(player.player_id, card_uids);
-        }
-
-        //Put put cards back in deck and reshuffle
-        public virtual void RedrawMulligan(int player_id, string[] card_uids)
-        {
-            Player player = game_data.GetPlayer(player_id);
-            if (player.mulligan_played) return;
-            
-            //First draw the new cards
-            for (int i = 0; i < card_uids.Length; i++)
-            {
-                if (player.cards_deck.Count > card_uids.Length)
-                {
-                    Card card = player.cards_deck[0];
-                    player.cards_deck.RemoveAt(0);
-                    player.cards_hand.Add(card);
-                }
-            }
-            
-            //then put the discarded back in the deck 
-            for (int i = 0; i < card_uids.Length; i++)
-            {
-                Card discard_card = player.GetHandCard(card_uids[i]);
-                player.RemoveCard(player.cards_hand, discard_card);
-                player.cards_deck.Add(discard_card);
-            }
-            
-            //and reshuffle
-            ShuffleDeck(player.cards_deck);
-            player.mulligan_played = true;
-            onMulliganPlayed?.Invoke(player);
-        }
 		
         public virtual void StartTurn()
         {
@@ -206,7 +164,6 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             Player player = game_data.GetActivePlayer();
-            Debug.Log(player);
 
             //Cards draw
             if (game_data.turn_count > 1 || player.player_id != game_data.first_player)

@@ -158,7 +158,9 @@ namespace TcgEngine.AI
 
         private void PlayMulligan()
         {
-            gameplay.RedrawMulligan(player_id, new string[0]);
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            gameplay.Mulligan(player, new string[0]);
         }
 
         private void MoveCard(string card_uid, Slot slot)

@@ -14,7 +14,6 @@ namespace TcgEngine
 
         //Commands (client to server)
         public const ushort PlayCard = 1000;
-        public const ushort PlayMulligan = 1002;
         public const ushort Attack = 1010;
         public const ushort AttackPlayer = 1012;
         public const ushort AttackPlayerHit = 1012;
@@ -41,9 +40,6 @@ namespace TcgEngine
         public const ushort GameStart = 2010;
         public const ushort GameEnd = 2012;
         public const ushort NewTurn = 2015;
-        public const ushort MulliganStart = 2016;
-        public const ushort MulliganPlayed = 2017;
-
 
         public const ushort CardPlayed = 2020;
         public const ushort CardDissolved = 2021;
@@ -76,8 +72,6 @@ namespace TcgEngine
         {
             if (type == GameAction.PlayCard)
                 return "play";
-            if (type == GameAction.PlayMulligan)
-                return "play_mulligan";
             if (type == GameAction.Move)
                 return "move";
             if (type == GameAction.Attack)
