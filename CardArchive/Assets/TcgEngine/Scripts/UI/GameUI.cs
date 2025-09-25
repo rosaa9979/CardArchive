@@ -30,6 +30,11 @@ namespace TcgEngine.UI
         public Animator timeout_animator;
         public AudioClip timeout_audio;
 
+        [Header("Hide UI Option")]
+        public Image hide_option_icon;
+        public Sprite eye_on;
+        public Sprite eye_off;
+
         private float selector_timer = 0f;
         private float end_turn_timer = 0f;
         private int prev_time_val = 0;
@@ -141,9 +146,9 @@ namespace TcgEngine.UI
 
             Game game_data = GameClient.Get().GetGameData();
 
-
-
-            hide_ui = (game_data.selector == SelectorType.None || game_data.selector_player_id != GameClient.Get().GetPlayerID()) ? hide_ui_option : true;
+            hide_ui = (game_data.selector == SelectorType.None || (game_data.selector != SelectorType.None && game_data.selector_player_id != GameClient.Get().GetPlayerID())) ? hide_ui_option : true;
+            hide_option_icon.sprite = hide_ui ? eye_off : eye_on;
+            hide_option_icon.SetNativeSize();
         }
 
         private void PulseFX()
