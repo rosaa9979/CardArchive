@@ -27,6 +27,8 @@ namespace TcgEngine
             if (game_data.selector == SelectorType.SelectTarget && game_data.selector_player_id == GameClient.Get().GetPlayerID())
                 should_show = true;
 
+            
+
             if (should_show)
                 ui_panel.Show();
             else
