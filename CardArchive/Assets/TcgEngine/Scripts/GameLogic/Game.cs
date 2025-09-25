@@ -150,7 +150,7 @@ namespace TcgEngine
                 }
 
 
-                if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
+                if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
                 {
                     return false; //Cant play place card in wrong slot
                 }
@@ -192,7 +192,7 @@ namespace TcgEngine
                 if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
                     return false; //Cant play on opponent side
 
-                if (card.CardData.IsPlace() && !Slot.GetOutside().Contains(slot))
+                if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
                     return false; //Cant play place card in wrong slot
 
                 return true;
@@ -256,7 +256,7 @@ namespace TcgEngine
             if (!IsOnBoard(attacker) || !attacker.CardData.IsCitizen())
                 return false; //Cards not on board
 
-            List<Slot> pslot = Slot.GetPlayerSelf(target.player_id);
+            List<Slot> pslot = Slot.GetInsideSlot(target.player_id);
             if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Any(element => pslot.Contains(element)))
                 return false;
             //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))

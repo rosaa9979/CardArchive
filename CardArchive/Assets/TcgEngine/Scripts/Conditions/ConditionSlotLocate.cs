@@ -26,10 +26,10 @@ namespace TcgEngine
             Player player = data.GetPlayer(caster.player_id);
             Player oplayer = data.GetOpponentPlayer(player.player_id);
 
-            if (Inside && (Slot.GetPlayerSelf(player.player_id).Contains(target) || Slot.GetPlayerSelf(oplayer.player_id).Contains(target)))
+            if (Inside && (Slot.GetInsideSlot(player.player_id).Contains(target) || Slot.GetInsideSlot(oplayer.player_id).Contains(target)))
                 return true;
 
-            if (Outside && target.y != 3 && (!Slot.GetPlayerSelf(player.player_id).Contains(target) && !Slot.GetPlayerSelf(oplayer.player_id).Contains(target)))
+            if (Outside && target.y != 3 && (!Slot.GetInsideSlot(player.player_id).Contains(target) && !Slot.GetInsideSlot(oplayer.player_id).Contains(target)))
                 return true;
             
             if (Neutral && target.y == 3)

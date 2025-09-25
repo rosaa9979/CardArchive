@@ -5,8 +5,7 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// SlotRange check each axis variable individualy for range between the caster and target
-    /// If you want to check the travel distance instead (all at once) use SlotDist
+    /// 카드가 배치될 수 있는지 확인
     /// </summary>
 
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/CanPlace", order = 11)]

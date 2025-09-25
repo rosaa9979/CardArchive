@@ -155,7 +155,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -579,7 +579,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -1239,7 +1239,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -1430,7 +1430,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -1873,7 +1873,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -1984,6 +1984,31 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 7b2ab1f948787484cad189e709769ad8,
         type: 3}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.98039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7193073927147954982, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162908, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: x
@@ -2003,7 +2028,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -2329,7 +2354,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -2426,24 +2451,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 683a057051c59804eb32a44954f69029, type: 3}
---- !u!1 &789602519 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 645248024292292055, guid: b2cda006105c05b428bace831c06c984,
-    type: 3}
-  m_PrefabInstance: {fileID: 962576083989124239}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &789602520 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1339289259175581784, guid: b2cda006105c05b428bace831c06c984,
-    type: 3}
-  m_PrefabInstance: {fileID: 962576083989124239}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789602519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5924fa5d68c4baf43a47e7532c1fa46c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &796551894 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6767718130763751792, guid: b2cda006105c05b428bace831c06c984,
@@ -2483,7 +2490,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -2638,7 +2645,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -2864,7 +2871,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -3005,7 +3012,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -3199,7 +3206,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -3330,7 +3337,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -3471,7 +3478,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -3657,6 +3664,108 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1038431894}
+  m_CullTransparentMesh: 1
+--- !u!1 &1074624756
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1074624757}
+  - component: {fileID: 1074624761}
+  - component: {fileID: 1074624760}
+  - component: {fileID: 1074624759}
+  - component: {fileID: 1074624758}
+  m_Layer: 5
+  m_Name: Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1074624757
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074624756}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1319458329}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1074624758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074624756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.42745098}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1074624759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074624756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5924fa5d68c4baf43a47e7532c1fa46c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  display_speed: 4
+--- !u!225 &1074624760
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074624756}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!222 &1074624761
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074624756}
   m_CullTransparentMesh: 1
 --- !u!1 &1075009722
 GameObject:
@@ -4021,7 +4130,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -4540,6 +4649,56 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 710430957}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1319458328
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1319458329}
+  - component: {fileID: 1319458330}
+  m_Layer: 5
+  m_Name: TargetSelector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1319458329
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1319458328}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1074624757}
+  m_Father: {fileID: 559686356}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1319458330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1319458328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2abdc06e79d1743b1db8824eea1ea0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ui_panel: {fileID: 1074624759}
 --- !u!4 &1327137863 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7426997187891162979, guid: 683a057051c59804eb32a44954f69029,
@@ -4599,7 +4758,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -4766,7 +4925,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -4858,6 +5017,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4933,7 +5112,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -5488,7 +5667,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -5629,7 +5808,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -6139,7 +6318,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -6279,7 +6458,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -6735,7 +6914,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Sprite
@@ -6817,18 +6996,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 683a057051c59804eb32a44954f69029, type: 3}
---- !u!114 &2024576910 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5696814107548967159, guid: b2cda006105c05b428bace831c06c984,
-    type: 3}
-  m_PrefabInstance: {fileID: 962576083989124239}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc2abdc06e79d1743b1db8824eea1ea0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &2039449498 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7426997187891162979, guid: 683a057051c59804eb32a44954f69029,
@@ -6843,6 +7010,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1892906616}
     m_Modifications:
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7193073927147954982, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162908, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: x
@@ -6862,7 +7049,7 @@ PrefabInstance:
         type: 3}
       propertyPath: select_panel
       value: 
-      objectReference: {fileID: 2024576910}
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162909, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Size.x
@@ -7828,12 +8015,12 @@ PrefabInstance:
         type: 3}
       propertyPath: ui_panel
       value: 
-      objectReference: {fileID: 789602520}
+      objectReference: {fileID: 0}
     - target: {fileID: 5696814107548967159, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: selected_group
       value: 
-      objectReference: {fileID: 789602519}
+      objectReference: {fileID: 0}
     - target: {fileID: 6012342988888772185, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
       propertyPath: m_Color.a
@@ -8149,10 +8336,15 @@ PrefabInstance:
     - {fileID: 7696802062098810329, guid: b2cda006105c05b428bace831c06c984, type: 3}
     m_RemovedGameObjects:
     - {fileID: 8499213632009546934, guid: b2cda006105c05b428bace831c06c984, type: 3}
+    - {fileID: 6601152305270376625, guid: b2cda006105c05b428bace831c06c984, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4484622087145101583, guid: b2cda006105c05b428bace831c06c984,
         type: 3}
-      insertIndex: 2
+      insertIndex: 0
+      addedObject: {fileID: 1319458329}
+    - targetCorrespondingSourceObject: {fileID: 4484622087145101583, guid: b2cda006105c05b428bace831c06c984,
+        type: 3}
+      insertIndex: 3
       addedObject: {fileID: 247042730}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2cda006105c05b428bace831c06c984, type: 3}

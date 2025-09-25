@@ -31,9 +31,9 @@ namespace TcgEngine
             Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
 
             if (use_opponent)
-                logic.UseCard(oplayer, use, caster.VariantData, Slot.None); 
+                logic.SummonCard(oplayer, use, caster.VariantData, Slot.None); 
             else
-                logic.UseCard(player, use, caster.VariantData, Slot.None); 
+                logic.SummonCard(player, use, caster.VariantData, Slot.None); 
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
@@ -51,9 +51,9 @@ namespace TcgEngine
             Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
 
             if (use_opponent)
-                logic.UseCard(oplayer, use, caster.VariantData, target.slot); //Assumes the target has just been killed, so the slot is empty
+                logic.SummonCard(oplayer, use, caster.VariantData, target.slot); //Assumes the target has just been killed, so the slot is empty
             else
-                logic.UseCard(player, use, caster.VariantData, target.slot);
+                logic.SummonCard(player, use, caster.VariantData, target.slot);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
@@ -64,9 +64,9 @@ namespace TcgEngine
             Player oplayer = logic.GameData.GetOpponentPlayer(player.player_id);
  
             if (use_opponent)
-                logic.UseCard(oplayer, use, caster.VariantData, target);
+                logic.SummonCard(oplayer, use, caster.VariantData, target);
             else
-                logic.UseCard(player, use, caster.VariantData, target);
+                logic.SummonCard(player, use, caster.VariantData, target);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target)

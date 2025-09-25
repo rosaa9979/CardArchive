@@ -242,7 +242,7 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Main)
                 return;
-            Debug.Log("StartAttackPhase");
+
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
             
@@ -256,7 +256,7 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Attack)
                 return;
-            Debug.Log("StartCheck");
+
             Player player = game_data.GetActivePlayer();
             bool can_attack = false;
 
@@ -307,7 +307,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
-            Debug.Log("AttackSearch");
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -319,7 +318,7 @@ namespace TcgEngine.Gameplay
             if (attacker.HasClub(ClubData.Get("Trinity_Vigilante_Crew")))
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
-                List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
+                List<Slot> pslot = Slot.GetInsideSlot(oplayer.player_id);
 
                 if (rslot.Any(element => pslot.Contains(element)))
                 {
@@ -341,7 +340,7 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
-                    List<Slot> pslot = Slot.GetPlayerSelf(oplayer.player_id);
+                    List<Slot> pslot = Slot.GetInsideSlot(oplayer.player_id);
 
                     if (rslot.Any(element => pslot.Contains(element)))
                     {
@@ -830,7 +829,7 @@ namespace TcgEngine.Gameplay
         {
             if (attacker == null || target == null)
                 return;
-            Debug.Log("AttackPlayer");
+
             //if (!game_data.CanAttackTarget(attacker, target, skip_cost))
             //    return;
             
@@ -858,7 +857,7 @@ namespace TcgEngine.Gameplay
 
             if (!game_data.CanAttackTarget(attacker, target, skip_cost))
                 return;
-            Debug.Log("ResolveAttackPlayer");
+
             onAttackPlayerStart?.Invoke(attacker, target);
 
             attacker.RemoveStatus(StatusType.Stealth);
@@ -870,7 +869,6 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
         {
-            Debug.Log("ResolveAttackPlayerHit");
             DamagePlayer(attacker, target, attacker.GetAttack());
 
             //Save attack and exhaust
@@ -993,7 +991,7 @@ namespace TcgEngine.Gameplay
         public virtual Card SummonCopy(Player player, Card copy, Slot slot)
         {
             CardData icard = copy.CardData;
-            return UseCard(player, icard, copy.VariantData, slot);
+            return SummonCard(player, icard, copy.VariantData, slot);
         }
 
         //Summon copy of an exiting card into hand
@@ -1003,6 +1001,24 @@ namespace TcgEngine.Gameplay
             return SummonCardHand(player, icard, copy.VariantData);
         }
 
+        public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
+        {
+            if (!slot.IsValid())
+                return null;
+
+            if (game_data.GetSlotCard(slot) != null)
+                return null;
+
+            Card acard = SummonCardHand(player, card, variant);
+            PlayCard(acard, slot, true);
+
+            if (player.cards_hand.Contains(acard))
+                player.RemoveCardFromAllGroups(acard);
+
+            return acard;
+        }
+
+        /*
         //Create a new card and send it to the board with no mana
         public virtual Card UseCard(Player player, CardData icard, VariantData variant, Slot slot)
         {
@@ -1082,6 +1098,7 @@ namespace TcgEngine.Gameplay
 
             return card;
         }
+        */
 
         //Create a new card and send it to your hand
         public virtual Card SummonCardHand(Player player, CardData card, VariantData variant)
@@ -1325,7 +1342,7 @@ namespace TcgEngine.Gameplay
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
-            foreach (var slot in Slot.GetPlayerSelf(oplayer.player_id)) 
+            foreach (var slot in Slot.GetInsideSlot(oplayer.player_id)) 
             {
                 if (slot == target)
                     DamagePlayer(attacker, oplayer, value);
@@ -1423,7 +1440,7 @@ namespace TcgEngine.Gameplay
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
-            foreach (var slot in Slot.GetPlayerSelf()) 
+            foreach (var slot in Slot.GetInsideSlot()) 
             {
                 if (slot == target)
                 {

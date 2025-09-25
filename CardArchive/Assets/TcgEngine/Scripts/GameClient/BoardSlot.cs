@@ -20,8 +20,6 @@ namespace TcgEngine.Client
         public int x;
         public int y;
         public GameObject attachment;
-
-        public SlotSelectorPanel select_panel;
         public SpriteRenderer overlay_renderer;
 
         private static List<BoardSlot> slot_list = new List<BoardSlot>();
@@ -30,22 +28,12 @@ namespace TcgEngine.Client
         {
             base.Awake();
             slot_list.Add(this);
-
-            select_panel.onSlotSelectedByCard += OnSelectedByDragCard;
-            select_panel.onSlotSelectedByBoardCard += OnSelectedByBoardCard;
-            select_panel.onSlotSelectedByAbility += OnSelectedByAbility;
-            select_panel.onSlotSelectedClear += OnSelectedClear;
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
             slot_list.Remove(this);
-
-            select_panel.onSlotSelectedByCard -= OnSelectedByDragCard;
-            select_panel.onSlotSelectedByBoardCard -= OnSelectedByBoardCard;
-            select_panel.onSlotSelectedByAbility -= OnSelectedByAbility;
-            select_panel.onSlotSelectedClear -= OnSelectedClear;
         }
 
         private void Start()
@@ -183,129 +171,6 @@ namespace TcgEngine.Client
             return new Slot(new_x, new_y, new_p);
         }
 
-        public void OnSelectedByDragCard(Card card, Slot selected_slot)
-        {
-            OnSelectedClear();
-
-            Game game_data = GameClient.Get().GetGameData();
-
-            if (game_data != null)
-            {
-                if (card != null)
-                {
-                    if (game_data.CanPlaceCard(card, GetSlot()))
-                    {
-                        SetSelected(true);
-                    }
-
-                    else
-                    {
-                        SetSelected(false);
-                    }
-                }
-
-                else
-                {
-                    SetSelected(false);
-                }
-            }
-
-            if (!selected_slot.IsValid())
-                return;
-
-            if (game_data.CanPlaceCard(card, selected_slot))
-            {
-                OnSelectedClear();
-
-                List<Slot> range_slots = selected_slot.GetNeighborSlot(card.GetRange());
-
-                if (selected_slot == GetSlot())
-                    SetSelected(true);
-
-                foreach (Slot slot in range_slots)
-                    {
-                        if (GetSlot() == slot && GetSlot() != selected_slot)
-                        {
-                            SetSelected(true);
-
-                            if (overlay_renderer)
-                            {
-                                overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
-                            }
-                        }
-                    }
-            }
-        }
-
-        public void OnSelectedByBoardCard(Card card, Slot selected_slot)
-        {
-            OnSelectedClear();
-
-            Game game_data = GameClient.Get().GetGameData();
-
-            if (!selected_slot.IsValid())
-                return;
-
-            List<Slot> range_slots = selected_slot.GetNeighborSlot(card.GetRange());
-
-            foreach (Slot slot in range_slots)
-            {
-                if (GetSlot() == slot && GetSlot() != selected_slot)
-                {
-                    SetSelected(true);
-
-                    if (overlay_renderer)
-                    {
-                        overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
-                    }
-                }
-            }
-        }
-
-        public void OnSelectedByAbility(AbilityData ability, Slot selected_slot)
-        {
-            OnSelectedClear();
-
-            Game game_data = GameClient.Get().GetGameData();
-            Card caster = game_data.GetCard(game_data.selector_caster_uid);
-
-            if (game_data != null)
-            {
-                bool validSelect = selected_slot.IsValid() && (ability.CanTarget(game_data, caster, selected_slot) || ability.CanTarget(game_data, caster, game_data.GetSlotCard(selected_slot)));
-
-                if (validSelect)
-                {
-                    if (ability.condition_wide_range != null && ability.condition_wide_range.IsTargetConditionMet(game_data, ability, caster, selected_slot, GetSlot()))
-                    {
-                        SetSelected(true);
-
-                        if (overlay_renderer != null)
-                            overlay_renderer.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.3f);
-                    }
-
-                    else
-                        SetSelected(false);
-                }
-
-                else if (ability.CanTarget(game_data, caster, GetSlot()) || ability.CanTarget(game_data, caster, game_data.GetSlotCard(GetSlot())))
-                {
-                    SetSelected(true);
-                }
-
-                else
-                {
-                    SetSelected(false);
-                }
-            }
-        }
-
-        public void OnSelectedClear()
-        {
-            //renderer.sortingOrder = 0;
-            SetSelected(false);
-            overlay_renderer.color = new Color(overlay_renderer.color.r, overlay_renderer.color.g, overlay_renderer.color.b, 0);
-        }
-
         //When clicking on the slot
         public void OnMouseDown()
         {
@@ -313,22 +178,6 @@ namespace TcgEngine.Client
                 return;
 
             GameClient.Get().SelectSlot(GetSlot());
-        }
-
-        private void SetSelected(bool is_selected)
-        {
-            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-
-            renderer.sortingLayerName = is_selected ? "UI" : "Default";
-            overlay_renderer.sortingLayerName = is_selected ? "UI" : "Default";
-
-            Game game_data = GameClient.Get().GetGameData();
-            Card slot_card = game_data.GetSlotCard(GetSlot());
-            if (slot_card != null)
-            {
-                BoardCard board_card = BoardCard.Get(slot_card.uid);
-                board_card.SetSelected(is_selected);
-            }
         }
     }
 }

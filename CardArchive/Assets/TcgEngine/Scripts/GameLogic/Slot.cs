@@ -348,17 +348,17 @@ namespace TcgEngine
             return neutral_slots;
         }
 
-        public static List<Slot> GetPlayerSelf()
+        public static List<Slot> GetInsideSlot()
         {
             List<Slot> list = new List<Slot>();
 
-            list.AddRange(GetPlayerSelf(0));
-            list.AddRange(GetPlayerSelf(1));
+            list.AddRange(GetInsideSlot(0));
+            list.AddRange(GetInsideSlot(1));
 
             return list;
         }
 
-        public static List<Slot> GetPlayerSelf(int pid)
+        public static List<Slot> GetInsideSlot(int pid)
         {
             int p = GetP(pid);
 
@@ -395,17 +395,17 @@ namespace TcgEngine
             return list;
         }
 
-        public static List<Slot> GetOutside()
+        public static List<Slot> GetOutsideSlot()
         {
             List<Slot> list = new List<Slot>();
 
-            list.AddRange(GetOutside(0));
-            list.AddRange(GetOutside(1));
+            list.AddRange(GetOutsideSlot(0));
+            list.AddRange(GetOutsideSlot(1));
 
             return list;
         }
 
-        public static List<Slot> GetOutside(int pid)
+        public static List<Slot> GetOutsideSlot(int pid)
         {
             int p = GetP(pid);
 
@@ -415,7 +415,7 @@ namespace TcgEngine
 
             List<Slot> list = new List<Slot>();
             List<Slot> all_slot = GetAll(p);
-            List<Slot> player_slot = GetPlayerSelf(p);
+            List<Slot> player_slot = GetInsideSlot(p);
 
             foreach (Slot aslot in all_slot)
             {
