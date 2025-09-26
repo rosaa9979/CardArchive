@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TcgEngine.Client;
+using TcgEngine.UI;
 using UnityEngine;
 
 namespace TcgEngine.FX
@@ -13,19 +14,25 @@ namespace TcgEngine.FX
     public class BoardSlotFX : MonoBehaviour
     {
         private BoardSlot bslot;
+        private Animator bslot_animator;
 
         void Awake()
         {
             bslot = GetComponent<BoardSlot>();
+            bslot_animator = GetComponent<Animator>();
         }
 
         void Start()
         {
+            bslot_animator.enabled = false;
+
             GameClient client = GameClient.Get();
 
             client.onAbilityStart += OnAbilityStart;
             client.onAbilityTargetSlot += OnAbilityEffect;
             client.onAbilityEnd += OnAbilityAfter;
+
+            TargetSelectorUI.Get().onCurrentSlotChanged += OnCurrentSlotChanged;
         }
 
         private void OnDestroy()
@@ -35,6 +42,8 @@ namespace TcgEngine.FX
             client.onAbilityStart -= OnAbilityStart;
             client.onAbilityTargetSlot -= OnAbilityEffect;
             client.onAbilityEnd -= OnAbilityAfter;
+
+            TargetSelectorUI.Get().onCurrentSlotChanged -= OnCurrentSlotChanged;
         }
 
         void Update()
@@ -78,6 +87,28 @@ namespace TcgEngine.FX
                 }
                 */
             }
+        }
+
+        public void OnCurrentSlotChanged(TargetSelectorUIType type, BSlot current_slot)
+        {
+            ResetUX();
+            
+            if (type == TargetSelectorUIType.None || bslot == null)
+                return;
+
+            Slot slot = bslot.GetSlot();
+
+            if (slot.IsValid() && slot == bslot.GetSlot())
+            {
+                bslot_animator.enabled = true;
+                //bslot.overlay_renderer.color = new Color(bslot.overlay_renderer.color.r, bslot.overlay_renderer.color.g, bslot.overlay_renderer.color.b, 1);
+            }
+        }
+
+        public void ResetUX()
+        {
+            bslot_animator.enabled = false;
+            //bslot.overlay_renderer.color = new Color(bslot.overlay_renderer.color.r, bslot.overlay_renderer.color.g, bslot.overlay_renderer.color.b, 0);
         }
     }
 }

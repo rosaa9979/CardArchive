@@ -2443,14 +2443,19 @@ namespace TcgEngine.Gameplay
                     }
                 }
 
+                DrawCard(player, count);
+
                 foreach (Card card in remove_list)
                 {
                     player.RemoveCardFromAllGroups(card);
-                    player.cards_discard.Add(card);
+                    //player.cards_discard.Add(card);
+                    player.cards_deck.Add(card);
                 }
 
+                ShuffleDeck(player.cards_deck);
+
                 player.ready = true;
-                DrawCard(player, count);
+                //DrawCard(player, count);
                 RefreshData();
 
                 if (game_data.AreAllPlayersReady())

@@ -59,7 +59,7 @@ namespace TcgEngine.UI
 
         public static void ShowNotYourTurn()
         {
-            ShowText("Not your turn");
+            ShowText("자신의 차례가 아닙니다");
         }
 
         public static void ShowExhausted()

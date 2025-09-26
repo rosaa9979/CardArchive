@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 7426997187891162908}
   - component: {fileID: 786631816846396797}
   - component: {fileID: 8489140928846705576}
+  - component: {fileID: 9062575647276748736}
   m_Layer: 0
   m_Name: BoardSlot
   m_TagString: Untagged
@@ -158,7 +159,6 @@ MonoBehaviour:
   x: 0
   y: 0
   attachment: {fileID: 7193073927147954982}
-  select_panel: {fileID: 0}
   overlay_renderer: {fileID: 7592588702132584219}
 --- !u!212 &786631816846396797
 SpriteRenderer:
@@ -224,6 +224,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 301e2bf44f411e84dad332c94838c1b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &9062575647276748736
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7426997187891162978}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 23d28a22c68d3e0438ec402b710ce706, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7516369005734289619
 GameObject:
   m_ObjectHideFlags: 0
