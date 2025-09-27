@@ -24,8 +24,6 @@ namespace TcgEngine.FX
 
         void Start()
         {
-            bslot_animator.enabled = false;
-
             GameClient client = GameClient.Get();
 
             client.onAbilityStart += OnAbilityStart;
@@ -93,22 +91,36 @@ namespace TcgEngine.FX
         {
             ResetUX();
             
-            if (type == TargetSelectorUIType.None || bslot == null)
+            if (type == TargetSelectorUIType.None || current_slot == null)
                 return;
 
-            Slot slot = bslot.GetSlot();
+            Slot slot = current_slot.GetSlot();
 
-            if (slot.IsValid() && slot == bslot.GetSlot())
+            if (slot.IsValid())
             {
-                bslot_animator.enabled = true;
-                //bslot.overlay_renderer.color = new Color(bslot.overlay_renderer.color.r, bslot.overlay_renderer.color.g, bslot.overlay_renderer.color.b, 1);
+                if (type == TargetSelectorUIType.DragHandCard)
+                {
+                    Card hcard = HandCard.GetDrag().GetCard();
+
+                    if (hcard.CardData.IsCitizen())
+                    {
+                        List<Slot> range_slots = slot.GetNeighborSlot(hcard.GetRange());
+
+                        if (range_slots.Contains(bslot.GetSlot()))
+                                bslot_animator.SetBool("is_selected", true);
+                    }
+                }
             }
+        }
+
+        public void SetAnimParameter(bool is_selected)
+        {
+            bslot_animator.SetBool("is_selected", is_selected);
         }
 
         public void ResetUX()
         {
-            bslot_animator.enabled = false;
-            //bslot.overlay_renderer.color = new Color(bslot.overlay_renderer.color.r, bslot.overlay_renderer.color.g, bslot.overlay_renderer.color.b, 0);
+            bslot_animator.SetBool("is_selected", false);
         }
     }
 }

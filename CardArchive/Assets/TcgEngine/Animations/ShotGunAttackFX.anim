@@ -85,9 +85,9 @@ AnimationClip:
       value: {fileID: 21300000, guid: 7d01b724344b51a46b1af9ea6f9c0f2a, type: 3}
     - time: 0.7
       value: {fileID: 21300000, guid: 91d66d27bdbc8694a80a3c257d1fbacc, type: 3}
-    - time: 0.75
+    - time: 0.76666665
       value: {fileID: 21300000, guid: eeb03984bcb66964d8c280d2f37f962c, type: 3}
-    - time: 0.8
+    - time: 0.81666666
       value: {fileID: 21300000, guid: 74cb16e086a1df447958fb7571264a7a, type: 3}
     attribute: m_Sprite
     path: Smoke
@@ -156,7 +156,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.81666666
+    m_StopTime: 0.8333333
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
