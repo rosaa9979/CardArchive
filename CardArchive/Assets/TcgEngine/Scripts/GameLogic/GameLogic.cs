@@ -1012,8 +1012,8 @@ namespace TcgEngine.Gameplay
             Card acard = SummonCardHand(player, card, variant);
             PlayCard(acard, slot, true);
 
-            //if (player.cards_hand.Contains(acard))
-            //    player.RemoveCardFromAllGroups(acard);
+            if (player.cards_hand.Contains(acard))
+                player.RemoveCardFromAllGroups(acard);
 
             return acard;
         }
