@@ -18,6 +18,7 @@ namespace TcgEngine.FX
             GameClient client = GameClient.Get();
             client.onNewTurn += OnNewTurn;
             client.onCardPlayed += OnPlayCard;
+            client.onCardDraw += OnCardDraw;
             client.onCardDissolved += OnDissolveCard;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
@@ -59,6 +60,14 @@ namespace TcgEngine.FX
                     AudioTool.Get().PlaySFX("card_spell", spawn_audio);
                 }
             }
+        }
+
+        void OnCardDraw(int nb)
+        {
+            /*
+            AudioClip draw_audio = AssetData.Get().card_draw_audio;
+            AudioTool.Get().PlaySFX("card_draw", draw_audio);
+            */
         }
 
         void OnDissolveCard(Card card)

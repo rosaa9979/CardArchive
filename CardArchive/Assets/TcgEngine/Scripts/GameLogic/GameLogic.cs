@@ -199,14 +199,17 @@ namespace TcgEngine.Gameplay
                     DamageCard_Event(card, card.GetStatusValue(StatusType.Poisoned));
             }
 
-            //Ongoing Abilities
-            UpdateOngoing();
+
 
             //StartTurn Abilities
             foreach (Player p in game_data.players)
                 TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
 
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
+
+            resolve_queue.ResolveAll(0.2f);
+
+            UpdateOngoing();
 
             resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
@@ -613,7 +616,7 @@ namespace TcgEngine.Gameplay
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
                 Player player = game_data.GetPlayer(card.player_id);
-                
+
                 //Cost
                 if (!skip_cost)
                     player.PayMana(card);
@@ -637,6 +640,10 @@ namespace TcgEngine.Gameplay
                     EquipCard(bearer, card);
                     card.exhausted = true;
                 }
+                else if (icard.IsPlayerAbility())
+                {
+                    player.player_ability.Add(card);
+                }
                 else if (icard.IsAttachment())
                 {
                     AttachCard(slot, card);
@@ -653,7 +660,7 @@ namespace TcgEngine.Gameplay
                 }
 
                 //History
-                if(!is_ai_predict && !icard.IsSecret())
+                if (!is_ai_predict && !icard.IsSecret())
                     player.AddHistory(GameAction.PlayCard, card);
 
                 //Update ongoing effects
@@ -1003,12 +1010,6 @@ namespace TcgEngine.Gameplay
 
         public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
         {
-            if (!slot.IsValid())
-                return null;
-
-            if (game_data.GetSlotCard(slot) != null)
-                return null;
-
             Card acard = SummonCardHand(player, card, variant);
             PlayCard(acard, slot, true);
 
@@ -1355,9 +1356,10 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
         }
 
+        // 어빌리티로 트리거 되지 않은 데미지
         public virtual void DamageCard_Event(Card target, int value)
         {
-            if(target == null)
+            if (target == null)
                 return;
 
             if (target.HasStatus(StatusType.Invincibility))
@@ -1373,6 +1375,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Damage a card with attacker/caster
+        // 유닛에게 데미지
         public virtual void DamageCard_Event(Card attacker, Card target, int value, bool spell_damage = false)
         {
             if (attacker == null || target == null)
@@ -1391,7 +1394,7 @@ namespace TcgEngine.Gameplay
             }
 
             //Shell
-                bool doublelife = target.HasStatus(StatusType.Shell);
+            bool doublelife = target.HasStatus(StatusType.Shell);
             if (doublelife && value > 0)
             {
                 target.RemoveStatus(StatusType.Shell);
@@ -1434,13 +1437,14 @@ namespace TcgEngine.Gameplay
         }
 
         //Damage a slot with attacker/caster
+        // 슬롯에게 데미지
         public virtual void DamageCard_Event(Card attacker, Slot target, int value, bool spell_damage = false)
         {
             Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
-            foreach (var slot in Slot.GetInsideSlot()) 
+            foreach (var slot in Slot.GetInsideSlot())
             {
                 if (slot == target)
                 {
@@ -1449,11 +1453,11 @@ namespace TcgEngine.Gameplay
                         DamagePlayer_Event(attacker, player, value);
                 }
 
-            }  
+            }
 
             if (card_target != null)
                 DamageCard_Event(attacker, card_target, value, spell_damage);
-            
+
             if (attach_target != null)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
         }
@@ -2024,7 +2028,9 @@ namespace TcgEngine.Gameplay
                 {
                     Card card = player.player_ability[i];
                     if (card.GetHP() <= 0)
+                    {
                         DiscardCard(card);
+                    }
                 }
             }
 

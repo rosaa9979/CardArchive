@@ -27,6 +27,8 @@ namespace TcgEngine.UI
             Player player = GameClient.Get().GetPlayer();
             string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
 
+            cards.Clear();
+
             int index = 0;
             foreach (Card card in player.cards_hand)
             {

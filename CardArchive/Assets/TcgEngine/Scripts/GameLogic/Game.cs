@@ -125,8 +125,6 @@ namespace TcgEngine
                 return false; //Cant pay mana
             }
 
-
-
             if (!player.HasCard(player.cards_hand, card) && !skip_cost)
             {
                 return false; // Card not in hand
