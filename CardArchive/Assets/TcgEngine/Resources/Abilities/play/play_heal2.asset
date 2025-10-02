@@ -16,13 +16,11 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 31
-  conditions_target:
-  - {fileID: 11400000, guid: f6f22b601add97b48bc76cdcccbe8258, type: 2}
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  criteria_target: 0
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
+  condition_target: []
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 5e489970bbb948c409125b3ab22f2aac, type: 2}
@@ -38,5 +36,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: 
-  desc: 
+  title: "\uB4F1\uAD50"
+  desc: "\uCCAD\uD718\uC11D\uC744 \uC18C\uBAA8\uD558\uC5EC \uD328\uC5D0\uC11C \uC18C\uD658\uB420
+    \uB54C \uBC1C\uB3D9"

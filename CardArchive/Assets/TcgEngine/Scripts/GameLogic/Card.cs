@@ -518,6 +518,8 @@ namespace TcgEngine
                 abilities_data = new List<AbilityData>(abilities.Count + abilities_ongoing.Count);
                 for (int i = 0; i < abilities.Count; i++)
                     abilities_data.Add(AbilityData.Get(abilities[i]));
+
+
                 for (int i = 0; i < abilities_ongoing.Count; i++)
                     abilities_data.Add(AbilityData.Get(abilities_ongoing[i]));
             }

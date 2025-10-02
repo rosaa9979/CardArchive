@@ -884,7 +884,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ui_panel: {fileID: 1707425807}
   card_ui: {fileID: 1198175665}
-  desc: {fileID: 0}
+  desc: {fileID: 704267399}
   hover_delay: 0
   hover_delay_mobile: 0.1
   side_rows:
