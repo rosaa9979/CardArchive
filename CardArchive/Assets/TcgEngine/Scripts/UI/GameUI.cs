@@ -172,6 +172,8 @@ namespace TcgEngine.UI
         public void OnClickNextTurn()
         {
             //GameClient.Get().EndTurn();
+            if (!Tutorial.Get().CanDo(TutoEndTrigger.EndTurn))
+                return;
             GameClient.Get().EndTurn();
             end_turn_timer = 0f; //Disable button immediately (dont wait for refresh)
         }

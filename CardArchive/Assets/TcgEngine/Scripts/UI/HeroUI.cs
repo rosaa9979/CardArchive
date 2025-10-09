@@ -94,6 +94,9 @@ namespace TcgEngine.UI
                     return;
                 }
 
+                if (!Tutorial.Get().CanDo(TutoEndTrigger.CastAbility, hero))
+                    return;
+
                 bool valid = gdata.IsPlayerActionTurn(player) && gdata.CanCastAbility(hero, ability);
                 if (valid)
                 {

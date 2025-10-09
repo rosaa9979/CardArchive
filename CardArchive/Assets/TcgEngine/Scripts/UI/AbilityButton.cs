@@ -76,6 +76,9 @@ namespace TcgEngine.UI
         {
             if (card != null && iability != null)
             {
+                if (!Tutorial.Get().CanDo(TutoEndTrigger.CastAbility, card))
+                    return;
+                    
                 GameClient.Get().CastAbility(card, iability);
                 PlayerControls.Get().UnselectAll();
             }

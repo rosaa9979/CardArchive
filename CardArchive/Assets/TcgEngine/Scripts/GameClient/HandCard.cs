@@ -268,6 +268,9 @@ namespace TcgEngine.Client
             if (bslot != null && card.CardData.IsRequireTarget())
                 slot = bslot.GetSlot(board_pos);
 
+            if (!Tutorial.Get().CanDo(TutoEndTrigger.PlayCard, card))
+                return;
+                
             Card slot_card = bslot?.GetSlotCard(board_pos);
             if (bslot != null && card.CardData.IsRequireTargetSpell() && slot_card != null && slot_card.HasStatus(StatusType.SpellImmunity))
             {

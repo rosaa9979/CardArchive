@@ -46,6 +46,9 @@ namespace TcgEngine.Client
 
             if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
             {
+                if (!Tutorial.Get().CanDo(TutoEndTrigger.SelectTarget, card))
+                    return;
+
                 //Target selector, select this card
                 GameClient.Get().SelectSlot(card.slot);
             }
@@ -78,6 +81,9 @@ namespace TcgEngine.Client
 
                 if (ability != null && ability.IsVisible())
                 {
+                    if (!Tutorial.Get().CanDo(TutoEndTrigger.CastAbility, card))
+                        return;
+                        
                     GameClient.Get().CastAbility(card, ability.GetAbility());
                 }
                 /*
