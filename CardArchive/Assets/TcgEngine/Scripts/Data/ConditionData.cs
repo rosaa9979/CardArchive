@@ -35,6 +35,11 @@ namespace TcgEngine
             return true; //Override this, for effects that create new cards
         }
 
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target)
+        {
+            return true; //Override this, for effects that create new cards
+        }
+
         public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)
         {
             return true; //Override this, for effects that create new cards

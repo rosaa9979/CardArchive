@@ -64,10 +64,10 @@ namespace TcgEngine.FX
 
         void OnCardDraw(int nb)
         {
-            /*
+            
             AudioClip draw_audio = AssetData.Get().card_draw_audio;
             AudioTool.Get().PlaySFX("card_draw", draw_audio);
-            */
+            
         }
 
         void OnDissolveCard(Card card)

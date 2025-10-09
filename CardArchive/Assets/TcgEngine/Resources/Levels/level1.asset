@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59e39d99af93c37489aff5e1e1333e20, type: 3}
+  m_Name: level1
+  m_EditorClassIdentifier: 
+  id: Tutorial
+  level: 1
+  title: "\uD29C\uD1A0\uB9AC\uC5BC"
+  scene: Game
+  player_deck: {fileID: 11400000, guid: 633b75d4849213b4ba8ae56cce28544a, type: 2}
+  ai_deck: {fileID: 11400000, guid: 9679ec13d863da043a0ac299c997d39b, type: 2}
+  ai_level: 1
+  first_player: 10
+  tuto_prefab: {fileID: 871187647601492094, guid: 04f6b47ec9fa6ea4b964484f96531ba4,
+    type: 3}
+  mulligan: 0
+  reward_xp: 0
+  reward_coins: 0
+  reward_packs: []
+  reward_cards: []

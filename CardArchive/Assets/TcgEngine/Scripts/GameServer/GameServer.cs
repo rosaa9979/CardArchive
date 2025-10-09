@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TcgEngine.AI;
+using TcgEngine.Client;
 using TcgEngine.Gameplay;
 using Unity.Netcode;
 using UnityEngine;
@@ -197,7 +198,7 @@ namespace TcgEngine.Server
             {
                 if (player.is_ai || ai_vs_ai)
                 {
-                    AIPlayer ai_gameplay = AIPlayer.Create(GameplayData.Get().ai_type, gameplay, player.player_id, player.ai_level);
+                    AIPlayer ai_gameplay = Tutorial.Get().IsTuto() ? AIPlayer.Create(GameplayData.Get().tutorial_ai_type, gameplay, player.player_id, player.ai_level) : AIPlayer.Create(GameplayData.Get().ai_type, gameplay, player.player_id, player.ai_level);
                     ai_list.Add(ai_gameplay);
                 }
             }

@@ -32,6 +32,8 @@ namespace TcgEngine.AI
 
         public static AIPlayer Create(AIType type, GameLogic gameplay, int id, int level = 0)
         {
+            if (type == AIType.Tutorial)
+                return new AIPlayerTutorial(gameplay, id, level);
             if (type == AIType.Random)
                 return new AIPlayerRandom(gameplay, id, level);
             if (type == AIType.MiniMax)
@@ -42,7 +44,8 @@ namespace TcgEngine.AI
 
     public enum AIType
     {
-        Random = 0,      //Dumb AI that just do random moves, useful for testing cards without getting destroyed
-        MiniMax = 10,    //Stronger AI using Minimax algo with alpha-beta pruning
+        Tutorial = 0,
+        Random = 10,      //Dumb AI that just do random moves, useful for testing cards without getting destroyed
+        MiniMax = 20,    //Stronger AI using Minimax algo with alpha-beta pruning
     }
 }

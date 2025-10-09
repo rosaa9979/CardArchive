@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace TcgEngine
 {
@@ -28,6 +29,7 @@ namespace TcgEngine
         [Header("Traits")]
         public CardType has_type;
         //public TeamData has_team;
+        public ClubData has_club;
         public TraitData has_trait;
         public CardData has_card;
 
@@ -88,11 +90,12 @@ namespace TcgEngine
         private bool IsTrait(Card card)
         {
             bool is_type = card.CardData.type == has_type || has_type == CardType.None;
+            bool is_club = card.GetAllClubs().Any(club => club.ClubData == has_club) || has_club == null;
             //bool is_team = card.CardData.team == has_team || has_team == null;
             bool is_trait = card.HasTrait(has_trait) || has_trait == null;
             //return (is_type && is_team && is_trait);
             bool is_card = has_card == null || card.card_id == has_card.id;
-            return (is_type && is_trait && is_card);
+            return (is_type && is_club && is_trait && is_card);
         }
     }
 }

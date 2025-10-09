@@ -45,8 +45,11 @@ namespace TcgEngine
             if (type == LastType.LastPlayed)
                 return false;
 
-            if (type == LastType.LastAttacked && data.last_attacked_slot.GetNeighborSlot(range).Contains(target))
-                result = true;
+            if (type == LastType.LastAttacked)
+            {
+                if (!data.last_player_attacked && data.last_attacked_slot.GetNeighborSlot(range).Contains(target))
+                    result = true;
+            }
 
             if (type == LastType.LastTargeted && data.last_targeted_slot.GetNeighborSlot(range).Contains(target))
                 result = true;

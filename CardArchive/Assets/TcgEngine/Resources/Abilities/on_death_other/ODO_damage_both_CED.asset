@@ -10,23 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: aura_machine
+  m_Name: ODO_damage_both_CED
   m_EditorClassIdentifier: 
-  id: aura_machine
-  trigger: 2
-  conditions_trigger: []
-  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 10
-  conditions_criteria_target:
+  id: ODO_damage_both_CED
+  trigger: 42
+  conditions_trigger:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 053e7e87823843b4197e4790de5990a7, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
+  criteria_target: 7
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 86b26ca3d37e53a448e73068cf9069b9, type: 2}
-  - {fileID: 11400000, guid: 3d2cef72580f00d45a4779fc891118e9, type: 2}
+  - {fileID: 11400000, guid: bf8979a83f5f4eb45aa99f2bb6354320, type: 2}
   status: []
   value: 1
   duration: 0
@@ -35,9 +34,10 @@ MonoBehaviour:
   exhaust: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
-  target_fx: {fileID: 0}
+  target_fx: {fileID: 6150708438573729787, guid: f097f7d1b47b78c4ea78145d69f0484d,
+    type: 3}
   cast_audio: {fileID: 0}
-  target_audio: {fileID: 0}
+  target_audio: {fileID: 8300000, guid: d749e3d6c49e4e344af86ffee27567f4, type: 3}
   charge_target: 0
   title: 
   desc: 

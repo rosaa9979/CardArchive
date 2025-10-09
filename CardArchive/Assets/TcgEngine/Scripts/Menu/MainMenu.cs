@@ -265,8 +265,7 @@ namespace TcgEngine.UI
             //if (!GameClient.player_settings.deck.IsValid())
             //    return;
 
-            return;
-            //AdventurePanel.Get().Show();
+            AdventurePanel.Get().Show();
         }
 
         public void OnClickPlayCode()

@@ -1,0 +1,337 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TcgEngine.Client;
+using TcgEngine.Gameplay;
+
+namespace TcgEngine.AI
+{
+    /// <summary>
+    /// AI player making completely random decisions, really bad AI but useful for testing
+    /// </summary>
+
+    public class AIPlayerTutorial : AIPlayer
+    {
+        private bool is_playing = false;
+        private bool is_selecting = false;
+
+        private System.Random rand = new System.Random();
+
+        public AIPlayerTutorial(GameLogic gameplay, int id, int level)
+        {
+            this.gameplay = gameplay;
+            player_id = id;
+        }
+
+        public override void Update()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+
+            if (game_data.IsPlayerTurn(player) && !gameplay.IsResolving())
+            {
+                if (!is_playing && game_data.selector == SelectorType.None && game_data.current_player == player_id)
+                {
+                    is_playing = true;
+                    TimeTool.StartCoroutine(AiTurn());
+                }
+
+                if (!is_selecting && game_data.selector != SelectorType.None && game_data.selector_player_id == player_id)
+                {
+                    if (game_data.selector == SelectorType.SelectTarget)
+                    {
+                        //AI select target
+                        is_selecting = true;
+                        TimeTool.StartCoroutine(AiSelectTarget());
+                    }
+
+                    if (game_data.selector == SelectorType.SelectorCard)
+                    {
+                        //AI select target
+                        is_selecting = true;
+                        TimeTool.StartCoroutine(AiSelectCard());
+                    }
+
+                    if (game_data.selector == SelectorType.SelectorChoice)
+                    {
+                        //AI select target
+                        is_selecting = true;
+                        TimeTool.StartCoroutine(AiSelectChoice());
+                    }
+                }
+            }
+
+            //Debug.Log("is_slecting:"+is_selecting);
+            //Debug.Log(game_data.IsPlayerMulliganTurn(player));
+            if (!is_selecting && game_data.IsPlayerMulliganTurn(player))
+            {
+                is_selecting = true;
+                TimeTool.StartCoroutine(AiSelectMulligan());
+            }
+        }
+
+        private IEnumerator AiTurn()
+        {
+            yield return new WaitForSeconds(1f);
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+
+            List<TutoAIAction> current_actions = Tutorial.Get().GetCurrentGroup().ai_instructions;
+
+            foreach (TutoAIAction current_action in current_actions)
+            {
+                switch (current_action.action_type)
+                {
+                    case TutoAiActionType.EndTurn:
+                        EndTurn();
+                        break;
+                    case TutoAiActionType.PlayCard:
+                        Slot action_slot = new Slot(new SlotXY(current_action.action_point.x, current_action.action_point.y));
+                        foreach (Card card in player.cards_hand)
+                        {
+                            if (card.CardData == current_action.action_card)
+                            {
+                                gameplay.PlayCard(card, action_slot);
+                                break;
+                            }
+                        }
+                        break;
+                }
+                
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        private IEnumerator AiSelectCard()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            SelectCard();
+
+            yield return new WaitForSeconds(0.5f);
+
+            CancelSelect();
+            is_selecting = false;
+        }
+
+        private IEnumerator AiSelectTarget()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            SelectTarget();
+
+            yield return new WaitForSeconds(0.5f);
+
+            CancelSelect();
+            is_selecting = false;
+        }
+
+        private IEnumerator AiSelectChoice()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            SelectChoice();
+
+            yield return new WaitForSeconds(0.5f);
+
+            CancelSelect();
+            is_selecting = false;
+        }
+
+        private IEnumerator AiSelectMulligan()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            SelectMulligan();
+
+            yield return new WaitForSeconds(0.5f);
+            is_selecting = false;
+        }
+
+        //----------
+
+        public void PlayCard()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            if (player.cards_hand.Count > 0 && game_data.IsPlayerActionTurn(player))
+            {
+                Card random = player.GetRandomCard(player.cards_hand, rand);
+                Slot slot = player.GetRandomEmptySlot(rand);
+
+                if (random != null && random.CardData.IsPlace())
+                    slot = player.GetRandomEmptyOutsideSlots(rand);
+
+                if (random != null && random.CardData.IsRequireTargetSpell())
+                    slot = game_data.GetRandomSlot(rand); //Spell can target any slot, not just your side
+
+                if (random != null && random.CardData.IsEquipment())
+                    slot = player.GetRandomOccupiedSlot(rand);
+
+                if (random != null)
+                    gameplay.PlayCard(random, slot);
+            }
+        }
+
+        public void Attack()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            if (player.cards_board.Count > 0 && game_data.IsPlayerActionTurn(player))
+            {
+                Card random = player.GetRandomCard(player.cards_board, rand);
+                Card rtarget = game_data.GetRandomBoardCard(rand);
+                if (random != null && rtarget != null)
+                    gameplay.AttackTarget(random, rtarget);
+            }
+        }
+
+        public void AttackPlayer()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            Player oplayer = game_data.GetRandomPlayer(rand);
+            if (player.cards_board.Count > 0 && game_data.IsPlayerActionTurn(player))
+            {
+                Card random = player.GetRandomCard(player.cards_board, rand);
+                if (random != null && oplayer != null && oplayer != player)
+                    gameplay.AttackPlayer(random, oplayer);
+            }
+        }
+
+        public void SelectCard()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (player != null && ability != null && caster != null)
+            {
+                List<Card> card_list = ability.GetCardTargets(game_data, caster);
+                if (card_list.Count > 0)
+                {
+                    Card card = card_list[rand.Next(0, card_list.Count)];
+                    gameplay.SelectCard(card);
+                }
+            }
+        }
+
+        public void SelectTarget()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            if (game_data.selector != SelectorType.None)
+            {
+                int target_player = player_id;
+                AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+                if (ability != null && ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectCard)
+                {
+                    //target_player = (player_id == 0 ? 1 : 0);
+
+                    Player tplayer = game_data.GetPlayer(target_player);
+                    if (tplayer.cards_board.Count > 0)
+                    {
+                        Card random = tplayer.GetRandomCard(tplayer.cards_board, rand);
+                        if (random != null)
+                            gameplay.SelectCard(random);
+                    }
+                }
+
+                if (ability != null && ability.criteria_target == AbilityTarget.SelectSlot)
+                {
+                    Slot random = Slot.GetRandom(rand);
+                    if (random != null)
+                        gameplay.SelectSlot(random);
+                }
+
+            }
+        }
+
+        public void SelectChoice()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            if (game_data.selector != SelectorType.None)
+            {
+                AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+                if (ability != null && ability.chain_abilities.Length > 0)
+                {
+                    int choice = rand.Next(0, ability.chain_abilities.Length);
+                    gameplay.SelectChoice(choice);
+                }
+            }
+        }
+
+        public void CancelSelect()
+        {
+            if (CanPlay())
+            {
+                gameplay.CancelSelection();
+            }
+        }
+
+        public void SelectMulligan()
+        {
+            if (!CanPlay())
+                return;
+
+            Game game_data = gameplay.GetGameData();
+            if (game_data.phase == GamePhase.Mulligan)
+            {
+                Player player = game_data.GetPlayer(player_id);
+                string[] cards = new string[0]; //Don't mulligan
+                gameplay.Mulligan(player, cards);
+            }
+        }
+
+        public void EndTurn()
+        {
+            if (CanPlay())
+            {
+                gameplay.StartAttackPhase();
+            }
+        }
+    }
+
+    public enum TutoAiActionType
+    {
+        None,
+        PlayCard,
+        EndTurn
+    }
+
+    [System.Serializable]
+    public struct TutoActionPoint
+    {
+        public int x;
+        public int y;
+    }
+
+    [System.Serializable]
+    public class TutoAIAction
+    {
+        public TutoAiActionType action_type;
+        public CardData action_card;
+        public TutoActionPoint action_point;
+    }
+}

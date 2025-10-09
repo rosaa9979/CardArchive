@@ -19,10 +19,11 @@ MonoBehaviour:
   criteria_target: 32
   conditions_criteria_target:
   - {fileID: 11400000, guid: 028affa88ff89f94e8eef8fb7a04bb03, type: 2}
+  - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
+  - {fileID: 11400000, guid: 24455e8381a12484d927dd9dfe5ee5a3, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
-  condition_target:
-  - {fileID: 11400000, guid: 516b374e9a04a0746820dab5c9372774, type: 2}
+  condition_target: []
   filters_target: []
   effects:
   - {fileID: 11400000, guid: acdaa368eec48374daf1c2f69949833a, type: 2}

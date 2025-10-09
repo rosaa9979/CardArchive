@@ -34,6 +34,7 @@ namespace TcgEngine
         public float sell_ratio = 0.8f;
 
         [Header("AI")]
+        public AIType tutorial_ai_type;
         public AIType ai_type;              //AI algorythm
         public int ai_level = 10;           //AI level, 10=best, 1=weakest
 
