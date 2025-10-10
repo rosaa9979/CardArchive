@@ -61,9 +61,9 @@ namespace TcgEngine
             this.x = slot.x;
             this.y = slot.y;
 
-            if (slot.y < y_neutral)
+            if (y_min <= slot.y && slot.y < y_neutral)
                 this.p = 0;
-            else if (slot.y > y_neutral)
+            else if (y_max >= slot.y && slot.y > y_neutral)
                 this.p = 1;
             else if (slot.y == y_neutral)
                 this.p = 2;

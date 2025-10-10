@@ -129,7 +129,8 @@ namespace TcgEngine.Gameplay
 
                 //Draw starting cards
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
-                dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
+                if (!Tutorial.Get().IsTuto())
+                    dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
                 DrawCard(player, dcards);
 
                 
@@ -221,10 +222,11 @@ namespace TcgEngine.Gameplay
                 return;
 
             game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;
-            
+
             if (game_data.current_player == game_data.first_player)
                 game_data.turn_count++;
 
+            RefreshData();
             CheckForWinner();
             StartTurn();
         }

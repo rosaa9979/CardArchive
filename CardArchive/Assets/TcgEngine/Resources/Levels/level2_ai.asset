@@ -10,30 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 069f5be85a1dcec46b083fc9c26e6870, type: 3}
-  m_Name: level1_ai
+  m_Name: level2_ai
   m_EditorClassIdentifier: 
-  id: level1_ai
-  title: tutorial_basic_ai
+  id: level2_ai
+  title: tutorial_advance_ai
   hero: {fileID: 11400000, guid: 5a33409b706324944ac9e7c5ed177ee3, type: 2}
-  clubs:
-  - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
+  clubs: []
   cards:
-  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
-  - {fileID: 11400000, guid: 3f7258a3a21118042a9a0fa47c2d5ebb, type: 2}
-  - {fileID: 11400000, guid: 3f7258a3a21118042a9a0fa47c2d5ebb, type: 2}
-  - {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
   - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
   - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
+  - {fileID: 11400000, guid: c0405e25beced5346b859ea7e8cea301, type: 2}
+  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
+  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
   board_cards:
-  - card: {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
+  - card: {fileID: 11400000, guid: c0405e25beced5346b859ea7e8cea301, type: 2}
     slot:
       x: 2
       y: 4
-  - card: {fileID: 11400000, guid: dc2a502bd6c3b6d4d970e3ac7a733d22, type: 2}
+  - card: {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
     slot:
-      x: 6
+      x: 3
       y: 4
-  start_cards: 1
+  - card: {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
+    slot:
+      x: 4
+      y: 4
+  start_cards: 5
   start_mana: 10
-  start_hp: 3
+  start_hp: 20
   dont_shuffle_deck: 1

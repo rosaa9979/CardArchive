@@ -321,17 +321,10 @@ namespace TcgEngine.AI
     }
 
     [System.Serializable]
-    public struct TutoActionPoint
-    {
-        public int x;
-        public int y;
-    }
-
-    [System.Serializable]
     public class TutoAIAction
     {
         public TutoAiActionType action_type;
         public CardData action_card;
-        public TutoActionPoint action_point;
+        public SlotXY action_point;
     }
 }

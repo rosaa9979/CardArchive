@@ -59,6 +59,22 @@ namespace TcgEngine.Client
             }
         }
 
+        public void SelectSlot(BoardSlot bslot)
+        {
+            Game gdata = GameClient.Get().GetGameData();
+            Player player = GameClient.Get().GetPlayer();
+            Slot slot = bslot.GetSlot();
+
+            if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
+            {
+                if (!Tutorial.Get().CanDo(TutoEndTrigger.SelectTarget, slot))
+                    return;
+
+                //Target selector, select this card
+                GameClient.Get().SelectSlot(slot);
+            }
+        }
+
         public void SelectCardRight(BoardCard card)
         {
             if (!Input.GetMouseButton(0))

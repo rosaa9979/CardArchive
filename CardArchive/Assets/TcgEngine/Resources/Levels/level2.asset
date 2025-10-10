@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59e39d99af93c37489aff5e1e1333e20, type: 3}
-  m_Name: level1
+  m_Name: level2
   m_EditorClassIdentifier: 
-  id: Tutorial_Basic
+  id: Tutorial_Advance
   level: 1
-  title: "\uD29C\uD1A0\uB9AC\uC5BC - \uAE30\uBCF8"
+  title: "\uD29C\uD1A0\uB9AC\uC5BC \uC2EC\uD654"
   scene: Game
-  player_deck: {fileID: 11400000, guid: 633b75d4849213b4ba8ae56cce28544a, type: 2}
-  ai_deck: {fileID: 11400000, guid: 9679ec13d863da043a0ac299c997d39b, type: 2}
+  player_deck: {fileID: 11400000, guid: 9522ef0a93534474f8314f7b32caad7f, type: 2}
+  ai_deck: {fileID: 11400000, guid: 2755453a86d2eb14c9a05f5587676b10, type: 2}
   ai_level: 1
   first_player: 10
-  tuto_prefab: {fileID: 871187647601492094, guid: 04f6b47ec9fa6ea4b964484f96531ba4,
+  tuto_prefab: {fileID: 871187647601492094, guid: 7a01e65c1d858cd41a0dd930db349e89,
     type: 3}
   mulligan: 0
   reward_xp: 0

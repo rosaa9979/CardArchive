@@ -28,9 +28,11 @@ namespace TcgEngine.Client
                 if (level.tuto_prefab != null)
                 {
                     is_tuto = true;
-                    
+
                     GameObject tuto_obj = Instantiate(level.tuto_prefab);
                     tuto_obj.GetComponent<Canvas>().worldCamera = GameCamera.GetCamera();
+                    tuto_obj.GetComponent<Canvas>().sortingLayerName = "TopUI";
+                    tuto_obj.GetComponent<Canvas>().sortingOrder = -1;
 
                     GameClient.Get().onNewTurn += OnNewTurn;
                     GameClient.Get().onCardPlayed += OnCardPlayed;
@@ -38,6 +40,7 @@ namespace TcgEngine.Client
                     GameClient.Get().onAttackPlayerStart += OnAttackPlayer;
                     GameClient.Get().onAbilityStart += OnCastAbility;
                     GameClient.Get().onAbilityTargetCard += OnTargetCard;
+                    GameClient.Get().onAbilityTargetSlot += OnTargetSlot;
                     GameClient.Get().onAbilityTargetPlayer += OnTargetPlayer;
                 }
 
@@ -57,7 +60,6 @@ namespace TcgEngine.Client
             /*
             if (player_id != GameClient.Get().GetPlayerID())
             {
-                Debug.Log(player_id.ToString() + " " + GameClient.Get().GetPlayerID().ToString());
                 return;
             }
             */
@@ -69,7 +71,8 @@ namespace TcgEngine.Client
         private void OnCardPlayed(Card card, Slot slot)
         {
             Game data = GameClient.Get().GetGameData();
-            if (card.player_id == GameClient.Get().GetPlayerID())
+
+            if (card.player_id == GameClient.Get().GetPlayerID() && current_step.trigger_target == card.CardData)
             {
                 TriggerEndStep(TutoEndTrigger.PlayCard);
                 TriggerStartGroup(TutoStartTrigger.PlayCard, card);
@@ -116,8 +119,18 @@ namespace TcgEngine.Client
             }
         }
 
+        private void OnTargetSlot(AbilityData ability, Card card, Slot target)
+        {
+            Game data = GameClient.Get().GetGameData();
+            if (card.player_id == GameClient.Get().GetPlayerID())
+            {
+                TriggerEndStep(TutoEndTrigger.SelectTarget);
+            }
+        }
+
         private void OnTargetPlayer(AbilityData ability, Card card, Player target)
         {
+
             Game data = GameClient.Get().GetGameData();
             if (card.player_id == GameClient.Get().GetPlayerID())
             {
@@ -218,11 +231,30 @@ namespace TcgEngine.Client
             return CanDo(trigger, null);
         }
 
-        public bool CanDo(TutoEndTrigger trigger, Slot slot)
+        public bool CanDo(TutoEndTrigger trigger, Slot target)
         {
             Game data = GameClient.Get().GetGameData();
-            Card card = data.GetSlotCard(slot);
-            return CanDo(trigger, card);
+
+            if (!is_tuto)
+                return true; //Not a tutorial
+
+            if (locked)
+                return false;
+
+            if (current_step != null && current_step.forced)
+            {
+                if (trigger == TutoEndTrigger.CastAbility && current_step.end_trigger == TutoEndTrigger.SelectTarget)
+                    return true; //Dont get locked into select target if ability was canceled
+
+                if (current_step.end_trigger != trigger)
+                    return false; //Wrong trigger
+
+                Slot target_slot = new Slot(current_step.target_slot);
+                if (target_slot.IsValid() && target_slot != target)
+                    return false; //Wrong target
+            }
+
+            return true;
         }
 
         public bool CanDo(TutoEndTrigger trigger, Card target)
@@ -244,6 +276,36 @@ namespace TcgEngine.Client
                 CardData target_data = target != null ? target.CardData : null;
                 if (current_step.trigger_target != null && current_step.trigger_target != target_data)
                     return false; //Wrong target
+            }
+
+            return true;
+        }
+
+        public bool CanDo(TutoEndTrigger trigger, Card target_card, Slot target_slot)
+        {
+            if (!is_tuto)
+                return true; //Not a tutorial
+
+            if (locked)
+                return false;
+
+            if (current_step != null && current_step.forced)
+            {
+                if (trigger == TutoEndTrigger.CastAbility && current_step.end_trigger == TutoEndTrigger.SelectTarget)
+                    return true; //Dont get locked into select target if ability was canceled
+
+                if (current_step.end_trigger != trigger)
+                    return false; //Wrong trigger
+
+                CardData target_data = target_card != null ? target_card.CardData : null;
+                Slot forced_slot = new Slot(current_step.target_slot);
+
+                if (current_step.trigger_target != null && current_step.trigger_target != target_data)
+                    return false;
+
+                if (forced_slot.IsValid() && forced_slot != target_slot)
+                    return false; //Wrong target
+
             }
 
             return true;
@@ -302,5 +364,6 @@ namespace TcgEngine.Client
         AttackPlayer = 25,
         CastAbility = 30,
         SelectTarget = 35,
+        CancelAbility = 40,
     }
 }

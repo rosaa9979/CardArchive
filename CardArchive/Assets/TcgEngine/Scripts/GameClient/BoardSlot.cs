@@ -177,7 +177,8 @@ namespace TcgEngine.Client
             if (GameUI.IsOverUI())
                 return;
 
-            GameClient.Get().SelectSlot(GetSlot());
+            PlayerControls.Get().SelectSlot(this);
+            //GameClient.Get().SelectSlot(GetSlot());
         }
     }
 }

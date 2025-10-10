@@ -14,6 +14,7 @@ namespace TcgEngine.Client
         [Header("Tuto Step")]
         public TutoEndTrigger end_trigger;
         public CardData trigger_target;
+        public SlotXY target_slot;
         public bool forced;                //Player MUST do the end_trigger action to proceed
 
         private TutoStepGroup group;
@@ -64,7 +65,5 @@ namespace TcgEngine.Client
                 s.Hide();
             }
         }
-
     }
-
 }
