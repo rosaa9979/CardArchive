@@ -18,18 +18,18 @@ MonoBehaviour:
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
   cards:
-  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
-  - {fileID: 11400000, guid: 3f7258a3a21118042a9a0fa47c2d5ebb, type: 2}
-  - {fileID: 11400000, guid: 3f7258a3a21118042a9a0fa47c2d5ebb, type: 2}
-  - {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
-  - {fileID: 11400000, guid: 6e3f008fec30db149a4f50802f9be49f, type: 2}
-  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  - {fileID: 11400000, guid: 9866641b68ac45248b8b7cb9f27dd533, type: 2}
+  - {fileID: 11400000, guid: 3d78d32703efe7940bc063f9dd5adfb8, type: 2}
+  - {fileID: 11400000, guid: 3d78d32703efe7940bc063f9dd5adfb8, type: 2}
+  - {fileID: 11400000, guid: 279234130a454384a84ebc02c4a46962, type: 2}
+  - {fileID: 11400000, guid: efa5d4d4b51a54540b0a605f5224d619, type: 2}
+  - {fileID: 11400000, guid: 9483269b677076547811a2868dc1dd96, type: 2}
   board_cards:
-  - card: {fileID: 11400000, guid: 6a354c47662ef104a8c6f00cc0436384, type: 2}
+  - card: {fileID: 11400000, guid: 2b8dee2b1d2eab749a899fa886f22831, type: 2}
     slot:
       x: 2
       y: 4
-  - card: {fileID: 11400000, guid: dc2a502bd6c3b6d4d970e3ac7a733d22, type: 2}
+  - card: {fileID: 11400000, guid: 90d10b6d88d07ce4dadb6268223ce419, type: 2}
     slot:
       x: 6
       y: 4

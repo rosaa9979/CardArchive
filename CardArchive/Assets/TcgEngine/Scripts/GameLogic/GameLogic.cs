@@ -797,7 +797,7 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetPlayer(attacker.player_id);
             //Slot target_slot = target.slot;
 
-            //Damage Cards
+            //Damage Cards (공격 스탭 변경점, 롤백 시 DamageCard1을 DamageCard로 변경))
             DamageCard(attacker, target, datt1);
 
             //Counter Damage
@@ -1661,7 +1661,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;

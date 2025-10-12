@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TcgEngine.UI;
 using UnityEngine;
 
 namespace TcgEngine.Client
@@ -34,6 +35,7 @@ namespace TcgEngine.Client
                     tuto_obj.GetComponent<Canvas>().sortingLayerName = "TopUI";
                     tuto_obj.GetComponent<Canvas>().sortingOrder = -1;
 
+                    GameClient.Get().onGameStart += OnGameStart;
                     GameClient.Get().onNewTurn += OnNewTurn;
                     GameClient.Get().onCardPlayed += OnCardPlayed;
                     GameClient.Get().onAttackStart += OnAttack;
@@ -42,10 +44,30 @@ namespace TcgEngine.Client
                     GameClient.Get().onAbilityTargetCard += OnTargetCard;
                     GameClient.Get().onAbilityTargetSlot += OnTargetSlot;
                     GameClient.Get().onAbilityTargetPlayer += OnTargetPlayer;
+
+                    MulliganSelector.Get().onMulliganSelect += OnMulliganSelect;
+                    MulliganSelector.Get().onMulliganConfirm += OnMulliganConfirm;
                 }
 
                 HideAll();
             }
+        }
+
+        private void OnGameStart()
+        {
+            Game data = GameClient.Get().GetGameData();
+            LevelData level = GameClient.game_settings.GetLevel();
+
+            if (data == null)
+                return;
+
+            if (!level.mulligan)
+                return;
+
+            EndGroup();
+
+            TutoStepGroup group = TutoStepGroup.Get(TutoStartTrigger.StartTurn, data.turn_count);
+            ShowGroup(group);
         }
 
         private void OnNewTurn(int player_id)
@@ -65,6 +87,7 @@ namespace TcgEngine.Client
             */
 
             TutoStepGroup group = TutoStepGroup.Get(TutoStartTrigger.StartTurn, data.turn_count);
+            Debug.Log(group.gameObject.name);
             ShowGroup(group);
         }
 
@@ -72,8 +95,9 @@ namespace TcgEngine.Client
         {
             Game data = GameClient.Get().GetGameData();
 
-            if (card.player_id == GameClient.Get().GetPlayerID() && current_step.trigger_target == card.CardData)
+            if (card.player_id == GameClient.Get().GetPlayerID())
             {
+                if (current_step != null && current_step.trigger_target == card.CardData)
                 TriggerEndStep(TutoEndTrigger.PlayCard);
                 TriggerStartGroup(TutoStartTrigger.PlayCard, card);
             }
@@ -95,6 +119,7 @@ namespace TcgEngine.Client
             Game data = GameClient.Get().GetGameData();
             if (card.player_id == GameClient.Get().GetPlayerID())
             {
+
                 TriggerEndStep(TutoEndTrigger.AttackPlayer, 2f);
                 TriggerStartGroup(TutoStartTrigger.Attack, card);
             }
@@ -122,7 +147,8 @@ namespace TcgEngine.Client
         private void OnTargetSlot(AbilityData ability, Card card, Slot target)
         {
             Game data = GameClient.Get().GetGameData();
-            if (card.player_id == GameClient.Get().GetPlayerID())
+            Slot target_slot = new Slot(current_step.target_slot);
+            if (card.player_id == GameClient.Get().GetPlayerID() && target_slot == target)
             {
                 TriggerEndStep(TutoEndTrigger.SelectTarget);
             }
@@ -130,7 +156,6 @@ namespace TcgEngine.Client
 
         private void OnTargetPlayer(AbilityData ability, Card card, Player target)
         {
-
             Game data = GameClient.Get().GetGameData();
             if (card.player_id == GameClient.Get().GetPlayerID())
             {
@@ -138,12 +163,27 @@ namespace TcgEngine.Client
             }
         }
 
+        private void OnMulliganSelect(Card card)
+        {
+            Game data = GameClient.Get().GetGameData();
+            if (card.player_id == GameClient.Get().GetPlayerID())
+            {
+                TriggerEndStep(TutoEndTrigger.MulliganSelect);
+            }
+        }
+
+        private void OnMulliganConfirm()
+        {
+            Game data = GameClient.Get().GetGameData();
+            
+            TriggerEndStep(TutoEndTrigger.MulliganConfirm);
+        }
+
         public void TriggerEndStep(TutoEndTrigger trigger, float time = 1f)
         {
             if (current_step != null && current_step.end_trigger == trigger)
             {
                 Hide();
-
                 TutoStepGroup group = current_group;
                 locked = true;
                 TimeTool.WaitFor(time, () =>
@@ -365,5 +405,7 @@ namespace TcgEngine.Client
         CastAbility = 30,
         SelectTarget = 35,
         CancelAbility = 40,
+        MulliganSelect = 45,
+        MulliganConfirm = 50,
     }
 }

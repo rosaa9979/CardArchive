@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Sweeper_Tutorial
+  m_Name: Thundergun_Tutorial
   m_EditorClassIdentifier: 
-  id: Sweeper_Tutorial
-  title: "\uC2A4\uC704\uD37C"
-  art_full: {fileID: 21300000, guid: 1daf8f2b0024d7646b29e2fabcf564b5, type: 3}
-  art_board: {fileID: 21300000, guid: 35bfdbbba1e2eba48b97c9b3794faa82, type: 3}
+  id: Thundergun_Tutorial
+  title: "\uCC9C\uB465\uC774"
+  art_full: {fileID: 21300000, guid: 7d5ec966136ebb7499a362574ac311d7, type: 3}
+  art_board: {fileID: 21300000, guid: b4ce4f02d9fc95045bc0f3f1efe409d9, type: 3}
   type: 11
   mana: 1
   attack: 1
@@ -25,10 +25,8 @@ MonoBehaviour:
   traits:
   - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
   stats: []
-  abilities:
-  - {fileID: 11400000, guid: 3e633064b8ed24c4294c69cb519efd9f, type: 2}
-  - {fileID: 11400000, guid: 2a11cb097ae04474693f6d6e1dd957ee, type: 2}
-  text: "\uC18D\uC0AC"
+  abilities: []
+  text: 
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

@@ -101,9 +101,11 @@ namespace TcgEngine.AI
                         }
                         break;
                 }
-                
+
                 yield return new WaitForSeconds(1.5f);
             }
+
+            is_playing = false;
         }
 
         private IEnumerator AiSelectCard()

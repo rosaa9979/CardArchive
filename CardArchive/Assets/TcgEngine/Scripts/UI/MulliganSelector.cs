@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
+using UnityEngine.Events;
 
 namespace TcgEngine.UI
 {
@@ -11,6 +12,9 @@ namespace TcgEngine.UI
         public RectTransform content;
         public GameObject mulligan_template;
         public List<CardMulligan> cards = new List<CardMulligan>();
+
+        public UnityAction<Card> onMulliganSelect;
+        public UnityAction onMulliganConfirm;
 
         private float interval;
 
@@ -69,11 +73,17 @@ namespace TcgEngine.UI
 
         private void OnClickCard(CardMulligan card_ui)
         {
+            if (!Tutorial.Get().CanDo(TutoEndTrigger.MulliganSelect, card_ui.GetCard()))
+                return;
             card_ui.SetSelected(!card_ui.IsSelected());
+            onMulliganSelect?.Invoke(card_ui.GetCard());
         }
 
         public void OnClickOK()
         {
+            if (!Tutorial.Get().CanDo(TutoEndTrigger.MulliganConfirm))
+                return;
+
             List<string> selected_cards = new List<string>();
 
             foreach (CardMulligan acard in cards)
@@ -83,6 +93,7 @@ namespace TcgEngine.UI
             }
 
             GameClient.Get().Mulligan(selected_cards.ToArray());
+            onMulliganConfirm?.Invoke();
             Hide();
         }
 

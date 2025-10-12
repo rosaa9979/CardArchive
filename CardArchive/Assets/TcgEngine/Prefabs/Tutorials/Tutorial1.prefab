@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   display_speed: 4
   end_trigger: 35
-  trigger_target: {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
+  trigger_target: {fileID: 11400000, guid: 279234130a454384a84ebc02c4a46962, type: 2}
   target_slot:
     x: 5
     y: 3
@@ -237,7 +237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   display_speed: 4
   end_trigger: 10
-  trigger_target: {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
+  trigger_target: {fileID: 11400000, guid: 279234130a454384a84ebc02c4a46962, type: 2}
   target_slot:
     x: 6
     y: 3
@@ -569,7 +569,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   display_speed: 4
   end_trigger: 10
-  trigger_target: {fileID: 11400000, guid: 93a18dc6dd19de245857261bfe960507, type: 2}
+  trigger_target: {fileID: 11400000, guid: 3f1152115cb1260499a4be59bb0e3731, type: 2}
   target_slot:
     x: 0
     y: 0
@@ -638,7 +638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   display_speed: 4
   end_trigger: 10
-  trigger_target: {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
+  trigger_target: {fileID: 11400000, guid: 9483269b677076547811a2868dc1dd96, type: 2}
   target_slot:
     x: 1
     y: 1

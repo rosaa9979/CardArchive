@@ -22,7 +22,7 @@ MonoBehaviour:
   first_player: 10
   tuto_prefab: {fileID: 871187647601492094, guid: 7a01e65c1d858cd41a0dd930db349e89,
     type: 3}
-  mulligan: 0
+  mulligan: 1
   reward_xp: 0
   reward_coins: 0
   reward_packs: []

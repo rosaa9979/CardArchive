@@ -10,25 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Sweeper_Tutorial
+  m_Name: Shiba_Seki_Ramen_Food_Stall_Tutorial
   m_EditorClassIdentifier: 
-  id: Sweeper_Tutorial
-  title: "\uC2A4\uC704\uD37C"
-  art_full: {fileID: 21300000, guid: 1daf8f2b0024d7646b29e2fabcf564b5, type: 3}
-  art_board: {fileID: 21300000, guid: 35bfdbbba1e2eba48b97c9b3794faa82, type: 3}
-  type: 11
+  id: Shiba_Seki_Ramen_Food_Stall_Tutorial
+  title: "\uC2DC\uBC14\uC138\uD0A4 \uB77C\uBA58\uC9D1"
+  art_full: {fileID: 0}
+  art_board: {fileID: 0}
+  type: 30
   mana: 1
-  attack: 1
-  hp: 1
+  attack: 0
+  hp: 2
   clubs: []
-  weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
-  traits:
-  - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
+  weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
+  traits: []
   stats: []
-  abilities:
-  - {fileID: 11400000, guid: 3e633064b8ed24c4294c69cb519efd9f, type: 2}
-  - {fileID: 11400000, guid: 2a11cb097ae04474693f6d6e1dd957ee, type: 2}
-  text: "\uC18D\uC0AC"
+  abilities: []
+  text: 
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

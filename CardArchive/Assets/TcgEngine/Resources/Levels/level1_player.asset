@@ -18,10 +18,10 @@ MonoBehaviour:
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
   cards:
-  - {fileID: 11400000, guid: 809e5ef945d499c4a81302874c69cddb, type: 2}
-  - {fileID: 11400000, guid: 09535c3000b5dc74489f8598b16d37a9, type: 2}
-  - {fileID: 11400000, guid: 93a18dc6dd19de245857261bfe960507, type: 2}
-  - {fileID: 11400000, guid: 9c5e4409fcf42614aa207b84cf515b96, type: 2}
+  - {fileID: 11400000, guid: 279234130a454384a84ebc02c4a46962, type: 2}
+  - {fileID: 11400000, guid: 9483269b677076547811a2868dc1dd96, type: 2}
+  - {fileID: 11400000, guid: 3f1152115cb1260499a4be59bb0e3731, type: 2}
+  - {fileID: 11400000, guid: 9866641b68ac45248b8b7cb9f27dd533, type: 2}
   board_cards: []
   start_cards: 3
   start_mana: 10
