@@ -87,7 +87,6 @@ namespace TcgEngine.Client
             */
 
             TutoStepGroup group = TutoStepGroup.Get(TutoStartTrigger.StartTurn, data.turn_count);
-            Debug.Log(group.gameObject.name);
             ShowGroup(group);
         }
 

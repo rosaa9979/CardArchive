@@ -162,6 +162,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5235893650005732183}
+  - {fileID: 7128184817028179738}
   m_Father: {fileID: 3868195550748869321}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -389,7 +390,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3868195550748869321}
+  m_Father: {fileID: 1962342602184691149}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -424,7 +425,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 36f61556ec8569044bc9c7b6e3940cb6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a1cfe7690e80542488cc6cf61d663a59, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -776,7 +777,6 @@ RectTransform:
   m_Children:
   - {fileID: 7659243008667252886}
   - {fileID: 1962342602184691149}
-  - {fileID: 7128184817028179738}
   - {fileID: 346532784496464232}
   - {fileID: 2355456208854257811}
   - {fileID: 5190508157154341929}
@@ -806,7 +806,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title_background: {fileID: 2986356019357028609}
-  club_title_background: {fileID: 0}
   card_image: {fileID: 4030304212300796227}
   frame_image: {fileID: 7881334469896048387}
   description_image: {fileID: 757339552694649655}
@@ -1462,7 +1461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8396226, g: 0.35248306, b: 0.35248306, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
