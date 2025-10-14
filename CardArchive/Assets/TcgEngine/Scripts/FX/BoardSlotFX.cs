@@ -29,8 +29,6 @@ namespace TcgEngine.FX
             client.onAbilityStart += OnAbilityStart;
             client.onAbilityTargetSlot += OnAbilityEffect;
             client.onAbilityEnd += OnAbilityAfter;
-
-            TargetSelectorUI.Get().onCurrentSlotChanged += OnCurrentSlotChanged;
         }
 
         private void OnDestroy()
@@ -40,8 +38,6 @@ namespace TcgEngine.FX
             client.onAbilityStart -= OnAbilityStart;
             client.onAbilityTargetSlot -= OnAbilityEffect;
             client.onAbilityEnd -= OnAbilityAfter;
-
-            TargetSelectorUI.Get().onCurrentSlotChanged -= OnCurrentSlotChanged;
         }
 
         void Update()
@@ -87,40 +83,26 @@ namespace TcgEngine.FX
             }
         }
 
-        public void OnCurrentSlotChanged(TargetSelectorUIType type, BSlot current_slot)
-        {
-            ResetUX();
-            
-            if (type == TargetSelectorUIType.None || current_slot == null)
-                return;
-
-            Slot slot = current_slot.GetSlot();
-
-            if (slot.IsValid())
-            {
-                if (type == TargetSelectorUIType.DragHandCard)
-                {
-                    Card hcard = HandCard.GetDrag().GetCard();
-
-                    if (hcard.CardData.IsCitizen())
-                    {
-                        List<Slot> range_slots = slot.GetNeighborSlot(hcard.GetRange());
-
-                        if (range_slots.Contains(bslot.GetSlot()))
-                                bslot_animator.SetBool("is_selected", true);
-                    }
-                }
-            }
-        }
 
         public void SetAnimParameter(bool is_selected)
         {
             bslot_animator.SetBool("is_selected", is_selected);
         }
 
-        public void ResetUX()
+        public void SetSortingLayer(string layer_id)
         {
-            bslot_animator.SetBool("is_selected", false);
+            SpriteRenderer[] spriteRenderers = bslot.GetComponentsInChildren<SpriteRenderer>();
+
+            foreach (SpriteRenderer sr in spriteRenderers)
+            {
+                sr.sortingLayerName = layer_id;
+            }
+        }
+
+        public void ResetIndicator()
+        {
+            SetAnimParameter(false);
+            SetSortingLayer("Default");
         }
     }
 }

@@ -4735,7 +4735,7 @@ GameObject:
   - component: {fileID: 1319458329}
   - component: {fileID: 1319458330}
   m_Layer: 5
-  m_Name: TargetSelector
+  m_Name: BoardSlotIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4770,7 +4770,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1319458328}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc2abdc06e79d1743b1db8824eea1ea0, type: 3}
+  m_Script: {fileID: 11500000, guid: 777da60b2417e5a4f93afd9940775027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ui_panel: {fileID: 1074624759}
@@ -5100,12 +5100,12 @@ PrefabInstance:
     - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Color.b
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_Color.g
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
         type: 3}

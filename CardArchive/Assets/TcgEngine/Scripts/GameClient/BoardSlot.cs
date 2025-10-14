@@ -6,6 +6,7 @@ using TcgEngine.Client;
 using TcgEngine.UI;
 using Unity.VisualScripting;
 using UnityEngine.AI;
+using TcgEngine.FX;
 
 namespace TcgEngine.Client
 {
@@ -179,6 +180,16 @@ namespace TcgEngine.Client
 
             PlayerControls.Get().SelectSlot(this);
             //GameClient.Get().SelectSlot(GetSlot());
+        }
+
+        public BoardSlotFX GetBoardSlotFX()
+        {
+            return GetComponent<BoardSlotFX>();
+        }
+
+        public static new List<BoardSlot> GetAll()
+        {
+            return slot_list;
         }
     }
 }
