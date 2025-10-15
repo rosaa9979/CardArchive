@@ -37,25 +37,48 @@ namespace TcgEngine.UI
 
             Game game_data = GameClient.Get().GetGameData();
 
-            current_type = new BSlotIndicatorTypeNone();
-
-            if (HandCard.GetDrag() != null)
-                current_type = new BSlotIndicatorTypeDragCard();
-
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
             BSlot bslot = BSlot.GetNearest(board_pos);
 
-            if (bslot != prev_bslot)
-            {
+            current_type = SetCurrentType(game_data, bslot);
+
+            BSlotIndicatorType new_type = SetCurrentType(game_data, bslot);
+
+            //if (bslot != prev_bslot)
+            //{
                 prev_bslot = bslot;
                 current_type.Execute(game_data, prev_bslot);
-            }
+            //}
 
 
-            if (current_type.RequireDim())
+            if (current_type.RequireDim(game_data))
                 ui_panel.Show();
             else
                 ui_panel.Hide();
+        }
+
+        public BSlot GetCurrentBSlot()
+        {
+            return prev_bslot;
+        }
+
+        private BSlotIndicatorType SetCurrentType(Game game_data, BSlot current_slot)
+        {
+
+            HandCard hcard = HandCard.GetDrag();
+
+            if (hcard != null)
+                return new BSlotIndicatorTypeDragCard();
+
+            if (current_slot != null)
+            {
+                Card current_hovering_unit = game_data.GetSlotCard(current_slot.GetSlot());
+
+                if (current_hovering_unit != null && current_hovering_unit.CardData.IsCitizen())
+                    return new BSlotIndicatorTypeHoverUnit();
+            }
+
+            return new BSlotIndicatorTypeNone();
         }
 
         public static BSlotIndicatorUI Get()

@@ -6233,6 +6233,16 @@ PrefabInstance:
       propertyPath: m_VertexStreams.Array.data[2]
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 5236004775922337931, guid: 725edc830139ef2409e206c527e04c30,
+        type: 3}
+      propertyPath: dot_spacing
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5236004775922337931, guid: 725edc830139ef2409e206c527e04c30,
+        type: 3}
+      propertyPath: dot_template
+      value: 
+      objectReference: {fileID: 1944111524}
     - target: {fileID: 9105639135791874361, guid: 725edc830139ef2409e206c527e04c30,
         type: 3}
       propertyPath: m_UseCustomVertexStreams
@@ -6861,6 +6871,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5509868164759062281, guid: cde0f5f37f9cb06408d47203af5cb6fe,
     type: 3}
   m_PrefabInstance: {fileID: 5509868164999168658}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1944111524 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 466021152606140205, guid: 725edc830139ef2409e206c527e04c30,
+    type: 3}
+  m_PrefabInstance: {fileID: 1743420990}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1944677142
 GameObject:

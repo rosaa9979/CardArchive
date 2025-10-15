@@ -10,28 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: activate_move_ally
+  m_Name: OAAO_HSD_destroy_place
   m_EditorClassIdentifier: 
-  id: activate_move_ally
-  trigger: 5
+  id: OAAO_HSD_destroy_place
+  trigger: 33
   conditions_trigger:
-  - {fileID: 11400000, guid: c2163f0d5c7c1734199d8b5d578f9186, type: 2}
+  - {fileID: 11400000, guid: df6e675b4b102f34e927d7dd2ed0a1f9, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 31
+  criteria_target: 10
   conditions_criteria_target:
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
+  - {fileID: 11400000, guid: b044d41bb4d6c0b469542eafe8d5f047, type: 2}
+  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: f71d4af1506339149852f66291383dc4, type: 2}
   status: []
   value: 0
   duration: 0
   chain_abilities:
-  - {fileID: 11400000, guid: 2a18190cd46a78b4ebef221c2a358af0, type: 2}
-  mana_cost: 1
+  - {fileID: 11400000, guid: b5f2ec76d6c13b84ca5645deb25597b6, type: 2}
+  mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine;
+using TcgEngine.UI;
 
 namespace TcgEngine.FX
 {
@@ -13,6 +14,8 @@ namespace TcgEngine.FX
     public class MouseLineFX : MonoBehaviour
     {
         public GameObject dot_template;
+        public GameObject arrow_template;
+        
         public float dot_spacing = 0.2f;
 
         private List<GameObject> dot_list = new List<GameObject>();
@@ -62,9 +65,16 @@ namespace TcgEngine.FX
             if (gdata.selector == SelectorType.SelectTarget && gdata.selector_player_id == GameClient.Get().GetPlayerID())
             {
                 BoardCard caster = BoardCard.Get(gdata.selector_caster_uid);
+                HeroUI player_hero = HeroUI.Get(false);
                 if (caster != null)
                 {
                     source = caster.transform.position;
+                    visible = true;
+                }
+
+                else if (player_hero.GetCard().uid == gdata.selector_caster_uid)
+                {
+                    source = player_hero.transform.position;
                     visible = true;
                 }
             }

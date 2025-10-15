@@ -1661,7 +1661,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1686,6 +1686,7 @@ namespace TcgEngine.Gameplay
 
             if (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot)
             {
+                Debug.Log("?");
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;

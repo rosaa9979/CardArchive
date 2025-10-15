@@ -10,11 +10,10 @@ namespace TcgEngine.FX
     {
         public override void Execute(Game game_data, BSlot current_bslot)
         {
-            Debug.Log("None");
             ResetAllFX();
         }
 
-        public override bool RequireDim()
+        public override bool RequireDim(Game game_data)
         {
             return false;
         }

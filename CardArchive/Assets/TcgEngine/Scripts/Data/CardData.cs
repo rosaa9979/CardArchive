@@ -209,12 +209,17 @@ namespace TcgEngine
 
         public bool IsRequireTarget()
         {
-            return type == CardType.Equipment || IsRequireTargetSpell();
+            return type == CardType.Equipment || IsRequireTargetSpell() || IsRequireTargetArona();
         }
 
         public bool IsRequireTargetSpell()
         {
             return type == CardType.Spell && HasAbility(AbilityTrigger.OnPlay, AbilityTarget.PlayTarget);
+        }
+
+        public bool IsRequireTargetArona()
+        {
+            return type == CardType.Hero && HasAbility(AbilityTrigger.Activate, AbilityTarget.PlayTarget);
         }
 
         public bool IsEquipment()

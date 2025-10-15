@@ -39,16 +39,20 @@ namespace TcgEngine.UI
         void Start()
         {
             power_area.SetActive(false);
-            if (power_button != null)
-                power_button.onClick.AddListener(OnClickPower);
+            //if (power_button != null)
+            //    power_button.onClick.AddListener(OnClickPower);
 
             EventTrigger trigger = power_area.GetComponent<EventTrigger>();
+            EventTrigger.Entry click = new EventTrigger.Entry();
+            click.eventID = EventTriggerType.PointerDown;
+            click.callback.AddListener((eventData) => { OnClickPower(); });
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerEnter;
             entry.callback.AddListener((eventData) => { OnEnterMouse(); });
             EventTrigger.Entry exit = new EventTrigger.Entry();
             exit.eventID = EventTriggerType.PointerExit;
             exit.callback.AddListener((eventData) => { OnExitMouse(); });
+            trigger.triggers.Add(click);
             trigger.triggers.Add(entry);
             trigger.triggers.Add(exit);
         }

@@ -56,7 +56,7 @@ namespace TcgEngine.FX
             client.onAbilityTargetCard -= OnAbilityEffect;
             client.onAbilityEnd -= OnAbilityAfter;
         }
-        
+
         void Update()
         {
             if (!GameClient.Get().IsReady())
@@ -448,6 +448,23 @@ namespace TcgEngine.FX
                         ChargeInto(btarget);
                     }
                 }
+            }
+        }
+
+        public void SetSortingOrder(string layer_id)
+        {
+            Canvas[] canvases = bcard.GetCanvases();
+
+            foreach (Canvas canvas in canvases)
+            {
+                canvas.sortingLayerName = layer_id;
+            }
+
+            SpriteRenderer sprite_renderer = bcard.card_sprite;
+
+            if (sprite_renderer != null)
+            {
+                sprite_renderer.sortingLayerName = layer_id;
             }
         }
     }

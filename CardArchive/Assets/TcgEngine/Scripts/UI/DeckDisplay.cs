@@ -46,6 +46,8 @@ namespace TcgEngine.UI
 
         public void Clear()
         {
+            is_selected = false;
+            
             if (deck_title != null)
                 deck_title.text = "";
             if (card_count != null)

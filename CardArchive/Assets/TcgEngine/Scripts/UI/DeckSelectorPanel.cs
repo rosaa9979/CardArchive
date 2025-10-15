@@ -13,6 +13,7 @@ namespace TcgEngine.UI
     public class DeckSelectorPanel : UIPanel
     {
         public DeckDisplay[] deck_list;
+        public Text warning_text;
         public UnityAction<string> onChange;
 
         private static DeckSelectorPanel instance;
@@ -36,6 +37,8 @@ namespace TcgEngine.UI
             {
                 deck.onDeckClicked += SelectDeck;
             }
+
+            warning_text.enabled = false;
         }
 
         protected override void Update()
@@ -71,6 +74,9 @@ namespace TcgEngine.UI
                 {
                     deck_list[i].gameObject.SetActive(false);
                 }
+
+                bool hasNoDecks = udata.decks.Length == 0;
+                warning_text.enabled = hasNoDecks;
             }
         }
 
@@ -118,6 +124,9 @@ namespace TcgEngine.UI
         public void OnClickPlay()
         {
             if (!GameClient.player_settings.deck.IsValid())
+                return;
+
+            if (GetDeck() == null || !GetDeck().IsValid())
                 return;
                 
             GameMode current_game_mode = GameClient.game_settings.game_mode;

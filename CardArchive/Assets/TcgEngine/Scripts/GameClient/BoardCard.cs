@@ -46,6 +46,7 @@ namespace TcgEngine.Client
 
         private CardUI card_ui;
         private BoardCardFX card_fx;
+        private Canvas[] canvases;
         private Canvas ui_canvas;
         private Canvas stat_canvas;
 
@@ -71,7 +72,7 @@ namespace TcgEngine.Client
             //ui_canvas = GetComponentInChildren<Canvas>();
             card_glow.color = new Color(card_glow.color.r, card_glow.color.g, card_glow.color.b, 0f);
 
-            Canvas[] canvases = GetComponentsInChildren<Canvas>();
+            canvases = GetComponentsInChildren<Canvas>();
 
             ui_canvas = canvases.FirstOrDefault(c => c.gameObject.name == "CanvasUI");
             stat_canvas = canvases.FirstOrDefault(c => c.gameObject.name == "StatUI");
@@ -446,6 +447,11 @@ namespace TcgEngine.Client
         public BoardCardFX GetCardFX()
         {
             return card_fx;
+        }
+
+        public Canvas[] GetCanvases()
+        {
+            return canvases;
         }
 
         public CardData CardData { get { return GetCardData(); } }

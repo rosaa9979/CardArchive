@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TcgEngine.Client;
 using UnityEngine;
 using System.Linq;
+using TcgEngine.UI;
 
 
 namespace TcgEngine.FX
@@ -20,16 +21,6 @@ namespace TcgEngine.FX
                 return;
 
 
-            foreach (BoardSlot board_slot in BoardSlot.GetAll())
-            {
-                if (game_data.CanPlaceCard(card, board_slot.GetSlot()))
-                {
-                    BoardSlotFX fx = board_slot.GetBoardSlotFX();
-                    fx.SetSortingLayer("UI");
-                }
-            }
-
-
             if (current_bslot != null)
             {
                 List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetAttack());
@@ -38,16 +29,22 @@ namespace TcgEngine.FX
                 {
                     if (range_slots.Contains(board_slot.GetSlot()))
                     {
-                        BoardSlotFX fx = board_slot.GetBoardSlotFX();
-                        fx.SetSortingLayer("UI");
-                        fx.SetAnimParameter(true);
+                        SetSortingLayer(board_slot, "UI");
                     }
                 }
             }
         }
 
-        public override bool RequireDim()
+        public override bool RequireDim(Game game_data)
         {
+            HandCard hcard = HandCard.GetDrag();
+            Card card = hcard.GetCard();
+
+            if (card == null || !card.CardData.IsCitizen())
+                return false;
+            if (BSlotIndicatorUI.Get().GetCurrentBSlot() == null)
+                return false;
+
             return true;
         }
     }
