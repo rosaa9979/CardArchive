@@ -900,8 +900,8 @@ namespace TcgEngine.Gameplay
             if (attacker.GetHP() <= 0)
                 KillCard(attacker, attacker, true);
 
-            resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
+            //resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
+            //resolve_queue.ResolveAll(0.2f);
             
             RefreshData();
             CheckForWinner();
