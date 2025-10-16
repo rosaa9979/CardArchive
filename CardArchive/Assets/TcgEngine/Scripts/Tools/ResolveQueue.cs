@@ -63,7 +63,7 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool> callback, bool skip_cost = false)
+        public virtual void AddAttack(Card attacker, Card target, Action<Card, Card, bool, bool> callback, bool skip_cost = false, bool is_evaded = false)
         {
             if (attacker != null && target != null)
             {
@@ -73,6 +73,7 @@ namespace TcgEngine
                 elem.ptarget = null;
                 elem.atarget = new Slot(0, 0, -1);
                 elem.skip_cost = skip_cost;
+                elem.is_evaded = is_evaded;
                 elem.callback = callback;
                 attack_queue.Enqueue(elem);
             }
@@ -186,7 +187,7 @@ namespace TcgEngine
                 if (elem.ptarget != null)
                     elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost);
                 else if (elem.target != null)
-                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost);
+                    elem.callback?.Invoke(elem.attacker, elem.target, elem.skip_cost, elem.is_evaded);
                 else if (elem.atarget.IsValid())
                     elem.acallback?.Invoke(elem.attacker, elem.atarget, elem.skip_cost);
                 else
@@ -297,7 +298,8 @@ namespace TcgEngine
         public Player ptarget;
         public Slot atarget;
         public bool skip_cost;
-        public Action<Card, Card, bool> callback;
+        public bool is_evaded;
+        public Action<Card, Card, bool, bool> callback;
         public Action<Card, Player, bool> pcallback;
         public Action<Card, bool> scallback;
         public Action<Card, Slot, bool> acallback;

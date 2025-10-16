@@ -33,6 +33,12 @@ namespace TcgEngine.UI
                 avatar_button.onClick.AddListener(OnClick);
         }
 
+        void Start()
+        {
+            if (avatar_img?.sprite?.texture?.isReadable == true)
+                avatar_img.alphaHitTestMinimumThreshold = 0.1f;
+        }
+
         public void SetAvatar(AvatarData avatar)
         {
             this.avatar = avatar;

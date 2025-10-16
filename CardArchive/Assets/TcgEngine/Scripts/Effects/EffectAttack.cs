@@ -25,6 +25,7 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
+            /*
             Game data = logic.GetGameData();
             Card attack = GetAttacker(logic.GetGameData(), caster);
 
@@ -33,6 +34,7 @@ namespace TcgEngine
                 if (data.CanAttackTarget(attack, target, true))
                     logic.AttackTarget(attack, target, true);
             }
+            */
         }
 
         public Card GetAttacker(Game gdata, Card caster)

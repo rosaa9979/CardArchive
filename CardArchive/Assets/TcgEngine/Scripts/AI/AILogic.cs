@@ -582,20 +582,6 @@ namespace TcgEngine.AI
                 game_logic.MoveCard(card, action.slot);
             }
 
-            if (action.type == GameAction.Attack)
-            {
-                Card card = player.GetBoardCard(action.card_uid);
-                Card target = data.GetBoardCard(action.target_uid);
-                game_logic.AttackTarget(card, target);
-            }
-
-            if (action.type == GameAction.AttackPlayer)
-            {
-                Card card = player.GetBoardCard(action.card_uid);
-                Player tplayer = data.GetPlayer(action.target_player_id);
-                game_logic.AttackPlayer(card, tplayer);
-            }
-
             if (action.type == GameAction.CastAbility)
             {
                 Card card = player.GetCard(action.card_uid);

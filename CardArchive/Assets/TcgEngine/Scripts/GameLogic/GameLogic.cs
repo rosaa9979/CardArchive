@@ -243,6 +243,7 @@ namespace TcgEngine.Gameplay
         
         public virtual void StartAttackPhase()
         {
+            Debug.Log("Start Attack Phase");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Main)
@@ -257,6 +258,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackCheck()
         {
+            Debug.Log("Attack Check Phase");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Attack)
@@ -305,13 +307,14 @@ namespace TcgEngine.Gameplay
             if (!can_attack)
             {
                 resolve_queue.AddCallback(EndTurn);
-                resolve_queue.ResolveAll(0.2f);
+                resolve_queue.ResolveAll(0.1f);
             }
 
         }
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
+            Debug.Log("Attack Search Phase");
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -362,7 +365,7 @@ namespace TcgEngine.Gameplay
             //ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(0.5f);
+            resolve_queue.ResolveAll(0.2f);
         }
 
         public virtual Dictionary<int, List<Card>> GetAllTarget(Card attacker)
@@ -727,8 +730,25 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
+        public virtual void AttackTargets(Card attacker, List<Card> targets, bool skip_cost = false, bool is_evaded = false)
         {
+            Debug.Log("Attack Targets Phase");
+            Player player = game_data.GetPlayer(attacker.player_id);
+
+            //if (!game_data.CanAttackTarget(attacker, target))
+            //    return;
+
+            //if(!is_ai_predict)
+            //    player.AddHistory(GameAction.Attack, attacker, target);
+
+            //Resolve attack
+                resolve_queue.AddAttack(attacker, targets[0], AttackTarget, skip_cost, is_evaded);
+                resolve_queue.ResolveAll(0.2f);
+        }
+
+        public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false, bool is_evaded = false)
+        {
+            Debug.Log("Attack Target Phase");
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -736,12 +756,14 @@ namespace TcgEngine.Gameplay
 
             if(!is_ai_predict)
                 player.AddHistory(GameAction.Attack, attacker, target);
+
             
             game_data.last_attack = attacker.uid;
             game_data.last_attack_slot = attacker.slot;
             game_data.last_attacked = target.uid;
             game_data.last_attacked_slot = target.slot;
             game_data.last_player_attacked = false;
+            
 
             //Trigger before attack abilities
             TriggerCardAbilityType(AbilityTrigger.OnBeforeAttack, attacker, target);
@@ -751,18 +773,20 @@ namespace TcgEngine.Gameplay
             TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnBeforeDefendOther, target);
 
+
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost, is_evaded);
             resolve_queue.ResolveAll(0.2f);
         }
 
-        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
+        protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost, bool is_evaded)
         {
+            Debug.Log("Resolve Attack Phase");
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
-            if (!game_data.CanAttackTarget(attacker, target, skip_cost))
-                return;
+            //if (!game_data.CanAttackTarget(attacker, target, skip_cost))
+            //    return;
 
             //if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
             //    return;
@@ -774,7 +798,8 @@ namespace TcgEngine.Gameplay
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                 if (ran < 0.5)
-                    return;
+                    is_evaded = true;
+
             }
 
             onAttackStart?.Invoke(attacker, target);
@@ -784,53 +809,77 @@ namespace TcgEngine.Gameplay
             //attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
 
-            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
+            resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost, is_evaded);
             resolve_queue.ResolveAll(0.2f);
         }
 
-        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
+        protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost, bool is_evaded)
         {
+            Debug.Log("Resolve Attack Hit Phase");
             //Count attack damage
-            int datt1 = attacker.GetAttack();
-            int datt2 = target.GetAttack();
 
-            Player player = game_data.GetPlayer(attacker.player_id);
-            //Slot target_slot = target.slot;
+            if (!is_evaded)
+            {
+                Player player = game_data.GetPlayer(attacker.player_id);
 
-            //Damage Cards (공격 스탭 변경점, 롤백 시 DamageCard1을 DamageCard로 변경))
-            DamageCard(attacker, target, datt1);
+                int datt1 = attacker.GetAttack();
+                int datt2 = target.GetAttack();
 
-            //Counter Damage
-            if(attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate))
-                DamageCard(target, attacker, datt2, false, true);
+                DamageCard(attacker, target, datt1);
 
-            //Save attack and exhaust
-            if (!skip_cost)
-                ExhaustBattle(attacker);
+                if (attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate))
+                    DamageCard(target, attacker, datt2, false, true);
 
-            //Recalculate bonus
-            UpdateOngoing();
+                //Save attack and exhaust
+                if (!skip_cost)
+                    ExhaustBattle(attacker);
 
-            //Abilities
-            bool att_board = game_data.IsOnBoard(attacker);
-            bool def_board = game_data.IsOnBoard(target);
-            if (att_board)
+                //Recalculate bonus
+                UpdateOngoing(true);
+
+
+                //if (att_board)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterAttack, attacker, target);
-            if (def_board)
+                //if (def_board)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDefend, target, attacker);
-            if (att_board)
+                //if (att_board)
                 TriggerSecrets(AbilityTrigger.OnAfterAttack, attacker);
-            if (def_board)
+                //if (def_board)
                 TriggerSecrets(AbilityTrigger.OnAfterDefend, target);
 
-            TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
-            TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
+            }
 
-            Debug.Log("end attack");
+            resolve_queue.AddAttack(attacker, target, ResolveDeath, skip_cost, is_evaded);
             resolve_queue.ResolveAll(0.2f);
 
             onAttackHit?.Invoke(attacker, target);
             onAttackEnd?.Invoke(attacker, target);
+
+            //RefreshData();
+            //CheckForWinner();
+        }
+        
+        protected virtual void ResolveDeath(Card attacker, Card target, bool skip_cost, bool is_evaded)
+        {
+            Debug.Log("Resolve Death Phase");
+            if (!is_evaded)
+            {
+                //Kill card if no hp
+                if (target.GetHP() <= 0)
+                {
+                    KillCard(attacker, target, false);
+                }
+
+                resolve_queue.ResolveAll(0.2f);
+
+                if (attacker.GetHP() <= 0)
+                    KillCard(target, attacker, true);
+            }
+
+            resolve_queue.ResolveAll(0.2f);
+            
             RefreshData();
             CheckForWinner();
         }
@@ -1245,6 +1294,7 @@ namespace TcgEngine.Gameplay
 
             target.damage -= value;
             target.damage = Mathf.Max(target.damage, 0);
+            Debug.Log(target.GetHP());
 
             Player p = game_data.GetPlayer(target.player_id);
 
@@ -1329,14 +1379,6 @@ namespace TcgEngine.Gameplay
 
             //Remove sleep on damage
             target.RemoveStatus(StatusType.Sleep);
-
-            //Deathtouch
-            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
-                KillCard(attacker, target, counter_attack);
-
-            //Kill card if no hp
-            if (target.GetHP() <= 0)
-                KillCard(attacker, target, counter_attack);
         }
 
         //Damage a slot with attacker/caster
@@ -1663,7 +1705,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1688,7 +1730,6 @@ namespace TcgEngine.Gameplay
 
             if (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot)
             {
-                Debug.Log("?");
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
@@ -1866,7 +1907,7 @@ namespace TcgEngine.Gameplay
         //This function is called often to update status/stats affected by ongoing abilities
         //It basically first reset the bonus to 0 (CleanOngoing) and then recalculate it to make sure it it still present
         //Only cards in hand and on board are updated in this way
-        public virtual void UpdateOngoing()
+        public virtual void UpdateOngoing(bool except_death = false)
         {
             Profiler.BeginSample("Update Ongoing");
             for (int p = 0; p < game_data.players.Length; p++)
@@ -2014,12 +2055,16 @@ namespace TcgEngine.Gameplay
                         DiscardCard(card);
                 }
 
-                for (int i = player.cards_board.Count - 1; i >= 0; i--)
+                if (!except_death)
                 {
-                    Card card = player.cards_board[i];
-                    if (card.GetHP() <= 0)
-                        DiscardCard(card);
+                    for (int i = player.cards_board.Count - 1; i >= 0; i--)
+                    {
+                        Card card = player.cards_board[i];
+                        if (card.GetHP() <= 0)
+                            DiscardCard(card);
+                    }
                 }
+
                 for (int i = player.cards_equip.Count - 1; i >= 0; i--)
                 {
                     Card card = player.cards_equip[i];

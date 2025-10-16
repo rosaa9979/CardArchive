@@ -96,8 +96,7 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
-            foreach (Card targ in targets)
-                logic.AttackTarget(attacker, targ);
+            logic.AttackTargets(attacker, targets);
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)

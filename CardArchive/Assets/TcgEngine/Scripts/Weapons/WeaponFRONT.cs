@@ -100,15 +100,7 @@ namespace TcgEngine
         {
             Game game = logic.GetGameData();
 
-            foreach (Card targ in targets)
-            {
-                if (game.IsOnBoard(attacker))
-                {
-                    Debug.Log("new attacj start");
-                    logic.AttackTarget(attacker, targ);
-                }
-
-            }
+            logic.AttackTargets(attacker, targets);
 
         }
 
