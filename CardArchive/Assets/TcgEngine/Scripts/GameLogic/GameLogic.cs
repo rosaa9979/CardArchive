@@ -802,7 +802,7 @@ namespace TcgEngine.Gameplay
 
             //Counter Damage
             if(attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate))
-                DamageCard(target, attacker, datt2);
+                DamageCard(target, attacker, datt2, false, true);
 
             //Save attack and exhaust
             if (!skip_cost)
@@ -826,6 +826,7 @@ namespace TcgEngine.Gameplay
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
 
+            Debug.Log("end attack");
             resolve_queue.ResolveAll(0.2f);
 
             onAttackHit?.Invoke(attacker, target);
@@ -1285,7 +1286,7 @@ namespace TcgEngine.Gameplay
         }
 
         //Damage a card with attacker/caster
-        public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false)
+        public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false, bool counter_attack = false)
         {
             if (attacker == null || target == null)
                 return;
@@ -1331,11 +1332,11 @@ namespace TcgEngine.Gameplay
 
             //Deathtouch
             if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
-                KillCard(attacker, target);
+                KillCard(attacker, target, counter_attack);
 
             //Kill card if no hp
             if (target.GetHP() <= 0)
-                KillCard(attacker, target);
+                KillCard(attacker, target, counter_attack);
         }
 
         //Damage a slot with attacker/caster
@@ -1465,7 +1466,7 @@ namespace TcgEngine.Gameplay
         }
 
         //A card that kills another card
-        public virtual void KillCard(Card attacker, Card target)
+        public virtual void KillCard(Card attacker, Card target, bool counter_attack = false)
         {
             if (attacker == null || target == null)
                 return;
@@ -1482,7 +1483,8 @@ namespace TcgEngine.Gameplay
 
             DiscardCard(target);
 
-            TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+            if (!counter_attack)
+                TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
         }
         //Send card into discard
         public virtual void DiscardCard(Card card)
@@ -1661,7 +1663,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;

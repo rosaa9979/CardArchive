@@ -98,8 +98,18 @@ namespace TcgEngine
 
         public override void AttackTarget(GameLogic logic, Card attacker, List<Card> targets)
         {
+            Game game = logic.GetGameData();
+
             foreach (Card targ in targets)
-                logic.AttackTarget(attacker, targ);
+            {
+                if (game.IsOnBoard(attacker))
+                {
+                    Debug.Log("new attacj start");
+                    logic.AttackTarget(attacker, targ);
+                }
+
+            }
+
         }
 
         public override void AttackTarget(GameLogic logic, Card attacker, Player target)
