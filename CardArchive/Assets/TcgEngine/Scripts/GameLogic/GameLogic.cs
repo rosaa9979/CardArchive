@@ -319,9 +319,11 @@ namespace TcgEngine.Gameplay
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
             Dictionary<int, List<Slot>> range_slot = attacker.slot.GetRangeSlot(attacker.GetRange());
-            List<Card> candidate_target = new List<Card>();
 
-            candidate_target = attacker.weapon.SearchTarget(this, attacker);
+            List<Card> candidate_target = attacker.weapon.SearchTarget(this, attacker);
+            game_data.attack_list = candidate_target;
+            game_data.attack_complete_list.Clear();
+            game_data.attack_evade_list.Clear();
 
             if (attacker.HasClub(ClubData.Get("Trinity_Vigilante_Crew")))
             {
@@ -730,9 +732,9 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public virtual void AttackTargets(Card attacker, List<Card> targets, bool skip_cost = false, bool is_evaded = false)
+        public virtual void AttackTargets(Card attacker, bool skip_cost = false)
         {
-            Debug.Log("Attack Targets Phase");
+            Debug.Log("Attack Targets Phase "+attacker.uid);
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -742,8 +744,25 @@ namespace TcgEngine.Gameplay
             //    player.AddHistory(GameAction.Attack, attacker, target);
 
             //Resolve attack
-                resolve_queue.AddAttack(attacker, targets[0], AttackTarget, skip_cost, is_evaded);
+            List<Card> targets = game_data.attack_list;
+            bool is_end = true;
+
+            foreach (Card target in targets)
+            {
+                if (!game_data.attack_complete_list.Contains(target) && !game_data.attack_evade_list.Contains(target))
+                {
+                    is_end = false;
+                    resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
+                    resolve_queue.ResolveAll(0.2f);
+                    break;
+                }
+            }
+
+            if (is_end)
+            {
+                resolve_queue.AddAttack(attacker, ResolveDeath, skip_cost);
                 resolve_queue.ResolveAll(0.2f);
+            }
         }
 
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false, bool is_evaded = false)
@@ -798,8 +817,10 @@ namespace TcgEngine.Gameplay
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                 if (ran < 0.5)
+                {
                     is_evaded = true;
-
+                    game_data.attack_evade_list.Add(target);
+                }
             }
 
             onAttackStart?.Invoke(attacker, target);
@@ -849,9 +870,11 @@ namespace TcgEngine.Gameplay
 
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterAttackOther, attacker);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnAfterDefendOther, target);
+
+                game_data.attack_complete_list.Add(target);
             }
 
-            resolve_queue.AddAttack(attacker, target, ResolveDeath, skip_cost, is_evaded);
+            resolve_queue.AddAttack(attacker, AttackTargets);
             resolve_queue.ResolveAll(0.2f);
 
             onAttackHit?.Invoke(attacker, target);
@@ -861,23 +884,23 @@ namespace TcgEngine.Gameplay
             //CheckForWinner();
         }
         
-        protected virtual void ResolveDeath(Card attacker, Card target, bool skip_cost, bool is_evaded)
+        protected virtual void ResolveDeath(Card attacker, bool skip_cost)
         {
-            Debug.Log("Resolve Death Phase");
-            if (!is_evaded)
+            List<Card> candidate_death = game_data.attack_complete_list;
+            //Kill card if no hp
+
+            foreach (Card target in candidate_death)
             {
-                //Kill card if no hp
                 if (target.GetHP() <= 0)
                 {
                     KillCard(attacker, target, false);
                 }
-
-                resolve_queue.ResolveAll(0.2f);
-
-                if (attacker.GetHP() <= 0)
-                    KillCard(target, attacker, true);
             }
 
+            if (attacker.GetHP() <= 0)
+                KillCard(attacker, attacker, true);
+
+            resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
             resolve_queue.ResolveAll(0.2f);
             
             RefreshData();

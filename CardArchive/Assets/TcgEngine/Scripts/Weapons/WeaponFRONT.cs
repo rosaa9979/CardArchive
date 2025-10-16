@@ -100,7 +100,7 @@ namespace TcgEngine
         {
             Game game = logic.GetGameData();
 
-            logic.AttackTargets(attacker, targets);
+            logic.AttackTargets(attacker);
 
         }
 

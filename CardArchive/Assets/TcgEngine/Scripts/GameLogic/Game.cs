@@ -52,6 +52,11 @@ namespace TcgEngine
         public string ability_triggerer;
         public int rolled_value;
 
+        public List<Card> attack_list = new List<Card>();
+        public List<Card> attack_complete_list = new List<Card>();
+        public List<Card> attack_evade_list = new List<Card>();
+
+
         //Other reference arrays 
         public HashSet<string> ability_played = new HashSet<string>();
         public HashSet<string> cards_attacked = new HashSet<string>();
