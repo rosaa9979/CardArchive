@@ -52,6 +52,9 @@ namespace TcgEngine.UI
 
         public void Show(Card club)
         {
+            if (club == null)
+                return;
+                
             ui_rect.DOKill(complete: false);
             SetInfo(club);
 
