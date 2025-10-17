@@ -85,11 +85,15 @@ namespace TcgEngine.UI
                 return;
 
             focus = true;
+
+            ClubPreviewUI.Get().Show(club);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             focus = false;
+
+            ClubPreviewUI.Get().Hide();
         }
 
         public void OnPointerDown(PointerEventData eventData)

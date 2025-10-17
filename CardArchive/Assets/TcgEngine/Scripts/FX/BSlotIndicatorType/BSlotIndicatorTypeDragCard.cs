@@ -14,6 +14,9 @@ namespace TcgEngine.FX
         {
             ResetAllFX();
 
+            if (!GameClient.Get().IsYourTurn())
+                return;
+
             HandCard hcard = HandCard.GetDrag();
             Card card = hcard.GetCard();
 
@@ -23,7 +26,7 @@ namespace TcgEngine.FX
 
             if (current_bslot != null)
             {
-                List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetAttack());
+                List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetRange());
 
                 foreach (BoardSlot board_slot in BoardSlot.GetAll())
                 {
@@ -37,6 +40,9 @@ namespace TcgEngine.FX
 
         public override bool RequireDim(Game game_data)
         {
+            if (!GameClient.Get().IsYourTurn())
+                return false;
+
             HandCard hcard = HandCard.GetDrag();
             Card card = hcard.GetCard();
 

@@ -111,6 +111,13 @@ namespace TcgEngine.Client
                 current_rotate = new Vector3(0f, 0f, deck_angle);
             }
 
+            Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
+            if (!GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f)
+            {
+                HandCardArea.Get().SortCards();
+                drag = false;
+            }
+
             card_transform.anchoredPosition = Vector2.Lerp(card_transform.anchoredPosition, target_position, Time.deltaTime * move_speed);
             card_transform.localRotation = Quaternion.Slerp(card_transform.localRotation, Quaternion.Euler(current_rotate), Time.deltaTime * move_speed);
             card_transform.localScale = Vector3.Lerp(card_transform.localScale, target_size, 5f * Time.deltaTime);
@@ -128,6 +135,8 @@ namespace TcgEngine.Client
                 SetOpacity(1f);
             }
 
+
+            
             //Unselect
             if (!drag && selected && Input.GetMouseButtonDown(0))
                 selected = false;

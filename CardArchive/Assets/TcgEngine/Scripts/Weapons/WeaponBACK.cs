@@ -49,7 +49,7 @@ namespace TcgEngine
                         continue;
 
                     float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                    if (ran < 1)
+                    if (ran < 0.5)
                         target.Add(targ);
                 }
             }

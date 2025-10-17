@@ -31,7 +31,7 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
 
-            if (game_data.IsPlayerTurn(player) && !gameplay.IsResolving())
+            if (game_data.IsPlayerTurn(player) && !gameplay.IsResolving() && game_data.phase != GamePhase.Mulligan)
             {
                 if (!is_playing && game_data.selector == SelectorType.None && game_data.current_player == player_id)
                 {

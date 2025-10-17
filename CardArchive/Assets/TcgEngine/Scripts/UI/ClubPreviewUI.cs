@@ -5,119 +5,77 @@ using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
+using DG.Tweening;
+
 
 namespace TcgEngine.UI
 {
     /// <summary>
-    /// In the game scene, the CardPreviewUI is what shows the card in big with extra info when hovering a card
+    /// In the game scene, the ClubPreviewUI is what shows the Club in big with extra info when hovering a club icon
     /// </summary>
 
     public class ClubPreviewUI : MonoBehaviour
     {
-        public UIPanel ui_panel;
+        [Header("Display Setting")]
+        public CanvasGroup canvas_group;
         public CardUI card_ui;
-        public Text desc;
         public float hover_delay = 0.0f;
         public float hover_delay_mobile = 0.1f;
+        public float display_duration;
+        public float screen_width_ratio = 0.2f;
 
-        public RectTransform[] side_rows;
+        [Header("Main UI")]
+        public RectTransform ui_rect;
+        [Header("Status UI")]
         public StatusLine[] status_lines;
 
-        private float preview_timer = 0f;
-        private Vector2[] start_pos;
-        private Vector2[] final_pos;
+        private float side_offset;
+        private Vector3 ui_start_pos;
+
+        private static ClubPreviewUI _instance;
+
+        private void Awake()
+        {
+            _instance = this;
+        }
 
         private void Start()
         {
-            start_pos = new Vector2[side_rows.Length];
-            for (int i = 0; i < side_rows.Length; i++)
-            {
-                start_pos[i] = side_rows[i].anchoredPosition;
-            }
+            canvas_group.alpha = 0.0f;
+            ui_start_pos = ui_rect.anchoredPosition;
         }
 
-        void Update()
+        public void SetInfo(Card club)
         {
-            if (!GameClient.Get().IsReady())
-                return;
+            card_ui.SetCard(club);
+        }
 
-            foreach (StatusLine line in status_lines)
-                line.Hide();
+        public void Show(Card club)
+        {
+            ui_rect.DOKill(complete: false);
+            SetInfo(club);
 
-            PlayerControls controls = PlayerControls.Get();
-            Game game_data = GameClient.Get().GetGameData();
-            ClubUI club_ui = ClubUI.GetFocus();
-            Card club_card = club_ui != null ? club_ui.GetCard() : null;
+            // 화면 너비의 비율로 offset 계산
+             
+            side_offset = Screen.width * screen_width_ratio;
 
-            float delay = club_card != null ? hover_delay : 0.0f;
+            Vector3 end_position = ui_start_pos;
+            Vector3 start_position = end_position;
+            start_position.x -= side_offset;
 
-            if (GameTool.IsMobile())
-                delay = hover_delay_mobile;
-            
+            ui_rect.anchoredPosition = start_position;
+            canvas_group.alpha = 1.0f;
+            ui_rect.DOAnchorPos3DX(end_position.x, display_duration).SetEase(Ease.OutCubic);
+        }
 
-            bool hover_only = !Input.GetMouseButton(0) && !HandCardArea.Get().IsDragging();
-            bool should_show_preview = hover_only && !GameUI.IsUIOpened() && club_card != null;
-            
+        public void Hide()
+        {
+            canvas_group.alpha = 0.0f;
+        }
 
-            if (should_show_preview)
-                preview_timer += Time.deltaTime;
-            else
-                preview_timer = 0f;
-
-            bool show_preview = should_show_preview && preview_timer >= delay;
-            ui_panel.SetVisible(show_preview);
-
-            if (show_preview)
-            {
-                bool owner_player = club_card.player_id == GameClient.Get().GetPlayerID();
-                for (int idx = 0; idx < side_rows.Length; idx++)
-                {
-                    side_rows[idx].anchoredPosition = owner_player ? start_pos[idx] : -start_pos[idx];
-                }
-
-                CardData icard = club_card.CardData;
-                //card_ui.SetCard(icard, pcard.VariantData);
-                card_ui.SetCard(club_card);
-
-                //string cdesc = icard.GetDesc();
-                //string adesc = icard.GetAbilitiesDesc();
-                //if (!string.IsNullOrWhiteSpace(cdesc))
-                //    this.desc.text = cdesc + "\n\n" + adesc;
-                //else
-                //    this.desc.text = adesc;
-
-                //Abilities
-                int index = 0;
-                foreach (AbilityData ability in club_card.GetAbilities())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ability.desc))
-                        //Dont display default ability (GetAbilitiesDesc does that already)
-                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
-                        {
-                            status_lines[index].SetLine(club_card.CardData, ability);
-                            index++;
-                        }
-                    }
-                }
-
-                //Status
-                foreach (CardStatus status in club_card.GetAllStatus())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        StatusData istatus = StatusData.Get(status.type);
-                        if (istatus != null && !string.IsNullOrWhiteSpace(istatus.desc))
-                        {
-                            int ival = Mathf.Max(status.value, Mathf.CeilToInt(status.duration / 2f));
-                            status_lines[index].SetLine(istatus, ival);
-                            index++;
-                        }
-                    }
-                }
-            }
-
+        public static ClubPreviewUI Get()
+        {
+            return _instance;
         }
     }
 }
