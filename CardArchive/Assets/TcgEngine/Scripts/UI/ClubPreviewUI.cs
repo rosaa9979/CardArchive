@@ -24,15 +24,10 @@ namespace TcgEngine.UI
         public float display_duration;
         public float screen_width_ratio = 0.2f;
 
-        [Header("Main UI")]
-        public RectTransform ui_rect;
-        [Header("Status UI")]
-        public StatusLine[] status_lines;
-
-        private float side_offset;
-        private Vector3 ui_start_pos;
+        public float side_offset;
 
         private static ClubPreviewUI _instance;
+
 
         private void Awake()
         {
@@ -42,12 +37,6 @@ namespace TcgEngine.UI
         private void Start()
         {
             canvas_group.alpha = 0.0f;
-            ui_start_pos = ui_rect.anchoredPosition;
-        }
-
-        public void SetInfo(Card club)
-        {
-            card_ui.SetCard(club);
         }
 
         public void Show(Card club)
@@ -55,26 +44,30 @@ namespace TcgEngine.UI
             if (club == null)
                 return;
                 
-            ui_rect.DOKill(complete: false);
-            SetInfo(club);
+            Hide();
 
-            // 화면 너비의 비율로 offset 계산
-             
             side_offset = Screen.width * screen_width_ratio;
-
-            Vector3 end_position = ui_start_pos;
-            Vector3 start_position = end_position;
-            start_position.x -= side_offset;
-
-            ui_rect.anchoredPosition = start_position;
             canvas_group.alpha = 1.0f;
-            ui_rect.DOAnchorPos3DX(end_position.x, display_duration).SetEase(Ease.OutCubic);
+
+            bool is_opponent = club.player_id != GameClient.Get().GetPlayerID();
+
+            ClubPreviewItem item = ClubPreviewItem.Get(is_opponent);
+
+            if (item != null)
+                item.Show(club);
         }
 
         public void Hide()
         {
+            foreach (ClubPreviewItem item in ClubPreviewItem.Get())
+            {
+                item.Hide();
+            }
+
             canvas_group.alpha = 0.0f;
         }
+
+        
 
         public static ClubPreviewUI Get()
         {

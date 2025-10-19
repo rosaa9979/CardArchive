@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TcgEngine.Client;
 using UnityEngine.Events;
 using TcgEngine;
+using DG.Tweening;
 
 namespace TcgEngine.FX
 {
@@ -326,6 +327,8 @@ namespace TcgEngine.FX
                     int value = bcard.GetCard().GetAttack();
                     DamageFX(zone.transform, value, 0.0f);
                 });
+
+                zone.player_ui.transform.DOShakePosition(1f, 5f, 10, 90);
             }
         }
 

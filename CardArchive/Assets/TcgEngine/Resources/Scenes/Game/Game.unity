@@ -1047,14 +1047,7 @@ MonoBehaviour:
   hover_delay_mobile: 0.1
   display_duration: 0.5
   screen_width_ratio: 0.2
-  ui_rect: {fileID: 1198175664}
-  status_lines:
-  - {fileID: 148104271}
-  - {fileID: 776242769}
-  - {fileID: 1606291999}
-  - {fileID: 1089207093}
-  - {fileID: 57534960}
-  - {fileID: 2133424923}
+  side_offset: 0
 --- !u!850595691 &254397389
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1331,11 +1324,11 @@ RectTransform:
   - {fileID: 1828402705}
   m_Father: {fileID: 1324981172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 510.74988, y: 294.87}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 5, y: 282}
   m_SizeDelta: {x: 1362, y: 365.09}
-  m_Pivot: {x: 0, y: 0.5}
+  m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &501197877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3587,7 +3580,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -509.95, y: -23.999996}
+  m_AnchoredPosition: {x: -509.94995, y: -23.999996}
   m_SizeDelta: {x: 227.01, y: 240.15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &839154869
@@ -5911,6 +5904,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1324981172}
   - component: {fileID: 1324981173}
+  - component: {fileID: 1324981174}
   m_Layer: 5
   m_Name: ClubPreviewRight
   m_TagString: Untagged
@@ -5951,6 +5945,30 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1324981174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324981171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addd0e28cf7e68c4786e12971c05e58d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  is_opponent: 1
+  card_ui: {fileID: 501197877}
+  ui_rects:
+  - {fileID: 501197876}
+  - {fileID: 1822721056}
+  status_lines:
+  - {fileID: 672658681}
+  - {fileID: 1659159146}
+  - {fileID: 1316264590}
+  - {fileID: 2135081716}
+  - {fileID: 1074959406}
+  - {fileID: 1513847679}
 --- !u!4 &1327137863 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7426997187891162979, guid: 683a057051c59804eb32a44954f69029,
@@ -7174,6 +7192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1602852668}
   - component: {fileID: 1602852669}
+  - component: {fileID: 1602852670}
   m_Layer: 5
   m_Name: ClubPreviewLeft
   m_TagString: Untagged
@@ -7214,6 +7233,30 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1602852670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602852667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addd0e28cf7e68c4786e12971c05e58d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  is_opponent: 0
+  card_ui: {fileID: 1198175665}
+  ui_rects:
+  - {fileID: 1198175664}
+  - {fileID: 36662759}
+  status_lines:
+  - {fileID: 148104271}
+  - {fileID: 776242769}
+  - {fileID: 1606291999}
+  - {fileID: 1089207093}
+  - {fileID: 57534960}
+  - {fileID: 2133424923}
 --- !u!1001 &1605456775
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7887,7 +7930,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 887.44275, y: 0}
+  m_AnchoredPosition: {x: -190, y: -62.585}
   m_SizeDelta: {x: 241.729, y: 954.8301}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1827818753 stripped
