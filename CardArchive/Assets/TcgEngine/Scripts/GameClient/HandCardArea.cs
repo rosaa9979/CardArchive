@@ -101,13 +101,14 @@ namespace TcgEngine.Client
             foreach (HandCard acard in cards)
             {
                 acard.transform.SetSiblingIndex(i);
+                acard.SetHide(true);
                 i++;
             }
         }
 
         private int SortFunc(HandCard a, HandCard b)
         {
-            return a.transform.position.x.CompareTo(b.transform.position.x);
+            return cards.IndexOf(a).CompareTo(cards.IndexOf(b));
         }
 
         public bool HasCard(string card_uid)

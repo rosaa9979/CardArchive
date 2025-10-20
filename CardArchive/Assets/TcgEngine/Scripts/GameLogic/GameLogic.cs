@@ -129,7 +129,7 @@ namespace TcgEngine.Gameplay
 
                 //Draw starting cards
                 int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
-                if (!Tutorial.Get().IsTuto())
+                if (level == null)
                     dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
                 DrawCard(player, dcards);
 
@@ -243,7 +243,6 @@ namespace TcgEngine.Gameplay
         
         public virtual void StartAttackPhase()
         {
-            Debug.Log("Start Attack Phase");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Main)
@@ -584,7 +583,7 @@ namespace TcgEngine.Gameplay
             {
                 CardData hdata = CardData.Get(deck.hero.tid);
                 VariantData hvariant = VariantData.Get(deck.hero.variant);
-                if(hdata != null && hvariant != null)
+                if (hdata != null && hvariant != null)
                     player.hero = Card.Create(hdata, hvariant, player);
             }
 
@@ -618,6 +617,7 @@ namespace TcgEngine.Gameplay
 
         //---- Gameplay Actions --------------
 
+        /*
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
@@ -688,6 +688,84 @@ namespace TcgEngine.Gameplay
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
 
                 RefreshData();
+
+                onCardPlayed?.Invoke(card, slot);
+                resolve_queue.ResolveAll(0.3f);
+            }
+        }
+        */
+
+        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
+        {
+            if (game_data.CanPlayCard(card, slot, skip_cost))
+            {
+                Player player = game_data.GetPlayer(card.player_id);
+
+                if (!skip_cost)
+                {
+                    //Trigger abilities
+                    TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
+
+                    TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                    TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
+                }
+
+                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After summon card
+                TriggerCardAbilityType(AbilityTrigger.OnUse, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
+
+                RefreshData();
+                UpdateOngoing();
+                resolve_queue.ResolveAll(0.3f);
+
+                //Cost
+                if (!skip_cost)
+                    player.PayMana(card);
+
+                //Play card
+                player.RemoveCardFromAllGroups(card);
+
+                //Add to board
+                CardData icard = card.CardData;
+                if (icard.IsBoardCard())
+                {
+                    player.cards_board.Add(card);
+                    card.slot = slot;
+                    card.exhausted = true; //Cant attack first turn
+                    game_data.last_summoned = card.uid;
+                    game_data.last_summoned_slot = slot;
+                }
+                else if (icard.IsEquipment())
+                {
+                    Card bearer = game_data.GetSlotCard(slot);
+                    EquipCard(bearer, card);
+                    card.exhausted = true;
+                }
+                else if (icard.IsPlayerAbility())
+                {
+                    player.player_ability.Add(card);
+                }
+                else if (icard.IsAttachment())
+                {
+                    AttachCard(slot, card);
+                    card.exhausted = true;
+                }
+                else if (icard.IsSecret())
+                {
+                    player.cards_secret.Add(card);
+                }
+                else
+                {
+                    player.cards_discard.Add(card);
+                    card.slot = slot; //Save slot in case spell has PlayTarget
+                }
+
+                //History
+                if (!is_ai_predict && !icard.IsSecret())
+                    player.AddHistory(GameAction.PlayCard, card);
+
+                //Update ongoing effects
+                game_data.last_played = card.uid;
 
                 onCardPlayed?.Invoke(card, slot);
                 resolve_queue.ResolveAll(0.3f);
@@ -2493,6 +2571,20 @@ namespace TcgEngine.Gameplay
                 //End selection
                 game_data.selector = SelectorType.None;
                 RefreshData();
+            }
+        }
+
+        public void CancelPlayCard()
+        {
+            Card card = game_data.GetCard(game_data.selector_caster_uid);
+            if (card != null)
+            {
+                Player player = game_data.GetPlayer(card.player_id);
+                player.mana += card.CardData.cost;
+
+                player.RemoveCardFromAllGroups(card);
+                player.AddCard(player.cards_hand, card);
+                card.Clear();
             }
         }
 

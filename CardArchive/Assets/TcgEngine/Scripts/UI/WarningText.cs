@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.FX;
+using DG.Tweening;
+using UnityEngine.Rendering;
 
 namespace TcgEngine.UI
 {
@@ -10,13 +12,13 @@ namespace TcgEngine.UI
     /// Text that is displayed at the bottom of the screen when things cant be done
     /// </summary>
 
-    public class WarningText : MonoBehaviour, IAnimationEndHandler
+    public class WarningText : MonoBehaviour
     {
         public AudioClip warning_audio;
         public Text text;
 
         private CanvasGroup canvas_group;
-        private Animator animator;
+        private Sequence sequence;
 
         private static WarningText instance;
 
@@ -24,7 +26,6 @@ namespace TcgEngine.UI
         {
             instance = this;
             canvas_group = GetComponent<CanvasGroup>();
-            animator = GetComponent<Animator>();
             canvas_group.alpha = 0f;
         }
 
@@ -35,20 +36,32 @@ namespace TcgEngine.UI
 
         public void Show(string txt)
         {
+            sequence?.Kill(complete: false);
             text.text = txt;
-            canvas_group.alpha = 1f;
-            animator.SetTrigger("play");
+            canvas_group.alpha = 0f;
+            transform.localScale = Vector3.one * 0.9f;
+            //animator.SetTrigger("play");
+
+            sequence = DOTween.Sequence();
+            sequence.Append(canvas_group.DOFade(1f, 0.25f).SetEase(Ease.OutExpo));
+            sequence.Join(transform.DOScale(1.01f, 0.25f).SetEase(Ease.OutBack, 2.0f));
+            sequence.Append(transform.DOScale(1f, 0.1f));
+            sequence.AppendInterval(1.0f);
+            sequence.OnComplete(() => {
+                canvas_group.alpha = 0.0f;
+                sequence = null;
+            });
+            sequence.OnKill(() => {
+                canvas_group.alpha = 0.0f;
+                sequence = null;
+            });
+
             AudioTool.Get().PlaySFX("warning", warning_audio, 0.7f, false);
         }
 
         public void Hide()
         {
             canvas_group.alpha = 0f;
-        }
-
-        public void OnAnimationEnd(int fullPathHash, int layerIndex)
-        {
-            Hide();
         }
 
         public static void ShowText(string txt)

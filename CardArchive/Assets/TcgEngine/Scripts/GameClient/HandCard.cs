@@ -68,6 +68,9 @@ namespace TcgEngine.Client
             if (!GameClient.Get().IsReady())
                 return;
 
+            Game game_data = GameClient.Get().GetGameData();
+            int player_id = GameClient.Get().GetPlayerID();
+            Player player = game_data.GetPlayer(player_id);
             Card card = GetCard();
             Vector2 target_position = deck_position;
             Vector3 target_size = start_scale;
@@ -114,6 +117,13 @@ namespace TcgEngine.Client
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             if (!GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f)
             {
+                HandCardArea.Get().SortCards();
+                drag = false;
+            }
+
+            if (GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f && !player.CanPayMana(card))
+            {
+                WarningText.ShowNoMana();
                 HandCardArea.Get().SortCards();
                 drag = false;
             }

@@ -97,11 +97,9 @@ namespace TcgEngine.Client
         {
             Vector3 screenPoint = RectTransformUtility.WorldToScreenPoint(avatar_camera, player_ui.position);
             Vector3 worldPoint = avatar_camera.ScreenToWorldPoint(new Vector3(screenPoint.x, screenPoint.y, avatar_camera.nearClipPlane));
-            // UI 요소의 월드 위치를 SpriteRenderer의 위치로 설정
-            //transform.position = player_ui.position;
+
             transform.position = worldPoint;
 
-            // UI 요소의 회전과 크기를 그대로 따라가려면 아래 코드도 추가합니다.
             //transform.rotation = player_ui.rotation;
             //transform.localScale = player_ui.lossyScale;
             SpriteRenderer renderer = GetComponent<SpriteRenderer>();
@@ -109,7 +107,6 @@ namespace TcgEngine.Client
             Vector3[] corners = new Vector3[4];
             player_ui.GetWorldCorners(corners);
 
-            // 디버깅: RectTransform 크기 확인
             float width = Vector3.Distance(corners[0], corners[3]);
             float height = Vector3.Distance(corners[0], corners[1]);
 

@@ -169,6 +169,7 @@ namespace TcgEngine.Server
                 bool all_ready = game_data.AreAllPlayersReady();
                 if (all_connected && all_ready)
                 {
+                    Debug.Log("All Player Connected, Start Game");
                     StartGame();
                 }
             }
