@@ -617,7 +617,7 @@ namespace TcgEngine.Gameplay
 
         //---- Gameplay Actions --------------
 
-        /*
+        
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
@@ -688,84 +688,6 @@ namespace TcgEngine.Gameplay
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
 
                 RefreshData();
-
-                onCardPlayed?.Invoke(card, slot);
-                resolve_queue.ResolveAll(0.3f);
-            }
-        }
-        */
-
-        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
-        {
-            if (game_data.CanPlayCard(card, slot, skip_cost))
-            {
-                Player player = game_data.GetPlayer(card.player_id);
-
-                if (!skip_cost)
-                {
-                    //Trigger abilities
-                    TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
-
-                    TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
-                    TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
-                }
-
-                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After summon card
-                TriggerCardAbilityType(AbilityTrigger.OnUse, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
-
-                RefreshData();
-                UpdateOngoing();
-                resolve_queue.ResolveAll(0.3f);
-
-                //Cost
-                if (!skip_cost)
-                    player.PayMana(card);
-
-                //Play card
-                player.RemoveCardFromAllGroups(card);
-
-                //Add to board
-                CardData icard = card.CardData;
-                if (icard.IsBoardCard())
-                {
-                    player.cards_board.Add(card);
-                    card.slot = slot;
-                    card.exhausted = true; //Cant attack first turn
-                    game_data.last_summoned = card.uid;
-                    game_data.last_summoned_slot = slot;
-                }
-                else if (icard.IsEquipment())
-                {
-                    Card bearer = game_data.GetSlotCard(slot);
-                    EquipCard(bearer, card);
-                    card.exhausted = true;
-                }
-                else if (icard.IsPlayerAbility())
-                {
-                    player.player_ability.Add(card);
-                }
-                else if (icard.IsAttachment())
-                {
-                    AttachCard(slot, card);
-                    card.exhausted = true;
-                }
-                else if (icard.IsSecret())
-                {
-                    player.cards_secret.Add(card);
-                }
-                else
-                {
-                    player.cards_discard.Add(card);
-                    card.slot = slot; //Save slot in case spell has PlayTarget
-                }
-
-                //History
-                if (!is_ai_predict && !icard.IsSecret())
-                    player.AddHistory(GameAction.PlayCard, card);
-
-                //Update ongoing effects
-                game_data.last_played = card.uid;
 
                 onCardPlayed?.Invoke(card, slot);
                 resolve_queue.ResolveAll(0.3f);
@@ -1160,88 +1082,6 @@ namespace TcgEngine.Gameplay
 
             return acard;
         }
-
-        /*
-        //Create a new card and send it to the board with no mana
-        public virtual Card UseCard(Player player, CardData icard, VariantData variant, Slot slot)
-        {
-            //if (!slot.IsValid())
-            //    return null;
-
-            //if (game_data.GetSlotCard(slot) != null)
-            //    return null;
-
-            Card card = SummonCardHand(player, icard, variant);
-
-            if (game_data.CanPlayCard(card, slot, true))
-            {
-                //Play card
-                player.RemoveCardFromAllGroups(card);
-
-                //Add to board
-                //CardData icard = card.CardData;
-                if (icard.IsBoardCard())
-                {
-                    player.cards_board.Add(card);
-                    card.slot = slot;
-                    card.exhausted = true; //Cant attack first turn
-                    game_data.last_summoned = card.uid;
-                    game_data.last_summoned_slot = slot;
-                }
-
-                else if (icard.IsEquipment())
-                {
-                    Card bearer = game_data.GetSlotCard(slot);
-                    EquipCard(bearer, card);
-                    card.exhausted = true;
-                }
-
-                else if (icard.IsAttachment())
-                {
-                    AttachCard(slot, card);
-                    card.exhausted = true;
-                }
-
-                else if (icard.IsSecret())
-                {
-                    player.cards_secret.Add(card);
-                }
-
-                else if (icard.IsPlayerAbility())
-                {
-                    player.player_ability.Add(card);
-                }
-
-                else
-                {
-                    player.cards_discard.Add(card);
-                    card.slot = slot; //Save slot in case spell has PlayTarget
-                }
-
-                //History
-                if (!is_ai_predict && !icard.IsSecret())
-                    player.AddHistory(GameAction.PlayCard, card);
-
-                //Update ongoing effects
-                //game_data.last_played = card.uid;
-                UpdateOngoing();
-
-                //Trigger abilities
-                TriggerSecrets(AbilityTrigger.OnUseOther, card); //After playing card
-                TriggerCardAbilityType(AbilityTrigger.OnUse, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnUseOther, card);
-
-                RefreshData();
-
-                onCardPlayed?.Invoke(card, slot);
-                resolve_queue.ResolveAll(0.3f);
-            }
-
-            onCardSummoned?.Invoke(card, slot);
-
-            return card;
-        }
-        */
 
         //Create a new card and send it to your hand
         public virtual Card SummonCardHand(Player player, CardData card, VariantData variant)
