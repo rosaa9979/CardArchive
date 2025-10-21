@@ -616,12 +616,36 @@ namespace TcgEngine.Gameplay
         }
 
         //---- Gameplay Actions --------------
-
-        
-        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
+        public virtual void SelectPlayTarget(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
+                game_data.selector_caster_slot = slot;
+                if (card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget) || card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectCard) || card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectSlot))
+                {
+                    AbilityData iability = card.GetAbility(AbilityTrigger.OnPlay);
+
+                    if (iability != null)
+                    {
+                        if (iability.HasValidSelectTarget(game_data, card))
+                        {
+                            Debug.Log("SelectPlayTarget");
+                            GoToSelectTarget(iability, card, card, 1, 1);
+                            return;
+                        }
+                    }
+                }
+                Debug.Log("Not Valid Target or Don't need target");
+                PlayCard(card, slot, skip_cost);
+            }
+        }
+        
+        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
+        {
+            Debug.Log("Play Card");
+            if (game_data.CanPlayCard(card, slot, skip_cost))
+            {
+                Debug.Log("Play Card1");
                 Player player = game_data.GetPlayer(card.player_id);
 
                 //Cost
@@ -1635,15 +1659,15 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
-
+            Debug.Log("Ability resolve start");
             bool is_selector = ResolveCardAbilitySelector(iability, caster, triggerer, max_repeat, current_repeat);
             if (is_selector)
                 return; //Wait for player to select
-
+            Debug.Log("Ability resolve");
             ResolveCardAbilityPlayTarget(iability, caster);
             ResolveCardAbilityPlayers(iability, caster);
             ResolveCardAbilityCards(iability, caster);
@@ -1657,14 +1681,16 @@ namespace TcgEngine.Gameplay
         {
             if (!iability.HasValidSelectTarget(game_data, caster))
                 return false;
-
-            if (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot)
+            
+            
+            if (iability.trigger != AbilityTrigger.OnPlay && (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot))
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
             }
-            else if (iability.criteria_target == AbilityTarget.CardSelector)
+
+            if (iability.criteria_target == AbilityTarget.CardSelector)
             {
                 GoToSelectorCard(iability, caster, triggerer, max_repeat, current_repeat);
                 return true;
@@ -2280,9 +2306,16 @@ namespace TcgEngine.Gameplay
                     player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
                 game_data.selector = SelectorType.None;
-                ResolveEffectTarget(ability, caster, target);
-                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                resolve_queue.ResolveAll();
+                game_data.selector_target_card_uid = target.uid;
+
+                if (ability.trigger == AbilityTrigger.OnPlay)
+                    PlayCard(caster, game_data.selector_caster_slot);
+                else
+                {
+                    ResolveEffectTarget(ability, caster, target);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.ResolveAll();
+                }                
             }
 
             if (game_data.selector == SelectorType.SelectorCard)
@@ -2355,23 +2388,30 @@ namespace TcgEngine.Gameplay
                     if (!is_ai_predict)
                         player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
+                    Debug.Log("SelectSlot");
                     game_data.selector = SelectorType.None;
+                    game_data.select_target_slot = target;
 
-                    List<Slot> targets = new List<Slot>();
-
-                    if (ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectSlot)
-                        targets = Slot.GetAll();
-                    
-                    foreach (Slot targ in targets)
+                    if (ability.trigger == AbilityTrigger.OnPlay)
+                        PlayCard(caster, game_data.selector_caster_slot);
+                    else
                     {
-                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
-                            continue;
+                        List<Slot> targets = new List<Slot>();
 
-                        ResolveEffectTarget(ability, caster, targ);
-                    }
+                        if (ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectSlot)
+                            targets = Slot.GetAll();
+                        
+                        foreach (Slot targ in targets)
+                        {
+                            if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
+                                continue;
 
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                    resolve_queue.ResolveAll();
+                            ResolveEffectTarget(ability, caster, targ);
+                        }
+
+                        AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                        resolve_queue.ResolveAll();
+                    }    
                 }
             }
         }
@@ -2408,6 +2448,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.selector != SelectorType.None)
             {
+                CancelPlayCard();
                 //End selection
                 game_data.selector = SelectorType.None;
                 RefreshData();
@@ -2420,11 +2461,10 @@ namespace TcgEngine.Gameplay
             if (card != null)
             {
                 Player player = game_data.GetPlayer(card.player_id);
-                player.mana += card.CardData.cost;
 
                 player.RemoveCardFromAllGroups(card);
                 player.AddCard(player.cards_hand, card);
-                card.Clear();
+                //card.Clear();
             }
         }
 

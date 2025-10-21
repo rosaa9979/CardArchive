@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Gameplay;
 using System.Runtime.ExceptionServices;
+using TcgEngine.Client;
 
 namespace TcgEngine
 {
@@ -452,7 +453,15 @@ namespace TcgEngine
                     candidate_targets.Add(caster);
             }
 
-            if (criteria_target == AbilityTarget.AllCardsBoard || criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectCard)
+            if (criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectCard)
+            {
+                Debug.Log("uid " + data.selector_target_card_uid);
+                Card selected_card = data.GetCard(data.selector_target_card_uid);
+                if (selected_card != null && AreCriteriaTargetConditionsMet(data, caster, selected_card))
+                    candidate_targets.Add(selected_card);
+            }
+
+            if (criteria_target == AbilityTarget.AllCardsBoard)
             {
                 foreach (Player player in data.players)
                 {
@@ -492,50 +501,6 @@ namespace TcgEngine
                     AddValidCards(data, caster, player.player_ability, candidate_targets);
                 }
             }
-
-            /*
-            if (criteria_target == AbilityTarget.LastPlayed)
-            {
-                Card target = data.GetCard(data.last_played);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-
-            if (criteria_target == AbilityTarget.LastDestroyed)
-            {
-                Card target = data.GetCard(data.last_destroyed);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-
-            if (criteria_target == AbilityTarget.LastTargeted)
-            {
-                Card target = data.GetCard(data.last_target);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-
-            if (criteria_target == AbilityTarget.LastAttack)
-            {
-                Card target = data.GetCard(data.last_attack);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-
-            if (criteria_target == AbilityTarget.LastAttacked)
-            {
-                Card target = data.GetCard(data.last_attacked);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-
-            if (criteria_target == AbilityTarget.LastSummoned)
-            {
-                Card target = data.GetCard(data.last_summoned);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
-                    candidate_targets.Add(target);
-            }
-            */
 
             if (criteria_target == AbilityTarget.AbilityTriggerer)
             {
@@ -671,6 +636,14 @@ namespace TcgEngine
                 }
             }
 
+            if (criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectSlot)
+            {
+                Slot slot = data.select_target_slot;
+
+                if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
+                    candiidate_targets.Add(slot);
+            }
+
             if (criteria_target == AbilityTarget.WideAreaSlot)
             {
                 List<Slot> slots = Slot.GetAll();
@@ -689,47 +662,6 @@ namespace TcgEngine
                     candiidate_targets.Add(slot);
             }
 
-            /*
-            if (criteria_target == AbilityTarget.LastAttackSlot)
-            {
-                Slot slot = data.last_attack_slot;
-
-                if (AreCriteriaTargetConditionsMet(data, caster, slot))
-                    candiidate_targets.Add(slot);
-            }
-
-            if (criteria_target == AbilityTarget.LastAttackedSlot)
-            {
-                Slot slot = data.last_attacked_slot;
-
-                if (AreCriteriaTargetConditionsMet(data, caster, slot))
-                    candiidate_targets.Add(slot);
-            }
-
-            if (criteria_target == AbilityTarget.LastSummonedSlot)
-            {
-                Slot slot = data.last_summoned_slot;
-
-                if (!AreCriteriaTargetConditionsMet(data, caster, slot))
-                    return candiidate_targets;
-            }
-
-            if (criteria_target == AbilityTarget.LastDestroyedSlot)
-            {
-                Slot slot = data.last_destroyed_slot;
-
-                if (AreCriteriaTargetConditionsMet(data, caster, slot))
-                    candiidate_targets.Add(slot);
-            }
-
-            if (criteria_target == AbilityTarget.LastTargetedSlot)
-            {
-                Slot slot = data.last_targeted_slot;
-
-                if (AreCriteriaTargetConditionsMet(data, caster, slot))
-                    candiidate_targets.Add(slot);
-            }
-            */
 
             List<Slot> final_candidate_target = new List<Slot>();
             List<Slot> all_slots = Slot.GetAll();

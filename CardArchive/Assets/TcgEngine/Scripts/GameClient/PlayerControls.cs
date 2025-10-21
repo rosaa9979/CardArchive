@@ -4,6 +4,7 @@ using UnityEngine;
 using TcgEngine.Client;
 using UnityEngine.Events;
 using TcgEngine.UI;
+using System.Linq;
 
 namespace TcgEngine.Client
 {
@@ -130,6 +131,17 @@ namespace TcgEngine.Client
         public void UnselectAll()
         {
             selected_card = null;
+
+            Game gdata = GameClient.Get().GetGameData();
+            Debug.Log(gdata.selector);
+
+            if (gdata.selector == SelectorType.SelectTarget)
+            {
+                AbilityData iability = AbilityData.Get(gdata.selector_ability_id);
+
+                if (iability != null && iability.trigger == AbilityTrigger.OnPlay && iability.chain_abilities.Length == 0)
+                    GameClient.Get().CancelSelection();
+            }
         }
 
         public BoardCard GetSelected()

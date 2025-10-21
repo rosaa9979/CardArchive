@@ -33,6 +33,9 @@ namespace TcgEngine
         public string selector_ability_id;
         public string selector_caster_uid;
         public string selector_triggerer_uid;
+        public string selector_target_card_uid;
+        public Slot selector_target_slot;
+        public Slot selector_caster_slot;
         public int selector_max_repeat;
         public int selector_current_repeat;
 
@@ -51,6 +54,7 @@ namespace TcgEngine
         public Slot last_summoned_slot;
         public string ability_triggerer;
         public int rolled_value;
+        public Slot select_target_slot;
 
         public List<Card> attack_list = new List<Card>();
         public List<Card> attack_complete_list = new List<Card>();

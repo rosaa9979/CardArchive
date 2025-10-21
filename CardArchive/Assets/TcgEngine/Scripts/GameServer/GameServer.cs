@@ -303,7 +303,7 @@ namespace TcgEngine.Server
             {
                 Card card = player.GetCard(msg.card_uid);
                 if (card != null && card.player_id == player.player_id)
-                    gameplay.PlayCard(card, msg.slot);
+                    gameplay.SelectPlayTarget(card, msg.slot);
             }
         }
 

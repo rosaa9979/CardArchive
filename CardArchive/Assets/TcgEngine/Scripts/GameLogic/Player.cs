@@ -42,6 +42,7 @@ namespace TcgEngine
         public List<Card> cards_discard = new List<Card>(); //Cards in the player's discard
         public List<Card> cards_secret = new List<Card>();  //Cards in the player's secret area
         public List<Card> cards_temp = new List<Card>();    //Temporary cards that have just been created, not assigned to any zone yet
+        public List<Card> cards_board_temp = new List<Card>();
         public List<Card> player_ability = new List<Card>();
 
 
