@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using TcgEngine.Client;
 using UnityEngine.Events;
 using TcgEngine.UI;
@@ -161,6 +163,22 @@ namespace TcgEngine.Client
             if (success)
                 return ray.GetPoint(dist);
             return Vector3.zero;
+        }
+
+        public List<T> GetComponentsUnderMouse<T>() where T : Component
+        {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            return results
+                .Select(r => r.gameObject.GetComponent<T>())
+                .Where(c => c != null)
+                .ToList();
         }
 
         public Vector3 GetAngles()

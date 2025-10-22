@@ -86,12 +86,13 @@ namespace TcgEngine.Client
 
             if (IsFocus())
             {
-                target_position = deck_position + Vector2.up * 250f;
-                target_size = target_size * 1.5f;
+                target_position.y = 200f;
+                target_size = target_size * 1.2f;
                 current_rotate = new Vector3(5f, -5f, 0);
+                transform.SetAsLastSibling();
             }
 
-            if (IsDrag())
+            else if (IsDrag())
             {
                 //HandCard selected_card = GetDrag();
                 //if (selected_card != null)
@@ -230,6 +231,7 @@ namespace TcgEngine.Client
         public void OnMouseExitCard()
         {
             focus = false;
+            HandCardArea.Get().SortCards();
             focus_timer = -0.2f;
         }
 
@@ -324,6 +326,13 @@ namespace TcgEngine.Client
             Destroy(gameObject);
             if (GameTool.IsMobile())
                 BoardCard.UnfocusAll();
+        }
+
+        public void SetFocus()
+        {
+            UnselectAll();
+
+            focus = true;
         }
 
         public CardData CardData { get { return GetCardData(); } }

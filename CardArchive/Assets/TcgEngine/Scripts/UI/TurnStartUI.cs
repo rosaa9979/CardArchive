@@ -23,7 +23,7 @@ namespace TcgEngine
             if (turn_text != null)
             {
                 Game game_data = GameClient.Get().GetGameData();
-                Debug.Log(game_data.phase);
+
                 if (game_data.phase == GamePhase.Main)
                     turn_text.text = "Attack Phase";
                 else   
