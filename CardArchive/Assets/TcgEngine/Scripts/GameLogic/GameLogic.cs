@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TcgEngine.Client;
-using UnityEditor.AddressableAssets.Build;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -19,6 +18,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Player> onGameEnd;          //Winner
 
         public UnityAction onTurnStart;
+        public UnityAction onAttackPhase;
         public UnityAction onTurnPlay;
         public UnityAction onTurnEnd;
 
@@ -251,14 +251,15 @@ namespace TcgEngine.Gameplay
 
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
+            onAttackPhase?.Invoke();
+            RefreshData();
             
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(1.5f);
         }
 
         public virtual void AttackCheck()
         {
-            Debug.Log("Attack Check Phase");
             if (game_data.state == GameState.GameEnded)
                 return;
             if (game_data.phase != GamePhase.Attack)
@@ -314,7 +315,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
         {
-            Debug.Log("Attack Search Phase");
             Player player = game_data.GetPlayer(attacker.player_id);
             Player oplayer = game_data.GetOpponentPlayer(player.player_id);
 
@@ -631,8 +631,11 @@ namespace TcgEngine.Gameplay
                     {
                         if (iability.HasValidSelectTarget(game_data, card))
                         {
+                            game_data.selector_hand_index = player.cards_hand.IndexOf(card);
+                            player.RemoveCardFromAllGroups(card);
                             player.cards_board_temp.Add(card);
                             card.slot = slot;
+
                             GoToSelectTarget(iability, card, card, 1, 1);
                             return;
                         }
@@ -645,10 +648,8 @@ namespace TcgEngine.Gameplay
         
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
         {
-            Debug.Log("Play Card");
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
-                Debug.Log("Play Card1");
                 Player player = game_data.GetPlayer(card.player_id);
 
                 //Cost
@@ -761,7 +762,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackTargets(Card attacker, bool skip_cost = false)
         {
-            Debug.Log("Attack Targets Phase "+attacker.uid);
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -786,7 +786,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
-            Debug.Log("Attack Target Phase");
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -819,7 +818,6 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
         {
-            Debug.Log("Resolve Attack Phase");
             if (!game_data.IsOnBoard(attacker) || !game_data.IsOnBoard(target))
                 return;
 
@@ -854,9 +852,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
         {
-            Debug.Log("Resolve Attack Hit Phase");
             //Count attack damage
-
             if (!game_data.attack_evade_list.Contains(target))
             {
                 Player player = game_data.GetPlayer(attacker.player_id);
@@ -1251,7 +1247,6 @@ namespace TcgEngine.Gameplay
 
             target.damage -= value;
             target.damage = Mathf.Max(target.damage, 0);
-            Debug.Log(target.GetHP());
 
             Player p = game_data.GetPlayer(target.player_id);
 
@@ -1666,11 +1661,10 @@ namespace TcgEngine.Gameplay
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
-            Debug.Log("Ability resolve start");
             bool is_selector = ResolveCardAbilitySelector(iability, caster, triggerer, max_repeat, current_repeat);
             if (is_selector)
                 return; //Wait for player to select
-            Debug.Log("Ability resolve");
+
             ResolveCardAbilityPlayTarget(iability, caster);
             ResolveCardAbilityPlayers(iability, caster);
             ResolveCardAbilityCards(iability, caster);
@@ -2391,7 +2385,6 @@ namespace TcgEngine.Gameplay
                     if (!is_ai_predict)
                         player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
-                    Debug.Log("SelectSlot");
                     game_data.selector = SelectorType.None;
                     game_data.select_target_slot = target;
 
@@ -2466,7 +2459,7 @@ namespace TcgEngine.Gameplay
                 Player player = game_data.GetPlayer(card.player_id);
 
                 player.RemoveCardFromAllGroups(card);
-                player.AddCard(player.cards_hand, card);
+                player.AddCard(player.cards_hand, card, game_data.selector_hand_index);
                 //card.Clear();
             }
         }

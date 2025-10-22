@@ -13,10 +13,12 @@ namespace TcgEngine.FX
 
     public class MouseLineFX : MonoBehaviour
     {
+        [Header("Dot")]
         public GameObject dot_template;
-        public GameObject arrow_template;
-        
         public float dot_spacing = 0.2f;
+
+        [Header("Text")]
+        public GameObject text;
 
         private List<GameObject> dot_list = new List<GameObject>();
         private List<Vector3> points = new List<Vector3>();
@@ -92,6 +94,12 @@ namespace TcgEngine.FX
                     points.Add(pos);
 
                     value += dot_spacing;
+                }
+
+                AbilityData iability = AbilityData.Get(gdata.selector_ability_id);
+
+                if (iability != null && string.IsNullOrWhiteSpace(iability.selector_desc))
+                {
                 }
             }
         }

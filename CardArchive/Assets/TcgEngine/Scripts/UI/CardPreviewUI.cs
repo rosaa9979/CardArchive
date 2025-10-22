@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine;
+using System.Diagnostics.SymbolStore;
 
 namespace TcgEngine.UI
 {
@@ -25,6 +26,7 @@ namespace TcgEngine.UI
         public StatusLine[] status_lines;
 
         private float preview_timer = 0f;
+        private float offset;
         private Vector2[] start_pos;
 
         [Header("Default Setting")]
@@ -37,6 +39,8 @@ namespace TcgEngine.UI
             {
                 start_pos[i] = side_rows[i].anchoredPosition;
             }
+
+            offset = start_pos[1].x - start_pos[0].x;
         }
 
         void Update()
@@ -49,31 +53,25 @@ namespace TcgEngine.UI
 
             PlayerControls controls = PlayerControls.Get();
             Game game_data = GameClient.Get().GetGameData();
-            Card scard = game_data.GetCard(game_data.selector_caster_uid);
             HandCard hcard = HandCard.GetFocus();
             BoardCard bcard = BoardCard.GetFocus();
             HeroUI hero_ui = HeroUI.GetFocus();
             Card histcard = TurnHistoryLine.GetHoverCard();
 
-            float delay = scard != null ? hover_delay_ability : 0.0f;
-            delay = hcard != null ? hover_delay_hand : hover_delay_board;
+            float delay = hcard != null ? hover_delay_hand : hover_delay_board;
             if (GameTool.IsMobile())
                 delay = hover_delay_mobile;
 
-            Card pcard = (game_data.selector == SelectorType.SelectTarget && GameClient.Get().IsYourTurn()) ? scard : null;
-            if (pcard == null)
-                pcard = hcard != null ? hcard?.GetCard() : bcard?.GetFocusCard();
+            Card pcard = hcard != null ? hcard?.GetCard() : bcard?.GetFocusCard();
             if (pcard == null)
                 pcard = histcard;
             if (pcard == null)
                 pcard = hero_ui?.GetCard();
-            
+
 
             bool hover_only = !Input.GetMouseButton(0) && !HandCardArea.Get().IsDragging();
-            if (pcard == scard)
-                hover_only = true;
             bool should_show_preview = hover_only && !GameUI.IsUIOpened() && pcard != null;
-            
+
 
             if (should_show_preview)
                 preview_timer += Time.deltaTime;
@@ -152,5 +150,12 @@ namespace TcgEngine.UI
             }
 
         }
+    }
+
+    public enum CardPrevirwType
+    {
+        None,
+        BoardCard,
+        HandCard
     }
 }

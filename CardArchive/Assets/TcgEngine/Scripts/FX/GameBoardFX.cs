@@ -17,6 +17,7 @@ namespace TcgEngine.FX
         {
             GameClient client = GameClient.Get();
             client.onNewTurn += OnNewTurn;
+            client.onAttackPhase += OnAttackPhase;
             client.onCardPlayed += OnPlayCard;
             client.onCardDraw += OnCardDraw;
             client.onCardDissolved += OnDissolveCard;
@@ -29,6 +30,13 @@ namespace TcgEngine.FX
         {
             AudioTool.Get().PlaySFX("turn", AssetData.Get().new_turn_audio);
 
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, 1.0f);
+            TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
+            ui.SetTurn(player_id);
+        }
+
+        void OnAttackPhase(int player_id)
+        {
             GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, 1.0f);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);

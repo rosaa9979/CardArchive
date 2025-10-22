@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TcgEngine.Client;
 using UnityEngine;
 
 namespace TcgEngine
@@ -68,6 +69,11 @@ namespace TcgEngine
         public void AddCard(List<Card> card_list, Card card)
         {
             card_list.Add(card);
+        }
+
+        public void AddCard(List<Card> card_list, Card card, int index)
+        {
+            card_list.Insert(index, card);
         }
 
         public void RemoveCard(List<Card> card_list, Card card)

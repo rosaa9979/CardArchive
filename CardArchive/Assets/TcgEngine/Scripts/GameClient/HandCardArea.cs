@@ -49,7 +49,7 @@ namespace TcgEngine.Client
             foreach (Card card in player.cards_hand)
             {
                 if (!HasCard(card.uid))
-                    SpawnNewCard(card);
+                    SpawnNewCard(card, player.cards_hand.IndexOf(card));
             }
 
             //Remove destroyed cards
@@ -85,6 +85,16 @@ namespace TcgEngine.Client
             card_obj.GetComponent<HandCard>().SetCard(card);
             card_obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
             cards.Add(card_obj.GetComponent<HandCard>());
+        }
+
+        public void SpawnNewCard(Card card, int index)
+        {
+            GameObject card_obj = Instantiate(card_prefab, card_area.transform);
+            card_obj.GetComponent<HandCard>().SetCard(card);
+            card_obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
+            cards.Insert(index, card_obj.GetComponent<HandCard>());
+
+            SortCards();
         }
 
         public void DelayRefresh(Card card)

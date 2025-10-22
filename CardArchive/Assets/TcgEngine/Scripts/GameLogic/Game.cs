@@ -33,11 +33,14 @@ namespace TcgEngine
         public string selector_ability_id;
         public string selector_caster_uid;
         public string selector_triggerer_uid;
+        public int selector_max_repeat;
+        public int selector_current_repeat;
+
+        //Sellector Target
         public string selector_target_card_uid;
         public Slot selector_target_slot;
         public Slot selector_caster_slot;
-        public int selector_max_repeat;
-        public int selector_current_repeat;
+        public int selector_hand_index;
 
         //Other reference values
         public string last_played;
@@ -136,7 +139,8 @@ namespace TcgEngine
 
             if (!player.HasCard(player.cards_hand, card) && !skip_cost)
             {
-                return false; // Card not in hand
+                if (!player.HasCard(player.cards_board_temp, card))
+                    return false; // Card not in hand
             }
 
             if (card.CardData.IsBoardCard())
@@ -524,7 +528,6 @@ namespace TcgEngine
                     if (card != null && card.uid == card_uid)
                         return card;
                 }
-
             }
             return null;
         }

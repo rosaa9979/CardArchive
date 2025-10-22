@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.UI;
+using DG.Tweening;
+using Unity.VisualScripting;
 
 namespace TcgEngine.Client
 {
@@ -19,6 +21,10 @@ namespace TcgEngine.Client
         public float move_rotate_speed = 4f;
         public float move_max_rotate = 10f;
 
+        [Header("Status")]
+        public CanvasGroup canvas_group;
+        public StatusLine[] status_lines;
+
         [HideInInspector]
         public Vector2 deck_position;
         [HideInInspector]
@@ -32,6 +38,7 @@ namespace TcgEngine.Client
         private Vector3 start_scale;
         private Vector3 current_rotate;
         private Vector3 target_rotate;
+
         private Vector3 prev_pos;
 
         private bool destroyed = false;
@@ -79,7 +86,9 @@ namespace TcgEngine.Client
 
             if (IsFocus())
             {
-                target_position = deck_position + Vector2.up * 40f;
+                target_position = deck_position + Vector2.up * 250f;
+                target_size = target_size * 1.5f;
+                current_rotate = new Vector3(5f, -5f, 0);
             }
 
             if (IsDrag())
@@ -117,6 +126,7 @@ namespace TcgEngine.Client
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             if (!GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f)
             {
+                WarningText.ShowNotYourTurn();
                 HandCardArea.Get().SortCards();
                 drag = false;
             }
@@ -145,8 +155,6 @@ namespace TcgEngine.Client
                 SetOpacity(1f);
             }
 
-
-            
             //Unselect
             if (!drag && selected && Input.GetMouseButtonDown(0))
                 selected = false;

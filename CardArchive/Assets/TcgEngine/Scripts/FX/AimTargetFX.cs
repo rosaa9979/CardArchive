@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
+using TMPro;
 
 namespace TcgEngine.FX
 {
@@ -11,7 +12,8 @@ namespace TcgEngine.FX
 
     public class AimTargetFX : MonoBehaviour
     {
-        public GameObject fx;
+        public GameObject target_fx;
+        public GameObject text_fx;
 
         void Start()
         {
@@ -28,24 +30,36 @@ namespace TcgEngine.FX
             BSlot bslot = BSlot.GetNearest(dest);
 
             bool visible = false;
+            bool text_visible = false;
 
-            if (game_data.selector == SelectorType.SelectTarget && bslot != null)
+            if (game_data.selector == SelectorType.SelectTarget)
             {
                 AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-                Card caster = game_data.GetCard(game_data.selector_caster_uid);
-                Card target = game_data.GetSlotCard(bslot.GetSlot());
 
-                if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                if (!string.IsNullOrWhiteSpace(ability.selector_desc))
                 {
-                    visible = true;
+                    text_visible = true;
+                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                    tmpro_text.text = ability.selector_desc;
                 }
 
-                if (ability.CanTarget(game_data, caster, target))
+                if (bslot != null)
                 {
-                    visible = true;
+                    Card caster = game_data.GetCard(game_data.selector_caster_uid);
+                    Card target = game_data.GetSlotCard(bslot.GetSlot());
+
+                    if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                    {
+                        visible = true;
+                    }
+
+                    if (ability.CanTarget(game_data, caster, target))
+                    {
+                        visible = true;
+                    }
                 }
             }
-            
+
             /*
             HandCard hcard = HandCard.GetDrag();
             if (hcard != null)
@@ -56,13 +70,14 @@ namespace TcgEngine.FX
             }
             */
 
-            if (fx.activeSelf != visible)
-                fx.SetActive(visible);
+            if (target_fx.activeSelf != visible)
+                target_fx.SetActive(visible);
 
-            if (visible)
-            {
+            if (text_fx.activeSelf != text_visible)
+                text_fx.SetActive(text_visible);
+            
+            if (visible || text_visible)
                 transform.position = dest;
-            }
         }
     }
 }

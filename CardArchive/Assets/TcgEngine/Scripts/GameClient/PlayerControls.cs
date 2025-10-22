@@ -133,14 +133,21 @@ namespace TcgEngine.Client
             selected_card = null;
 
             Game gdata = GameClient.Get().GetGameData();
-            Debug.Log(gdata.selector);
 
             if (gdata.selector == SelectorType.SelectTarget)
             {
                 AbilityData iability = AbilityData.Get(gdata.selector_ability_id);
 
-                if (iability != null && iability.trigger == AbilityTrigger.OnPlay && iability.chain_abilities.Length == 0)
+                if (iability != null)
+                {
+                    foreach (AbilityData chain_ability in iability.chain_abilities)
+                    {
+                        if (chain_ability.criteria_target == AbilityTarget.SelectTarget || chain_ability.criteria_target == AbilityTarget.SelectCard || chain_ability.criteria_target == AbilityTarget.SelectSlot)
+                            return;
+                    }
+                    
                     GameClient.Get().CancelSelection();
+                }
             }
         }
 

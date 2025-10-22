@@ -76,6 +76,7 @@ namespace TcgEngine.Server
             gameplay.onGameStart += OnGameStart;
             gameplay.onGameEnd += OnGameEnd;
             gameplay.onTurnStart += OnTurnStart;
+            gameplay.onAttackPhase += OnAttackPhase;
             gameplay.onRefresh += RefreshAll;
 
             gameplay.onCardPlayed += OnCardPlayed;
@@ -168,10 +169,7 @@ namespace TcgEngine.Server
                 bool all_connected = game_data.AreAllPlayersConnected();
                 bool all_ready = game_data.AreAllPlayersReady();
                 if (all_connected && all_ready)
-                {
-                    Debug.Log("All Player Connected, Start Game");
                     StartGame();
-                }
             }
 
             //Process queued actions
@@ -704,6 +702,13 @@ namespace TcgEngine.Server
             MsgPlayer msg = new MsgPlayer();
             msg.player_id = game_data.current_player;
             SendToAll(GameAction.NewTurn, msg, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnAttackPhase()
+        {
+            MsgPlayer msg = new MsgPlayer();
+            msg.player_id = game_data.current_player;
+            SendToAll(GameAction.AttackPhase, msg, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnCardPlayed(Card card, Slot slot)

@@ -40,6 +40,7 @@ namespace TcgEngine
         public const ushort GameStart = 2010;
         public const ushort GameEnd = 2012;
         public const ushort NewTurn = 2015;
+        public const ushort AttackPhase = 2016;
 
         public const ushort CardPlayed = 2020;
         public const ushort CardDissolved = 2021;

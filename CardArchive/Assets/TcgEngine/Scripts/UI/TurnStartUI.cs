@@ -21,7 +21,15 @@ namespace TcgEngine
                 turn_background.sprite = player_id == GameClient.Get().GetPlayerID() ? ally_background : enemy_background;
 
             if (turn_text != null)
-                turn_text.text = player_id == GameClient.Get().GetPlayerID() ? "My Phase" : "Enemy Phase";
+            {
+                Game game_data = GameClient.Get().GetGameData();
+                Debug.Log(game_data.phase);
+                if (game_data.phase == GamePhase.Main)
+                    turn_text.text = "Attack Phase";
+                else   
+                    turn_text.text = player_id == GameClient.Get().GetPlayerID() ? "My Phase" : "Enemy Phase";
+            }
+
         }
     }
 }
