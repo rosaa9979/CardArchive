@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TcgEngine.Client;
+using UnityEditor.AddressableAssets.Build;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
@@ -618,6 +619,7 @@ namespace TcgEngine.Gameplay
         //---- Gameplay Actions --------------
         public virtual void SelectPlayTarget(Card card, Slot slot, bool skip_cost = false)
         {
+            Player player = game_data.GetPlayer(card.player_id);
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
                 game_data.selector_caster_slot = slot;
@@ -629,13 +631,14 @@ namespace TcgEngine.Gameplay
                     {
                         if (iability.HasValidSelectTarget(game_data, card))
                         {
-                            Debug.Log("SelectPlayTarget");
+                            player.cards_board_temp.Add(card);
+                            card.slot = slot;
                             GoToSelectTarget(iability, card, card, 1, 1);
                             return;
                         }
                     }
                 }
-                Debug.Log("Not Valid Target or Don't need target");
+
                 PlayCard(card, slot, skip_cost);
             }
         }

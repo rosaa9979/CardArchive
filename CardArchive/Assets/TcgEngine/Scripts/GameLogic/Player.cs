@@ -86,6 +86,7 @@ namespace TcgEngine
             cards_discard.Remove(card);
             cards_secret.Remove(card);
             cards_temp.Remove(card);
+            cards_board_temp.Remove(card);
             player_ability.Remove(card);
             UnequipFromAllCards(card);
         }

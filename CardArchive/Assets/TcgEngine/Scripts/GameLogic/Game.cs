@@ -518,6 +518,13 @@ namespace TcgEngine
                     if (card != null && card.uid == card_uid)
                         return card;
                 }
+
+                foreach (Card card in player.cards_board_temp)
+                {
+                    if (card != null && card.uid == card_uid)
+                        return card;
+                }
+
             }
             return null;
         }

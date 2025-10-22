@@ -39,10 +39,21 @@ namespace TcgEngine.Client
                 return;
 
             Game data = GameClient.Get().GetGameData();
+            Player player = GameClient.Get().GetPlayer();
 
             //--- Board cards --------
 
             List<BoardCard> cards = BoardCard.GetAll();
+
+            foreach (Card temp_board_card in player.cards_board_temp)
+            {
+                BoardCard tcard = BoardCard.Get(temp_board_card.uid);
+                if (temp_board_card != null && tcard == null)
+                {
+                    SpawnNewCard(temp_board_card);
+                }
+            }
+            
 
             //Add new cards
             foreach (Player p in data.players)
