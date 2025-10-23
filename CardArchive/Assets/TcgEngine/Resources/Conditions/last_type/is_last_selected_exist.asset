@@ -9,14 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9642af46d64291e468622adccd555b22, type: 3}
-  m_Name: has_board_card_enemy
+  m_Script: {fileID: 11500000, guid: bce9dc7f148959e449549152ff3376bf, type: 3}
+  m_Name: is_last_selected_exist
   m_EditorClassIdentifier: 
-  target: 1
-  pile: 10
-  oper: 2
-  value: 1
-  has_type: 
-  has_club: []
-  has_trait: []
-  has_card: []
+  type: 6
+  oper: 0

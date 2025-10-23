@@ -138,14 +138,8 @@ namespace TcgEngine.Client
             {
                 AbilityData iability = AbilityData.Get(gdata.selector_ability_id);
 
-                if (iability != null)
+                if (iability != null && iability.can_cancel)
                 {
-                    foreach (AbilityData chain_ability in iability.chain_abilities)
-                    {
-                        if (chain_ability.criteria_target == AbilityTarget.SelectTarget || chain_ability.criteria_target == AbilityTarget.SelectCard || chain_ability.criteria_target == AbilityTarget.SelectSlot)
-                            return;
-                    }
-                    
                     GameClient.Get().CancelSelection();
                 }
             }

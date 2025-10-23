@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9642af46d64291e468622adccd555b22, type: 3}
-  m_Name: has_board_card_enemy
+  m_Name: has_ally_citizen_board
   m_EditorClassIdentifier: 
-  target: 1
+  target: 0
   pile: 10
   oper: 2
   value: 1
-  has_type: 
+  has_type: 0b0000000a000000
   has_club: []
   has_trait: []
   has_card: []

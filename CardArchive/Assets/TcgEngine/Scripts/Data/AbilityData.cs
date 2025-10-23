@@ -36,6 +36,9 @@ namespace TcgEngine
         public int value;                         //Value passed to the effect (deal X damage)
         public int duration;                      //Duration passed to the effect (usually for status, 0=permanent)
 
+        [Header("Cancel")]
+        public bool can_cancel = false;
+
         [Header("Chain/Choices")]
         public AbilityData[] chain_abilities;    //Abilities that will be triggered after this one
 
@@ -639,7 +642,7 @@ namespace TcgEngine
 
             if (criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectSlot)
             {
-                Slot slot = data.select_target_slot;
+                Slot slot = data.selector_target_slot;
 
                 if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
                     candiidate_targets.Add(slot);

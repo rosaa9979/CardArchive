@@ -53,16 +53,15 @@ namespace TcgEngine.UI
 
             PlayerControls controls = PlayerControls.Get();
             Game game_data = GameClient.Get().GetGameData();
-            HandCard hcard = HandCard.GetFocus();
             BoardCard bcard = BoardCard.GetFocus();
             HeroUI hero_ui = HeroUI.GetFocus();
             Card histcard = TurnHistoryLine.GetHoverCard();
 
-            float delay = hcard != null ? hover_delay_hand : hover_delay_board;
+            float delay = hover_delay_board;
             if (GameTool.IsMobile())
                 delay = hover_delay_mobile;
 
-            Card pcard = hcard != null ? hcard?.GetCard() : bcard?.GetFocusCard();
+            Card pcard = bcard?.GetFocusCard();
             if (pcard == null)
                 pcard = histcard;
             if (pcard == null)

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: chain_move_neighbor1
   trigger: 0
-  conditions_trigger: []
+  conditions_trigger:
+  - {fileID: 11400000, guid: f94b5fd96546157489891cc56b009662, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 32
   conditions_criteria_target:
@@ -30,6 +31,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
+  can_cancel: 0
   chain_abilities: []
   mana_cost: 1
   exhaust: 1
@@ -41,3 +43,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 

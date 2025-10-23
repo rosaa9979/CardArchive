@@ -60,7 +60,7 @@ namespace TcgEngine.Client
                 if (card == null || player.GetHandCard(card.GetCard().uid) == null)
                 {
                     cards.RemoveAt(i);
-                    if(card != null)
+                    if (card != null)
                         card.Kill();
                 }
             }

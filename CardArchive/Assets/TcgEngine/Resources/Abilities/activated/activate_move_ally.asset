@@ -16,6 +16,7 @@ MonoBehaviour:
   trigger: 5
   conditions_trigger:
   - {fileID: 11400000, guid: c2163f0d5c7c1734199d8b5d578f9186, type: 2}
+  - {fileID: 11400000, guid: 013f3ecc27654c4489749b62811896f7, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 31
   conditions_criteria_target:
@@ -29,6 +30,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
+  can_cancel: 0
   chain_abilities:
   - {fileID: 11400000, guid: 2a18190cd46a78b4ebef221c2a358af0, type: 2}
   mana_cost: 1
@@ -41,3 +43,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 

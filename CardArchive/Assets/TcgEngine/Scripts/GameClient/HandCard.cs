@@ -21,10 +21,6 @@ namespace TcgEngine.Client
         public float move_rotate_speed = 4f;
         public float move_max_rotate = 10f;
 
-        [Header("Status")]
-        public CanvasGroup canvas_group;
-        public StatusLine[] status_lines;
-
         [HideInInspector]
         public Vector2 deck_position;
         [HideInInspector]
@@ -38,6 +34,7 @@ namespace TcgEngine.Client
         private Vector3 start_scale;
         private Vector3 current_rotate;
         private Vector3 target_rotate;
+        private CanvasGroup canvas_group;
 
         private Vector3 prev_pos;
 
@@ -57,6 +54,7 @@ namespace TcgEngine.Client
             card_ui = GetComponent<CardUI>();
             card_transform = transform.GetComponent<RectTransform>();
             hand_transform = transform.parent.GetComponent<RectTransform>();
+            canvas_group = GetComponent<CanvasGroup>();
             start_scale = transform.localScale;
         }
 
@@ -86,10 +84,7 @@ namespace TcgEngine.Client
 
             if (IsFocus())
             {
-                target_position.y = 200f;
-                target_size = target_size * 1.2f;
-                current_rotate = new Vector3(5f, -5f, 0);
-                transform.SetAsLastSibling();
+                //target_position = target_position + Vector2.one * 40.0f;
             }
 
             else if (IsDrag())
@@ -130,6 +125,7 @@ namespace TcgEngine.Client
                 WarningText.ShowNotYourTurn();
                 HandCardArea.Get().SortCards();
                 drag = false;
+                focus = false;
             }
 
             if (GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f && !player.CanPayMana(card))
@@ -137,7 +133,10 @@ namespace TcgEngine.Client
                 WarningText.ShowNoMana();
                 HandCardArea.Get().SortCards();
                 drag = false;
+                focus = false;
             }
+
+            canvas_group.alpha = IsFocus() ? 0.0f : 1.0f;
 
             card_transform.anchoredPosition = Vector2.Lerp(card_transform.anchoredPosition, target_position, Time.deltaTime * move_speed);
             card_transform.localRotation = Quaternion.Slerp(card_transform.localRotation, Quaternion.Euler(current_rotate), Time.deltaTime * move_speed);
@@ -326,13 +325,6 @@ namespace TcgEngine.Client
             Destroy(gameObject);
             if (GameTool.IsMobile())
                 BoardCard.UnfocusAll();
-        }
-
-        public void SetFocus()
-        {
-            UnselectAll();
-
-            focus = true;
         }
 
         public CardData CardData { get { return GetCardData(); } }

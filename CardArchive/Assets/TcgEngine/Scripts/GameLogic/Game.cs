@@ -46,6 +46,8 @@ namespace TcgEngine
         public string last_played;
         public string last_target;
         public Slot last_targeted_slot;
+        public string last_selected;
+        public Slot last_selected_slot;
         public string last_attack;
         public Slot last_attack_slot;
         public string last_attacked;
@@ -57,7 +59,6 @@ namespace TcgEngine
         public Slot last_summoned_slot;
         public string ability_triggerer;
         public int rolled_value;
-        public Slot select_target_slot;
 
         public List<Card> attack_list = new List<Card>();
         public List<Card> attack_complete_list = new List<Card>();

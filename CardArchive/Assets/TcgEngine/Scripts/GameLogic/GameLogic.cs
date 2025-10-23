@@ -636,6 +636,9 @@ namespace TcgEngine.Gameplay
                             player.cards_board_temp.Add(card);
                             card.slot = slot;
 
+                            game_data.last_selected = "";
+                            game_data.last_selected_slot = new Slot(0, 0, -1);
+
                             GoToSelectTarget(iability, card, card, 1, 1);
                             return;
                         }
@@ -1676,6 +1679,9 @@ namespace TcgEngine.Gameplay
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
         {
+            game_data.last_selected = "";
+            game_data.last_selected_slot = new Slot(0, 0, -1);
+
             if (!iability.HasValidSelectTarget(game_data, caster))
                 return false;
             
@@ -2386,7 +2392,7 @@ namespace TcgEngine.Gameplay
                         player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
                     game_data.selector = SelectorType.None;
-                    game_data.select_target_slot = target;
+                    game_data.selector_target_slot = target;
 
                     if (ability.trigger == AbilityTrigger.OnPlay)
                         PlayCard(caster, game_data.selector_caster_slot);
@@ -2444,7 +2450,9 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.selector != SelectorType.None)
             {
-                CancelPlayCard();
+                AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
+                if (iability.trigger == AbilityTrigger.OnPlay)
+                    CancelPlayCard();
                 //End selection
                 game_data.selector = SelectorType.None;
                 RefreshData();

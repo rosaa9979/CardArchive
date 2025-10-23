@@ -17,9 +17,6 @@ namespace TcgEngine.FX
         public GameObject dot_template;
         public float dot_spacing = 0.2f;
 
-        [Header("Text")]
-        public GameObject text;
-
         private List<GameObject> dot_list = new List<GameObject>();
         private List<Vector3> points = new List<Vector3>();
 

@@ -15,6 +15,7 @@ namespace TcgEngine
     /// <summary>
     /// Trigger condition that count the amount of cards in pile of your choise (deck/discard/hand/board...)
     /// Can also only count cards of a specific type/team/trait
+    /// 리스트 항목은 모두 or 계산, 즉 리스트 중 하나라도 있으면 카운트한다.
     /// </summary>
 
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/Count", order = 10)]
@@ -27,11 +28,11 @@ namespace TcgEngine
         public int value;
 
         [Header("Traits")]
-        public CardType has_type;
+        public List<CardType> has_type;
         //public TeamData has_team;
-        public ClubData has_club;
-        public TraitData has_trait;
-        public CardData has_card;
+        public List<ClubData> has_club;
+        public List<TraitData> has_trait;
+        public List<CardData> has_card;
 
         public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
         {
@@ -89,12 +90,13 @@ namespace TcgEngine
 
         private bool IsTrait(Card card)
         {
-            bool is_type = card.CardData.type == has_type || has_type == CardType.None;
-            bool is_club = card.GetAllClubs().Any(club => club.ClubData == has_club) || has_club == null;
+            bool is_type = has_type.Contains(card.CardData.type) || has_type.Count == 0;
+            //bool is_type = card.CardData.type == has_type || has_type == CardType.None;
+            bool is_club = has_club.Count == 0 || has_club.Any(clubData => card.GetAllClubs().Any(club => club.ClubData == clubData));
             //bool is_team = card.CardData.team == has_team || has_team == null;
-            bool is_trait = card.HasTrait(has_trait) || has_trait == null;
+            bool is_trait = has_trait.Count == 0 || has_trait.Any(traitData => card.GetAllTraits().Any(club => club.TraitData == traitData));
             //return (is_type && is_team && is_trait);
-            bool is_card = has_card == null || card.card_id == has_card.id;
+            bool is_card = has_card.Count == 0 || has_card.Any(cardId => card.card_id == cardId.id);
             return (is_type && is_club && is_trait && is_card);
         }
     }

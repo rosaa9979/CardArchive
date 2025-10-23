@@ -165,7 +165,7 @@ namespace TcgEngine.Client
             return Vector3.zero;
         }
 
-        public List<T> GetComponentsUnderMouse<T>() where T : Component
+        public List<T> GetComponentsMouseRaycast<T>() where T : Component
         {
             PointerEventData pointerData = new PointerEventData(EventSystem.current)
             {
@@ -176,8 +176,9 @@ namespace TcgEngine.Client
             EventSystem.current.RaycastAll(pointerData, results);
 
             return results
-                .Select(r => r.gameObject.GetComponent<T>())
+                .Select(r => r.gameObject.GetComponent<T>()) 
                 .Where(c => c != null)
+                .Distinct() 
                 .ToList();
         }
 
