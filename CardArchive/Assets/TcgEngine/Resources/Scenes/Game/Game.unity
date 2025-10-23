@@ -1490,6 +1490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ui_panel: {fileID: 1112997664}
   card_ui: {fileID: 2017271466}
+  status_ui: {fileID: 1809736399}
   ui_row: {fileID: 1518745244}
   status_row: {fileID: 1809736400}
   status_lines:
@@ -1499,6 +1500,7 @@ MonoBehaviour:
   - {fileID: 1109671144}
   - {fileID: 852912322}
   - {fileID: 1089425459}
+  default_wide_area_range: {fileID: 0}
 --- !u!1 &308493775
 GameObject:
   m_ObjectHideFlags: 0
@@ -3460,6 +3462,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5406,6 +5413,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 9577d1ad99294674584d07ec032ec264,
         type: 3}
+    - target: {fileID: 3636298961429913219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7426997187891162908, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: x
@@ -5500,6 +5512,11 @@ PrefabInstance:
     - target: {fileID: 7426997187891162979, guid: 683a057051c59804eb32a44954f69029,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592588702132584219, guid: 683a057051c59804eb32a44954f69029,
+        type: 3}
+      propertyPath: m_Color.a
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -10084,7 +10101,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -55, y: 410}
+  m_AnchoredPosition: {x: -0.0000038146973, y: 410}
   m_SizeDelta: {x: 241.729, y: 954.8301}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1809736401
