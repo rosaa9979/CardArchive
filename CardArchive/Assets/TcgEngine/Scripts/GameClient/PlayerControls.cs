@@ -30,7 +30,18 @@ namespace TcgEngine.Client
                 return;
 
             if (Input.GetMouseButtonDown(1))
+            {
+                HandCard handcard = HandCard.GetDrag();
+                if (handcard != null)
+                {
+                    handcard.SetFocus(false);
+                    handcard.SetDrag(false);
+                }
+
                 UnselectAll();
+            }
+
+
 
             if (selected_card != null)
             {
@@ -133,6 +144,7 @@ namespace TcgEngine.Client
             selected_card = null;
 
             Game gdata = GameClient.Get().GetGameData();
+            HandCard handcard = HandCard.GetDrag();
 
             if (gdata.selector == SelectorType.SelectTarget)
             {

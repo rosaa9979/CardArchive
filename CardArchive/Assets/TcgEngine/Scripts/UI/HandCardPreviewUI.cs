@@ -21,22 +21,23 @@ namespace TcgEngine.UI
         public GameObject status_ui;
         private HandCard current_focus;
 
-        public RectTransform ui_row;
         public RectTransform status_row;
         public StatusLine[] status_lines;
 
-        private Vector2 ui_start_pos;
+        private Vector3 card_ui_start_pos;  // Vector2 대신 Vector3 사용 (world position)
         private Vector2 status_start_pos;
         private float offset;
+        private float card_ui_y_offset = 0.5f;  // 애니메이션 offset 상수화
 
         [Header("Default Setting")]
         public ConditionWideAreaRange default_wide_area_range;
 
         void Start()
         {
-            ui_start_pos = ui_row.anchoredPosition;
+            card_ui_start_pos = card_ui.gameObject.transform.position;
             status_start_pos = status_row.anchoredPosition;
-            offset = Math.Abs(ui_row.gameObject.transform.position.x - status_row.gameObject.transform.position.x);
+            
+            offset = Math.Abs(card_ui.gameObject.transform.position.x - status_row.gameObject.transform.position.x);
         }
 
         void Update()
@@ -44,22 +45,45 @@ namespace TcgEngine.UI
             HandCard hcard = HandCard.GetFocus();
 
             bool visible = false;
-
-            if (hcard != null)
+            if (hcard != null && HandCard.GetDrag() == null)
             {
                 visible = true;
 
                 if (hcard != current_focus)
                 {
                     current_focus = hcard;
-
                     SetCard();
                 }
 
-                Vector3 ui_position = new Vector3(current_focus.gameObject.transform.position.x, card_ui.gameObject.transform.position.y, card_ui.gameObject.transform.position.z);
-                card_ui.gameObject.transform.position = ui_position;
+                Vector3 ui_position = new Vector3(
+                    current_focus.gameObject.transform.position.x, 
+                    card_ui_start_pos.y,
+                    card_ui_start_pos.z   
+                );
+                
+                if (!DOTween.IsTweening(card_ui.transform))
+                {
+                    card_ui.gameObject.transform.position = new Vector3(
+                        ui_position.x,
+                        card_ui.gameObject.transform.position.y,
+                        ui_position.z
+                    );
+                }
+                else
+                {
+                    Vector3 current_pos = card_ui.gameObject.transform.position;
+                    card_ui.gameObject.transform.position = new Vector3(
+                        ui_position.x,
+                        current_pos.y,
+                        ui_position.z
+                    );
+                }
 
-                Vector3 status_position = new Vector3(current_focus.gameObject.transform.position.x + offset, status_ui.gameObject.transform.position.y, status_ui.gameObject.transform.position.z);
+                Vector3 status_position = new Vector3(
+                    current_focus.gameObject.transform.position.x + offset, 
+                    status_ui.gameObject.transform.position.y, 
+                    status_ui.gameObject.transform.position.z
+                );
                 status_ui.gameObject.transform.position = status_position;
 
                 Card pcard = hcard.GetCard();
@@ -70,8 +94,6 @@ namespace TcgEngine.UI
                     if (index < status_lines.Length)
                     {
                         if (ability.condition_wide_range != default_wide_area_range)
-                        //Dont display default ability (GetAbilitiesDesc does that already)
-                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
                         {
                             status_lines[index].SetLine(pcard.CardData, ability.condition_wide_range.thumnail);
                             index++;
@@ -84,8 +106,6 @@ namespace TcgEngine.UI
                     if (index < status_lines.Length)
                     {
                         if (!string.IsNullOrWhiteSpace(ability.desc))
-                        //Dont display default ability (GetAbilitiesDesc does that already)
-                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
                         {
                             status_lines[index].SetLine(pcard.CardData, ability);
                             index++;
@@ -93,7 +113,7 @@ namespace TcgEngine.UI
                     }
                 }
 
-                //Status
+                // Status
                 foreach (CardStatus status in pcard.GetAllStatus())
                 {
                     if (index < status_lines.Length)
@@ -108,11 +128,10 @@ namespace TcgEngine.UI
                     }
                 }
             }
-
             else
+            {
                 current_focus = null;
-
-
+            }
 
             if (visible)
                 ui_panel.Show(true);
@@ -122,16 +141,20 @@ namespace TcgEngine.UI
         
         public void SetCard()
         {
-            ui_row.DOKill(false);
+            card_ui.transform.DOKill(false);
 
             card_ui.SetCard(current_focus.GetCard());
 
-            Vector2 final_pos = ui_start_pos;
-            Vector2 start_pos = final_pos;
-            start_pos.y -= 25.0f;
+            float target_x = current_focus.gameObject.transform.position.x;
+            
+            Vector3 final_pos = new Vector3(target_x, card_ui_start_pos.y, card_ui_start_pos.z);
+            
+            Vector3 start_pos = final_pos;
+            start_pos.y -= card_ui_y_offset;
 
-            ui_row.anchoredPosition = start_pos;
-            ui_row.DOAnchorPos(final_pos, 0.5f).SetEase(Ease.OutExpo);
+            // card_ui 위치 설정 및 애니메이션
+            card_ui.gameObject.transform.position = start_pos;
+            card_ui.transform.DOMove(final_pos, 0.2f).SetEase(Ease.OutExpo);
         }
     }
 }

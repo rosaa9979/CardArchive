@@ -89,17 +89,6 @@ namespace TcgEngine.Client
 
             else if (IsDrag())
             {
-                //HandCard selected_card = GetDrag();
-                //if (selected_card != null)
-                //{
-                //    foreach (HandCard acard in card_list)
-                //   {
-                //        if (acard != selected_card)
-                //      {
-                //            acard.SetOpacity(0f);
-                //        }
-                //    }
-                //}
                 target_position = GetTargetPosition();
                 target_size = start_scale * 0.75f;
                 Vector3 dir = card_transform.position - prev_pos;
@@ -110,11 +99,6 @@ namespace TcgEngine.Client
             }
             else
             {
-                //foreach (HandCard acard in card_list)
-                //{
-                //    acard.SetOpacity(1f);
-                //}
-
                 target_rotate = new Vector3(0f, 0f, deck_angle);
                 current_rotate = new Vector3(0f, 0f, deck_angle);
             }
@@ -145,15 +129,6 @@ namespace TcgEngine.Client
             card_ui.SetCard(card);
             card_glow.enabled = IsFocus() || IsDrag();
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
-
-            if (GameUI.Get().GetHideUI())
-            {
-                SetOpacity(0f);
-            }
-            else
-            {
-                SetOpacity(1f);
-            }
 
             //Unselect
             if (!drag && selected && Input.GetMouseButtonDown(0))
@@ -196,6 +171,11 @@ namespace TcgEngine.Client
         public bool IsDrag()
         {
             return drag;
+        }
+
+        public bool IsArrive()
+        {
+            return deck_position == card_transform.anchoredPosition;
         }
 
         public Card GetCard()
@@ -246,18 +226,6 @@ namespace TcgEngine.Client
             selected = true;
             PlayerControls.Get().UnselectAll();
             AudioTool.Get().PlaySFX("hand_card", AssetData.Get().hand_card_click_audio);
-
-            
-            HandCard selected_card = GetDrag();
-            if (selected_card != null)
-            {
-                foreach (HandCard acard in card_list)
-                {
-                    if (acard != selected_card)
-                        acard.SetHide(false);
-                }
-                OpponentHand.Get().SetHide(false);
-            }
         }
 
         public void OnMouseUpCard()
@@ -265,15 +233,12 @@ namespace TcgEngine.Client
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
             Vector3 board_pos = GameBoard.Get().RaycastMouseBoard();
 
-            foreach (HandCard acard in card_list)
-                acard.SetHide(true);
-            OpponentHand.Get().SetHide(true);
-
             if (drag && mpos.y > 0.15f)
                 TryPlayCard(board_pos);
             else
                 HandCardArea.Get().SortCards();
             drag = false;
+            focus = false;
         }
 
         public void TryPlayCard(Vector3 board_pos)
@@ -327,6 +292,26 @@ namespace TcgEngine.Client
                 BoardCard.UnfocusAll();
         }
 
+        public void SetDrag(bool is_drag)
+        {
+            drag = is_drag;
+        }
+
+        public void SetFocus(bool is_focus)
+        {
+            focus = is_focus;
+        }
+
+        public void SetOpacity(float opacity)
+        {
+            card_ui.SetOpacity(opacity);
+        }
+
+        public void SetHide(bool status)
+        {
+            this.gameObject.SetActive(status);
+        }
+
         public CardData CardData { get { return GetCardData(); } }
 
         public static HandCard GetDrag()
@@ -373,16 +358,6 @@ namespace TcgEngine.Client
         public static List<HandCard> GetAll()
         {
             return card_list;
-        }
-
-        public void SetOpacity(float opacity)
-        {
-            card_ui.SetOpacity(opacity);
-        }
-
-        public void SetHide(bool status)
-        {
-            this.gameObject.SetActive(status);
         }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine.UI;
+using Unity.VisualScripting;
 
 namespace TcgEngine.Client
 {
@@ -73,6 +74,23 @@ namespace TcgEngine.Client
                 card.deck_position = new Vector2((index - count_half) * card_spacing, (index - count_half) * (index - count_half) * -card_offset_y);
                 card.deck_angle = (index - count_half) * -card_angle;
                 index++;
+            }
+
+            HandCard selected_card = HandCard.GetDrag();
+            List<HandCard> card_list = HandCard.GetAll();
+
+            foreach (HandCard hcard in card_list)
+            {
+                bool visible = false;
+                if (!GameUI.Get().GetHideUI())
+                {
+                    if (selected_card == null)
+                        visible = true;
+                    else if (selected_card == hcard)
+                        visible = true;
+                }
+
+                hcard.SetHide(visible);
             }
 
             //Set target forcus
