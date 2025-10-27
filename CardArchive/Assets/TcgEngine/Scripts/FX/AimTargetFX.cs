@@ -60,15 +60,39 @@ namespace TcgEngine.FX
                 }
             }
 
-            /*
+            
             HandCard hcard = HandCard.GetDrag();
             if (hcard != null)
             {
-                Card caster = hcard.GetCard();
-                if (caster.CardData.IsRequireTarget())
-                    visible = true;
+                if (bslot != null)
+                {
+                    Card caster = hcard.GetCard();
+                    Card target = game_data.GetSlotCard(bslot.GetSlot());
+                    if (caster.CardData.IsRequireTarget())
+                    {
+                        text_visible = true;
+                        AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
+
+                        if (!string.IsNullOrWhiteSpace(ability.selector_desc))
+                        {
+                            text_visible = true;
+                            TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                            tmpro_text.text = ability.selector_desc;
+                        }
+
+                        if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                        {
+                            visible = true;
+                        }
+
+                        if (ability.CanTarget(game_data, caster, target))
+                        {
+                            visible = true;
+                        }
+                    }
+                }
             }
-            */
+            
 
             if (target_fx.activeSelf != visible)
                 target_fx.SetActive(visible);

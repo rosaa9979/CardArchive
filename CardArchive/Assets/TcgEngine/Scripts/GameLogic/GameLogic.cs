@@ -201,8 +201,6 @@ namespace TcgEngine.Gameplay
                     DamageCard_Event(card, card.GetStatusValue(StatusType.Poisoned));
             }
 
-
-
             //StartTurn Abilities
             foreach (Player p in game_data.players)
                 TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
@@ -214,7 +212,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddCallback(StartMainPhase);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(1.5f);
         }
 
         public virtual void StartNextTurn()
@@ -829,16 +827,27 @@ namespace TcgEngine.Gameplay
 
             //if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
             //    return;
-            
+
 
             attacker.RemoveStatus(StatusType.Stealth);
+            
+            if (attacker.HasStatus(StatusType.MassShooting))
+            {
+                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                if (ran < 0.5)
+                {
+                    if (!game_data.attack_evade_list.Contains(target))
+                        game_data.attack_evade_list.Add(target);
+                }
+            }
 
             if (target.HasStatus(StatusType.Evasion))
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                 if (ran < 0.5)
                 {
-                    game_data.attack_evade_list.Add(target);
+                    if (!game_data.attack_evade_list.Contains(target))
+                        game_data.attack_evade_list.Add(target);
                 }
             }
 

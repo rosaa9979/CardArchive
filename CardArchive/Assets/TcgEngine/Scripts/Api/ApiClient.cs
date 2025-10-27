@@ -146,7 +146,7 @@ namespace TcgEngine
             string json = ApiTool.ToJson(data);
 
             WebResponse res = await SendPostRequest(url, json);
-            LoginResponse login_res = GetLoginRes(res);
+            LoginResponse login_res = await GetLoginRes(res);
             AfterLogin(login_res);
 
             onLogin?.Invoke(login_res);
@@ -161,22 +161,24 @@ namespace TcgEngine
             string json = ApiTool.ToJson(data);
 
             WebResponse res = await SendPostRequest(url, json);
-            LoginResponse login_res = GetLoginRes(res);
+            LoginResponse login_res = await GetLoginRes(res);
             AfterLogin(login_res);
 
             onRefresh?.Invoke(login_res);
             return login_res;
         }
 
-        private LoginResponse GetLoginRes(WebResponse res)
+        private async Task<LoginResponse> GetLoginRes(WebResponse res)
         {
             LoginResponse login_res = ApiTool.JsonToObject<LoginResponse>(res.data);
             login_res.success = res.success;
             login_res.error = res.error;
+            Debug.Log(login_res.version);
 
+            string server_version = await SendGetVersion();
             //Uncomment to force having same client version as api
             //if (!IsVersionValid())
-            if (ClientVersion != login_res.version)
+            if (ClientVersion != server_version)
             {
                 login_res.error = "Invalid Version";
                 login_res.success = false;

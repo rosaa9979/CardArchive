@@ -464,6 +464,16 @@ namespace TcgEngine
             return null;
         }
 
+        public AbilityData GetAbility(AbilityTarget target)
+        {
+            foreach (AbilityData iability in GetAbilities())
+            {
+                if (iability.criteria_target == target)
+                    return iability;
+            }
+            return null;
+        }
+
         public bool HasAbility(AbilityData ability)
         {
             foreach (AbilityData iability in GetAbilities())

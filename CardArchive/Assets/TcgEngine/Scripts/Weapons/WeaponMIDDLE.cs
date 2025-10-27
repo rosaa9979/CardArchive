@@ -85,9 +85,7 @@ namespace TcgEngine
                     if (targ == attacker || attacker.player_id == targ.player_id)
                         continue;
 
-                    float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                    if (ran < 0.5)
-                        target.Add(targ);
+                    target.Add(targ);
                 }
             }
             

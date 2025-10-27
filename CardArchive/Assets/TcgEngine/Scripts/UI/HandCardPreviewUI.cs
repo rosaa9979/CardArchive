@@ -42,6 +42,12 @@ namespace TcgEngine.UI
 
         void Update()
         {
+            if (!GameClient.Get().IsReady())
+                return;
+
+            foreach (StatusLine line in status_lines)
+                line.Hide();
+
             HandCard hcard = HandCard.GetFocus();
 
             bool visible = false;
