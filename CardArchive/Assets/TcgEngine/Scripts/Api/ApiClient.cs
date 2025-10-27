@@ -173,7 +173,6 @@ namespace TcgEngine
             LoginResponse login_res = ApiTool.JsonToObject<LoginResponse>(res.data);
             login_res.success = res.success;
             login_res.error = res.error;
-            Debug.Log(login_res.version);
 
             string server_version = await SendGetVersion();
             //Uncomment to force having same client version as api

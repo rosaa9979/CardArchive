@@ -29,6 +29,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
+  can_cancel: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -38,6 +39,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\uB4F1\uAD50"
-  desc: "\uCCAD\uD718\uC11D\uC744 \uC18C\uBAA8\uD558\uC5EC \uD328\uC5D0\uC11C \uC18C\uD658\uB420
-    \uB54C \uBC1C\uB3D9"
+  title: 
+  desc: 
+  selector_desc: 

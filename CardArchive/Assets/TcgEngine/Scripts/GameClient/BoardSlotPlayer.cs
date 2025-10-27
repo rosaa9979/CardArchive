@@ -133,6 +133,7 @@ namespace TcgEngine.Client
             if (GameUI.IsUIOpened() || GameUI.IsOverUILayer("UI"))
                 return;
 
+            Debug.Log("Hello");
             Game gdata = GameClient.Get().GetGameData();
             int player_id = GameClient.Get().GetPlayerID();
             if (gdata.selector == SelectorType.SelectTarget && player_id == gdata.selector_player_id)

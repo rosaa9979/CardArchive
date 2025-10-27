@@ -29,6 +29,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
+  can_cancel: 1
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -41,3 +42,4 @@ MonoBehaviour:
   title: "\uB4F1\uAD50"
   desc: "\uCCAD\uD718\uC11D\uC744 \uC18C\uBAA8\uD558\uC5EC \uD328\uC5D0\uC11C \uC18C\uD658\uB420
     \uB54C \uBC1C"
+  selector_desc: "\uCC9C\uB465\uC774 \uC18C\uD658"

@@ -47,13 +47,19 @@ namespace TcgEngine.FX
                 {
                     Card caster = game_data.GetCard(game_data.selector_caster_uid);
                     Card target = game_data.GetSlotCard(bslot.GetSlot());
+                    Player player = bslot.GetPlayer();
 
-                    if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                    if (ability.criteria_target == AbilityTarget.SelectSlot && ability.CanTarget(game_data, caster, bslot.GetSlot()))
                     {
                         visible = true;
                     }
 
-                    if (ability.CanTarget(game_data, caster, target))
+                    if ((ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget) && ability.CanTarget(game_data, caster, target))
+                    {
+                        visible = true;
+                    }
+
+                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, player))
                     {
                         visible = true;
                     }
@@ -68,6 +74,8 @@ namespace TcgEngine.FX
                 {
                     Card caster = hcard.GetCard();
                     Card target = game_data.GetSlotCard(bslot.GetSlot());
+                    Player player = bslot.GetPlayer();
+
                     if (caster.CardData.IsRequireTarget())
                     {
                         text_visible = true;
@@ -80,12 +88,17 @@ namespace TcgEngine.FX
                             tmpro_text.text = ability.selector_desc;
                         }
 
-                        if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                        if (ability.criteria_target == AbilityTarget.SelectSlot && ability.CanTarget(game_data, caster, bslot.GetSlot()))
                         {
                             visible = true;
                         }
 
-                        if (ability.CanTarget(game_data, caster, target))
+                        if ((ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget) && ability.CanTarget(game_data, caster, target))
+                        {
+                            visible = true;
+                        }
+
+                        if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, player))
                         {
                             visible = true;
                         }

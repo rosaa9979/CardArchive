@@ -39,6 +39,7 @@ namespace TcgEngine
         //Sellector Target
         public string selector_target_card_uid;
         public Slot selector_target_slot;
+        public Player selector_target_player;
         public Slot selector_caster_slot;
         public int selector_hand_index;
 
@@ -201,7 +202,7 @@ namespace TcgEngine
                 //    return false; //Cant play on opponent side
 
                 // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
-                if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
+                if (GetOpponentPlayer(player.player_id).player_id == slot.p)
                     return false; //Cant play on opponent side
 
                 if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))

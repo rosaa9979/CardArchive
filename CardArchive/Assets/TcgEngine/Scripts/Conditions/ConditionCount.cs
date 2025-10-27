@@ -92,11 +92,11 @@ namespace TcgEngine
         {
             bool is_type = has_type.Contains(card.CardData.type) || has_type.Count == 0;
             //bool is_type = card.CardData.type == has_type || has_type == CardType.None;
-            bool is_club = has_club.Count == 0 || has_club.Any(clubData => card.GetAllClubs().Any(club => club.ClubData == clubData));
+            bool is_club = has_club.Any(clubData => card.GetAllClubs().Any(club => club.ClubData == clubData)) || has_club.Count == 0;
             //bool is_team = card.CardData.team == has_team || has_team == null;
-            bool is_trait = has_trait.Count == 0 || has_trait.Any(traitData => card.GetAllTraits().Any(club => club.TraitData == traitData));
+            bool is_trait = has_trait.Any(traitData => card.GetAllTraits().Any(club => club.TraitData == traitData)) || has_trait.Count == 0;
             //return (is_type && is_team && is_trait);
-            bool is_card = has_card.Count == 0 || has_card.Any(cardId => card.card_id == cardId.id);
+            bool is_card = has_card.Any(cardId => card.card_id == cardId.id) || has_card.Count == 0;
             return (is_type && is_club && is_trait && is_card);
         }
     }

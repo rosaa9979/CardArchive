@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: spell_change_Front
+  m_Name: ODO_return_deck_Arius
   m_EditorClassIdentifier: 
-  id: spell_change_Front
-  trigger: 10
-  conditions_trigger: []
+  id: ODO_return_deck_Arius
+  trigger: 42
+  conditions_trigger:
+  - {fileID: 11400000, guid: 4834f5dbb462b9f41a47406ab8f2cf5a, type: 2}
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 20
-  conditions_criteria_target:
-  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
+  criteria_target: 25
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 0e591947bb93ad444a292b2d225b1dd0, type: 2}
+  - {fileID: 11400000, guid: ce0c0b8dcf95f1b40b6d2b486503d4bb, type: 2}
   status: []
   value: 0
   duration: 0
-  can_cancel: 1
-  chain_abilities:
-  - {fileID: 11400000, guid: 1b4945b6d4e398947a9fbb8c6ecd79ca, type: 2}
+  can_cancel: 0
+  chain_abilities: []
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}
@@ -41,4 +41,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
-  selector_desc: "Front\uB85C \uBCC0\uACBD, \uACF5\uACA9\uB825 +2"
+  selector_desc: 

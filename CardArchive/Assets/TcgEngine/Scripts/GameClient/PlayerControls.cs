@@ -41,17 +41,25 @@ namespace TcgEngine.Client
                 UnselectAll();
             }
 
-
-
             if (selected_card != null)
             {
                 if (Input.GetMouseButtonUp(0))
                     ReleaseClick();
             }
+
+            Vector2 mouse_input = GameBoard.Get().RaycastMouseBoard();
+            BSlot player_slot = BSlot.GetNearest(mouse_input);
+            Player player = player_slot?.GetPlayer();
+            if (player != null)
+            {
+                if (Input.GetMouseButtonDown(0))
+                    SelectPlayer(player);
+            }
         }
 
         public void SelectCard(BoardCard bcard)
         {
+            Debug.Log("몇 번 들어옴?");
             Game gdata = GameClient.Get().GetGameData();
             Player player = GameClient.Get().GetPlayer();
             Card card = bcard.GetFocusCard();
@@ -87,6 +95,18 @@ namespace TcgEngine.Client
             }
         }
 
+        public void SelectPlayer(Player player)
+        {
+            Game gdata = GameClient.Get().GetGameData();
+            Player client_player = GameClient.Get().GetPlayer();
+
+            if (gdata.IsPlayerSelectorTurn(client_player) && gdata.selector == SelectorType.SelectTarget)
+            {
+                GameClient.Get().SelectPlayer(player);
+            }
+        }
+
+
         public void SelectCardRight(BoardCard card)
         {
             if (!Input.GetMouseButton(0))
@@ -114,26 +134,6 @@ namespace TcgEngine.Client
                         
                     GameClient.Get().CastAbility(card, ability.GetAbility());
                 }
-                /*
-                else if (tslot is BoardSlotPlayer)
-                {
-                    if (card.exhausted)
-                        WarningText.ShowExhausted();
-                    else
-                        GameClient.Get().AttackPlayer(card, tslot.GetPlayer());
-                }
-                else if (target != null && target.uid != card.uid && target.player_id != card.player_id)
-                {
-                    if(card.exhausted)
-                        WarningText.ShowExhausted();
-                    else
-                        GameClient.Get().AttackTarget(card, target);
-                }
-                else if (tslot != null && tslot is BoardSlot)
-                {
-                    GameClient.Get().Move(card, tslot.GetSlot());
-                }
-                */
             }
 
             UnselectAll();

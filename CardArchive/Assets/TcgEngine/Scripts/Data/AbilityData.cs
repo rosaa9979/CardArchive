@@ -336,6 +336,9 @@ namespace TcgEngine
         //Can target check additional restrictions and is usually for SelectTarget or PlayTarget abilities
         public bool CanTarget(Game data, Card caster, Player target)
         {
+            if (caster == null || target == null)
+                return false;
+
             bool condition_match = AreCriteriaTargetConditionsMet(data, caster, target);
             return condition_match;
         }
@@ -608,6 +611,10 @@ namespace TcgEngine
             {
                 targets.AddRange(data.players);
             }
+            else if (criteria_target == AbilityTarget.SelectTarget)
+            {
+                targets.Add(data.selector_target_player);
+            }
 
             //Filter targets
             if (filters_target != null && targets.Count > 0)
@@ -640,9 +647,10 @@ namespace TcgEngine
                 }
             }
 
-            if (criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectSlot)
+            if (criteria_target == AbilityTarget.SelectSlot)
             {
                 Slot slot = data.selector_target_slot;
+                Debug.Log(slot.x + " " + slot.y + " " + slot.p);
 
                 if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
                     candiidate_targets.Add(slot);
@@ -709,7 +717,6 @@ namespace TcgEngine
                         targets = filter.FilterTargets(data, this, caster, targets, memory_array.GetOther(targets));
                 }
             }
-
 
             //return targets;
             return targets;

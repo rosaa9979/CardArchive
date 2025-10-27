@@ -25,7 +25,8 @@ MonoBehaviour:
   weapon: {fileID: 11400000, guid: 2a8d71bb86488964fbed8db04f3c214f, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: b69a6ab768a69e64492a517548c296ba, type: 2}
   text: "\uC0C1\uB300\uD3B8 \uD0C0\uC77C\uC5D0 \uC18C\uD658\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}

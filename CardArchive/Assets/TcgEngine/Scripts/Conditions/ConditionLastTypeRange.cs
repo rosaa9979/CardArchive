@@ -14,14 +14,14 @@ namespace TcgEngine
     public class ConditionLastTypeRange : ConditionData
     {
         [Header("Last Type")]
-        public LastType type;
+        public ConditionLastType type;
         public int range;
 
         public ConditionOperatorBool oper;
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
         {
-            if (type == LastType.LastPlayed)
+            if (type == ConditionLastType.LastPlayed)
                 return CompareBool(data.last_played == target.uid, oper);
 
 
@@ -32,22 +32,22 @@ namespace TcgEngine
         {
             bool result = false;
             
-            if (type == LastType.LastPlayed)
+            if (type == ConditionLastType.LastPlayed)
                 return false;
 
-            if (type == LastType.LastAttacked)
+            if (type == ConditionLastType.LastAttacked)
             {
                 if (!data.last_player_attacked && data.last_attacked_slot.GetNeighborSlot(range).Contains(target))
                     result = true;
             }
 
-            if (type == LastType.LastTargeted && data.last_targeted_slot.GetNeighborSlot(range).Contains(target))
+            if (type == ConditionLastType.LastTargeted && data.last_targeted_slot.GetNeighborSlot(range).Contains(target))
                 result = true;
 
-            if (type == LastType.LastSummoned && data.last_summoned_slot.GetNeighborSlot(range).Contains(target))
+            if (type == ConditionLastType.LastSummoned && data.last_summoned_slot.GetNeighborSlot(range).Contains(target))
                 result = true;
 
-            if (type == LastType.LastDestroyed && data.last_destroyed_slot.GetNeighborSlot(range).Contains(target))
+            if (type == ConditionLastType.LastDestroyed && data.last_destroyed_slot.GetNeighborSlot(range).Contains(target))
                 result = true;
 
             return CompareBool(result, oper);

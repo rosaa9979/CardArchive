@@ -30,7 +30,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
-  can_cancel: 0
+  can_cancel: 1
   chain_abilities:
   - {fileID: 11400000, guid: 2a18190cd46a78b4ebef221c2a358af0, type: 2}
   mana_cost: 1
@@ -43,4 +43,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
-  selector_desc: 
+  selector_desc: "\uC720\uB2DB \uC120\uD0DD"

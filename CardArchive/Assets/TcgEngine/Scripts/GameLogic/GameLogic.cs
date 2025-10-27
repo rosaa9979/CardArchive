@@ -1224,6 +1224,9 @@ namespace TcgEngine.Gameplay
         
         public virtual void DamagePlayer_Event(Card attacker, Player target, int value)
         {
+            if (attacker == null || target == null)
+                return;
+
             //Damage player
             target.hp -= value;
             target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
@@ -1529,6 +1532,7 @@ namespace TcgEngine.Gameplay
 
             if (was_on_board)
             {
+                Debug.Log("2번 들어옴?");
                 //Trigger on death abilities
                 TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
@@ -2364,9 +2368,16 @@ namespace TcgEngine.Gameplay
                     player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
                 game_data.selector = SelectorType.None;
-                ResolveEffectTarget(ability, caster, target);
-                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                resolve_queue.ResolveAll();
+                game_data.selector_target_player = target;
+
+                if (ability.trigger == AbilityTrigger.OnPlay)
+                    PlayCard(caster, game_data.selector_caster_slot);
+                else
+                {
+                    ResolveEffectTarget(ability, caster, target);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.ResolveAll();
+                }                
             }
         }
 
@@ -2388,10 +2399,10 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (ability.criteria_target == AbilityTarget.SelectCard)
+                if (ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget)
                     SelectCard(target_card);
                 
-                else
+                else if (ability.criteria_target == AbilityTarget.SelectSlot)
                 {
                     if (!ability.CanTarget(game_data, caster, target))
                         return; //Conditions not met
@@ -2409,7 +2420,7 @@ namespace TcgEngine.Gameplay
                     {
                         List<Slot> targets = new List<Slot>();
 
-                        if (ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectSlot)
+                        if (ability.criteria_target == AbilityTarget.SelectSlot)
                             targets = Slot.GetAll();
                         
                         foreach (Slot targ in targets)

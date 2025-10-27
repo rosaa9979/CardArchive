@@ -10,7 +10,7 @@ namespace TcgEngine
     /// 카드의 경우 last_played는 거리 조건을 따지지 않음 (play는 이벤트 카드도 가능하기 때문)
     /// </summary>
 
-    public enum LastType
+    public enum ConditionLastType
     {
         None = 0,
         LastAttacked = 1,
@@ -25,13 +25,13 @@ namespace TcgEngine
     public class ConditionLastTypeExist : ConditionData
     {
         [Header("Last Type")]
-        public LastType type;
+        public ConditionLastType type;
 
         public ConditionOperatorBool oper;
 
         public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
         {
-            if (type == LastType.LastSelected)
+            if (type == ConditionLastType.LastSelected)
             {
                 return CompareBool(data.last_selected != "", oper);
             }

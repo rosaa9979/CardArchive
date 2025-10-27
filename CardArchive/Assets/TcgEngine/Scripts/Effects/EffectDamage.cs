@@ -22,11 +22,6 @@ namespace TcgEngine
     {
         public ValueType damage_type;
         public TraitData bonus_damage;
-        /*
-        [Header("Who to effect")]
-        public bool ally;
-        public bool enemy;
-        */
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
