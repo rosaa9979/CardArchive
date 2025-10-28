@@ -25,7 +25,7 @@ namespace TcgEngine
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
-        { 
+        {
             Card slot_card = data.GetSlotCard(target);
             return CompareBool(slot_card == null, oper);
         }

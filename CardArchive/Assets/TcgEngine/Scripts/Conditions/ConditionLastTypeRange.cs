@@ -24,7 +24,8 @@ namespace TcgEngine
             if (type == ConditionLastType.LastPlayed)
                 return CompareBool(data.last_played == target.uid, oper);
 
-
+            if (type == ConditionLastType.LastTargeted)
+                return CompareBool(data.GetSlotCard(data.last_targeted_slot).uid == target.uid, oper);
             return IsTargetConditionMet(data, ability, caster, target.slot);
         }
 

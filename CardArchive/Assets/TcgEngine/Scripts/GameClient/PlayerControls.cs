@@ -59,7 +59,6 @@ namespace TcgEngine.Client
 
         public void SelectCard(BoardCard bcard)
         {
-            Debug.Log("몇 번 들어옴?");
             Game gdata = GameClient.Get().GetGameData();
             Player player = GameClient.Get().GetPlayer();
             Card card = bcard.GetFocusCard();

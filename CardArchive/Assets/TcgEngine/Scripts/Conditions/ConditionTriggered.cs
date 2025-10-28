@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// ability의 widerangearea condition에서만 사용하며, 선택한 슬롯을 기점으로 효과 범위를 정의한다
+    /// Other Ability의 Trigger을 판단한다.
     /// </summary>
 
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/Triggered", order = 11)]

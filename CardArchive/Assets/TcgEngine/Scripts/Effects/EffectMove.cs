@@ -17,7 +17,6 @@ namespace TcgEngine
         {
             Game game_data = logic.GetGameData();
             Card target_unit = GetTarget(game_data, caster);
-
             logic.MoveCard(target_unit, target);
         }
 
@@ -30,7 +29,9 @@ namespace TcgEngine
             if (target_type == EffectActionType.LastPlayed)
                 return gdata.GetCard(gdata.last_played);
             if (target_type == EffectActionType.LastTargeted)
-                return gdata.GetCard(gdata.last_target);
+                return gdata.GetSlotCard(gdata.last_targeted_slot);
+            if (target_type == EffectActionType.LastSelected)
+                return gdata.GetCard(gdata.last_selected);
             return null;
         }
     }

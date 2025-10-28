@@ -8,19 +8,26 @@ namespace TcgEngine
     /// <summary>
     /// Effect that damages a card or a player (lose hp)
     /// </summary>
-    
-    public enum ValueType
+
+    public enum EffectValueType
     {
         Value = 0,
         Attack = 1,
         Health = 2,
     }
 
+    public enum EffectDamageType
+    {
+        Card = 0,
+        Slot = 1,
+    }
+
 
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/Damage", order = 10)]
     public class EffectDamage : EffectData
     {
-        public ValueType damage_type;
+        public EffectValueType damage_type;
+        public EffectValueType value_type;
         public TraitData bonus_damage;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
@@ -50,9 +57,9 @@ namespace TcgEngine
 
         private int GetDamage(Game data, Card caster, int value)
         {
-            if (damage_type == ValueType.Attack)
+            if (value_type == EffectValueType.Attack)
                 value = caster.GetAttack();
-            if (damage_type == ValueType.Health)
+            if (value_type == EffectValueType.Health)
                 value = caster.GetHP();
                 
             Player player = data.GetPlayer(caster.player_id);

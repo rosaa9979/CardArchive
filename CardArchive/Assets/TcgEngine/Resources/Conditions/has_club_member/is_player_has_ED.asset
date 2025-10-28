@@ -16,7 +16,8 @@ MonoBehaviour:
   pile: 10
   oper: 4
   value: 0
-  has_type: 0
-  has_club: {fileID: 11400000, guid: 21062443c6d01a74d854beec9fa30fa3, type: 2}
-  has_trait: {fileID: 0}
-  has_card: {fileID: 0}
+  has_type: 
+  has_club:
+  - {fileID: 11400000, guid: 21062443c6d01a74d854beec9fa30fa3, type: 2}
+  has_trait: []
+  has_card: []

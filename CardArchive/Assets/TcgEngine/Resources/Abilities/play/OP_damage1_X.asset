@@ -16,7 +16,7 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 32
+  criteria_target: 30
   conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 42b49c23d3c3c9747a9809d84dfdc1f1,
     type: 2}

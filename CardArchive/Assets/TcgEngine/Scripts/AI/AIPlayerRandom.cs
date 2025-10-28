@@ -210,20 +210,8 @@ namespace TcgEngine.AI
             {
                 int target_player = player_id;
                 AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-                if (ability != null && ability.criteria_target == AbilityTarget.SelectTarget || ability.criteria_target == AbilityTarget.SelectCard)
-                {
-                    //target_player = (player_id == 0 ? 1 : 0);
 
-                    Player tplayer = game_data.GetPlayer(target_player);
-                    if (tplayer.cards_board.Count > 0)
-                    {
-                        Card random = tplayer.GetRandomCard(tplayer.cards_board, rand);
-                        if (random != null)
-                            gameplay.SelectCard(random);
-                    }
-                }
-
-                if (ability != null && ability.criteria_target == AbilityTarget.SelectSlot)
+                if (ability != null && ability.criteria_target == AbilityTarget.SelectTarget)
                 {
                     Slot random = Slot.GetRandom(rand);
                     if (random != null)

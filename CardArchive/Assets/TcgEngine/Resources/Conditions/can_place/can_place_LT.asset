@@ -9,7 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d1139fa4e8d28b40a554bc12fe19361, type: 3}
-  m_Name: move_ls_unit
+  m_Script: {fileID: 11500000, guid: 2f9ad77e60813854ba561fa6ab16538f, type: 3}
+  m_Name: can_place_LT
   m_EditorClassIdentifier: 
-  target_type: 72
+  last_type: 2
+  place_card: {fileID: 0}
+  card_owner: 0
+  oper: 0

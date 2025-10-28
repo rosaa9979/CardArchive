@@ -53,9 +53,10 @@ namespace TcgEngine
 
     public enum EffectActionType
     {
-        Self = 1,                  
-        AbilityTriggerer = 25, 
-        LastPlayed = 70,  
-        LastTargeted = 72, 
+        Self = 1,
+        AbilityTriggerer = 25,
+        LastPlayed = 70,
+        LastTargeted = 72,
+        LastSelected = 74,
     }
 }

@@ -28,9 +28,10 @@ namespace TcgEngine
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
         {
-            bool same_owner = Slot.GetP(caster.player_id) == target.p;
-                
-            return CompareBool(same_owner, oper);
+            Card slot_card = data.GetSlotCard(target);
+            if (slot_card != null)
+                return IsTargetConditionMet(data, ability, caster, slot_card);
+            return false;
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)

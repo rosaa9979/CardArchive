@@ -621,7 +621,7 @@ namespace TcgEngine.Gameplay
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
                 game_data.selector_caster_slot = slot;
-                if (card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget) || card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectCard) || card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectSlot))
+                if (card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget))
                 {
                     AbilityData iability = card.GetAbility(AbilityTrigger.OnPlay);
 
@@ -1532,7 +1532,6 @@ namespace TcgEngine.Gameplay
 
             if (was_on_board)
             {
-                Debug.Log("2번 들어옴?");
                 //Trigger on death abilities
                 TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
@@ -1624,7 +1623,6 @@ namespace TcgEngine.Gameplay
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
-
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
             {
                 int current_repeat = 0;
@@ -1670,10 +1668,10 @@ namespace TcgEngine.Gameplay
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
 
-            if (iability.trigger == AbilityTrigger.OnDeathOther && (caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster)))
+            if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
                 return;
 
-            //Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1699,7 +1697,7 @@ namespace TcgEngine.Gameplay
                 return false;
             
             
-            if (iability.trigger != AbilityTrigger.OnPlay && (iability.criteria_target == AbilityTarget.SelectTarget || iability.criteria_target == AbilityTarget.SelectCard || iability.criteria_target == AbilityTarget.SelectSlot))
+            if (iability.trigger != AbilityTrigger.OnPlay && iability.criteria_target == AbilityTarget.SelectTarget)
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
@@ -1724,22 +1722,16 @@ namespace TcgEngine.Gameplay
             if (iability.criteria_target == AbilityTarget.PlayTarget)
             {
                 Slot slot = caster.slot;
-                Card slot_card = game_data.GetSlotCard(slot);
-                if (slot.IsPlayerSlot())
+                List<Slot> target_slots = new List<Slot>();
+
+                if (iability.CanTarget(game_data, caster, slot))
                 {
-                    Player tplayer = game_data.GetPlayer(slot.p);
-                    if (iability.CanTarget(game_data, caster, tplayer))
-                        ResolveEffectTarget(iability, caster, tplayer);
+                    target_slots = iability.GetSlotTargets(game_data, caster);
                 }
-                else if (slot_card != null)
+                
+                foreach (Slot target_slot in target_slots)
                 {
-                    if (iability.CanTarget(game_data, caster, slot_card))
-                        ResolveEffectTarget(iability, caster, slot_card);
-                }
-                else
-                {
-                    if (iability.CanTarget(game_data, caster, slot))
-                        ResolveEffectTarget(iability, caster, slot);
+                    ResolveEffectTarget(iability, caster, target_slot);
                 }
             }
         }
@@ -1779,6 +1771,7 @@ namespace TcgEngine.Gameplay
             //Resolve effects
             foreach (Slot target in targets)
             {
+                Debug.Log(target.x + " " + target.y + " " + target.p);
                 ResolveEffectTarget(iability, caster, target);
             }
         }
@@ -1828,6 +1821,8 @@ namespace TcgEngine.Gameplay
             iability.DoEffects(this, caster, target);
 
             onAbilityTargetSlot?.Invoke(iability, caster, target);
+
+            game_data.last_targeted_slot = target;
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target)
@@ -2340,9 +2335,16 @@ namespace TcgEngine.Gameplay
                     return; //Supports conditions and filters
 
                 game_data.selector = SelectorType.None;
-                ResolveEffectTarget(ability, caster, target);
-                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                resolve_queue.ResolveAll();
+                game_data.selector_target_card_uid = target.uid;
+
+                if (ability.trigger == AbilityTrigger.OnPlay)
+                    PlayCard(caster, game_data.selector_caster_slot);
+                else
+                {
+                    ResolveEffectTarget(ability, caster, target);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.ResolveAll();
+                }  
             }
         }
 
@@ -2383,12 +2385,12 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
+            Debug.Log("여기는 들어오지?");
             if (game_data.selector == SelectorType.None)
                 return;
 
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
             Card triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
-            Card target_card = game_data.GetSlotCard(target);
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
 
             if (caster == null || ability == null || !target.IsValid())
@@ -2399,42 +2401,35 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget)
-                    SelectCard(target_card);
-                
-                else if (ability.criteria_target == AbilityTarget.SelectSlot)
+                if (!ability.CanTarget(game_data, caster, target))
+                    return; //Conditions not met
+
+
+                Player player = game_data.GetPlayer(caster.player_id);
+                if (!is_ai_predict)
+                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
+
+                game_data.selector = SelectorType.None;
+                game_data.selector_target_slot = target;
+
+                if (ability.trigger == AbilityTrigger.OnPlay)
+                    PlayCard(caster, game_data.selector_caster_slot);
+                else
                 {
-                    if (!ability.CanTarget(game_data, caster, target))
-                        return; //Conditions not met
-
-                    Player player = game_data.GetPlayer(caster.player_id);
-                    if (!is_ai_predict)
-                        player.AddHistory(GameAction.CastAbility, caster, ability, target);
-
-                    game_data.selector = SelectorType.None;
-                    game_data.selector_target_slot = target;
-
-                    if (ability.trigger == AbilityTrigger.OnPlay)
-                        PlayCard(caster, game_data.selector_caster_slot);
-                    else
+                    List<Slot> targets = Slot.GetAll();
+                    
+                    foreach (Slot targ in targets)
                     {
-                        List<Slot> targets = new List<Slot>();
+                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
+                            continue;
 
-                        if (ability.criteria_target == AbilityTarget.SelectSlot)
-                            targets = Slot.GetAll();
-                        
-                        foreach (Slot targ in targets)
-                        {
-                            if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
-                                continue;
+                        if (ability.AreTargetConditionsMet(game_data, caster, targ))
+                        ResolveEffectTarget(ability, caster, targ);
+                    }
 
-                            ResolveEffectTarget(ability, caster, targ);
-                        }
-
-                        AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                        resolve_queue.ResolveAll();
-                    }    
-                }
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.ResolveAll();
+                }    
             }
         }
 

@@ -461,23 +461,11 @@ namespace TcgEngine
                     candidate_targets.Add(caster);
             }
 
-            if (criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectCard)
+            if (criteria_target == AbilityTarget.SelectTarget)
             {
                 Card selected_card = data.GetCard(data.selector_target_card_uid);
                 if (selected_card != null && AreCriteriaTargetConditionsMet(data, caster, selected_card))
                     candidate_targets.Add(selected_card);
-            }
-
-            if (criteria_target == AbilityTarget.AllCardsBoard)
-            {
-                foreach (Player player in data.players)
-                {
-                    foreach (Card card in player.cards_board)
-                    {
-                        if (AreCriteriaTargetConditionsMet(data, caster, card))
-                            candidate_targets.Add(card);
-                    }
-                }
             }
 
             if (criteria_target == AbilityTarget.AllCardsHand)
@@ -611,7 +599,7 @@ namespace TcgEngine
             {
                 targets.AddRange(data.players);
             }
-            else if (criteria_target == AbilityTarget.SelectTarget)
+            else if (criteria_target == AbilityTarget.SelectTarget && data.selector_target_player != null)
             {
                 targets.Add(data.selector_target_player);
             }
@@ -647,23 +635,17 @@ namespace TcgEngine
                 }
             }
 
-            if (criteria_target == AbilityTarget.SelectSlot)
+            if (criteria_target == AbilityTarget.PlayTarget)
+            {
+                candiidate_targets.Add(caster.slot);
+            }
+
+            if (criteria_target == AbilityTarget.SelectTarget)
             {
                 Slot slot = data.selector_target_slot;
-                Debug.Log(slot.x + " " + slot.y + " " + slot.p);
 
                 if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
                     candiidate_targets.Add(slot);
-            }
-
-            if (criteria_target == AbilityTarget.WideAreaSlot)
-            {
-                List<Slot> slots = Slot.GetAll();
-                foreach (Slot slot in slots)
-                {
-                    if (AreCriteriaTargetConditionsMet(data, caster, slot))
-                        candiidate_targets.Add(slot);
-                }
             }
 
             if (criteria_target == AbilityTarget.AttachedSlot)
@@ -765,20 +747,6 @@ namespace TcgEngine
                 return false;
             }
 
-            if (criteria_target == AbilityTarget.SelectCard)
-            {
-                if (HasValidBoardCardTarget(game_data, caster))
-                    return true;
-                return false;
-            }
-
-            if (criteria_target == AbilityTarget.SelectSlot)
-            {
-                if (HasValidSlotTarget(game_data, caster))
-                    return true;
-                return false;
-            }
-
             if (criteria_target == AbilityTarget.CardSelector)
             {
                 if (HasValidCardTarget(game_data, caster))
@@ -869,7 +837,7 @@ namespace TcgEngine
 
         public bool IsSelector()
         {
-            return criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectCard || criteria_target == AbilityTarget.SelectSlot || criteria_target == AbilityTarget.CardSelector || criteria_target == AbilityTarget.ChoiceSelector;
+            return criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.CardSelector || criteria_target == AbilityTarget.ChoiceSelector;
         }
 
         public static AbilityData Get(string id)
@@ -940,35 +908,15 @@ namespace TcgEngine
         AllSlots = 15,
         AllCardData = 17,       //For card Create effects only
 
-
-        PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)      
+        PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)    
         AbilityTriggerer = 25,   //The card that triggered the trap
         EquippedCard = 27,       //If equipment, the bearer, if citizen, the item equipped
         AttachedSlot = 28,
 
         SelectTarget = 30,        //Select a card, player or slot on board
-        SelectCard = 31,
-        SelectSlot = 32,
-        WideAreaCard = 33,
-        WideAreaSlot = 34,
-        
+
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu
-
-        /*
-        LastPlayed = 70,            //Last card that was played
-        LastAttack = 71,
-        LastAttackSlot = 72, 
-        LastAttacked = 73,
-        LastAttackedSlot = 74,
-        LastTargeted = 75,          //Last card that was targeted with an ability
-        LastTargetedSlot = 76,
-        LastDestroyed = 77,            //Last card that was killed
-        LastDestroyedSlot = 78,
-        LastSummoned = 79,            //Last card that was summoned or created
-        LastSummonedSlot = 80,
-        */
-
     }
 
 }

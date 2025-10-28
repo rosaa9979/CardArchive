@@ -49,59 +49,42 @@ namespace TcgEngine.FX
                     Card target = game_data.GetSlotCard(bslot.GetSlot());
                     Player player = bslot.GetPlayer();
 
-                    if (ability.criteria_target == AbilityTarget.SelectSlot && ability.CanTarget(game_data, caster, bslot.GetSlot()))
-                    {
-                        visible = true;
-                    }
-
-                    if ((ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget) && ability.CanTarget(game_data, caster, target))
-                    {
-                        visible = true;
-                    }
-
-                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, player))
+                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, bslot.GetSlot()))
                     {
                         visible = true;
                     }
                 }
             }
 
-            
             HandCard hcard = HandCard.GetDrag();
             if (hcard != null)
             {
-                if (bslot != null)
-                {
-                    Card caster = hcard.GetCard();
-                    Card target = game_data.GetSlotCard(bslot.GetSlot());
-                    Player player = bslot.GetPlayer();
+                Card caster = hcard.GetCard();
 
-                    if (caster.CardData.IsRequireTarget())
+                if (caster.CardData.IsRequireTarget())
+                {
+                    AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
+
+                    if (!string.IsNullOrWhiteSpace(ability.selector_desc))
                     {
                         text_visible = true;
-                        AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
+                        TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                        tmpro_text.text = ability.selector_desc;
+                    }
 
-                        if (!string.IsNullOrWhiteSpace(ability.selector_desc))
-                        {
-                            text_visible = true;
-                            TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
-                            tmpro_text.text = ability.selector_desc;
-                        }
+                    if (bslot != null)
+                    {
+                        Card target = game_data.GetSlotCard(bslot.GetSlot());
+                        Player player = bslot.GetPlayer();
 
-                        if (ability.criteria_target == AbilityTarget.SelectSlot && ability.CanTarget(game_data, caster, bslot.GetSlot()))
-                        {
-                            visible = true;
-                        }
-
-                        if ((ability.criteria_target == AbilityTarget.SelectCard || ability.criteria_target == AbilityTarget.SelectTarget) && ability.CanTarget(game_data, caster, target))
+                        if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
                         {
                             visible = true;
                         }
-
-                        if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, player))
-                        {
+                        if (ability.CanTarget(game_data, caster, target))
                             visible = true;
-                        }
+                        if (ability.CanTarget(game_data, caster, player))
+                            visible = true;
                     }
                 }
             }

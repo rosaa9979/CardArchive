@@ -20,13 +20,15 @@ MonoBehaviour:
   conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5f11600007b7ac14ea783670695ace94,
     type: 2}
-  condition_target: []
+  condition_target:
+  - {fileID: 11400000, guid: f6f22b601add97b48bc76cdcccbe8258, type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: 4369324687c62ca488c57afd73a2be36, type: 2}
   status: []
   value: 4
   duration: 0
+  can_cancel: 1
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -38,3 +40,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 

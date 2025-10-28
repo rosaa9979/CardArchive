@@ -14,14 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: chain_move_neighbor1
   trigger: 0
-  conditions_trigger:
-  - {fileID: 11400000, guid: f94b5fd96546157489891cc56b009662, type: 2}
+  conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 32
+  criteria_target: 30
   conditions_criteria_target:
   - {fileID: 11400000, guid: 028affa88ff89f94e8eef8fb7a04bb03, type: 2}
   - {fileID: 11400000, guid: dfcba82135ff9a7408e821bcdad2fd39, type: 2}
-  - {fileID: 11400000, guid: 24455e8381a12484d927dd9dfe5ee5a3, type: 2}
+  - {fileID: 11400000, guid: fa44d1dacce0bc049ada4883ed267e72, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
@@ -33,7 +32,7 @@ MonoBehaviour:
   duration: 0
   can_cancel: 0
   chain_abilities: []
-  mana_cost: 1
+  mana_cost: 0
   exhaust: 1
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}

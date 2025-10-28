@@ -18,7 +18,7 @@ MonoBehaviour:
     type: 3}
   card_dissolve_fx: {fileID: 6200875724081254983, guid: 890bec07a5160ca429fa124bca851f08,
     type: 3}
-  card_attack_fx: {fileID: 2395263885615999105, guid: 603b4ffa4837de849a8250dabbd724fc,
+  card_attack_fx: {fileID: 2395263885615999105, guid: 885360007b4c1514b821e64ba9d13769,
     type: 3}
   card_attack_hit_fx: {fileID: 6063264509963397680, guid: ce922cb4359e86a43bcbc5b5f3961e58,
     type: 3}

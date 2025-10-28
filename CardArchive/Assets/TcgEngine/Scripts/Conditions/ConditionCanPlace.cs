@@ -34,6 +34,13 @@ namespace TcgEngine
                     return CompareBool(data.CanPlaceCard(last_selected, target), oper);
             }
 
+            if (last_type == ConditionLastType.LastTargeted)
+            {
+                Card last_targeted = data.GetSlotCard(data.last_targeted_slot);
+                if (last_targeted != null)
+                    return CompareBool(data.CanPlaceCard(last_targeted, target), oper);
+            }
+
             if (last_type == ConditionLastType.None && place_card != null)
             {
                 Player player = null;

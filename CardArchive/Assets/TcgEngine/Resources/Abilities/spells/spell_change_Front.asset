@@ -19,6 +19,7 @@ MonoBehaviour:
   criteria_target: 20
   conditions_criteria_target:
   - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
+  - {fileID: 11400000, guid: f6f22b601add97b48bc76cdcccbe8258, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []

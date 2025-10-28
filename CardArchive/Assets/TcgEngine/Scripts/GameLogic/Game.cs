@@ -156,12 +156,6 @@ namespace TcgEngine
                 //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
                 //    return false; //Cant play on opponent side
 
-                // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
-                if (!card.HasClub(ClubData.Get("Arius_Squad")) && GetOpponentPlayer(player.player_id).player_id == slot.p)
-                {
-                    return false; //Cant play on opponent side
-                }
-
 
                 if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
                 {
@@ -452,21 +446,11 @@ namespace TcgEngine
             if (caster == null)
                 return false;
 
-            if (target.IsPlayerSlot())
-                return IsPlayTargetValid(caster, GetPlayer(target.p)); //Slot 0,0, means we are targeting a player
+            AbilityData iability = caster.GetAbility(AbilityTarget.PlayTarget);
 
-            Card slot_card = GetSlotCard(target);
-            if (slot_card != null)
-                return IsPlayTargetValid(caster, slot_card); //Slot has card, check play target on that card
+            if (!iability.CanTarget(this, caster, target))
+                return false;
 
-            foreach (AbilityData ability in caster.GetAbilities())
-            {
-                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.PlayTarget)
-                {
-                    if (!ability.CanTarget(this, caster, target))
-                        return false;
-                }
-            }
             return true;
         }
 

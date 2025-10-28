@@ -219,7 +219,7 @@ namespace TcgEngine
 
         public bool IsRequireTargetArona()
         {
-            return type == CardType.Hero && HasAbility(AbilityTrigger.Activate, AbilityTarget.PlayTarget);
+            return type == CardType.Hero && HasAbility(AbilityTrigger.OnPlay, AbilityTarget.PlayTarget);
         }
 
         public bool IsEquipment()

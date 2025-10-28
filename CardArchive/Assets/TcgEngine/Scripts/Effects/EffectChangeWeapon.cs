@@ -18,5 +18,13 @@ namespace TcgEngine
         {
             target.SetWeapon(weapon.GetWeaponID());
         }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            Game game_data = logic.GetGameData();
+            Card slot_card = game_data.GetSlotCard(target);
+            if (slot_card != null)
+                DoEffect(logic, ability, caster, slot_card);
+        }
     }
 }
