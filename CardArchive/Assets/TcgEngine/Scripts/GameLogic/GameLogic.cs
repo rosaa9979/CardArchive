@@ -40,6 +40,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Card> onAttackStart;  //Attacker, Defender
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Card> onAttackHit;
+        public UnityAction<Card, Card> onAttackEvade;
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
         public UnityAction<Card, Player> onAttackPlayerHit;
@@ -634,6 +635,9 @@ namespace TcgEngine.Gameplay
                             player.cards_board_temp.Add(card);
                             card.slot = slot;
 
+                            game_data.last_summoned_temp = card.uid;
+                            game_data.last_summoned_temp_slot = slot;
+
                             game_data.last_selected = "";
                             game_data.last_selected_slot = new Slot(0, 0, -1);
 
@@ -783,6 +787,8 @@ namespace TcgEngine.Gameplay
                     break;
                 }
             }
+
+            ExhaustBattle(attacker);
         }
 
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
@@ -878,8 +884,8 @@ namespace TcgEngine.Gameplay
                     DamageCard(target, attacker, datt2, false, true);
 
                 //Save attack and exhaust
-                if (!skip_cost)
-                    ExhaustBattle(attacker);
+                //if (!skip_cost)
+                //    ExhaustBattle(attacker);
 
                 //Recalculate bonus
                 UpdateOngoing(true);
@@ -901,9 +907,13 @@ namespace TcgEngine.Gameplay
             }
 
             resolve_queue.AddAttack(attacker, target, ResolveDeath, skip_cost);
-            resolve_queue.ResolveAll(0.05f);
+            resolve_queue.ResolveAll(0.2f);
 
-            onAttackHit?.Invoke(attacker, target);
+            if (!game_data.attack_evade_list.Contains(target))
+                onAttackHit?.Invoke(attacker, target);
+            else
+                onAttackEvade?.Invoke(attacker, target);
+
             onAttackEnd?.Invoke(attacker, target);
 
             //RefreshData();
@@ -1737,7 +1747,12 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     if (iability.CanTarget(game_data, caster, slot))
-                        ResolveEffectTarget(iability, caster, slot);
+                    {
+                        List<Slot> target_slots = iability.GetSlotTargets(game_data, caster, true);
+
+                        foreach (Slot target_slot in target_slots)
+                            ResolveEffectTarget(iability, caster, target_slot);
+                    }
                 }
             }
         }
@@ -1772,12 +1787,11 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveCardAbilitySlots(AbilityData iability, Card caster)
         {
             //Get Slot Targets based on conditions
-            List<Slot> targets = iability.GetSlotTargets(game_data, caster, slot_array);
+            List<Slot> targets = iability.GetSlotTargets(game_data, caster, false, slot_array);
 
             //Resolve effects
             foreach (Slot target in targets)
             {
-                Debug.Log(target.x + " " + target.y + " " + target.p);
                 ResolveEffectTarget(iability, caster, target);
             }
         }
@@ -2343,14 +2357,9 @@ namespace TcgEngine.Gameplay
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_card_uid = target.uid;
 
-                if (ability.trigger == AbilityTrigger.OnPlay)
-                    PlayCard(caster, game_data.selector_caster_slot);
-                else
-                {
-                    ResolveEffectTarget(ability, caster, target);
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                    resolve_queue.ResolveAll();
-                }  
+                ResolveEffectTarget(ability, caster, target);
+                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                resolve_queue.ResolveAll();
             }
         }
 
@@ -2391,7 +2400,6 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
-            Debug.Log("여기는 들어오지?");
             if (game_data.selector == SelectorType.None)
                 return;
 

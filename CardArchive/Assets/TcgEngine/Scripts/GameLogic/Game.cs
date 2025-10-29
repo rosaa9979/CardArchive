@@ -58,6 +58,8 @@ namespace TcgEngine
         public Slot last_destroyed_slot;
         public string last_summoned;
         public Slot last_summoned_slot;
+        public string last_summoned_temp;
+        public Slot last_summoned_temp_slot;
         public string ability_triggerer;
         public int rolled_value;
 

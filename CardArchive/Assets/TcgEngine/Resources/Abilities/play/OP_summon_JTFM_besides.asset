@@ -16,16 +16,20 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 80
-  conditions_target: []
+  criteria_target: 1
+  conditions_criteria_target:
+  - {fileID: 11400000, guid: 441040a6fd8f62c4d8cb131a67a17834, type: 2}
   condition_wide_range: {fileID: 11400000, guid: cbc44634c859bda438ead1e92acc3ce1,
     type: 2}
+  condition_target:
+  - {fileID: 11400000, guid: 4f237ccf25a40074fb7a8c1060e57739, type: 2}
   filters_target: []
   effects:
   - {fileID: 11400000, guid: a46e384ba827b4741a909834a7ec5e1e, type: 2}
   status: []
   value: 0
   duration: 0
+  can_cancel: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -37,3 +41,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 

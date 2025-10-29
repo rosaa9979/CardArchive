@@ -13,6 +13,7 @@ namespace TcgEngine
     public class EffectDamageCount : EffectData
     {
         public TraitData bonus_damage;
+        public EffectDamageType damage_type;
 
         [Header("Count Traits")]
         public PileType pile;
@@ -41,7 +42,7 @@ namespace TcgEngine
         {
             int damage = GetDamage(logic.GameData, caster, GetCount(logic.GetGameData(), caster) * ability.value);
 
-            logic.DamageCard_Event(caster, target, damage, true);
+            logic.DamageCard_Event(caster, target, damage, damage_type, true);
         }
 
         private int GetDamage(Game data, Card caster, int value)

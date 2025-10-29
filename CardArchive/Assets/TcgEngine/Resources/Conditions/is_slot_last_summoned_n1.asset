@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31aa9b0b846e37e47bb7896cc026a560, type: 3}
-  m_Name: damage
+  m_Script: {fileID: 11500000, guid: 80935ab13d6cbf244a1862f9c6414829, type: 3}
+  m_Name: is_slot_last_summoned_n1
   m_EditorClassIdentifier: 
-  bonus_damage: {fileID: 11400000, guid: 50116f133bd899842ab1d2a5b71412ee, type: 2}
+  type: 3
+  range: 1
+  oper: 0

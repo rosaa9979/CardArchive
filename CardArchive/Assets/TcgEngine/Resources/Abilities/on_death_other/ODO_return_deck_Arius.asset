@@ -30,7 +30,8 @@ MonoBehaviour:
   value: 0
   duration: 0
   can_cancel: 0
-  chain_abilities: []
+  chain_abilities:
+  - {fileID: 11400000, guid: 0815cfddb88ca944a8e81cf930208a1d, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}

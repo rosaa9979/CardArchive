@@ -97,6 +97,7 @@ namespace TcgEngine.Server
             gameplay.onAttackStart += OnAttackStart;
             gameplay.onAttackEnd += OnAttackEnd;
             gameplay.onAttackHit += OnAttackHit;
+            gameplay.onAttackEvade += OnAttackEvade;
             gameplay.onAttackPlayerStart += OnAttackPlayerStart;
             gameplay.onAttackPlayerEnd += OnAttackPlayerEnd;
             gameplay.onAttackPlayerHit += OnAttackPlayerHit;
@@ -130,6 +131,7 @@ namespace TcgEngine.Server
             gameplay.onAttackStart -= OnAttackStart;
             gameplay.onAttackEnd -= OnAttackEnd;
             gameplay.onAttackHit -= OnAttackHit;
+            gameplay.onAttackEvade -= OnAttackEvade;
             gameplay.onAttackPlayerStart -= OnAttackPlayerStart;
             gameplay.onAttackPlayerEnd -= OnAttackPlayerEnd;
             gameplay.onAttackPlayerHit -= OnAttackPlayerHit;
@@ -796,6 +798,15 @@ namespace TcgEngine.Server
             mdata.target_uid = target.uid;
             mdata.damage = 0;
             SendToAll(GameAction.AttackHit, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnAttackEvade(Card attacker, Card target)
+        {
+            MsgAttack mdata = new MsgAttack();
+            mdata.attacker_uid = attacker.uid;
+            mdata.target_uid = target.uid;
+            mdata.damage = 0;
+            SendToAll(GameAction.AttackEvade, mdata, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnAttackPlayerStart(Card attacker, Player target)

@@ -25,10 +25,7 @@ namespace TcgEngine
                 return CompareBool(data.last_played == target.uid, oper);
 
             if (type == ConditionLastType.LastTargeted)
-            {
-                Debug.Log("Hello");
                 return CompareBool(data.GetSlotCard(data.last_targeted_slot).uid == target.uid, oper);
-            }
 
             return IsTargetConditionMet(data, ability, caster, target.slot);
         }
@@ -49,8 +46,21 @@ namespace TcgEngine
             if (type == ConditionLastType.LastTargeted && data.last_targeted_slot.GetNeighborSlot(range).Contains(target))
                 result = true;
 
-            if (type == ConditionLastType.LastSummoned && data.last_summoned_slot.GetNeighborSlot(range).Contains(target))
-                result = true;
+            if (type == ConditionLastType.LastSummoned)
+            {
+                if (ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.SelectTarget)
+                {
+                    if (data.last_summoned_temp_slot.GetNeighborSlot(range).Contains(target))
+                        result = true;
+                }
+
+                else
+                {
+                    if (data.last_summoned_slot.GetNeighborSlot(range).Contains(target))
+                        result = true;
+                }       
+            }
+
 
             if (type == ConditionLastType.LastDestroyed && data.last_destroyed_slot.GetNeighborSlot(range).Contains(target))
                 result = true;

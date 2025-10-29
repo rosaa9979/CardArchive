@@ -52,8 +52,9 @@ namespace TcgEngine
 
         public const ushort AttackStart = 2030;
         public const ushort AttackHit = 2031;
-        public const ushort AttackEnd = 2032;
-        public const ushort AttackPlayerStart = 2034;
+        public const ushort AttackEvade = 2032;
+        public const ushort AttackEnd = 2034;
+        public const ushort AttackPlayerStart = 2035;
         public const ushort AttackPlayerEnd = 2036;
 
         public const ushort AbilityTrigger = 2040;

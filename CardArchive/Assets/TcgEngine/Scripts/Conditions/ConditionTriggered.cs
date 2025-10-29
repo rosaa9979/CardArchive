@@ -14,12 +14,18 @@ namespace TcgEngine
         [Header("Oper")]
         public ConditionOperatorBool is_oper;
 
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        {
+            Card trigger = data.GetCard(data.ability_triggerer);
+
+            return CompareBool(target.uid == trigger.uid, is_oper);
+        }
+
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
         {
             Card trigger = data.GetCard(data.ability_triggerer);
 
             return CompareBool(target == trigger.slot, is_oper);
-
         }
     }
 }

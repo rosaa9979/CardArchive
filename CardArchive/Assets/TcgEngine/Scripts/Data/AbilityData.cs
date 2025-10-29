@@ -390,8 +390,16 @@ namespace TcgEngine
 
         public void DoEffects(GameLogic logic, Card caster, Slot target)
         {
+            Game game_data = logic.GetGameData();
+            Card slot_card = game_data.GetSlotCard(target);
             foreach (EffectData effect in effects)
                 effect?.DoEffect(logic, this, caster, target);
+            if (slot_card != null)
+            {
+                foreach (StatusData stat in status)
+                    slot_card.AddStatus(stat, value, duration);
+            }
+
         }
 
         public void DoEffects(GameLogic logic, Card caster, CardData target)
@@ -630,7 +638,7 @@ namespace TcgEngine
         }
 
         //Return slot targets,  memory_array is used for optimization and avoid allocating new memory
-        public List<Slot> GetSlotTargets(Game data, Card caster, ListSwap<Slot> memory_array = null)
+        public List<Slot> GetSlotTargets(Game data, Card caster, bool is_play_target = false, ListSwap<Slot> memory_array = null)
         {
             if (memory_array == null)
                 memory_array = new ListSwap<Slot>(); //Slow operation
@@ -647,7 +655,12 @@ namespace TcgEngine
                 }
             }
 
-            if (criteria_target == AbilityTarget.PlayTarget)
+            if (criteria_target == AbilityTarget.Self)
+            {
+                candiidate_targets.Add(caster.slot);
+            }
+
+            if (criteria_target == AbilityTarget.PlayTarget && is_play_target)
             {
                 candiidate_targets.Add(caster.slot);
             }

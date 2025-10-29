@@ -36,6 +36,7 @@ namespace TcgEngine.FX
             client.onCardMoved += OnMove;
             client.onAttackStart += OnAttack;
             client.onAttackHit += OnAttackHit;
+            client.onAttackEvade += OnAttackEvade;
             client.onAttackPlayerStart += OnAttackPlayer;
             client.onAttackPlayerHit += OnAttackPlayerHit;
             client.onAbilityStart += OnAbilityStart;
@@ -51,6 +52,7 @@ namespace TcgEngine.FX
             client.onCardMoved -= OnMove;
             client.onAttackStart -= OnAttack;
             client.onAttackHit -= OnAttackHit;
+            client.onAttackEvade -= OnAttackEvade;
             client.onAttackPlayerStart -= OnAttackPlayer;
             client.onAttackPlayerHit -= OnAttackPlayerHit;
             client.onAbilityStart -= OnAbilityStart;
@@ -267,6 +269,54 @@ namespace TcgEngine.FX
                         GameObject fx = AssetData.Get().card_attack_hit_fx;
                         GameObject fx_result = FXTool.DoFX(fx, transform.position);
                         fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
+                        int value = battacker.GetCard().GetAttack();
+                        DamageFX(btarget.transform, value, 0.0f);
+                    });
+                }
+            }
+        }
+
+        private void OnAttackEvade(Card attacker, Card target)
+        {
+            Card card = bcard.GetCard();
+            CardData icard = bcard.GetCardData();
+
+            if (attacker == null || target == null)
+                return;
+
+            if (card.uid == attacker.uid)
+            {
+                BoardCard battacker = BoardCard.Get(attacker.uid);
+                BoardCard btarget = BoardCard.Get(target.uid);
+                if (btarget != null)
+                {
+                    //Card charge into target
+                    //ChargeInto(btarget);
+
+                    //Show Damage Number FX on self
+                    //if(!attacker.HasStatus(StatusType.Intimidate))
+                    //    DamageFX(target, attacker, transform);
+
+                    //Attack FX and Audio
+                    GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                    GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
+                    fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
+                    //GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
+                    //fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
+                    AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                    AudioTool.Get().PlaySFX("card_attack", audio);
+                }
+            }
+
+            if (card.uid == target.uid)
+            {
+                BoardCard battacker = BoardCard.Get(attacker.uid);
+                BoardCard btarget = BoardCard.Get(target.uid);
+                if (btarget != null)
+                {
+                    TimeTool.WaitFor(0.15f, () =>
+                    {
+                        DamageFX(btarget.transform, "Miss!", 0.0f);
                     });
                 }
             }
@@ -344,6 +394,15 @@ namespace TcgEngine.FX
         }
 
         private void DamageFX(Transform target, int value, float delay = 0.5f)
+        {
+            TimeTool.WaitFor(delay, () =>
+            {
+                GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, target.position);
+                fx.GetComponent<DamageFX>().SetValue(value);
+            });
+        }
+
+        private void DamageFX(Transform target, string value, float delay = 0.5f)
         {
             TimeTool.WaitFor(delay, () =>
             {

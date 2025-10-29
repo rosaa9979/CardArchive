@@ -16,17 +16,18 @@ MonoBehaviour:
   trigger: 32
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 1
-  conditions_target:
-  - {fileID: 11400000, guid: 1d24aeff76360da459d3f3458041edd2, type: 2}
+  criteria_target: 1
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
+  condition_target: []
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: fc8261ce93dbc924e859751e098513ad, type: 2}
+  - {fileID: 11400000, guid: f714a00f5a0c516489bf1b4f2ae0d31b, type: 2}
   status: []
-  value: -1
+  value: 1
   duration: 0
+  can_cancel: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -38,3 +39,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 
