@@ -480,6 +480,18 @@ namespace TcgEngine
                 }
             }
 
+            if (criteria_target == AbilityTarget.AllCardsBoard)
+            {
+                foreach (Player player in data.players)
+                {
+                    foreach (Card card in player.cards_board)
+                    {
+                        if (AreCriteriaTargetConditionsMet(data, caster, card))
+                            candidate_targets.Add(card);
+                    }
+                }
+            }
+
             if (criteria_target == AbilityTarget.AllCardsAllPiles || criteria_target == AbilityTarget.CardSelector)
             {
                 foreach (Player player in data.players)

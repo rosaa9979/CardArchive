@@ -446,11 +446,17 @@ namespace TcgEngine
             if (caster == null)
                 return false;
 
-            AbilityData iability = caster.GetAbility(AbilityTarget.PlayTarget);
+            if (target.IsPlayerSlot())
+                return IsPlayTargetValid(caster, GetPlayer(target.p)); //Slot 0,0, means we are targeting a player
 
-            if (!iability.CanTarget(this, caster, target))
-                return false;
-
+            foreach (AbilityData ability in caster.GetAbilities())
+            {
+                if (ability && ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.PlayTarget)
+                {
+                    if (!ability.CanTarget(this, caster, target))
+                        return false;
+                }
+            }
             return true;
         }
 

@@ -26,7 +26,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/Damage", order = 10)]
     public class EffectDamage : EffectData
     {
-        public EffectValueType damage_type;
+        public EffectDamageType damage_type;
         public EffectValueType value_type;
         public TraitData bonus_damage;
 
@@ -52,7 +52,7 @@ namespace TcgEngine
             */
 
             int damage = GetDamage(logic.GameData, caster, ability.value);
-            logic.DamageCard_Event(caster, target, damage, true);
+            logic.DamageCard_Event(caster, target, damage, damage_type, true);
         }
 
         private int GetDamage(Game data, Card caster, int value)

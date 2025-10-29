@@ -1450,22 +1450,26 @@ namespace TcgEngine.Gameplay
 
         //Damage a slot with attacker/caster
         // 슬롯에게 데미지
-        public virtual void DamageCard_Event(Card attacker, Slot target, int value, bool spell_damage = false)
+        public virtual void DamageCard_Event(Card attacker, Slot target, int value, EffectDamageType damage_type = EffectDamageType.Card, bool spell_damage = false)
         {
             Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
             Card card_target = game_data.GetSlotCard(target);
             Card attach_target = game_data.GetAttachCard(target);
 
-            foreach (var slot in Slot.GetInsideSlot())
+            if (damage_type == EffectDamageType.Slot)
             {
-                if (slot == target)
+                foreach (var slot in Slot.GetInsideSlot())
                 {
-                    Player player = game_data.GetPlayer(target.GetP());
-                    if (player != null)
-                        DamagePlayer_Event(attacker, player, value);
-                }
+                    if (slot == target)
+                    {
+                        Player player = game_data.GetPlayer(target.GetP());
+                        if (player != null)
+                            DamagePlayer_Event(attacker, player, value);
+                    }
 
+                }
             }
+
 
             if (card_target != null)
                 DamageCard_Event(attacker, card_target, value, spell_damage);
@@ -1722,16 +1726,18 @@ namespace TcgEngine.Gameplay
             if (iability.criteria_target == AbilityTarget.PlayTarget)
             {
                 Slot slot = caster.slot;
-                List<Slot> target_slots = new List<Slot>();
-
-                if (iability.CanTarget(game_data, caster, slot))
-                {
-                    target_slots = iability.GetSlotTargets(game_data, caster);
-                }
                 
-                foreach (Slot target_slot in target_slots)
+                if (slot.IsPlayerSlot())
                 {
-                    ResolveEffectTarget(iability, caster, target_slot);
+                    Player tplayer = game_data.GetPlayer(slot.p);
+                    if (iability.CanTarget(game_data, caster, tplayer))
+                        ResolveEffectTarget(iability, caster, tplayer);
+                }
+
+                else
+                {
+                    if (iability.CanTarget(game_data, caster, slot))
+                        ResolveEffectTarget(iability, caster, slot);
                 }
             }
         }
