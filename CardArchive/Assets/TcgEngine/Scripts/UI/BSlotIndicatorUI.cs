@@ -42,8 +42,6 @@ namespace TcgEngine.UI
 
             current_type = SetCurrentType(game_data, bslot);
 
-            BSlotIndicatorType new_type = SetCurrentType(game_data, bslot);
-
             //if (bslot != prev_bslot)
             //{
                 prev_bslot = bslot;

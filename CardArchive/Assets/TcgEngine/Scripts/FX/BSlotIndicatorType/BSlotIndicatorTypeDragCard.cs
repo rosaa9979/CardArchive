@@ -20,21 +20,25 @@ namespace TcgEngine.FX
             HandCard hcard = HandCard.GetDrag();
             Card card = hcard.GetCard();
 
-            if (hcard == null || !card.CardData.IsBoardCard())
+            if (hcard == null)
                 return;
 
 
             if (current_bslot != null)
             {
-                List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetRange());
-
-                foreach (BoardSlot board_slot in BoardSlot.GetAll())
+                if (card.CardData.IsBoardCard())
                 {
-                    if (range_slots.Contains(board_slot.GetSlot()))
+                    List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetRange());
+
+                    foreach (BoardSlot board_slot in BoardSlot.GetAll())
                     {
-                        SetSortingLayer(board_slot, "UI");
+                        if (range_slots.Contains(board_slot.GetSlot()))
+                        {
+                            SetSortingLayer(board_slot, "UI");
+                        }
                     }
                 }
+
             }
         }
 
