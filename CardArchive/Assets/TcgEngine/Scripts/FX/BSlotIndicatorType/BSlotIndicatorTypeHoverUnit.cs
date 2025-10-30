@@ -21,7 +21,7 @@ namespace TcgEngine.FX
             if (card == null || !card.CardData.IsCitizen())
                 return;
 
-            List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetAttack());
+            List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetRange());
 
             foreach (BoardSlot board_slot in BoardSlot.GetAll())
             {

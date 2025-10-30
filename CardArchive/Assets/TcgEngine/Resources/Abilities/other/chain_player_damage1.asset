@@ -10,25 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OP_all_enemy_range_paralysed
+  m_Name: chain_player_damage1
   m_EditorClassIdentifier: 
-  id: OP_all_enemy_range_paralysed
-  trigger: 10
+  id: chain_player_damage1
+  trigger: 0
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 30
-  conditions_criteria_target:
-  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  criteria_target: 4
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
-  effects: []
-  status:
-  - {fileID: 11400000, guid: 96cc4cef5c9fe6a42bfae1b6fcadc38b, type: 2}
-  value: 0
-  duration: 2
+  effects:
+  - {fileID: 11400000, guid: f714a00f5a0c516489bf1b4f2ae0d31b, type: 2}
+  status: []
+  value: 1
+  duration: 0
   can_cancel: 0
   chain_abilities: []
   mana_cost: 0
@@ -39,7 +37,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\uB4F1\uAD50"
-  desc: "\uCCAD\uD718\uC11D\uC744 \uC18C\uBAA8\uD558\uC5EC \uD328\uC5D0\uC11C \uC18C\uD658\uB420
-    \uB54C \uBC1C\uB3D9"
-  selector_desc: "\uAE30\uC808 \uBD80\uC5EC"
+  title: 
+  desc: 
+  selector_desc: 

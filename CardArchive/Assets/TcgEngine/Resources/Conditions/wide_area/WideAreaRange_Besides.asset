@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0065eafb49931fe49873e8ea98b2dd04, type: 3}
   m_Name: WideAreaRange_Besides
   m_EditorClassIdentifier: 
-  type: 0
   directions:
   - dx: -1
     dy: 0
   - dx: 1
     dy: 0
+  - dx: 0
+    dy: 0
+  thumnail: {fileID: 0}

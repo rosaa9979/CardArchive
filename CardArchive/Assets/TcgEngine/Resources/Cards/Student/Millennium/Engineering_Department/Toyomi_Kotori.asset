@@ -25,7 +25,8 @@ MonoBehaviour:
   weapon: {fileID: 11400000, guid: 2a041c81a77cba24bbc82eb1bc717e98, type: 2}
   traits: []
   stats: []
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: cf5beb3e9bd1f734a8e284eef901bd9f, type: 2}
   text: "\uAE30\uACC4\uB97C \uC18C\uD658 \uC2DC, \uC120\uC0DD\uB2D8\uC5D0\uAC8C \uD53C\uD574\uB97C
     1 \uC785\uD788\uACE0 \uCE74\uB4DC \uD55C \uC7A5\uC744 \uBF51\uC2B5\uB2C8\uB2E4."
   desc: 

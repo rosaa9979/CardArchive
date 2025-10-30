@@ -104,7 +104,7 @@ namespace TcgEngine.Client
             }
 
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
-            if (!GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= 0.15f)
+            if ((!GameClient.Get().IsYourTurn() || game_data.phase != GamePhase.Main) && IsDrag() && mpos.y >= 0.15f)
             {
                 WarningText.ShowNotYourTurn();
                 HandCardArea.Get().SortCards();
@@ -127,7 +127,8 @@ namespace TcgEngine.Client
             card_transform.localScale = Vector3.Lerp(card_transform.localScale, target_size, 5f * Time.deltaTime);
 
             card_ui.SetCard(card);
-            card_glow.enabled = IsFocus() || IsDrag();
+            //card_glow.enabled = IsFocus() || IsDrag();
+            card_glow.enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
 
             //Unselect

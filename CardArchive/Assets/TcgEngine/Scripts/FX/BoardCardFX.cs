@@ -378,8 +378,7 @@ namespace TcgEngine.FX
                     DamageFX(zone.transform, value, 0.0f);
                 });
 
-                //zone.player_ui.transform.DOShakePosition(1f, 5f, 10, 90);
-                GameCamera.Get().Shake(1, 1);
+                zone.player_ui.DOShakePosition(1f, 5f, 10, 90);
             }
         }
 

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Machine_Toy
+  m_Name: Kaiser_PMC_Drone
   m_EditorClassIdentifier: 
-  id: Machine_Toy
-  title: "\uAE30\uACC4 \uC7A5\uB09C\uAC10"
+  id: Kaiser_PMC_Drone
+  title: "\uCE74\uC774\uC800 PMC \uB4DC\uB860"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 11
@@ -21,7 +21,7 @@ MonoBehaviour:
   attack: 2
   hp: 1
   clubs: []
-  weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}
+  weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
   traits:
   - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
   stats: []

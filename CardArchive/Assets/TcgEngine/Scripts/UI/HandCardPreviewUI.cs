@@ -17,13 +17,14 @@ namespace TcgEngine.UI
     public class HandCardPreviewUI : MonoBehaviour
     {
         public UIPanel ui_panel;
-        public CardUI card_ui;
+        public GameObject card_ui;
         public GameObject status_ui;
         private HandCard current_focus;
 
         public RectTransform status_row;
         public StatusLine[] status_lines;
 
+        private CardUI cardui;
         private Vector3 card_ui_start_pos;  // Vector2 대신 Vector3 사용 (world position)
         private Vector2 status_start_pos;
         private float offset;
@@ -36,7 +37,8 @@ namespace TcgEngine.UI
         {
             card_ui_start_pos = card_ui.gameObject.transform.position;
             status_start_pos = status_row.anchoredPosition;
-            
+
+            cardui = card_ui.GetComponentInChildren<CardUI>();
             offset = Math.Abs(card_ui.gameObject.transform.position.x - status_row.gameObject.transform.position.x);
         }
 
@@ -149,7 +151,7 @@ namespace TcgEngine.UI
         {
             card_ui.transform.DOKill(false);
 
-            card_ui.SetCard(current_focus.GetCard());
+            cardui.SetCard(current_focus.GetCard());
 
             float target_x = current_focus.gameObject.transform.position.x;
             

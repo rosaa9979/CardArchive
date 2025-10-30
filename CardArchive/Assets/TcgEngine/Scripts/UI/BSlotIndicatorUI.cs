@@ -76,6 +76,9 @@ namespace TcgEngine.UI
                     return new BSlotIndicatorTypeHoverUnit();
             }
 
+            if (game_data.selector == SelectorType.SelectTarget)
+                return new BSlotIndicatorTypeSelector();
+
             return new BSlotIndicatorTypeNone();
         }
 

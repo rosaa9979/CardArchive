@@ -446,6 +446,8 @@ namespace TcgEngine.Gameplay
         //End game with winner
         public virtual void EndGame(int winner)
         {
+            Debug.Log("왜 죽음");
+            
             if (game_data.state != GameState.GameEnded)
             {
                 game_data.state = GameState.GameEnded;
@@ -784,7 +786,7 @@ namespace TcgEngine.Gameplay
                 {
                     resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
                     resolve_queue.ResolveAll(0.05f);
-                    break;
+                    return;
                 }
             }
 
@@ -837,17 +839,7 @@ namespace TcgEngine.Gameplay
 
             attacker.RemoveStatus(StatusType.Stealth);
             
-            if (attacker.HasStatus(StatusType.MassShooting))
-            {
-                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
-                if (ran < 0.5)
-                {
-                    if (!game_data.attack_evade_list.Contains(target))
-                        game_data.attack_evade_list.Add(target);
-                }
-            }
-
-            if (target.HasStatus(StatusType.Evasion))
+            if (attacker.HasStatus(StatusType.MassShooting) || target.HasStatus(StatusType.Evasion))
             {
                 float ran = UnityEngine.Random.Range(0.0f, 1.0f);
                 if (ran < 0.5)

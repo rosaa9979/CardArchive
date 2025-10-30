@@ -52,6 +52,8 @@ namespace TcgEngine.FX
 
             if (card == null || !card.CardData.IsCitizen())
                 return false;
+            if (card == null || !card.CardData.IsRequireTargetSpell())
+                return false;
             if (BSlotIndicatorUI.Get().GetCurrentBSlot() == null)
                 return false;
 

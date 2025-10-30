@@ -128,7 +128,7 @@ namespace TcgEngine
         {
             return phase == GamePhase.Mulligan && !player.ready;
         }
-        
+
         //Check if a card is allowed to be played on slot
         public virtual bool CanPlayCard(Card card, Slot slot, bool skip_cost = false)
         {
@@ -180,6 +180,48 @@ namespace TcgEngine
             if (card.CardData.IsRequireTargetSpell())
             {
                 return IsPlayTargetValid(card, slot); //Check play target on slot
+            }
+
+            return true;
+        }
+        
+        public virtual bool CanPlay(Card card)
+        {
+            if (card == null)
+                return false;
+
+            Player player = GetPlayer(card.player_id);
+            if (!player.CanPayMana(card))
+            {
+                return false; //Cant pay mana
+            }
+
+            if (!player.HasCard(player.cards_hand, card))
+            {
+                if (!player.HasCard(player.cards_board_temp, card))
+                    return false; // Card not in hand
+            }
+
+            if (card.CardData.IsBoardCard())
+            {
+                foreach (Slot slot in Slot.GetAll())
+                {
+                    if (slot.IsValid() && CanPlaceCard(card, slot))
+                        return true;
+                }
+
+                return false;
+            }
+
+            if (card.CardData.IsRequireTargetSpell())
+            {
+                foreach (Slot slot in Slot.GetAll())
+                {
+                    if (IsPlayTargetValid(card, slot))
+                        return true;
+                }
+
+                return false;
             }
 
             return true;
