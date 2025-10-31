@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Hanekawa_Hasumi
   title: "\uD558\uB124\uCE74\uC640 \uD558\uC2A4\uBBF8"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: fda93985bd3042b4ab737992c294343f, type: 3}
+  art_board: {fileID: 21300000, guid: 63b3461ea66b08d4fa00a728391f1e20, type: 3}
   type: 10
   mana: 4
   attack: 3

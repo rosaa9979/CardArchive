@@ -39,6 +39,22 @@ namespace TcgEngine.FX
                     }
                 }
 
+                if (card.CardData.IsRequireTargetSpell())
+                {
+                    AbilityData ability = card.GetAbility(AbilityTarget.PlayTarget);
+
+                    if (ability != null && ability.CanTarget(game_data, card, current_bslot.GetSlot()))
+                    {
+                        foreach (BoardSlot board_slot in BoardSlot.GetAll())
+                        {
+                            if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot()) && ability.AreTargetConditionsMet(game_data, card, board_slot.GetSlot()))
+                            {
+                                BoardSlotFX fx = board_slot.GetBoardSlotFX();
+                                fx.SetAnimParameter(true);
+                            }
+                        }
+                    }
+                }
             }
         }
 
