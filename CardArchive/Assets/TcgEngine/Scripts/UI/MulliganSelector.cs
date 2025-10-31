@@ -26,6 +26,25 @@ namespace TcgEngine.UI
             instance = this;
         }
 
+        protected override void Start()
+        {
+            base.Start();
+
+            GameClient.Get().onMulligan += OnMulligan;
+        }
+
+        private void OnMulligan(int player_id)
+        {
+            Game game_data = GameClient.Get().GetGameData();
+            Debug.Log(game_data.AreAllPlayersReady());
+            if (game_data.AreAllPlayersReady())
+            {
+                Debug.Log("여기 들어옴?");
+                Hide();
+            }
+
+        }
+
         private void RefreshMulligan()
         {
             Player player = GameClient.Get().GetPlayer();
@@ -94,7 +113,7 @@ namespace TcgEngine.UI
 
             GameClient.Get().Mulligan(selected_cards.ToArray());
             onMulliganConfirm?.Invoke();
-            Hide();
+            //Hide();
         }
 
         public override void Show(bool instant = false)

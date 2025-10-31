@@ -126,7 +126,7 @@ namespace TcgEngine
 
         public virtual bool IsPlayerMulliganTurn(Player player)
         {
-            return phase == GamePhase.Mulligan && !player.ready;
+            return phase == GamePhase.Mulligan;
         }
 
         //Check if a card is allowed to be played on slot

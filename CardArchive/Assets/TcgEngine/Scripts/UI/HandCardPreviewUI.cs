@@ -17,6 +17,7 @@ namespace TcgEngine.UI
     public class HandCardPreviewUI : MonoBehaviour
     {
         public UIPanel ui_panel;
+        public GameObject card_outline;
         public GameObject card_ui;
         public GameObject status_ui;
         private HandCard current_focus;
@@ -50,6 +51,7 @@ namespace TcgEngine.UI
             foreach (StatusLine line in status_lines)
                 line.Hide();
 
+            Game game_data = GameClient.Get().GetGameData();
             HandCard hcard = HandCard.GetFocus();
 
             bool visible = false;
@@ -64,11 +66,11 @@ namespace TcgEngine.UI
                 }
 
                 Vector3 ui_position = new Vector3(
-                    current_focus.gameObject.transform.position.x, 
+                    current_focus.gameObject.transform.position.x,
                     card_ui_start_pos.y,
-                    card_ui_start_pos.z   
+                    card_ui_start_pos.z
                 );
-                
+
                 if (!DOTween.IsTweening(card_ui.transform))
                 {
                     card_ui.gameObject.transform.position = new Vector3(
@@ -88,8 +90,8 @@ namespace TcgEngine.UI
                 }
 
                 Vector3 status_position = new Vector3(
-                    current_focus.gameObject.transform.position.x + offset, 
-                    status_ui.gameObject.transform.position.y, 
+                    current_focus.gameObject.transform.position.x + offset,
+                    status_ui.gameObject.transform.position.y,
                     status_ui.gameObject.transform.position.z
                 );
                 status_ui.gameObject.transform.position = status_position;
@@ -135,11 +137,16 @@ namespace TcgEngine.UI
                         }
                     }
                 }
+                
+                bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(hcard.GetCard());
+                card_outline.SetActive(is_outline_enabled); 
             }
             else
             {
                 current_focus = null;
             }
+            
+
 
             if (visible)
                 ui_panel.Show(true);

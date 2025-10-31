@@ -16,7 +16,7 @@ namespace TcgEngine.Client
 
     public class HandCard : MonoBehaviour
     {
-        public Image card_glow;
+        public GameObject card_outline;
         public float move_speed = 10f;
         public float move_rotate_speed = 4f;
         public float move_max_rotate = 10f;
@@ -128,7 +128,8 @@ namespace TcgEngine.Client
 
             card_ui.SetCard(card);
             //card_glow.enabled = IsFocus() || IsDrag();
-            card_glow.enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
+            bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
+            card_outline.SetActive(is_outline_enabled); 
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
 
             //Unselect

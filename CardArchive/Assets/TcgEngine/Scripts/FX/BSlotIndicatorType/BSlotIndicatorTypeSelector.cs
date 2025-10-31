@@ -12,6 +12,7 @@ namespace TcgEngine.FX
         {
             ResetAllFX();
 
+            Card card = game_data.GetCard(game_data.selector_caster_uid);
             AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
 
             if (iability != null)
@@ -20,13 +21,17 @@ namespace TcgEngine.FX
 
                 if (current_bslot != null)
                 {
-                    List<BoardSlot> slots = BoardSlot.GetAll();
-                    foreach (BoardSlot slot in slots)
+                   AbilityData ability = card.GetAbility(AbilityTarget.PlayTarget);
+
+                    if (ability != null && ability.CanTarget(game_data, card, current_bslot.GetSlot()))
                     {
-                        if (iability.AreWideRangeConditionsMet(game_data, caster, current_bslot.GetSlot(), slot.GetSlot()))
+                        foreach (BoardSlot board_slot in BoardSlot.GetAll())
                         {
-                            BoardSlotFX fx = slot.GetBoardSlotFX();
-                            fx?.SetAnimParameter(true);
+                            if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot()) && ability.AreTargetConditionsMet(game_data, card, board_slot.GetSlot()))
+                            {
+                                BoardSlotFX fx = board_slot.GetBoardSlotFX();
+                                fx.SetAnimParameter(true);
+                            }
                         }
                     }
                 }

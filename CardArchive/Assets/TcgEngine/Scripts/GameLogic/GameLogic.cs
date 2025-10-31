@@ -21,6 +21,7 @@ namespace TcgEngine.Gameplay
         public UnityAction onAttackPhase;
         public UnityAction onTurnPlay;
         public UnityAction onTurnEnd;
+        public UnityAction<int> onMulligan;
 
         public UnityAction<Card, Slot> onCardPlayed;      
         public UnityAction<Card, Slot> onCardSummoned;
@@ -155,7 +156,7 @@ namespace TcgEngine.Gameplay
                 StartTurn();
 
         }
-		
+
         public virtual void StartTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -183,36 +184,9 @@ namespace TcgEngine.Gameplay
             game_data.turn_timer = GameplayData.Get().turn_duration;
             player.history_list.Clear();
 
-            //Player poison
-            if (player.HasStatus(StatusType.Poisoned))
-                player.hp -= player.GetStatusValue(StatusType.Poisoned);
-
-            if (player.hero != null)
-                player.hero.Refresh();
-
-            //Refresh Cards and Status Effects
-            for (int i = player.cards_board.Count - 1; i >= 0; i--)
-            {
-                Card card = player.cards_board[i];
-
-                if(!card.HasStatus(StatusType.Sleep))
-                    card.Refresh();
-
-                if (card.HasStatus(StatusType.Poisoned))
-                    DamageCard_Event(card, card.GetStatusValue(StatusType.Poisoned));
-            }
-
-            //StartTurn Abilities
-            foreach (Player p in game_data.players)
-                TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
-
-            TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
-
-            resolve_queue.ResolveAll(0.2f);
-
             UpdateOngoing();
-
-            resolve_queue.AddCallback(StartMainPhase);
+            RefreshData();
+            resolve_queue.AddCallback(BeforeMainPahse);
             resolve_queue.ResolveAll(1.5f);
         }
 
@@ -229,6 +203,40 @@ namespace TcgEngine.Gameplay
             RefreshData();
             CheckForWinner();
             StartTurn();
+        }
+
+        public virtual void BeforeMainPahse()
+        {
+            Player player = game_data.GetActivePlayer();
+            //Player poison
+            if (player.HasStatus(StatusType.Poisoned))
+                player.hp -= player.GetStatusValue(StatusType.Poisoned);
+
+            if (player.hero != null)
+                player.hero.Refresh();
+
+            //Refresh Cards and Status Effects
+            for (int i = player.cards_board.Count - 1; i >= 0; i--)
+            {
+                Card card = player.cards_board[i];
+
+                if (!card.HasStatus(StatusType.Sleep))
+                    card.Refresh();
+
+                if (card.HasStatus(StatusType.Poisoned))
+                    DamageCard_Event(card, card.GetStatusValue(StatusType.Poisoned));
+            }
+
+            //StartTurn Abilities
+            foreach (Player p in game_data.players)
+                TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
+
+            TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
+
+            UpdateOngoing();
+
+            resolve_queue.AddCallback(StartMainPhase);
+            resolve_queue.ResolveAll(0.2f);
         }
 
         public virtual void StartMainPhase()
@@ -446,8 +454,6 @@ namespace TcgEngine.Gameplay
         //End game with winner
         public virtual void EndGame(int winner)
         {
-            Debug.Log("왜 죽음");
-            
             if (game_data.state != GameState.GameEnded)
             {
                 game_data.state = GameState.GameEnded;
@@ -1641,6 +1647,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0)
         {
+            Debug.Log("이건 언제 발동할까? "+iability.id+" "+current_repeat);
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
             if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
@@ -1677,7 +1684,7 @@ namespace TcgEngine.Gameplay
             if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
                 return;
 
-            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id + " "+System.DateTime.Now.Ticks);
+            Debug.Log("Trigger Ability " + iability.id + " : " + caster.card_id);
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
@@ -1874,7 +1881,7 @@ namespace TcgEngine.Gameplay
             }
 
             onAbilityEnd?.Invoke(iability, caster);
-            resolve_queue.ResolveAll(0.5f);
+            resolve_queue.ResolveAll(0.2f);
 
             if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat+1))
                 RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat+1);
@@ -2523,6 +2530,7 @@ namespace TcgEngine.Gameplay
                 //DrawCard(player, count);
                 RefreshData();
 
+                onMulligan?.Invoke(player.player_id);
                 if (game_data.AreAllPlayersReady())
                 {
                     StartTurn();

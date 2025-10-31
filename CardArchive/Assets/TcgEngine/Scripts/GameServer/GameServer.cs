@@ -76,6 +76,7 @@ namespace TcgEngine.Server
             gameplay.onGameStart += OnGameStart;
             gameplay.onGameEnd += OnGameEnd;
             gameplay.onTurnStart += OnTurnStart;
+            gameplay.onMulligan += OnMulligan;
             gameplay.onAttackPhase += OnAttackPhase;
             gameplay.onRefresh += RefreshAll;
 
@@ -704,6 +705,13 @@ namespace TcgEngine.Server
             MsgPlayer msg = new MsgPlayer();
             msg.player_id = game_data.current_player;
             SendToAll(GameAction.NewTurn, msg, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnMulligan(int player_id)
+        {
+            MsgPlayer msg = new MsgPlayer();
+            msg.player_id = player_id;
+            SendToAll(GameAction.Mulligan, msg, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnAttackPhase()

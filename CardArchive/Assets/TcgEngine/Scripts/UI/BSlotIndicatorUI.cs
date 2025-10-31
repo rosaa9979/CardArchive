@@ -65,6 +65,9 @@ namespace TcgEngine.UI
 
             HandCard hcard = HandCard.GetDrag();
 
+            if (game_data.selector == SelectorType.SelectTarget)
+                return new BSlotIndicatorTypeSelector();
+
             if (hcard != null)
                 return new BSlotIndicatorTypeDragCard();
 
@@ -75,9 +78,6 @@ namespace TcgEngine.UI
                 if (current_hovering_unit != null && current_hovering_unit.CardData.IsCitizen())
                     return new BSlotIndicatorTypeHoverUnit();
             }
-
-            if (game_data.selector == SelectorType.SelectTarget)
-                return new BSlotIndicatorTypeSelector();
 
             return new BSlotIndicatorTypeNone();
         }

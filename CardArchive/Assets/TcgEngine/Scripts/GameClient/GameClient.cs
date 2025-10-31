@@ -33,6 +33,7 @@ namespace TcgEngine.Client
         public UnityAction<int> onGameEnd;              //winner player_id
         public UnityAction<int> onNewTurn;              //current player_id
         public UnityAction<int> onAttackPhase;
+        public UnityAction<int> onMulligan;
 
         public UnityAction<Card, Slot> onCardPlayed;
         public UnityAction<Card> onCardDissolved;
@@ -89,6 +90,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.GameEnd, OnGameEnd);
             RegisterRefresh(GameAction.NewTurn, OnNewTurn);
             RegisterRefresh(GameAction.AttackPhase, OnAttackPhase);
+            RegisterRefresh(GameAction.Mulligan, OnMulligan);
             RegisterRefresh(GameAction.CardPlayed, OnCardPlayed);
             RegisterRefresh(GameAction.CardMoved, OnCardMoved);
             RegisterRefresh(GameAction.CardSummoned, OnCardSummoned);
@@ -486,6 +488,13 @@ namespace TcgEngine.Client
         {
             MsgPlayer msg = sdata.Get<MsgPlayer>();
             onAttackPhase?.Invoke(msg.player_id);
+        }
+
+        private void OnMulligan(SerializedData sdata)
+        {
+            MsgPlayer msg = sdata.Get<MsgPlayer>();
+            int player_id = msg.player_id;
+            onMulligan?.Invoke(player_id);
         }
 
         private void OnCardPlayed(SerializedData sdata)
