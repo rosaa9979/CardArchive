@@ -66,6 +66,9 @@ namespace TcgEngine.UI
 
             if (quit_btn != null)
                 quit_btn.text = GameClient.game_settings.IsOnlinePlayer() ? "항복" : "나가기";
+
+            if (end_turn_image?.sprite?.texture?.isReadable == true)
+                end_turn_image.alphaHitTestMinimumThreshold = 0.1f;
         }
 
         void Update()

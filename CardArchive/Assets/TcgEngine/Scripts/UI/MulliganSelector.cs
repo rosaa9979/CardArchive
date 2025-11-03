@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using TcgEngine.Client;
 using UnityEngine.Events;
+using UnityEngine.UI;
+using DG.Tweening;
 
 namespace TcgEngine.UI
 {
@@ -12,7 +14,13 @@ namespace TcgEngine.UI
     {
         public RectTransform content;
         public GameObject mulligan_template;
-        public List<CardMulligan> cards = new List<CardMulligan>();
+        public Button select_button;
+        public Text select_text;
+        public Text description_text;
+        public Sprite after_select;
+
+
+        private List<CardMulligan> cards = new List<CardMulligan>();
 
         public UnityAction<Card> onMulliganSelect;
         public UnityAction onMulliganConfirm;
@@ -42,6 +50,17 @@ namespace TcgEngine.UI
 
             if (player.player_id != player_id)
                 return;
+
+            select_button.image.sprite = after_select;
+            select_text.color = new Color(1, 1, 1);
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(description_text.transform.DOScale(0.1f, 0.2f))
+                    .AppendCallback(() => description_text.text = "상대방이 카드를 선택하고 있습니다")
+                    .Append(description_text.transform.DOScale(1, 0.2f).SetEase(Ease.OutBack));
+
+            foreach (CardMulligan card in cards)
+                card.onClick -= OnClickCard;
 
             Queue<int> removed_card_index = new Queue<int>();
 
@@ -73,7 +92,6 @@ namespace TcgEngine.UI
                     mcard.SetCard(new_card);
                     mcard.SetIndex(new_index);
                     mcard.Hide();
-                    mcard.onClick += OnClickCard;
                     cards.Add(mcard);
 
                     cards.Insert(new_index, mcard);
@@ -118,7 +136,7 @@ namespace TcgEngine.UI
             {
                 card.DoShow(GetCardPos(card));
 
-                await TimeTool.Delay(150);
+                await TimeTool.Delay(50);
             }
         }
 
@@ -159,13 +177,6 @@ namespace TcgEngine.UI
         {
             base.Show(instant);
             RefreshMulligan();
-        }
-
-        public override void Hide(bool instant = false)
-        {
-            base.Hide(instant);
-            Debug.Log("언제 꺼짐?");
-
         }
 
         public override bool ShouldShow()

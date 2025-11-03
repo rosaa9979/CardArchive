@@ -26,7 +26,7 @@ namespace TcgEngine.UI
             card_ui.onClick += OnClick;
         }
 
-        public void DoShow(Vector2 position, float delay = 0f, float slideDistance = 400, float duration = 0.6f)
+        public void DoShow(Vector2 position, float delay = 0f, float slideDistance = 200, float duration = 0.6f)
         {
             RectTransform card_rect = GetComponent<RectTransform>();
             CanvasGroup canvas_group = GetComponent<CanvasGroup>();
@@ -43,10 +43,10 @@ namespace TcgEngine.UI
             sequence.SetDelay(delay);
             sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.OutExpo));
             //sequence.Join(card_rect.DOScale(0.7f, duration));
-            sequence.Join(canvas_group.DOFade(1f, duration).SetEase(Ease.OutQuad));
+            sequence.Join(canvas_group.DOFade(1f, duration).SetEase(Ease.OutExpo));
         }
 
-        public void DoHide(Vector2 position, float delay = 0f, float slideDistance = 400, float duration = 0.6f)
+        public void DoHide(Vector2 position, float delay = 0f, float slideDistance = 200, float duration = 0.4f)
         {
             RectTransform card_rect = GetComponent<RectTransform>();
             CanvasGroup canvas_group = GetComponent<CanvasGroup>();
@@ -59,9 +59,9 @@ namespace TcgEngine.UI
 
             Sequence sequence = DOTween.Sequence();
             sequence.SetDelay(delay);
-            sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.InExpo));
+            sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.InQuad));
             //sequence.Join(card_rect.DOScale(0.7f, duration));
-            sequence.Join(canvas_group.DOFade(0f, duration).SetEase(Ease.InQuad));
+            sequence.Join(canvas_group.DOFade(0f, duration).SetEase(Ease.InExpo));
             
             sequence.OnComplete(() => 
             {

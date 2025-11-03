@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
 using TcgEngine;
+using DG.Tweening;
 
 namespace TcgEngine.UI
 {
@@ -24,16 +26,14 @@ namespace TcgEngine.UI
         public float card_spacing = 100f;
 
         private AbilityData iability;
+        private CardSelectorCard current_card;
 
         private List<Card> card_list = new List<Card>();
         private List<CardSelectorCard> selector_list = new List<CardSelectorCard>();
 
-        private Vector2 mouse_start;
-        private int mouse_start_index;
-        private int selection_index = 0;
-        private bool drag = false;
-        private float mouse_scroll = 0f;
-        private float timer = 0f;
+        private float interval;
+        //private int selection_index = 0;
+        //private float timer = 0f;
 
         private static CardSelector instance;
 
@@ -44,6 +44,7 @@ namespace TcgEngine.UI
             Hide();
         }
 
+        /*
         protected override void Update()
         {
             base.Update();
@@ -59,6 +60,7 @@ namespace TcgEngine.UI
                 selection_index = Mathf.Clamp(selection_index, 0, selector_list.Count - 1);
             }
 
+            
             //Mouse scroll
             mouse_scroll += -Input.mouseScrollDelta.y;
             if (mouse_scroll > 0.5f)
@@ -71,6 +73,7 @@ namespace TcgEngine.UI
                 OnClickPrev();
                 mouse_scroll += 1f;
             }
+            
 
             //Refresh cards
             foreach (CardSelectorCard card in selector_list)
@@ -90,18 +93,18 @@ namespace TcgEngine.UI
             if (game != null && iability != null && game.selector == SelectorType.None)
                 Hide(); //Ability was selected already, close panel
         }
+        */
 
         public void RefreshPanel()
         {
             foreach (CardSelectorCard card in selector_list)
                 Destroy(card.gameObject);
             selector_list.Clear();
-            drag = false;
-            mouse_scroll = 0f;
 
-            select_button_text.text = (iability != null) ? "선택 완료" : "선택 완료";
-            select_button.gameObject.SetActive(iability != null);
+            //elect_button_text.text = (iability != null) ? "선택 완료" : "선택 완료";
+            //select_button.gameObject.SetActive(iability != null);
 
+            interval = content.rect.width / (card_list.Count + 1);
             int index = 0;
             foreach (Card card in card_list)
             {
@@ -113,15 +116,15 @@ namespace TcgEngine.UI
                     RectTransform rect = obj.GetComponent<RectTransform>();
                     CardSelectorCard selector_card = obj.GetComponent<CardSelectorCard>();
                     selector_card.SetCard(card);
-                    selector_card.SetIndex(index);
-                    selector_card.selectable = false;
                     selector_card.gameObject.SetActive(true);
+                    selector_card.SetIndex(index);
+                    selector_card.onClick += OnClickCard;
 
                     Vector3 pos = GetCardPosition(selector_card);
-                    Vector3 scale = (index == selection_index ? 1 : 0.5f) * Vector3.one;
                     selector_card.SetTargetPos(pos);
-                    selector_card.SetTargetScale(scale);
                     rect.anchoredPosition = pos;
+                    selector_card.SetTargetScale(Vector3.one);
+                    selector_card.DoShow();
                     selector_list.Add(selector_card);
 
                     index++;
@@ -135,10 +138,11 @@ namespace TcgEngine.UI
             Game data = GameClient.Get().GetGameData();
             this.card_list = iability.GetCardTargets(data, caster);
             this.iability = iability;
+            this.current_card = null;
             title.text = iability.title;
             subtitle.text = iability.desc;
-            selection_index = 0;
-            timer = 0f;
+            //selection_index = 0;
+            //timer = 0f;
             Show();
         }
 
@@ -149,39 +153,59 @@ namespace TcgEngine.UI
             this.card_list.AddRange(card_list);
             this.card_list.Sort((Card a, Card b) => { return a.CardData.title.CompareTo(b.CardData.title); }); //Reorder to not show the deck order
             this.iability = null;
+            this.current_card = null;
             this.title.text = title;
             subtitle.text = "";
-            selection_index = 0;
-            timer = 0f;
+            //selection_index = 0;
+            //timer = 0f;
             Show();
         }
 
-        public void OnClickOK()
+        public async void OnClickOK(CardSelectorCard selector_card)
         {
             Game data = GameClient.Get().GetGameData();
             if (iability != null && data.selector == SelectorType.SelectorCard)
             {
-                CardSelectorCard selector_card = null;
-                if (selection_index >= 0 && selection_index < selector_list.Count)
-                    selector_card = selector_list[selection_index];
-
                 if (selector_card != null)
                 {
                     Card selected_card = selector_card.GetCard();
                     Card caster = data.GetCard(data.selector_caster_uid);
                     if (selected_card != null && iability.AreCriteriaTargetConditionsMet(data, caster, selected_card))
                     {
+                        current_card = selector_card;
+                        await AfterSelectAsync();
                         GameClient.Get().SelectCard(selected_card);
                         Hide();
+                        return;
                     }
                 }
             }
-            else
-            {
-                Hide();
-            }
+            Hide();
         }
 
+        public async Task AfterSelectAsync()
+        {
+            List<Task> animTasks = new List<Task>();
+            
+            foreach (CardSelectorCard card in selector_list)
+            {
+                if (current_card == card)
+                    animTasks.Add(card.DoHideAsync(true));  // DoHide를 async로 변경
+
+                else
+                    animTasks.Add(card.DoHideAsync());
+            }
+            
+            // 모든 애니메이션 완료 대기
+            await Task.WhenAll(animTasks);
+        }
+
+        public void OnClickCard(CardSelectorCard selector_card)
+        {
+            OnClickOK(selector_card);
+        }
+
+        /*
         public void OnClickMouseDown()
         {
             mouse_start = GetMouseRectPosition();
@@ -211,14 +235,21 @@ namespace TcgEngine.UI
             selection_index -= 1;
             selection_index = Mathf.Clamp(selection_index, 0, selector_list.Count - 1);
         }
+        */
 
         private Vector2 GetCardPosition(CardSelectorCard card)
         {
+            /*
             int index_offset = card.GetIndex() - selection_index;
             Vector2 pos = new Vector2(index_offset * card_spacing, (index_offset != 0) ? 50f : 0f);
             float center_offset = (index_offset != 0) ? (Mathf.Sign(index_offset) * 140f) : 0;
             pos += Vector2.right * center_offset;
             return pos;
+            */
+
+            float xPos = interval * (card.GetIndex()+1) - (content.rect.width / 2);
+            Vector2 position = new Vector2(xPos, 0);
+            return position;
         }
 
         private Vector2 GetMouseRectPosition()

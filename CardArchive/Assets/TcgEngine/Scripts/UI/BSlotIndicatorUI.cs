@@ -62,7 +62,9 @@ namespace TcgEngine.UI
 
         private BSlotIndicatorType SetCurrentType(Game game_data, BSlot current_slot)
         {
-
+            if (GameUI.IsUIOpened())
+                return new BSlotIndicatorTypeNone();
+                
             HandCard hcard = HandCard.GetDrag();
 
             if (game_data.selector == SelectorType.SelectTarget)

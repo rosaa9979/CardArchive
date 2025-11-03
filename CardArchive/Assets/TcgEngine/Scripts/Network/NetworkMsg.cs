@@ -339,6 +339,19 @@ namespace TcgEngine
         }
     }
 
+    public class MsgStat : INetworkSerializable
+    {
+        public string card_uid;
+        public EffectStatType type;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref card_uid);
+            serializer.SerializeValue(ref type);
+        }
+    }
+
+
     public class MsgChat : INetworkSerializable
     {
         public int player_id;

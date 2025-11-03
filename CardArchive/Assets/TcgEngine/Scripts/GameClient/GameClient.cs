@@ -43,6 +43,7 @@ namespace TcgEngine.Client
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<int> onCardDraw;
         public UnityAction<int> onValueRolled;
+        public UnityAction<Card, EffectStatType> onCardStatChange;
 
         public UnityAction<AbilityData, Card> onAbilityStart;
         public UnityAction<AbilityData, Card, Card> onAbilityTargetCard;      //Ability, Caster, Target
@@ -99,6 +100,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.CardDissolved, OnCardDissolved);
             RegisterRefresh(GameAction.CardDrawn, OnCardDraw);
             RegisterRefresh(GameAction.ValueRolled, OnValueRolled);
+            RegisterRefresh(GameAction.CardStatChange, OnCardStatChange);
 
             RegisterRefresh(GameAction.AttackStart, OnAttackStart);
             RegisterRefresh(GameAction.AttackHit, OnAttackHit);
@@ -551,6 +553,13 @@ namespace TcgEngine.Client
         {
             MsgInt msg = sdata.Get<MsgInt>();
             onValueRolled?.Invoke(msg.value);
+        }
+
+        private void OnCardStatChange(SerializedData sdata)
+        {
+            MsgStat msg = sdata.Get<MsgStat>();
+            Card card = game_data.GetCard(msg.card_uid);
+            onCardStatChange?.Invoke(card, msg.type);
         }
 
         private void OnAttackStart(SerializedData sdata)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Mono.Cecil;
 using TcgEngine.AI;
 using TcgEngine.Client;
 using TcgEngine.Gameplay;
@@ -88,6 +89,7 @@ namespace TcgEngine.Server
             gameplay.onCardDissolved += OnCardDissolved;
             gameplay.onCardDrawn += OnCardDraw;
             gameplay.onRollValue += OnValueRolled;
+            gameplay.onCardStatChange += OnCardStatChange;
 
             gameplay.onAbilityStart += OnAbilityStart;
             gameplay.onAbilityTargetCard += OnAbilityTargetCard;
@@ -779,6 +781,14 @@ namespace TcgEngine.Server
             MsgInt mdata = new MsgInt();
             mdata.value = nb;
             SendToAll(GameAction.ValueRolled, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnCardStatChange(Card target, EffectStatType type)
+        {
+            MsgStat mdata = new MsgStat();
+            mdata.card_uid = target.uid;
+            mdata.type = type;
+            SendToAll(GameAction.CardStatChange, mdata, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnAttackStart(Card attacker, Card target)

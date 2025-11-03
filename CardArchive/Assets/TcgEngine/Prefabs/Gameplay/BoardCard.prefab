@@ -107,6 +107,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kill_mat: {fileID: 2100000, guid: 209a312c80670de4ca59892424609079, type: 2}
   kill_mat_fade: noise_fade
+  attack: {fileID: 3207466765918168775}
+  health: {fileID: 5131668339876482260}
+  range: {fileID: 2216634804132486221}
 --- !u!114 &8878157023945928430
 MonoBehaviour:
   m_ObjectHideFlags: 0

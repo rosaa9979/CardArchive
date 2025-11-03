@@ -50,7 +50,7 @@ MonoBehaviour:
   card_move_audio: {fileID: 0}
   card_damage_audio: {fileID: 0}
   player_damage_audio: {fileID: 0}
-  card_draw_audio: {fileID: 8300000, guid: dc4e5c5c838f78c43997c50ddba21ad4, type: 3}
+  card_draw_audio: {fileID: 0}
   hand_card_click_audio: {fileID: 0}
   new_turn_audio: {fileID: 0}
   win_audio: {fileID: 0}

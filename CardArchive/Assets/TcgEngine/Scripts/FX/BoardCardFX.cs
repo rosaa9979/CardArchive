@@ -6,6 +6,7 @@ using TcgEngine.Client;
 using UnityEngine.Events;
 using TcgEngine;
 using DG.Tweening;
+using System.Xml;
 
 namespace TcgEngine.FX
 {
@@ -17,6 +18,12 @@ namespace TcgEngine.FX
     {
         public Material kill_mat;
         public string kill_mat_fade = "noise_fade";
+
+        [Header("Stat")]
+        public RectTransform attack;
+        public RectTransform health;
+        public RectTransform range;
+
 
         private BoardCard bcard;
 
@@ -42,6 +49,7 @@ namespace TcgEngine.FX
             client.onAbilityStart += OnAbilityStart;
             client.onAbilityTargetCard += OnAbilityEffect;
             client.onAbilityEnd += OnAbilityAfter;
+            client.onCardStatChange += OnStatChange;
 
             OnSpawn();
         }
@@ -58,6 +66,7 @@ namespace TcgEngine.FX
             client.onAbilityStart -= OnAbilityStart;
             client.onAbilityTargetCard -= OnAbilityEffect;
             client.onAbilityEnd -= OnAbilityAfter;
+            client.onCardStatChange -= OnStatChange;
         }
 
         void Update()
@@ -509,6 +518,29 @@ namespace TcgEngine.FX
                         BoardCard btarget = BoardCard.Get(target.uid);
                         ChargeInto(btarget);
                     }
+                }
+            }
+        }
+
+        private void OnStatChange(Card target, EffectStatType type)
+        {
+            Card card = bcard.GetCard();
+
+            if (target != null && target.uid == card.uid)
+            {
+                if (type == EffectStatType.Attack)
+                {
+                    attack.DOPunchScale(Vector3.one, 0.5f, 7, 1f);
+                }
+
+                if (type == EffectStatType.HP)
+                {
+                    health.DOPunchScale(Vector3.one, 0.5f, 7, 1f);
+                }
+                
+                if (type == EffectStatType.Range)
+                {
+                    range.DOPunchScale(Vector3.one, 0.5f, 7, 1f);
                 }
             }
         }

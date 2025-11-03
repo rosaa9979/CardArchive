@@ -59,6 +59,8 @@ namespace TcgEngine
                 target.mana += val;
             if (type == EffectStatType.Range)
                 target.range += val;
+
+            logic.onCardStatChange?.Invoke(target, type);
         }
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
@@ -73,6 +75,8 @@ namespace TcgEngine
                 target.mana_ongoing += val;
             if (type == EffectStatType.Range)
                 target.range_ongoing += val;
+
+            logic.onCardStatChange?.Invoke(target, type);
         }
 
         public int GetValue(GameLogic logic, AbilityData ability, Card caster)

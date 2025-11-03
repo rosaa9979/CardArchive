@@ -31,6 +31,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, int> onCardDissolved;
         public UnityAction<int> onCardDrawn;
         public UnityAction<int> onRollValue;
+        public UnityAction<Card, EffectStatType> onCardStatChange;
 
         public UnityAction<AbilityData, Card> onAbilityStart;        
         public UnityAction<AbilityData, Card, Card> onAbilityTargetCard;  //Ability, Caster, Target

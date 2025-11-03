@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6356248583081192429}
   - component: {fileID: 1614663722510022061}
   - component: {fileID: 2727978756274576730}
+  - component: {fileID: 3841303342943622980}
   m_Layer: 5
   m_Name: SelectorCard
   m_TagString: Untagged
@@ -155,6 +156,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &3841303342943622980
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4014361302221341182}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4297059093131480823
 GameObject:
   m_ObjectHideFlags: 0
