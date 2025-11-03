@@ -85,6 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7005899911182673933}
   - component: {fileID: 5160740642113404378}
+  - component: {fileID: 7934928319602605045}
   m_Layer: 0
   m_Name: CardMulligan
   m_TagString: Untagged
@@ -127,6 +128,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   card_ui: {fileID: 2625498087155318180}
   x_img: {fileID: 2796597592824847420}
+--- !u!225 &7934928319602605045
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103698993648444464}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &8045864974233828052
 PrefabInstance:
   m_ObjectHideFlags: 0

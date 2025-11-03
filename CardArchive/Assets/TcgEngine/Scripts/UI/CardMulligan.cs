@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace TcgEngine.UI
 {
@@ -23,6 +24,50 @@ namespace TcgEngine.UI
                 x_img.enabled = false;
 
             card_ui.onClick += OnClick;
+        }
+
+        public void DoShow(Vector2 position, float delay = 0f, float slideDistance = 400, float duration = 0.6f)
+        {
+            RectTransform card_rect = GetComponent<RectTransform>();
+            CanvasGroup canvas_group = GetComponent<CanvasGroup>();
+
+            Vector2 targetPos = position;
+            Vector2 startPos = targetPos;
+            startPos.y -= slideDistance;
+
+            card_rect.anchoredPosition = startPos;
+            canvas_group.alpha = 0f;
+            card_rect.localScale = Vector3.one * 0.7f;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.SetDelay(delay);
+            sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.OutExpo));
+            //sequence.Join(card_rect.DOScale(0.7f, duration));
+            sequence.Join(canvas_group.DOFade(1f, duration).SetEase(Ease.OutQuad));
+        }
+
+        public void DoHide(Vector2 position, float delay = 0f, float slideDistance = 400, float duration = 0.6f)
+        {
+            RectTransform card_rect = GetComponent<RectTransform>();
+            CanvasGroup canvas_group = GetComponent<CanvasGroup>();
+
+            Vector2 targetPos = position;
+            targetPos.y -= slideDistance;
+
+            canvas_group.alpha = 1f;
+            card_rect.localScale = Vector3.one * 0.7f;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.SetDelay(delay);
+            sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.InExpo));
+            //sequence.Join(card_rect.DOScale(0.7f, duration));
+            sequence.Join(canvas_group.DOFade(0f, duration).SetEase(Ease.InQuad));
+            
+            sequence.OnComplete(() => 
+            {
+                if (gameObject != null)
+                    Destroy(gameObject);
+            });
         }
 
         public int GetIndex()
@@ -65,7 +110,8 @@ namespace TcgEngine.UI
 
         public void Hide()
         {
-            gameObject.SetActive(false);
+            CanvasGroup canvas_group = GetComponent<CanvasGroup>();
+            canvas_group.alpha = 0.0f;
         }
 
         public bool IsSelected()

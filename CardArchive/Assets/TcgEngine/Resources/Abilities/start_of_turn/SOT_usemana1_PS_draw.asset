@@ -10,26 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: OD_summon_Sweeper
+  m_Name: SOT_usemana1_PS_draw
   m_EditorClassIdentifier: 
-  id: OD_summon_Sweeper
-  trigger: 40
-  conditions_trigger: []
+  id: SOT_usemana1_PS_draw
+  trigger: 20
+  conditions_trigger:
+  - {fileID: 11400000, guid: 00511614df2ba714996da7ccda6c4bac, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 1
-  conditions_criteria_target:
-  - {fileID: 11400000, guid: 47d421abe01b2614eacc5a1f4be3150b, type: 2}
+  criteria_target: 4
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
   effects:
-  - {fileID: 11400000, guid: 2433380b7403d1f4f81b93c59f9f7627, type: 2}
+  - {fileID: 11400000, guid: d2f15281b01c4b347a527a3011ef430a, type: 2}
   status: []
-  value: 0
+  value: 1
   duration: 0
   can_cancel: 0
-  chain_abilities: []
+  chain_abilities:
+  - {fileID: 11400000, guid: 4b1a434e77e7fa042b466b8b7307829e, type: 2}
   mana_cost: 0
   exhaust: 0
   board_fx: {fileID: 0}

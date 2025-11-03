@@ -27,8 +27,8 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: bcfd4cf087dac274faacb29f42a6eebf, type: 2}
-  text: "\uB4F1\uAD50 : \uC0C1\uB300 \uD544\uB4DC\uC5D0 \uC18C\uD658\uD558\uBA74
-    \uC0C1\uB300 \uC120\uC0DD\uC758 \uCCB4\uB825\uC744 \uC808\uBC18 \uC904\uC785\uB2C8\uB2E4."
+  text: "\uB4F1\uAD50 : \uC9C0\uC815\uD55C \uC801\uC5D0\uAC8C \uD53C\uD574\uB97C
+    7 \uC90D\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
@@ -39,6 +39,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []

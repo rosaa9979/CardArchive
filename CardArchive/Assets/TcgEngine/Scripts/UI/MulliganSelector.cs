@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TcgEngine.Client;
 using UnityEngine.Events;
@@ -33,19 +34,58 @@ namespace TcgEngine.UI
             GameClient.Get().onMulligan += OnMulligan;
         }
 
-        private void OnMulligan(int player_id)
+        private async void OnMulligan(int player_id)
         {
+            Player player = GameClient.Get().GetPlayer();
             Game game_data = GameClient.Get().GetGameData();
-            Debug.Log(game_data.AreAllPlayersReady());
-            if (game_data.AreAllPlayersReady())
+            string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
+
+            if (player.player_id != player_id)
+                return;
+
+            Queue<int> removed_card_index = new Queue<int>();
+
+            foreach (CardMulligan card in cards)
             {
-                Debug.Log("여기 들어옴?");
-                Hide();
+                bool isCardInList = player.cards_hand.Any(icard => icard.uid == card.GetCard().uid);
+                if (!isCardInList)
+                {
+                    removed_card_index.Enqueue(cards.IndexOf(card));
+                    card.DoHide(GetCardPos(card));
+                    await TimeTool.Delay(150);
+                }
             }
 
+            await TimeTool.Delay(1000);
+
+            foreach (Card new_card in player.cards_hand)
+            {
+                if (!cards.Any(icard => icard.GetCard().uid == new_card.uid) && new_card.card_id != bonus_id)
+                {
+                    int new_index = removed_card_index.Dequeue();
+                    cards.RemoveAt(new_index);
+
+                    GameObject mulligan_card = Instantiate(mulligan_template, content.transform);
+                    mulligan_card.SetActive(true);
+                    RectTransform card_rect = mulligan_card.GetComponent<RectTransform>();
+                    CardMulligan mcard = mulligan_card.GetComponent<CardMulligan>();
+
+                    mcard.SetCard(new_card);
+                    mcard.SetIndex(new_index);
+                    mcard.Hide();
+                    mcard.onClick += OnClickCard;
+                    cards.Add(mcard);
+
+                    cards.Insert(new_index, mcard);
+
+                    mcard.DoShow(GetCardPos(mcard));
+
+                    await TimeTool.Delay(150);
+                }
+            }
         }
 
-        private void RefreshMulligan()
+        private async void RefreshMulligan()
         {
             Player player = GameClient.Get().GetPlayer();
             string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
@@ -64,6 +104,7 @@ namespace TcgEngine.UI
 
                     mcard.SetCard(card);
                     mcard.SetIndex(index);
+                    mcard.Hide();
                     mcard.onClick += OnClickCard;
                     cards.Add(mcard);
 
@@ -75,11 +116,9 @@ namespace TcgEngine.UI
 
             foreach (CardMulligan card in cards)
             {
-                RectTransform card_rect = card.GetComponent<RectTransform>();
+                card.DoShow(GetCardPos(card));
 
-                card.SetTargetPos(GetCardPos(card));
-                card.SetTargetScale(Vector3.one * 0.7f);
-                card_rect.anchoredPosition = card.GetTargetPos();
+                await TimeTool.Delay(150);
             }
         }
 
@@ -122,10 +161,18 @@ namespace TcgEngine.UI
             RefreshMulligan();
         }
 
+        public override void Hide(bool instant = false)
+        {
+            base.Hide(instant);
+            Debug.Log("언제 꺼짐?");
+
+        }
+
         public override bool ShouldShow()
         {
             Game gdata = GameClient.Get().GetGameData();
             Player player = GameClient.Get().GetPlayer();
+
             return gdata.IsPlayerMulliganTurn(player);
         }
 

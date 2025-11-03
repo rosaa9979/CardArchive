@@ -2533,7 +2533,9 @@ namespace TcgEngine.Gameplay
                 onMulligan?.Invoke(player.player_id);
                 if (game_data.AreAllPlayersReady())
                 {
-                    StartTurn();
+                    resolve_queue.AddCallback(StartTurn);
+                    resolve_queue.ResolveAll(5f);
+                    //StartTurn();
                 }
             }
         }
