@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.UI;
+using UnityEditor.VersionControl;
 
 namespace TcgEngine
 {
@@ -58,7 +59,7 @@ namespace TcgEngine
                     await TimeTool.Delay(2);
                 }
             }
-
+            UnityEditor.AssetDatabase.Refresh();
             ShowText("Completed!");
         }
 
@@ -73,6 +74,7 @@ namespace TcgEngine
             RenderTexture.active = texture;
             export_texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
             byte[] bytes = export_texture.EncodeToPNG();
+            export_path = Application.dataPath + "/TcgEngine/Resources/CardImages";
             string file = card.id + ".png";
             File.WriteAllBytes(export_path + "/" + file, bytes);
             RenderTexture.active = null;

@@ -35,7 +35,7 @@ namespace TcgEngine
         {
             UnityWebRequest request = new UnityWebRequest(url, method);
             request.SetRequestHeader("Content-Type", "application/json");
-            if(token != null)
+            if (token != null)
                 request.SetRequestHeader("Authorization", token);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.timeout = timeout;
@@ -46,6 +46,16 @@ namespace TcgEngine
                 uploader.contentType = "application/json";
                 request.uploadHandler = uploader;
             }
+
+            return request;
+        }
+        
+        public static UnityWebRequest Create(string url, List<IMultipartFormSection> form_data, string token)
+        {
+            UnityWebRequest request = UnityWebRequest.Post(url, form_data);
+            if (token != null)
+                request.SetRequestHeader("Authorization", token);
+            request.timeout = 200;
 
             return request;
         }

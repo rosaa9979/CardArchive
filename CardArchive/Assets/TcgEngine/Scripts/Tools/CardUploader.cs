@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace TcgEngine
@@ -228,12 +229,19 @@ namespace TcgEngine
             CardAddRequest req = new CardAddRequest();
             req.tid = card.id;
             req.type = card.GetTypeId();
+            req.weapon = card.weapon.GetWeaponID();
+            req.clubs = new string[card.clubs.Length];
             //req.team = card.team.id;
             req.mana = card.mana;
             req.attack = card.attack;
             req.hp = card.hp;
             req.cost = card.cost;
             req.packs = new string[card.packs.Length];
+
+            for (int i = 0; i < req.clubs.Length; i++)
+            {
+                req.clubs[i] = card.clubs[i].id;
+            }
 
             for (int i = 0; i < req.packs.Length; i++)
             {
@@ -242,7 +250,27 @@ namespace TcgEngine
 
             string url = ApiClient.ServerURL + "/cards/add";
             string json = ApiTool.ToJson(req);
-            await ApiClient.Get().SendPostRequest(url, json);
+
+            Texture2D card_image = CardImageLoader.LoadCardImage(card.id);
+            byte[] image_bytes = card_image?.EncodeToPNG();
+
+            List<IMultipartFormSection> form_data = new List<IMultipartFormSection>();
+            form_data.Add(new MultipartFormDataSection("card_data", json));
+
+            if (image_bytes != null)
+            {
+                form_data.Add(
+                    new MultipartFormFileSection(
+                        "image_file",
+                        image_bytes,
+                        card.id + ".png",
+                        "image/png"
+                    )
+                );
+            }
+
+            await ApiClient.Get().SendPostRequest(url, form_data);
+            //await ApiClient.Get().SendPostRequest(url, json);
         }
 
         private async void UploadVariant(VariantData variant)
@@ -354,6 +382,8 @@ namespace TcgEngine
         public string type;
         //public string team;
         //public string rarity;
+        public string weapon;
+        public string[] clubs;
         public int mana;
         public int attack;
         public int hp;

@@ -326,9 +326,20 @@ namespace TcgEngine
             return await SendRequest(url, WebRequest.METHOD_POST, json_data);
         }
 
+        public async Task<WebResponse> SendPostRequest(string url, List<IMultipartFormSection> form_data)
+        {
+            return await SendRequest(url, form_data);
+        }
+
         public async Task<WebResponse> SendRequest(string url, string method, string json_data = "")
         {
             UnityWebRequest request = WebRequest.Create(url, method, json_data, access_token);
+            return await SendRequest(request);
+        }
+
+        public async Task<WebResponse> SendRequest(string url, List<IMultipartFormSection> form_data)
+        {
+            UnityWebRequest request = WebRequest.Create(url, form_data, access_token);
             return await SendRequest(request);
         }
 
