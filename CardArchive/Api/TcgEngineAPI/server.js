@@ -50,13 +50,13 @@ app.use((req, res, next) => {
     next();
 })
 
+//Public folder 
+app.use('/', express.static('public'));
+
 //Route root DIR
 app.get('/', function(req, res){
     res.status(200).send(config.api_title + " " + config.version);
 });
-
-//Public folder 
-app.use('/', express.static('public'))
 
 //Routing
 const AuthorizationRouter = require('./authorization/auth.routes');

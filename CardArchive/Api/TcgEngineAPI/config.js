@@ -3,7 +3,7 @@ module.exports = {
 
   port: 80,
   port_https: 443,
-  api_title: "TCG Engine API",  //Display name
+  api_title: "Card Archive API",  //Display name
   api_url: "",                  //If you set the URL, will block all direct IP access, or wrong url access, leave blank to allow all url access
 
   //HTTPS config, certificate is required if you want to enable HTTPS
@@ -14,7 +14,7 @@ module.exports = {
   allow_https: true,
 
   //JS Web Token Config
-  jwt_secret: "JWT_123456789",     //Change this to a unique secret value
+  jwt_secret: "JWT_REDACTED",     //Change this to a unique secret value
   jwt_expiration: 3600 * 10,         //In seconds  (10 hours)
   jwt_refresh_expiration: 3600 * 100, //In seconds  (100 hours)
   
@@ -27,7 +27,7 @@ module.exports = {
 
   //Mongo Connection
   mongo_user: "",
-  mongo_pass: "",
+  mongo_pass: "REDACTED",
   mongo_host: "127.0.0.1",
   mongo_port: "27017",
   mongo_db: "tcgengine",

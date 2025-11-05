@@ -1,0 +1,194 @@
+/*
+ * 커스텀 스타일
+ * 블루아카이브 테마 및 페이지 레이아웃 스타일
+*/
+body {
+    /* 기본 폰트를 Inter로, 한글은 Noto Sans KR로 설정 */
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    
+    /* --- 배경 이미지 설정 시작 --- */
+    /* 업로드된 이미지를 배경으로 설정하고 은은하게 처리 */
+    /* 파일 경로: BG_CS_PV4_086.jpg */
+    /* 주의: 이 이미지는 현재 파일 경로에 있어야 합니다. */
+    background-image: url('BG_CS_PV4_086.jpg'); 
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* 배경색을 덮어씌워 이미지의 채도를 낮추고 은은하게 만듦 */
+    background-color: #f3f7fa; /* 연한 하늘색 배경 */
+    position: relative; 
+    min-height: 100vh;
+    color: #333;
+}
+
+/* 흰색 반투명 레이어를 고정시켜 배경 이미지를 은은하게 만듦 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 반투명도를 0.85로 높여 이미지 위에 내용을 더 선명하게 표시 */
+    background-color: rgba(255, 255, 255, 0.85); /* 흰색 반투명 레이어 */
+    z-index: -1; /* 내용을 덮지 않도록 */
+
+    /* 이미지를 더 부드럽게 만들기 위해 배경에 블러 효과 추가 */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+/* --- 배경 이미지 설정 끝 --- */
+
+
+/* 메인 헤더: 반투명 흰색 배경 및 블러 처리 */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 네비게이션 활성 탭 스타일 */
+.nav-link.tab-active {
+    font-weight: 700;
+    color: #00AEEF; /* 블루아카이브 메인 블루 */
+    border-bottom: 2px solid #00AEEF;
+}
+
+/* 네비게이션 링크 기본 스타일 */
+.nav-link {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    color: #4B5563; /* text-gray-600 */
+    transition: all 0.2s ease-in-out;
+    border-bottom: 2px solid transparent;
+}
+.nav-link:hover {
+    color: #00AEEF;
+}
+
+/* 둥근 사각형 버튼 스타일 */
+.btn-primary {
+    display: inline-flex; /* Flexbox로 아이콘과 텍스트 정렬 */
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 2rem; /* 12px 32px */
+    background-color: #00AEEF; /* BA Blue */
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 0.5rem; /* 8px 둥근 모서리 */
+    box-shadow: 0 4px 14px rgba(0, 174, 239, 0.3);
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background-color: #0095c7;
+    box-shadow: 0 6px 20px rgba(0, 174, 239, 0.4);
+    transform: scale(1.02);
+}
+.btn-primary .lucide-icon {
+    width: 1.2em; /* 아이콘 크기 */
+    height: 1.2em;
+    margin-right: 8px; /* 아이콘과 텍스트 간격 */
+}
+
+/* 페이지 전환을 위한 기본/활성 클래스 */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+.page-active {
+    display: block;
+}
+
+/* 페이드인 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 카드 이미지 스타일 */
+.card-image {
+    aspect-ratio: 2.5 / 3.5; /* TCG 카드 비율 */
+    object-fit: cover;
+    width: 100%;
+    border-radius: 8px;
+    background-color: #e0e8f0;
+    transition: all 0.3s ease;
+}
+.card-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 커스텀 폼 요소 스타일 */
+.form-input, .form-select {
+    border-color: #D1D5DB;
+    border-radius: 6px;
+}
+.form-input:focus, .form-select:focus {
+    border-color: #00AEEF;
+    box-shadow: 0 0 0 2px rgba(0, 174, 239, 0.2);
+    outline: none;
+}
+.form-checkbox {
+    border-radius: 4px;
+    color: #00AEEF;
+}
+.form-checkbox:focus {
+    box-shadow: 0 0 0 2px rgba(0, 174, 239, 0.2);
+    outline: none;
+}
+
+/* --- '게임 소개' 페이지 스크롤 애니메이션용 스타일 --- */
+
+/* 스티키 뷰포트 (화면에 고정될 영역) */
+.scroll-sticky-viewport {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: calc(100vh - 4rem); /* 헤더(h-16, 4rem) 높이 제외 */
+    overflow: hidden;
+}
+
+/* 개별 스크롤 슬라이드 (화면을 채움) */
+.scroll-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 자연스러운 애니메이션 */
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+}
+
+/* 활성화된 슬라이드 */
+.scroll-slide.slide-active {
+    opacity: 1;
+}
+
+/* 스크롤 높이를 제공할 트랙 */
+.scroll-track {
+    position: relative;
+    width: 100%;
+}
+
+/* 스크롤 감지를 위한 트리거 (각각 화면 높이만큼) */
+.scroll-trigger {
+    height: 100vh; /* 각 항목이 100vh의 스크롤 길이를 가짐 */
+}
+/* --- 끝: '게임 소개' 페이지 스타일 --- */

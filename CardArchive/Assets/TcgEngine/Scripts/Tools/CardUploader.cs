@@ -36,7 +36,7 @@ namespace TcgEngine
         private async void Login()
         {
             LoginResponse res = await ApiClient.Get().Login(username_txt.text, password_txt.text);
-            Debug.Log(res.error);
+
             if (res.success && res.permission_level >= 10)
             {
                 UploadAll();
@@ -251,8 +251,8 @@ namespace TcgEngine
             string url = ApiClient.ServerURL + "/cards/add";
             string json = ApiTool.ToJson(req);
 
-            Texture2D card_image = CardImageLoader.LoadCardImage(card.id);
-            byte[] image_bytes = card_image?.EncodeToPNG();
+            byte[] image_bytes = CardImageLoader.GetCardImageBytes(card.id);
+            
 
             List<IMultipartFormSection> form_data = new List<IMultipartFormSection>();
             form_data.Add(new MultipartFormDataSection("card_data", json));

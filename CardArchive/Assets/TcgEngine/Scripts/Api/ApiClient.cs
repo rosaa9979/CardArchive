@@ -189,7 +189,6 @@ namespace TcgEngine
         private void AfterLogin(LoginResponse login_res)
         {
             last_error = login_res.error;
-
             if (login_res.success)
             {
                 user_id = login_res.id;

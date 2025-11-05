@@ -35,7 +35,10 @@ exports.Login = (req, res) => {
         return res.status(201).send(odata);
     
     } catch (err) {
-        return res.status(500).send({error: err});
+        return res.status(500).send({
+            error: err,
+            version: config.version
+        });
     }
 };
 
