@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const path = require('path');
 const fs = require('fs/promises');
 
-const upload_dir = path.join(__dirname, '../uploads/cards');
+const upload_dir = path.join(__dirname, '../public/uploads/cards');
 
 const cardsSchema = new Schema({
 
@@ -36,7 +36,7 @@ async function saveImageFile(tid, image_file) {
 
     try {
         await fs.mkdir(upload_dir, { recursive: true });
-        const relative_path = `/uploads/cards/${tid}.png`;
+        const relative_path = `/public/uploads/cards/${tid}.png`;
         const absolute_path = path.join(__dirname, `..${relative_path}`);
 
         await deleteImageFile(relative_path);

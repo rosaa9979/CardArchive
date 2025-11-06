@@ -120,31 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // !!중요!!
     // 실제 배포 시 이 MOCK_CARDS 대신 서버에서 데이터를 가져와야 합니다.
-    const MOCK_CARDS = [
-        // 아비도스 (대책위원회)
-        { id: 1, name: "시로코", type: "학생", school: "아비도스", club: "대책위원회", cost: 3, img: "https://placehold.co/300x420/a6d8ff/333?text=시로코" },
-        { id: 2, name: "호시노", type: "학생", school: "아비도스", club: "대책위원회", cost: 5, img: "https://placehold.co/300x420/f9a8d4/333?text=호시노" },
-        { id: 11, name: "세리카", type: "학생", school: "아비도스", club: "대책위원회", cost: 2, img: "https://placehold.co/300x420/a6d8ff/333?text=세리카" },
-        
-        // 게헨나
-        { id: 3, name: "히나", type: "학생", school: "게헨나", club: "선도부", cost: 6, img: "https://placehold.co/300x420/ffb3b3/333?text=히나" },
-        { id: 4, name: "아루", type: "학생", school: "게헨나", club: "흥신소68", cost: 4, img: "https://placehold.co/300x420/d8b4fe/333?text=아루" },
-        { id: 12, name: "무츠키", type: "학생", school: "게헨나", club: "흥신소68", cost: 3, img: "https://placehold.co/300x420/ffb3b3/333?text=무츠키" },
-
-        // 트리니티
-        { id: 5, name: "미카", type: "학생", school: "트리니티", club: "티파티", cost: 7, img: "https://placehold.co/300x420/fde047/333?text=미카" },
-        { id: 6, name: "하스미", type: "학생", school: "트리니티", club: "정의실현부", cost: 4, img: "https://placehold.co/300x420/bbf7d0/333?text=하스미" },
-        { id: 14, name: "츠루기", type: "학생", school: "트리니티", club: "정의실현부", cost: 5, img: "https://placehold.co/300x420/bbf7d0/333?text=츠루기" },
-
-        // 밀레니엄
-        { id: 7, name: "유우카", type: "학생", school: "밀레니엄", club: "세미나", cost: 2, img: "https://placehold.co/300x420/a5f3fc/333?text=유우카" },
-        { id: 8, name: "네루", type: "학생", school: "밀레니엄", club: "C&C", cost: 3, img: "https://placehold.co/300x420/fecaca/333?text=네루" },
-        { id: 13, name: "히비키", type: "학생", school: "밀레니엄", club: "베리타스", cost: 5, img: "https://placehold.co/300x420/a5f3fc/333?text=히비키" },
-
-        // 기타/스펠
-        { id: 9, name: "전술적 엄폐", type: "스펠", school: "기타", club: "없음", cost: 2, img: "https://placehold.co/300x420/cccccc/333?text=스펠" },
-        { id: 10, name: "긴급 치료", type: "스펠", school: "기타", club: "없음", cost: 3, img: "https://placehold.co/300x420/cccccc/333?text=스펠" },
-    ];
     
     let allCards = []; // 서버에서 받아온 원본 데이터를 저장할 배열
 
@@ -159,6 +134,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const costMinInput = document.getElementById('filter-cost-min');
     const costMaxInput = document.getElementById('filter-cost-max');
     const resetButton = document.getElementById('filter-reset');
+
+    async function fetchCardData() {
+        try {
+            const response = await fetch('/cards');
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error! Status: ${response.status}. 서버에서 데이터를 가져오는 데 실패했습니다.`);
+            }
+
+            allCards = await response.json(); 
+        } catch (error) {
+            console.error('API 호출 실패. Express 서버의 /api/cards 엔드포인트를 확인하세요:', error);
+        }
+    }
 
     /**
      * 카드를 화면에 렌더링하는 함수
@@ -175,9 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 cardElement.href = '#'; // TBD: 카드 상세 페이지 링크?
                 cardElement.className = 'group';
                 cardElement.setAttribute('title', card.name);
+
+                const image_url = card.image.startsWith('/public') ? card.image.replace('/public', '') : card.image;
                 
                 cardElement.innerHTML = `
-                    <img src="${card.img}" alt="${card.name}" class="card-image w-full rounded-lg shadow-sm transition-all group-hover:shadow-xl group-hover:scale-105">
+                    <img src="${image_url}" alt="${card.name}" class="card-image w-full rounded-lg shadow-sm transition-all group-hover:shadow-xl group-hover:scale-105">
                 `;
                 cardGrid.appendChild(cardElement);
             });
@@ -246,9 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * 카드 필터링 시스템 초기화
      */
-    function initCardFilter() {
+    async function initCardFilter() {
         // Mock 데이터 사용
-        allCards = MOCK_CARDS;
+        await fetchCardData();
+
         renderCards(allCards);
         
         // 필터 요소에 이벤트 리스너 바인딩

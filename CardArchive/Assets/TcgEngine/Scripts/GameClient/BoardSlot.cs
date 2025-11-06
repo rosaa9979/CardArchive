@@ -7,6 +7,7 @@ using TcgEngine.UI;
 using Unity.VisualScripting;
 using UnityEngine.AI;
 using TcgEngine.FX;
+using DG.Tweening;
 
 namespace TcgEngine.Client
 {

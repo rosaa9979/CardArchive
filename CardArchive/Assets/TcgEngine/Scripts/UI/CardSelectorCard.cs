@@ -33,10 +33,12 @@ namespace TcgEngine.UI
         private Card card;
 
         private RectTransform rect;
+        private CanvasGroup canvas_group;
 
         private void Awake()
         {
             rect = GetComponent<RectTransform>();
+            canvas_group = GetComponent<CanvasGroup>();
         }
 
         private void Start()
@@ -79,28 +81,26 @@ namespace TcgEngine.UI
             Vector2 startPos = targetPos;
 
 
-            card_rect.anchoredPosition = startPos;
+            rect.anchoredPosition = startPos;
             canvas_group.alpha = 1f;
-            card_rect.localScale = Vector3.one;
+            rect.localScale = Vector3.one;
 
-            Sequence sequence = DOTween.Sequence();
+            //Sequence sequence = DOTween.Sequence();
             //sequence.Append(card_rect.DOAnchorPos(targetPos, duration).SetEase(Ease.OutExpo));
-            sequence.Append(card_rect.DOPunchScale(Vector3.one * 0.1f, duration, 1));
+            //sequence.Append(card_rect.DOPunchScale(Vector3.one * 0.1f, duration, 1));
+            rect.DOPunchScale(Vector3.one * 0.1f, duration, 1).SetLink(gameObject);
             //sequence.Join(canvas_group.DOFade(1f, duration).SetEase(Ease.OutExpo));
         }
 
         public async Task DoHideAsync(bool is_selected = false, float duration = 0.4f)
         {
-            RectTransform card_rect = GetComponent<RectTransform>();
-            CanvasGroup canvas_group = GetComponent<CanvasGroup>();
-
             Vector2 targetPos = target_pos;
             Vector2 startPos = targetPos;
 
 
-            card_rect.anchoredPosition = startPos;
+            rect.anchoredPosition = startPos;
             canvas_group.alpha = 1f;
-            card_rect.localScale = Vector3.one;
+            rect.localScale = Vector3.one;
 
             Sequence sequence = DOTween.Sequence();
 

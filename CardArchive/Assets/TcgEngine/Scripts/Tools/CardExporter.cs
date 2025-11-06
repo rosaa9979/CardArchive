@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.UI;
-using UnityEditor.VersionControl;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace TcgEngine
 {
@@ -37,7 +40,7 @@ namespace TcgEngine
 
         private async void GenerateAll()
         {
-            QualitySettings.SetQualityLevel(QualitySettings.names.Length -1); //Set Max Quality level
+            QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1); //Set Max Quality level
 
             texture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             export_texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
@@ -59,7 +62,9 @@ namespace TcgEngine
                     await TimeTool.Delay(2);
                 }
             }
+#if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();
+#endif
             ShowText("Completed!");
         }
 

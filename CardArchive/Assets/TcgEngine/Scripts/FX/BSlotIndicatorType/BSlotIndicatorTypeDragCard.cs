@@ -66,14 +66,15 @@ namespace TcgEngine.FX
             HandCard hcard = HandCard.GetDrag();
             Card card = hcard.GetCard();
 
-            if (card == null || !card.CardData.IsCitizen())
+            if (card != null && card.CardData.IsBoardCard())
+            {
+                if (BSlotIndicatorUI.Get().GetCurrentBSlot() != null)
+                    return true;
+                Debug.Log("Hello");
                 return false;
-            if (card == null || !card.CardData.IsRequireTargetSpell())
-                return false;
-            if (BSlotIndicatorUI.Get().GetCurrentBSlot() == null)
-                return false;
+            }
 
-            return true;
+            return false;
         }
     }
 }

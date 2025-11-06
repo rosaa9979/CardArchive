@@ -28,7 +28,15 @@ namespace TcgEngine.Client
 
         private string card_uid = "";
 
-        private CardUI card_ui;
+        [Header("HandCard")]
+        public CardUI hand_card_ui;
+        public CanvasGroup hand_canvas_group;
+
+        [Header("BoardCard")]
+        public CardUI board_card_ui;
+        public CanvasGroup board_canvas_group;
+        public Image board_card_image;
+
         private RectTransform hand_transform;
         private RectTransform card_transform;
         private Vector3 start_scale;
@@ -51,7 +59,6 @@ namespace TcgEngine.Client
         void Awake()
         {
             card_list.Add(this);
-            card_ui = GetComponent<CardUI>();
             card_transform = transform.GetComponent<RectTransform>();
             hand_transform = transform.parent.GetComponent<RectTransform>();
             canvas_group = GetComponent<CanvasGroup>();
@@ -82,6 +89,10 @@ namespace TcgEngine.Client
 
             focus_timer += Time.deltaTime;
 
+            canvas_group.alpha = IsFocus() ? 0.0f : 1.0f;
+            hand_canvas_group.alpha = 1;
+            board_canvas_group.alpha = 0;
+
             if (IsFocus())
             {
                 //target_position = target_position + Vector2.one * 40.0f;
@@ -96,6 +107,21 @@ namespace TcgEngine.Client
                 target_rotate += addrot * move_rotate_speed * Time.deltaTime;
                 target_rotate = new Vector3(Mathf.Clamp(target_rotate.x, -move_max_rotate, move_max_rotate), Mathf.Clamp(target_rotate.y, -move_max_rotate, move_max_rotate), 0f);
                 current_rotate = Vector3.Lerp(current_rotate, target_rotate, move_rotate_speed * Time.deltaTime);
+
+                Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
+                BSlot bslot = BSlot.GetNearest(mouse_pos);
+
+                if (bslot != null && game_data.CanPlaceCard(GetCard(), bslot.GetSlot()))
+                {
+                    hand_canvas_group.alpha = 0;
+                    board_canvas_group.alpha = 1;
+                }
+
+                else
+                {
+                    hand_canvas_group.alpha = 1;
+                    board_canvas_group.alpha = 0;
+                }
             }
             else
             {
@@ -120,13 +146,12 @@ namespace TcgEngine.Client
                 focus = false;
             }
 
-            canvas_group.alpha = IsFocus() ? 0.0f : 1.0f;
-
             card_transform.anchoredPosition = Vector2.Lerp(card_transform.anchoredPosition, target_position, Time.deltaTime * move_speed);
             card_transform.localRotation = Quaternion.Slerp(card_transform.localRotation, Quaternion.Euler(current_rotate), Time.deltaTime * move_speed);
             card_transform.localScale = Vector3.Lerp(card_transform.localScale, target_size, 5f * Time.deltaTime);
 
-            card_ui.SetCard(card);
+            hand_card_ui.SetCard(card);
+            board_card_ui.SetCard(card);
             //card_glow.enabled = IsFocus() || IsDrag();
             bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
             card_outline.SetActive(is_outline_enabled); 
@@ -145,13 +170,29 @@ namespace TcgEngine.Client
             {
                 tpos = deck_position + Vector2.up * 150f + Vector2.right * tpos.x / 10f;
             }
+
+            if (IsDrag())
+            {
+                Game game_data = GameClient.Get().GetGameData();
+                Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
+                BSlot bslot = BSlot.GetNearest(mouse_pos);
+
+                if (bslot != null && game_data.CanPlaceCard(card, bslot.GetSlot()))
+                {
+                    Vector3 screenPos = Camera.main.WorldToScreenPoint(bslot.transform.position);
+            
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(hand_transform, screenPos, Camera.main, out tpos);
+                }
+            }
             return tpos;
         }
 
         public void SetCard(Card card)
         {
             this.card_uid = card.uid;
-            card_ui.SetCard(card);
+            hand_card_ui.SetCard(card);
+            board_card_ui.SetCard(card);
+            board_card_image.sprite = card.CardData.GetBoardArt(VariantData.GetDefault());
         }
 
         public void Kill()
@@ -306,7 +347,8 @@ namespace TcgEngine.Client
 
         public void SetOpacity(float opacity)
         {
-            card_ui.SetOpacity(opacity);
+            hand_card_ui.SetOpacity(opacity);
+            board_card_ui.SetOpacity(opacity);
         }
 
         public void SetHide(bool status)

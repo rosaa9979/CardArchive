@@ -156,7 +156,7 @@ header {
     position: sticky;
     top: 0;
     width: 100%;
-    height: calc(100vh - 4rem); /* 헤더(h-16, 4rem) 높이 제외 */
+    height: calc(100vh - 6rem); /* 헤더(h-16, 4rem) 높이 제외 */
     overflow: hidden;
 }
 
