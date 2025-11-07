@@ -654,6 +654,8 @@ namespace TcgEngine.UI
             udeck.hero = new UserCardData();
             udeck.hero.tid = GetSelectedHeroId();
             udeck.hero.variant = VariantData.GetDefault().id;
+            Debug.Log(deck_clubs);
+            Debug.Log(deck_clubs.ToArray());
             udeck.clubs = deck_clubs.ToArray();
             udeck.cards = deck_cards.ToArray();
             saving = true;
@@ -957,10 +959,23 @@ namespace TcgEngine.UI
             deck_hero = tid != "" ? new UserCardData(CardData.Get(tid), VariantData.GetDefault()) : new UserCardData(default_hero, VariantData.GetDefault());
         }
 
-
         public List<UserCardData> GetDeckCards()
         {
             return deck_cards.Select(c => new UserCardData(c)).ToList();
+        }
+
+        public int GetDeckClubQuantity(CardData club)
+        {
+            if (!editing_deck)
+                return 0;
+
+            ClubData club_data = club.clubs[0];
+            UserCardData ucard = GetDeckClub(club_data);
+
+            if (ucard == null)
+                return 0;
+
+            return ucard.quantity;
         }
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)

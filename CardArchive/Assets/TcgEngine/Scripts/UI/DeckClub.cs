@@ -45,8 +45,10 @@ namespace TcgEngine.UI
         {
             if (cached_club == null)
                 return;
-            
+
+            int cost = CollectionPanel.Get().GetDeckClubQuantity(cached_club);
             CardZoomPanel.Get().ShowCard(cached_club, VariantData.GetDefault());
+            CardZoomPanel.Get().card_ui.cost.text = cost.ToString();
         }
 
         public CardData GetCachedClub()

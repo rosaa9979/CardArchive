@@ -28,6 +28,7 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 9ce574d5883bfe54f993ccd831a3d93b, type: 2}
   - {fileID: 11400000, guid: bc806ea6e94171f46b3d76b7d8651ff4, type: 2}
+  - {fileID: 11400000, guid: d059a7cfcb1112442b7aec6f02193f97, type: 2}
   text: "\uAE09\uC591\uBD80 \uD559\uC0DD\uC774 \uC18C\uD658\uB418\uBA74, \uAC01 \uD559\uC0DD\uC758
     \uC2DC\uADF8\uB2C8\uCC98 \uC18C\uD658\uBB3C\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
   desc: 

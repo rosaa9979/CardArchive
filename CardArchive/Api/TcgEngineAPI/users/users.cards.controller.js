@@ -20,6 +20,7 @@ exports.UpdateDeck = async(req, res) => {
         title: req.body.title || "Deck",
         hero: req.body.hero || {},
         cards: req.body.cards || [],
+        clubs: req.bosy.clubs || [],
     };
 
     var user = await UserModel.getById(userId);

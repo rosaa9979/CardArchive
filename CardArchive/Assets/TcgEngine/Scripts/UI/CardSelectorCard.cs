@@ -123,7 +123,8 @@ namespace TcgEngine.UI
         {
             this.card = card;
             CardData icard = CardData.Get(card.card_id);
-            card_ui.SetCard(icard, card.VariantData);
+            //card_ui.SetCard(icard, card.VariantData);
+            card_ui.SetCard(card);
         }
 
         public void SetIndex(int index)

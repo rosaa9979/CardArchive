@@ -28,6 +28,7 @@ namespace TcgEngine.UI
         public Image hp_background;
         public Image hp_icon;
         public Image cost_icon;
+        public Image member_icon;
         public Image range_background;
         public Image range_icon;
         public Image trait_background;
@@ -73,44 +74,8 @@ namespace TcgEngine.UI
 
             SetCard(card.CardData, card.VariantData);
 
-            if (cost_icon != null)
-                cost_icon.enabled = true;
             if (cost != null)
-                cost.enabled = true;
-
-            if (title_background != null)
-                title_background.enabled = true;
-
-            if (card_title != null)
-                card_title.enabled = true;
-
-            if (type_background != null)
-                type_background.enabled = true;
-
-            if (type != null)
-                type.enabled = true;
-
-            if (card.CardData.IsClub())
-            {
-                int count = 0;
-                Player player = GameClient.Get().GetGameData().GetPlayer(card.player_id);
-
-                foreach (Card c in player.cards_board)
-                {
-                    if (c.HasClub(card.clubs[0].ClubData))
-                        count += 1;
-                }
-
-                cost.text = count.ToString();
-            }
-
-            else
-            {
-
-                if (cost != null)
-                    cost.text = card.GetMana().ToString();
-            }
-
+                cost.text = card.GetMana().ToString();
             if (attack != null)
                 attack.text = card.GetAttack().ToString();
             if (hp != null)
@@ -191,9 +156,11 @@ namespace TcgEngine.UI
             if (hp != null)
                 hp.enabled = card.IsBoardCard() || card.IsEquipment();
             if (cost_icon != null)
-                cost_icon.enabled = card.type != CardType.Hero;
-            if (cost != null)
-                cost.enabled = card.type != CardType.Hero;
+                cost_icon.enabled = card.type != CardType.Club;
+            if (member_icon != null)
+                member_icon.enabled = card.type == CardType.Club;
+            //if (cost != null)
+            //    cost.enabled = card.type != CardType.Club;
             if (range_background != null)
                 range_background.enabled = card.IsCitizen();
             if (range_background != null)
