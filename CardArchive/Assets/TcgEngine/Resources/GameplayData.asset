@@ -18,7 +18,7 @@ MonoBehaviour:
   mana_max: 10
   cards_start: 4
   cards_per_turn: 1
-  cards_max: 10
+  cards_max: 8
   turn_duration: 90
   second_bonus: {fileID: 11400000, guid: 9503f60659f1df04eb3dd7fa925885fb, type: 2}
   mulligan: 1

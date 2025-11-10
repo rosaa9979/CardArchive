@@ -17,9 +17,9 @@ MonoBehaviour:
   art_full: {fileID: 21300000, guid: 1ec23ffee2a27094488b9b2bae19c5bf, type: 3}
   art_board: {fileID: 21300000, guid: 2b5274bae3f4fc94f8e5529a5ffd784b, type: 3}
   type: 10
-  mana: 2
-  attack: 2
-  hp: 2
+  mana: 5
+  attack: 1
+  hp: 1
   clubs:
   - {fileID: 11400000, guid: 05f800c145171ee4eb4a209cc7d194c5, type: 2}
   weapon: {fileID: 11400000, guid: bfa48f95b7463ec489e047cb9ba96d31, type: 2}

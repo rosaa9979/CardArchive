@@ -27,7 +27,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 4f8669e77483d2d4387799ae55a1d439, type: 2}
-  text: "\uC790\uC2E0\uC758 '\uC815\uC758\uC2E4\uD604\uBD80 \uBD80\uC6D0'\uC5D0\uAC8C
+  text: "\uB4F1\uAD50 : \uC790\uC2E0\uC758 '\uC815\uC758\uC2E4\uD604\uBD80 \uBD80\uC6D0'\uC5D0\uAC8C
     1/1\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   desc: 
   spawn_fx: {fileID: 0}
