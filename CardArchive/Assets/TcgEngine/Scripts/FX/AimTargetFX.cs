@@ -32,7 +32,7 @@ namespace TcgEngine.FX
             bool visible = false;
             bool text_visible = false;
 
-            if (game_data.selector == SelectorType.SelectTarget)
+            if (game_data.selector == SelectorType.SelectTarget && game_data.IsPlayerSelectorTurn(GameClient.Get().GetPlayer()))
             {
                 AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
 

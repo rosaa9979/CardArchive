@@ -61,7 +61,7 @@ namespace TcgEngine.FX
                 visible = drag.GetCardData().IsRequireTarget();
             }
 
-            if (gdata.selector == SelectorType.SelectTarget && gdata.selector_player_id == GameClient.Get().GetPlayerID())
+            if (gdata.selector == SelectorType.SelectTarget && gdata.IsPlayerSelectorTurn(GameClient.Get().GetPlayer()))
             {
                 BoardCard caster = BoardCard.Get(gdata.selector_caster_uid);
                 HeroUI player_hero = HeroUI.Get(false);

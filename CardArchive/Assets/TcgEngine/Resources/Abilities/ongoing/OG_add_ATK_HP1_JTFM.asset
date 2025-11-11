@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OG_add_ATK_HP1_JTFM
   m_EditorClassIdentifier: 
   id: OG_add_ATK_HP1_JTFM
-  trigger: 2
+  trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 10
