@@ -2,7 +2,7 @@
 
 # Card Archive (카드아카이브)
 
-[![Play Video](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
+[![Video Label](http://img.youtube.com/vi/PUtVMtP36ME/0.jpg)](https://youtu.be/PUtVMtP36ME)
 
 ---
 
