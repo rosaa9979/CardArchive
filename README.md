@@ -1,4 +1,4 @@
-![Main Image](./images/main.png)
+![Main Image](./MainImage.png)
 
 # Card Archive (카드아카이브)
 
