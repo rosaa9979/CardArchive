@@ -1,6 +1,6 @@
 ![Main Image](./MainImage.png)
 
-# Card Archive (카드아카이브) [![Video Label](http://img.youtube.com/vi/PUtVMtP36ME/0.jpg)](https://youtu.be/PUtVMtP36ME)
+# Card Archive (카드아카이브) [![Video Label](./Youtube_logo.png)](https://youtu.be/PUtVMtP36ME)
 
 ---
 
