@@ -166,7 +166,7 @@ namespace TcgEngine.Client
             if (p % 2 == 1)
             {
                 new_x = Slot.x_min + Slot.x_max - x;
-                new_y = y + 2 * ((Slot.y_max / 2 + 1) - y);
+                new_y = y + 2 * (Slot.y_max / 2 + 1 - y);
             }
 
 
