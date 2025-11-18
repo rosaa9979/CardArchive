@@ -1,6 +1,6 @@
 # Card Archive (카드아카이브) 
 [![Video Label](./MainImage.png)](https://youtu.be/PUtVMtP36ME)
-(이미지 클릭 시, 플레이 영상 시청 가능)
+#### (이미지 클릭 시, 플레이 영상 시청 가능)
 ---
 
 ## 프로젝트 개요
