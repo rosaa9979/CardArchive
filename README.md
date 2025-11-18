@@ -1,8 +1,6 @@
 ![Main Image](./MainImage.png)
 
-# Card Archive (카드아카이브)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/PUtVMtP36ME" frameborder="0" allowfullscreen></iframe>
+# Card Archive (카드아카이브) [![Video Label](http://img.youtube.com/vi/PUtVMtP36ME/0.jpg)](https://youtu.be/PUtVMtP36ME)
 
 ---
 
