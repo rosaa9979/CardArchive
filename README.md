@@ -1,110 +1,261 @@
-# Card Archive (카드아카이브) 
-[![Video Label](./MainImage.png)](https://youtu.be/PUtVMtP36ME)
-#### (이미지 클릭 시, 플레이 영상 시청 가능)
----
+# CardArchive (카드아카이브)
 
-## 프로젝트 개요
+## 1. 타이틀
+### 프로젝트 개요
+- **프로젝트 이름**: 카드아카이브
+- **프로젝트 목표**: 넥슨의 블루아카이브 IP를 활용한 2차 창작 TCG 팬게임 개발 및 배포
+- **프로젝트 기간**: 2023.10 - 2025.11 (개발 2024.06 - 2025.11)
+- **역할**: 1인 개발 (기획, 개발, 리소스 아웃소싱, 일정 관리 등)
 
-**프로젝트 이름**  
-- 카드아카이브 (넥슨의 블루아카이브 IP를 활용한 2차 창작 팬게임)
-
-**프로젝트 기간**  
-- **기획:** 2023.10 ~ 2024.06
-- **개발:** 2024.06 ~ 2025.11
-
-**프로젝트 인원**  
-- 1인 프로젝트
-
-**맡은 역할**  
-- **기획**: 게임 디자인 기획, UI/UX 기획, 카드 기획, 밸런스
-- **개발**: 로직 리팩토링 및 신규 시스템 추가, 다양한 연출 및 UI/UX 개선
-- **리소스 아웃소싱**: 디자이너 컨택 및 요청서 작성, 품질 검수, 정산
+[![CardArchive Video](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
 
 ---
 
-## 프로젝트 소개
+## 2. 게임 소개
+### 레퍼런스 게임
+- **하스스톤**: 카드 게임의 기본 규칙 및 마나 시스템
+- **롤토체스 (TFT)**: 기물 배치 및 자동 전투 시스템
 
-블루아카이브 IP의 다양한 동아리 및 학생들을 활용한 TCG 게임
+### 게임의 핵심 목표
+- 상대 플레이어의 체력을 0으로 만들기
 
-**기존 TCG 포맷과의 차이점**
+### 게임 특징
+1. **전략적 배치 시스템**
+   - 무기 타입과 공격 알고리즘을 통해 단순히 카드를 내는 것이 아닌 **어디에** 소환하는지가 중요
+   - ![Placement System](path/to/placement.gif)
 
-- **무기 타입과 자동 공격 알고리즘을 통한 배치의 전략성**  
-   유닛의 무기 타입에 따라 공격 범위가 달라지며, 자동 공격 알고리즘이 유닛의 배치와 관련하여 전략적 선택에 영향을 줌
-
-- **동아리 조합을 통한 덱 다양성 확보 및 필드 시너지 효과**  
-   다양한 동아리를 조합하여 덱을 구성하고, 해당 동아리의 시너지 효과를 적용할 수 있음
-
----
-
-## 개발 환경 및 서버 아키텍쳐
-
-**개발 환경**  
-Unity 2022.3.32.f1
-
-**서버 아키텍쳐**  
-AWS EC2 (t2.micro)
-
-**웹서버 주소**  
-https://your-domain.com
+2. **동아리 시너지 시스템**
+   - 모든 학생 카드는 소속 동아리가 있으며, 덱에 편성하는 학생에 따라 발동되는 동아리 효과가 결정됨
+   - 인게임에서는 상시로 필드의 해당 부원수를 계산하여 효과를 발동하거나 적용함
+   - 덱 다양성 증가 및 플레이의 다양성 증가
+   - ![Club Synergy](path/to/synergy.gif)
 
 ---
 
-## 주요 기능
+## 3. 구현 내용 소개
 
-### Ability 구조 리팩토링
+## 3. 구현 내용 소개
 
-필드 효과 시스템을 개선하여 보다 유연한 능력 설정이 가능하도록 구조를 재설계
+### 1) 기존 시스템 분석
 
-- **타일 기반 효과 처리**: 필드에 적용하는 효과는 배치된 유닛이 아닌, 타일 자체를 기준으로 선택하여 처리
-- **ConditionData 반복 설정**: 능력의 반복을 설정할 수 있는 `ConditionData`를 구현
-- **필드 기준점 범위 지정**: 필드의 기준점을 (0, 0)으로 삼아 범위를 지정할 수 있는 `ConditionData`를 추가
+#### 게임 프레임워크 분석
+- **GameClient**와 **GameServer** 간의 통신 및 주요 클래스 관계
+- `GameClient`는 유저 입력을 처리하고 서버와 통신하며, `GameServer`는 `GameLogic`을 통해 게임 규칙을 수행합니다.
+- `Game` 객체는 게임의 모든 상태 데이터(플레이어, 카드 등)를 담고 있으며 네트워크로 동기화됩니다.
 
-### AttackPhase 추가
+```mermaid
+classDiagram
+    class GameClient {
+        +Game game_data
+        +SendAction()
+        +OnReceiveRefresh()
+    }
+    class GameServer {
+        +Game game_data
+        +GameLogic gameplay
+        +ReceiveAction()
+        +SendToAll()
+    }
+    class Game {
+        +Player[] players
+        +GameState state
+        +CanPlayCard()
+    }
+    class GameLogic {
+        +Game game_data
+        +ResolveQueue resolve_queue
+        +StartTurn()
+        +PlayCard()
+    }
+    class Player {
+        +List~Card~ cards_hand
+        +List~Card~ cards_board
+    }
+    class Card {
+        +CardData data
+        +int hp
+        +int attack
+        +Refresh()
+    }
+    class CardData {
+        +string id
+        +int mana
+        +AbilityData[] abilities
+    }
+    class HandCard {
+        +Card card
+        +OnMouseDownCard()
+    }
+    class BoardSlot {
+        +Slot slot
+        +OnMouseDown()
+    }
 
-유닛별 다양한 공격 타입을 지원하는 전투 시스템을 구현
+    GameClient --> Game : Has
+    GameServer --> Game : Has
+    GameServer --> GameLogic : Uses
+    GameLogic --> Game : Manipulates
+    Game --> Player : Contains
+    Player --> Card : Owns
+    Card --> CardData : References
+    HandCard --> Card : Visualizes
+    BoardSlot --> GameClient : Interacts
+```
 
-- **무기 타입 클래스 설계**: `WeaponData`를 `Scriptable Object`로 만들어, 다양한 무기 타입을 만들고 유닛에게 지정할 수 있음 
-- **추상 클래스 활용**: 공격 사거리와 공격 대상 탐색 알고리즘을 무기 타입 별로 다르게 설정할 수 있음, 새로운 무기 타입 추가가 용이함
-- **ResolveQueue 처리**: `ResolveQueue` 활용을 통해 공격 중 발생하는 효과를 순차적으로 처리
+#### ResolveQueue 분석
+- **ResolveQueue**는 효과의 누락 없는 순차적 적용을 보장하기 위해 사용됩니다.
+- Ability, Attack, Callback 등 다양한 액션을 큐에 담아 우선순위에 따라 순차적으로 처리합니다.
 
-### UI/UX 개편
+```mermaid
+flowchart TD
+    Start[Start Resolve] --> CheckAbility{Ability Queue Empty?}
+    CheckAbility -- No --> DequeueAbility[Dequeue Ability]
+    DequeueAbility --> ExecuteAbility[Execute Ability Callback]
+    ExecuteAbility --> CheckAbility
+    
+    CheckAbility -- Yes --> CheckAttack{Attack Queue Empty?}
+    CheckAttack -- No --> DequeueAttack[Dequeue Attack]
+    DequeueAttack --> ExecuteAttack[Execute Attack Callback]
+    ExecuteAttack --> CheckAttack
+    
+    CheckAttack -- Yes --> CheckCallback{Callback Queue Empty?}
+    CheckCallback -- No --> DequeueCallback[Dequeue Callback]
+    DequeueCallback --> ExecuteCallback[Execute Callback]
+    ExecuteCallback --> CheckCallback
+    
+    CheckCallback -- Yes --> End[End Resolve]
+```
 
-플레이어 경험을 개선하기 위한 다양한 UI/UX 시스템을 구현
+### 2) 리팩토링 작업 소개
 
-- **타일 강조 UX**: `전략 디자인 패턴`을 적용하여 플레이어의 현재 입력에 맞춰 적절한 타일 강조 FX 효과를 출력
-- **덱 인포 UI**: 현재 덱 상태에 맞춰 마나 커브 및 카드 타입별 비율을 보여줌
-- **마나 필터**: `옵저버 디자인 패턴`을 적용하여 덱 에디터에서 선택한 마나에 맞는 카드만 필터링하는 기능을 추가
+#### Ability 구조 변경
+- 복잡한 타겟팅과 범위 효과를 지원하기 위해 `AbilityData` 구조를 개선했습니다.
 
-### 기타
+```mermaid
+classDiagram
+    class AbilityData {
+        +AbilityTrigger trigger
+        +AbilityTarget criteria_target
+        +ConditionWideAreaRange condition_wide_range
+        +RepeatConditionData condition_repeat
+        +EffectData[] effects
+        +AreTriggerConditionsMet()
+        +GetCardTargets()
+    }
+    class ConditionData {
+        +IsTargetConditionMet()
+    }
+    class EffectData {
+        +DoEffect()
+    }
 
-- **멀리건 페이즈**: 초기 드로우 시, 유저가 선택한 카드를 버리고 다시 뽑는 멀리건 페이즈를 추가
-- **튜토리얼**: 플레이어의 입력마다, 튜토리얼 매니저에 접근하여 유효한 입력만 통과하는 튜토리얼 기능을 구현
+    AbilityData --> ConditionData : Uses
+    AbilityData --> EffectData : Executes
+```
+
+#### 덱 구조 리팩토링
+- `DeckData`에 `clubs` 배열을 추가하여 동아리 시너지 정보를 포함하고, 게임 시작 시 이를 로드하여 시너지를 적용합니다.
+
+### 3) 신규 시스템 구현
+
+#### 라이브 웹 서비스 구축
+- `UnityWebRequest`를 사용하여 NodeJS 서버와 통신하며 로그인 및 매치메이킹을 수행합니다.
+
+```mermaid
+flowchart LR
+    Client[GameClient] -->|Request| Api[ApiClient]
+    Api -->|UnityWebRequest| Node[NodeJS Server]
+    Node -->|JSON Response| Api
+    Api -->|Callback| Client
+```
+
+#### 마나 필터링 시스템 (Observer Pattern)
+- 옵저버 패턴을 활용하여 마나 필터 버튼 클릭 시 UI가 자동으로 업데이트됩니다.
+
+```mermaid
+flowchart LR
+    User[User Click] --> Filter[ManaFilter (Subject)]
+    Filter -->|Notify| Item[ManaFilterItem (Observer)]
+    Item -->|Check Filter| UI[Update UI Active/Inactive]
+```
+
+#### 덱 인포 UI
+- 덱의 마나 커브와 카드 비율을 시각화하여 보여줍니다.
+
+```mermaid
+flowchart TD
+    Open[Open Deck Info] --> GetDeck[Get Deck Cards]
+    GetDeck --> CalcCurve[Calculate Mana Curve]
+    GetDeck --> CountType[Count Card Types]
+    CalcCurve --> UpdateUI[Update Panel UI]
+    CountType --> UpdateUI
+```
+
+#### 초기 카드 교환 시스템 (Mulligan)
+- 게임 시작 시 카드를 교체하는 멀리건 단계를 구현했습니다.
+
+```mermaid
+flowchart TD
+    Start[Game Start] --> CheckMulligan{Mulligan Phase?}
+    CheckMulligan -- Yes --> ShowUI[Show MulliganSelector]
+    ShowUI --> Select[Select Cards to Replace]
+    Select --> Confirm[Click Confirm]
+    Confirm --> Send[Send Action to Server]
+    Send --> Receive[Receive New Hand]
+```
+
+#### 튜토리얼 시스템 (Singleton)
+- 싱글톤 패턴으로 구현된 튜토리얼 매니저가 플레이어의 행동을 제어합니다.
+
+```mermaid
+flowchart TD
+    Event[Game Event (Click/Play)] --> Tuto[Tutorial Singleton]
+    Tuto --> CheckStep{Is Action Allowed?}
+    CheckStep -- Yes --> Allow[Execute Action]
+    CheckStep -- No --> Block[Block Action & Show Warning]
+    Allow --> NextStep[Advance Tutorial Step]
+```
+
+#### Slot 강조 FX 시스템
+- 플레이어의 상태(드래그, 타겟팅 등)에 따라 슬롯의 시각 효과를 변경합니다.
+
+```mermaid
+flowchart LR
+    Input[Player Input] --> Controls[PlayerControls]
+    Controls -->|Select/Drag| Slot[BoardSlot]
+    Slot -->|Check Condition| FX[BoardSlotFX]
+    FX -->|Play| Particle[Particle System]
+```
+
+#### WeaponType 설계 (Strategy Pattern)
+- 무기 타입에 따라 공격 범위와 대상을 찾는 알고리즘을 전략 패턴으로 유연하게 교체합니다.
+
+```mermaid
+flowchart TD
+    Attack[Attack Trigger] --> GetWeapon[Get Weapon Data]
+    GetWeapon --> Search[SearchTarget()]
+    Search -->|Strategy| List[Target List]
+    List --> AttackFunc[AttackTarget()]
+    AttackFunc --> Apply[Apply Damage/Effect]
+```
+
+#### 공격 페이즈 및 자동 공격 시스템
+- 하스스톤 전장과 유사한 자동 공격 순서를 큐를 통해 처리합니다.
+
+```mermaid
+flowchart TD
+    Start[Start Attack Phase] --> GetOrder[Get Attack Order (Slots)]
+    GetOrder --> Loop{For Each Attacker}
+    Loop --> CheckCanAttack{Can Attack?}
+    CheckCanAttack -- Yes --> Search[AttackSearch]
+    Search --> Resolve[Resolve Attack]
+    Resolve --> Loop
+    CheckCanAttack -- No --> Loop
+    Loop -- Done --> End[End Phase]
+```
 
 ---
 
-## 기술 스택
-
-**게임 엔진**  
-Unity 2022.3.32.f1
-
-**네트워크 및 통신**  
-NetCode, WebResponse
-
-**데이터 관리**  
-ScriptableObject (Ability Data, ConditionData, EffectData)
-
-**최적화**  
-Object Pooling (Queue Element)
-
-**애니메이션**  
-DOTween
-
-**형상 관리**  
-Github
-
----
-
-## 라이선스
-
-이 프로젝트는 넥슨의 블루아카이브 IP를 활용한 2차 창작 팬게임입니다.  
-모든 블루아카이브 관련 지적 재산권은 넥슨에 있습니다.
+## 4. 성과
+- **2025년 10월**: 일러스타 페스 출품
+- **2025년 4분기**: 배포 예정
