@@ -34,77 +34,77 @@
 
 ## 3. 구현 내용 소개
 
-## 3. 구현 내용 소개
-
 ### 1) 기존 시스템 분석
 
 #### 게임 프레임워크 분석
 - **GameClient**와 **GameServer** 간의 통신 및 주요 클래스 관계
-- `GameClient`는 유저 입력을 처리하고 서버와 통신하며, `GameServer`는 `GameLogic`을 통해 게임 규칙을 수행합니다.
-- `Game` 객체는 게임의 모든 상태 데이터(플레이어, 카드 등)를 담고 있으며 네트워크로 동기화됩니다.
+- 클라이언트는 `GameClient`를 통해 서버에 액션(`GameAction`)을 전송하고, 서버는 `GameServer`에서 로직을 처리한 후 결과를 모든 클라이언트에게 `Refresh` 이벤트로 전송
 
 ```mermaid
 classDiagram
+    direction LR
     class GameClient {
-        +Game game_data
         +SendAction()
         +OnReceiveRefresh()
     }
+    class HandCard {
+        +Card card
+        +OnMouseDownCard()
+    }
+    class BoardCard {
+        +Card card
+        +OnMouseDown()
+    }
+    class BoardSlot {
+        +Slot slot
+        +OnMouseDown()
+    }
+    
     class GameServer {
-        +Game game_data
-        +GameLogic gameplay
         +ReceiveAction()
         +SendToAll()
+    }
+    class GameLogic {
+        +ResolveQueue resolve_queue
+        +StartTurn()
     }
     class Game {
         +Player[] players
         +GameState state
-        +CanPlayCard()
-    }
-    class GameLogic {
-        +Game game_data
-        +ResolveQueue resolve_queue
-        +StartTurn()
-        +PlayCard()
-    }
-    class Player {
-        +List~Card~ cards_hand
-        +List~Card~ cards_board
     }
     class Card {
         +CardData data
         +int hp
         +int attack
-        +Refresh()
     }
     class CardData {
         +string id
         +int mana
         +AbilityData[] abilities
     }
-    class HandCard {
-        +Card card
-        +OnMouseDownCard()
-    }
-    class BoardSlot {
-        +Slot slot
-        +OnMouseDown()
-    }
 
-    GameClient --> Game : Has
-    GameServer --> Game : Has
+    GameClient --> HandCard : Manages
+    GameClient --> BoardCard : Manages
+    GameClient --> BoardSlot : Manages
+    GameClient --> Game : Has Reference
+    
     GameServer --> GameLogic : Uses
+    GameServer --> Game : Has Reference
     GameLogic --> Game : Manipulates
-    Game --> Player : Contains
-    Player --> Card : Owns
+    
+    Game --> Card : Contains
     Card --> CardData : References
+    
     HandCard --> Card : Visualizes
-    BoardSlot --> GameClient : Interacts
+    BoardCard --> Card : Visualizes
+    
+    GameClient <..> GameServer : Network Communication
 ```
 
 #### ResolveQueue 분석
 - **ResolveQueue**는 효과의 누락 없는 순차적 적용을 보장하기 위해 사용됩니다.
 - Ability, Attack, Callback 등 다양한 액션을 큐에 담아 우선순위에 따라 순차적으로 처리합니다.
+- 오브젝트 풀링(`Pool<T>`) 기법을 사용하여 메모리 할당을 최소화했습니다.
 
 ```mermaid
 flowchart TD
@@ -129,7 +129,11 @@ flowchart TD
 ### 2) 리팩토링 작업 소개
 
 #### Ability 구조 변경
-- 복잡한 타겟팅과 범위 효과를 지원하기 위해 `AbilityData` 구조를 개선했습니다.
+- **변경 이유**: 복잡한 효과 구현(반복 조건 설정, Slot 기반 효과 발동 등)을 위해 기존의 단순한 타겟팅 구조를 개선할 필요가 있었습니다.
+- **변경 내용**:
+    - `Target`을 `Criteria Target`으로 변경하여 기준점 Slot을 설정
+    - `WideAreaTargetCondition`을 추가하여 기준점으로부터의 범위 지정 기능 구현
+    - `RepeatCondition`을 통해 반복 기능 구현
 
 ```mermaid
 classDiagram
@@ -154,105 +158,95 @@ classDiagram
 ```
 
 #### 덱 구조 리팩토링
-- `DeckData`에 `clubs` 배열을 추가하여 동아리 시너지 정보를 포함하고, 게임 시작 시 이를 로드하여 시너지를 적용합니다.
+- 편성된 학생에 따라 동아리 효과가 덱에 저장되고, 게임 시작 시 세팅되도록 변경했습니다.
+- `DeckData`에 `clubs` 배열을 추가하여 동아리 시너지 정보를 포함시켰습니다.
 
 ### 3) 신규 시스템 구현
 
 #### 라이브 웹 서비스 구축
-- `UnityWebRequest`를 사용하여 NodeJS 서버와 통신하며 로그인 및 매치메이킹을 수행합니다.
+- `UnityWebRequest`를 사용하여 NodeJS 서버와 통신하며, 카드 정보 및 이미지를 주고받는 라이브 웹 서비스를 구축했습니다.
 
 ```mermaid
 flowchart LR
-    Client[GameClient] -->|Request| Api[ApiClient]
-    Api -->|UnityWebRequest| Node[NodeJS Server]
+    Client[GameClient] -->|Request (Login/Match/Data)| Api[ApiClient]
+    Api -->|UnityWebRequest (POST/GET)| Node[NodeJS Server]
     Node -->|JSON Response| Api
-    Api -->|Callback| Client
+    Api -->|Callback (Action)| Client
 ```
 
 #### 마나 필터링 시스템 (Observer Pattern)
-- 옵저버 패턴을 활용하여 마나 필터 버튼 클릭 시 UI가 자동으로 업데이트됩니다.
+- 옵저버 디자인 패턴을 사용하여 마나 필터 UI를 구현했습니다.
+- `ManaFilter`가 Subject 역할을 하며, 마나 버튼 클릭 시 `onManaClicked` 이벤트를 통해 `ManaFilterItem`들에게 알림을 보냅니다.
 
 ```mermaid
-flowchart LR
-    User[User Click] --> Filter[ManaFilter (Subject)]
-    Filter -->|Notify| Item[ManaFilterItem (Observer)]
-    Item -->|Check Filter| UI[Update UI Active/Inactive]
+classDiagram
+    class ManaFilter {
+        +List~ManaFilterItem~ mana_list
+        +UnityAction onManaClicked
+        +OnClickedMana(int mana)
+    }
+    class ManaFilterItem {
+        +int mana_value
+        +SetActive(bool)
+    }
+    
+    ManaFilter o-- ManaFilterItem : Notifies
+    ManaFilterItem --> ManaFilter : Subscribes
 ```
 
 #### 덱 인포 UI
-- 덱의 마나 커브와 카드 비율을 시각화하여 보여줍니다.
+- 덱 정보를 분석하여 마나 커브 및 카드 타입별 비율을 확인할 수 있는 모듈화된 UI를 구현했습니다.
 
 ```mermaid
-flowchart TD
-    Open[Open Deck Info] --> GetDeck[Get Deck Cards]
-    GetDeck --> CalcCurve[Calculate Mana Curve]
-    GetDeck --> CountType[Count Card Types]
-    CalcCurve --> UpdateUI[Update Panel UI]
-    CountType --> UpdateUI
+classDiagram
+    class DeckInfoPanel {
+        +ManaCurve mana_curve
+        +DeckEntry deck_entry
+        +RefreshAll()
+    }
+    class ManaCurve {
+        +Refresh(List~UserCardData~)
+    }
+    class DeckEntry {
+        +Refresh(List~UserCardData~)
+    }
+    
+    DeckInfoPanel --> ManaCurve : Updates
+    DeckInfoPanel --> DeckEntry : Updates
 ```
 
 #### 초기 카드 교환 시스템 (Mulligan)
-- 게임 시작 시 카드를 교체하는 멀리건 단계를 구현했습니다.
+- 게임 시작 시 초기 패를 교환하는 멀리건 페이즈를 구현했습니다.
 
 ```mermaid
-flowchart TD
-    Start[Game Start] --> CheckMulligan{Mulligan Phase?}
-    CheckMulligan -- Yes --> ShowUI[Show MulliganSelector]
-    ShowUI --> Select[Select Cards to Replace]
-    Select --> Confirm[Click Confirm]
-    Confirm --> Send[Send Action to Server]
-    Send --> Receive[Receive New Hand]
+sequenceDiagram
+    participant Player
+    participant MulliganSelector
+    participant GameClient
+    participant GameServer
+    
+    Player->>MulliganSelector: Select Cards to Replace
+    Player->>MulliganSelector: Click Confirm
+    MulliganSelector->>GameClient: Mulligan(selected_cards)
+    GameClient->>GameServer: SendAction(Mulligan)
+    GameServer->>GameServer: Process Mulligan (Draw New Cards)
+    GameServer->>GameClient: Send Refresh (New Hand)
+    GameClient->>MulliganSelector: Update UI
 ```
 
 #### 튜토리얼 시스템 (Singleton)
-- 싱글톤 패턴으로 구현된 튜토리얼 매니저가 플레이어의 행동을 제어합니다.
+- 싱글톤 패턴 기반의 `Tutorial` 시스템을 구축하여, 현재 단계에 맞게 플레이어의 입력을 제한하고 안내합니다.
 
-```mermaid
-flowchart TD
-    Event[Game Event (Click/Play)] --> Tuto[Tutorial Singleton]
-    Tuto --> CheckStep{Is Action Allowed?}
-    CheckStep -- Yes --> Allow[Execute Action]
-    CheckStep -- No --> Block[Block Action & Show Warning]
-    Allow --> NextStep[Advance Tutorial Step]
-```
+#### Slot 강조 FX 시스템 (Strategy Pattern)
+- 전략 디자인 패턴을 사용하여 플레이어의 행동(드래그, 타겟팅, 대기 등)에 따라 달라지는 Slot 강조 FX 시스템을 구현했습니다.
 
-#### Slot 강조 FX 시스템
-- 플레이어의 상태(드래그, 타겟팅 등)에 따라 슬롯의 시각 효과를 변경합니다.
-
-```mermaid
-flowchart LR
-    Input[Player Input] --> Controls[PlayerControls]
-    Controls -->|Select/Drag| Slot[BoardSlot]
-    Slot -->|Check Condition| FX[BoardSlotFX]
-    FX -->|Play| Particle[Particle System]
-```
-
-#### WeaponType 설계 (Strategy Pattern)
-- 무기 타입에 따라 공격 범위와 대상을 찾는 알고리즘을 전략 패턴으로 유연하게 교체합니다.
-
-```mermaid
-flowchart TD
-    Attack[Attack Trigger] --> GetWeapon[Get Weapon Data]
-    GetWeapon --> Search[SearchTarget()]
-    Search -->|Strategy| List[Target List]
-    List --> AttackFunc[AttackTarget()]
-    AttackFunc --> Apply[Apply Damage/Effect]
-```
+#### WeaponType 설계
+- 사거리와 탐색 알고리즘을 별도로 지정할 수 있는 확장이 용이한 `WeaponType` 구조를 설계했습니다.
+- `WeaponData`를 상속받아 다양한 공격 방식을 유연하게 추가할 수 있습니다.
 
 #### 공격 페이즈 및 자동 공격 시스템
-- 하스스톤 전장과 유사한 자동 공격 순서를 큐를 통해 처리합니다.
-
-```mermaid
-flowchart TD
-    Start[Start Attack Phase] --> GetOrder[Get Attack Order (Slots)]
-    GetOrder --> Loop{For Each Attacker}
-    Loop --> CheckCanAttack{Can Attack?}
-    CheckCanAttack -- Yes --> Search[AttackSearch]
-    Search --> Resolve[Resolve Attack]
-    Resolve --> Loop
-    CheckCanAttack -- No --> Loop
-    Loop -- Done --> End[End Phase]
-```
+- 커스텀 Queue 자료 구조를 활용하여 '하스스톤 전장'과 유사한 자동 공격 페이즈를 구현했습니다.
+- `GameLogic`에서 공격 순서를 계산하고 큐에 넣어 순차적으로 공격을 수행합니다.
 
 ---
 
