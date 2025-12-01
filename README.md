@@ -1,4 +1,5 @@
 # CardArchive (카드아카이브)
+![MainImage](./MainImage.png)
 
 ## 타이틀
 ### 프로젝트 개요
