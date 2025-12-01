@@ -290,6 +290,7 @@ private BSlotIndicatorType SetCurrentType(Game game_data, BSlot current_slot)
 ```mermaid
 classDiagram
     class WeaponData {
+        +int range
         +GetWeaponID()
         +GetWeaponType()
         +GetDefaultRange()
@@ -297,15 +298,25 @@ classDiagram
         +SearchTarget(GameLogic, Card)
         +AttackTarget(GameLogic, Card, List~Card~)
     }
-    class WeaponBACK {
+    class WeaponNone {
+        +int range
         +SearchTarget()
         +AttackTarget()
     }
     class WeaponFRONT {
+        +int range
+        +SearchTarget()
+        +AttackTarget()
     }
     class WeaponMIDDLE {
+        +int range
+        +SearchTarget()
+        +AttackTarget()
     }
-    class WeaponNone {
+    class WeaponBACK {
+        +int range
+        +SearchTarget()
+        +AttackTarget()
     }
 
     WeaponData <|-- WeaponBACK
