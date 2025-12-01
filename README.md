@@ -278,37 +278,38 @@ classDiagram
 - 커스텀 Queue 자료 구조를 활용하여 '하스스톤 전장'과 유사한 자동 공격 페이즈를 구현했습니다.
 - `GameLogic`에서 공격 순서를 계산하고 Attack 큐에 넣어 순차적으로 공격을 수행합니다.
 
+**1. Attack Phase 전체 흐름**
 ```mermaid
 flowchart LR
-    Start["StartAttackPhase()"] --> Init["Phase = Attack<br/>RefreshData()"]
-    Init --> Queue1["Queue: AttackCheck"]
-    
-    Queue1 --> Check["AttackCheck()"]
+    Start["StartAttackPhase()"] --> Init["Phase = Attack"]
+    Init --> Check["AttackCheck()"]
     Check --> Order["공격 순서 계산"]
-    Order --> Loop{공격 가능한<br/>시민 존재?}
+    Order --> HasAttacker{공격 가능한<br/>시민 존재?}
     
-    Loop -- No --> QueueEnd["Queue: EndTurn"]
-    QueueEnd --> End["EndTurn()"]
+    HasAttacker -- No --> EndTurn["EndTurn()"]
+    HasAttacker -- Yes --> Search["AttackSearch()<br/>타겟 탐색"]
+    Search --> Targets["AttackTargets()"]
+    Targets --> Check
+```
+
+**2. AttackTargets 상세 흐름**
+```mermaid
+flowchart LR
+    Start["AttackTargets()"] --> GetList["타겟 리스트 획득"]
+    GetList --> Loop{남은 타겟<br/>존재?}
     
-    Loop -- Yes --> Search["AttackSearch()"]
-    Search --> Target["타겟 탐색<br/>(사거리 내)"]
-    Target --> Execute["AttackTarget()"]
-    
-    Execute --> Before["ResolveAttack()<br/>Before Attack"]
-    Before --> TriggerBefore["onAttackStart<br/>Remove Stealth"]
-    TriggerBefore --> After["ResolveAttackHit()<br/>After Attack"]
-    
-    After --> Damage["데미지 계산<br/>반격 처리"]
-    Damage --> TriggerAfter["OnAfterAttack<br/>OnAfterDefend"]
-    TriggerAfter --> Death["ResolveDeath()"]
-    
-    Death --> CheckDeath{HP <= 0?}
-    CheckDeath -- Yes --> Kill["KillCard()"]
-    CheckDeath -- No --> Continue["Continue"]
-    
-    Kill --> Queue2["Queue: AttackCheck"]
-    Continue --> Queue2
-    Queue2 --> Check
+    Loop -- No --> Exhaust["ExhaustBattle()<br/>공격 종료"]
+    Loop -- Yes --> Attack["AttackTarget()<br/>(단일 타겟)"]
+    Attack --> Loop
+```
+
+**3. AttackTarget 실행 단계**
+```mermaid
+flowchart LR
+    Start["AttackTarget()"] --> Phase1["1. Before Attack<br/>onAttackStart"]
+    Phase1 --> Phase2["2. 데미지 교환<br/>DamageCard()"]
+    Phase2 --> Phase3["3. After Attack<br/>Trigger Abilities"]
+    Phase3 --> Phase4["4. ResolveDeath<br/>KillCard()"]
 ```
 
 ---
