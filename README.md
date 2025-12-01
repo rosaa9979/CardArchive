@@ -26,14 +26,16 @@
 
 ### 게임 특징
 1. **전략적 배치 시스템**
-   ![Placement System](path/to/placement.gif)
    - 타일 시스템과 사거리를 통해 단순히 카드를 내는 것이 아닌 **어디에** 소환하는지가 중요
 
+        ![Placement System](/Tool/README_Image/Location_Stragedy.gif)
+
 2. **동아리 시너지 시스템**
-   ![Club Synergy](path/to/synergy.gif)
    - 모든 학생 카드는 소속 동아리가 있으며, 덱에 편성하는 학생에 따라 발동되는 동아리 효과가 결정됨
    - 인게임에서는 상시로 필드의 해당 부원수를 계산하여 효과를 발동하거나 적용함
    - 덱 다양성 증가 및 플레이의 다양성 증가
+   
+        ![Club Synergy](/Tool/README_Image/Club_Synergy.gif)
 
 ---
 
@@ -45,96 +47,22 @@
 - **GameClient**와 **GameServer** 간의 통신 및 주요 클래스 관계
 - 클라이언트는 `GameClient`를 통해 서버에 액션(`GameAction`)을 전송하고, 서버는 `GameServer`에서 로직을 처리한 후 결과를 모든 클라이언트에게 `Refresh` 이벤트로 전송
 
-```mermaid
-classDiagram
-    direction LR
-    class GameClient {
-        +SendAction()
-        +OnReceiveRefresh()
-    }
-    class HandCard {
-        +Card card
-        +OnMouseDownCard()
-    }
-    class BoardCard {
-        +Card card
-        +OnMouseDown()
-    }
-    class BoardSlot {
-        +Slot slot
-        +OnMouseDown()
-    }
-    
-    class GameServer {
-        +ReceiveAction()
-        +SendToAll()
-    }
-    class GameLogic {
-        +ResolveQueue resolve_queue
-        +StartTurn()
-    }
-    class Game {
-        +Player[] players
-        +GameState state
-    }
-    class Card {
-        +CardData data
-        +int hp
-        +int attack
-    }
-    class CardData {
-        +string id
-        +int mana
-        +AbilityData[] abilities
-    }
 
-    GameClient --> HandCard : Manages
-    GameClient --> BoardCard : Manages
-    GameClient --> BoardSlot : Manages
-    GameClient --> Game : Has Reference
-    
-    GameServer --> GameLogic : Uses
-    GameServer --> Game : Has Reference
-    GameLogic --> Game : Manipulates
-    
-    Game --> Card : Contains
-    Card --> CardData : References
-    
-    HandCard --> Card : Visualizes
-    BoardCard --> Card : Visualizes
-    
-    GameClient <..> GameServer : Network Communication
-```
 
 #### ResolveQueue 분석
 - **ResolveQueue**는 효과의 누락 없는 순차적 적용을 보장하기 위해 사용됩니다.
-- Ability, Attack, Callback 등 다양한 액션을 큐에 담아 우선순위에 따라 순차적으로 처리합니다.
+- 다양한 액션을 `Ability`, `Attack`, `Callback`으로 구분하여 큐에 담아 우선순위에 따라 순차적으로 처리합니다.
 - 오브젝트 풀링(`Pool<T>`) 기법을 사용하여 메모리 할당을 최소화했습니다.
 
-```mermaid
-flowchart TD
-    Start[Start Resolve] --> CheckAbility{Ability Queue Empty?}
-    CheckAbility -- No --> DequeueAbility[Dequeue Ability]
-    DequeueAbility --> ExecuteAbility[Execute Ability Callback]
-    ExecuteAbility --> CheckAbility
-    
-    CheckAbility -- Yes --> CheckAttack{Attack Queue Empty?}
-    CheckAttack -- No --> DequeueAttack[Dequeue Attack]
-    DequeueAttack --> ExecuteAttack[Execute Attack Callback]
-    ExecuteAttack --> CheckAttack
-    
-    CheckAttack -- Yes --> CheckCallback{Callback Queue Empty?}
-    CheckCallback -- No --> DequeueCallback[Dequeue Callback]
-    DequeueCallback --> ExecuteCallback[Execute Callback]
-    ExecuteCallback --> CheckCallback
-    
-    CheckCallback -- Yes --> End[End Resolve]
-```
+![Resolve Queue](/Tool/README_Image/Resolve_Queue.png)
 
 ### 리팩토링 작업 소개
 
 #### Ability 구조 변경
-- **변경 이유**: 복잡한 효과 구현(반복 조건 설정, Slot 기반 효과 발동 등)을 위해 기존의 단순한 타겟팅 구조를 개선할 필요가 있었습니다.
+- **변경 이유**: 
+    - 범위 지정으로 전략성을 높일 수 있는 효과를 만들 수 없음
+    - 효과가 1회성으로 끝나고 반복을 시킬 수 없음
+
 - **변경 내용**:
     - `Target`을 `Criteria Target`으로 변경하여 기준점 Slot을 설정
     - `WideAreaTargetCondition`을 추가하여 기준점으로부터의 범위 지정 기능 구현
@@ -154,11 +82,16 @@ classDiagram
     class ConditionData {
         +IsTargetConditionMet()
     }
+    class RepeatConditionData {
+        +GetMaxRepeatTimes()
+        +IsRepeatConditionMet()
+    }
     class EffectData {
         +DoEffect()
     }
 
     AbilityData --> ConditionData : Uses
+    AbilityData --> RepeatConditionData : Uses
     AbilityData --> EffectData : Executes
 ```
 
@@ -168,7 +101,7 @@ classDiagram
 
 ### 신규 시스템 구현
 
-#### 라이브 웹 서비스 구축
+#### 라이브 웹 서비스 구축 (https://your-domain.com)
 - `UnityWebRequest`를 사용하여 NodeJS 서버와 통신하며, 카드 정보 및 이미지를 주고받는 라이브 웹 서비스를 구축했습니다.
 
 ```mermaid
@@ -201,6 +134,8 @@ classDiagram
     ManaFilterItem --> ManaFilter : Calls OnClickedMana
 ```
 
+![Mana Filter](/Tool/README_Image/Mana_Filter.png)
+
 #### 덱 인포 UI
 - 덱 정보를 분석하여 마나 커브 및 카드 타입별 비율을 확인할 수 있는 모듈화된 UI를 구현했습니다.
 
@@ -222,6 +157,8 @@ classDiagram
     DeckInfoPanel --> DeckEntry : Updates
 ```
 
+![DeckInfoUI](./Tool/README_Image/Deck_Info_UI.png)
+
 #### 초기 카드 교환 시스템 (Mulligan)
 - 게임 시작 시 초기 패를 교환하는 멀리건 페이즈를 구현했습니다.
 
@@ -241,6 +178,8 @@ sequenceDiagram
     GameClient->>MulliganSelector: Update UI
 ```
 
+![MulliganImage](./Tool/README_Image/Mulligan.gif)
+
 #### 튜토리얼 시스템 (Singleton)
 - 싱글톤 패턴 기반의 `Tutorial` 시스템을 구축하여, 현재 단계에 맞게 플레이어의 입력을 제한하고 안내합니다.
 
@@ -258,6 +197,8 @@ flowchart TD
     CheckTarget -- Yes --> Allow
     CheckTarget -- No --> Block
 ```
+
+![TutoImage](./Tool/README_Image/Tutorial.png)
 
 #### Slot 강조 FX 시스템 (Strategy Pattern)
 - 전략 디자인 패턴을 사용하여 플레이어의 행동(드래그, 타겟팅, 대기 등)에 따라 달라지는 Slot 강조 FX 시스템을 구현했습니다.
@@ -287,6 +228,9 @@ private BSlotIndicatorType SetCurrentType(Game game_data, BSlot current_slot)
     return new BSlotIndicatorTypeNone();
 }
 ```
+
+![SlotFXImage](./Tool/README_Image/SlotFX.png)
+*Slot Indicator FX 적용 전 / 후 비교*
 
 #### WeaponType 설계
 - 사거리와 탐색 알고리즘을 별도로 지정할 수 있는 확장이 용이한 `WeaponType` 구조를 설계했습니다.
@@ -332,10 +276,13 @@ classDiagram
 
 #### 공격 페이즈 및 자동 공격 시스템
 - 커스텀 Queue 자료 구조를 활용하여 '하스스톤 전장'과 유사한 자동 공격 페이즈를 구현했습니다.
-- `GameLogic`에서 공격 순서를 계산하고 큐에 넣어 순차적으로 공격을 수행합니다.
+- `GameLogic`에서 공격 순서를 계산하고 Attack 큐에 넣어 순차적으로 공격을 수행합니다.
 
 ---
 
 ## 성과
-- **2025년 10월**: 일러스타 페스 출품
+- **2025년 10월**: 일러스타 페스 출품 (**124명** 플레이 후, 설문조사 진행)
+
+    ![IllustarImage](./Tool/README_Image/Illustar_Image.png)
+
 - **2025년 4분기**: 배포 예정
