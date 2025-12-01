@@ -280,64 +280,42 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    Start["NextStep()"] --> AddCallback["resolve_queue.AddCallback(StartAttackPhase)"]
-    AddCallback --> ResolveQueue1["resolve_queue.ResolveAll()"]
-    
-    ResolveQueue1 --> StartAttack["StartAttackPhase()"]
-    StartAttack --> CheckState1{GameState == GameEnded?}
+    Start["StartAttackPhase()"] --> CheckState1{GameState<br/>== GameEnded?}
     CheckState1 -- Yes --> End1[Return]
-    CheckState1 -- No --> CheckPhase1{Phase == Main?}
+    CheckState1 -- No --> CheckPhase1{Phase<br/>== Main?}
     CheckPhase1 -- No --> End2[Return]
-    CheckPhase1 -- Yes --> SetPhase["phase = Attack<br/>selector = None<br/>onAttackPhase?.Invoke()"]
-    SetPhase --> RefreshData1["RefreshData()"]
-    RefreshData1 --> AddAttackCheck["resolve_queue.AddCallback(AttackCheck)"]
-    AddAttackCheck --> ResolveQueue2["resolve_queue.ResolveAll(1.5f)"]
+    CheckPhase1 -- Yes --> SetPhase["phase = Attack<br/>selector = None"]
+    SetPhase --> RefreshData["RefreshData()"]
+    RefreshData --> QueueCheck["Queue: AttackCheck<br/>Delay: 1.5f"]
     
-    ResolveQueue2 --> AttackCheck["AttackCheck()"]
-    AttackCheck --> CheckState2{GameState == GameEnded?}
+    QueueCheck --> AttackCheck["AttackCheck()"]
+    AttackCheck --> CheckState2{GameState<br/>== GameEnded?}
     CheckState2 -- Yes --> End3[Return]
-    CheckState2 -- No --> CheckPhase2{Phase == Attack?}
+    CheckState2 -- No --> CheckPhase2{Phase<br/>== Attack?}
     CheckPhase2 -- No --> End4[Return]
-    CheckPhase2 -- Yes --> GetOrder["Get Attack Order<br/>Reorder Citizens by Slot"]
-    GetOrder --> LoopCitizens["Loop through reorderedCitizens"]
+    CheckPhase2 -- Yes --> GetOrder["공격 순서 계산<br/>Slot 기준 재정렬"]
     
-    LoopCitizens --> CanAttack{Can Citizen Attack?}
-    CanAttack -- Yes --> SetFlag["can_attack = true"]
-    SetFlag --> CallAttackSearch["AttackSearch(attacker)"]
-    CallAttackSearch --> Break[Break Loop]
-    CanAttack -- No --> NextCitizen[Next Citizen]
-    NextCitizen --> LoopCitizens
+    GetOrder --> Loop["시민 순회"]
+    Loop --> CanAttack{공격 가능?}
+    CanAttack -- No --> NextCitizen["다음 시민"]
+    NextCitizen --> Loop
+    CanAttack -- Yes --> AttackSearch["AttackSearch(attacker)"]
     
-    Break --> AfterLoop{can_attack?}
-    AfterLoop -- No --> AddEndTurn["resolve_queue.AddCallback(EndTurn)"]
-    AddEndTurn --> ResolveQueue3["resolve_queue.ResolveAll(0.1f)"]
-    ResolveQueue3 --> End5[End]
+    AttackSearch --> GetTargets["사거리 내<br/>타겟 탐색"]
+    GetTargets --> CheckClub{Trinity<br/>Vigilante<br/>Crew?}
     
-    AfterLoop -- Yes --> AttackSearch["AttackSearch(attacker)"]
-    AttackSearch --> GetRange["Get Range Slots<br/>Search Targets"]
-    GetRange --> CheckClub{Has Trinity Vigilante Crew?}
+    CheckClub -- Yes --> TrinityFlow["우선순위:<br/>1. 플레이어 공격<br/>2. 타겟 공격<br/>3. Exhaust"]
+    CheckClub -- No --> NormalFlow["우선순위:<br/>1. 타겟 공격<br/>2. 플레이어 공격<br/>3. Exhaust"]
     
-    CheckClub -- Yes --> CheckRange1{Range includes<br/>opponent slot?}
-    CheckRange1 -- Yes --> AttackPlayer1["AttackTarget(player)"]
-    CheckRange1 -- No --> CheckTarget1{Has Targets?}
-    CheckTarget1 -- Yes --> AttackTargets1["AttackTarget(targets)"]
-    CheckTarget1 -- No --> Exhaust1["ExhaustBattle(attacker)"]
+    TrinityFlow --> ExecuteAttack["공격 실행"]
+    NormalFlow --> ExecuteAttack
     
-    CheckClub -- No --> CheckTarget2{Has Targets?}
-    CheckTarget2 -- Yes --> AttackTargets2["AttackTarget(targets)"]
-    CheckTarget2 -- No --> CheckRange2{Range includes<br/>opponent slot?}
-    CheckRange2 -- Yes --> AttackPlayer2["AttackTarget(player)"]
-    CheckRange2 -- No --> Exhaust2["ExhaustBattle(attacker)"]
+    ExecuteAttack --> QueueNext["Queue: AttackCheck<br/>Delay: 1f"]
+    QueueNext --> AttackCheck
     
-    AttackPlayer1 --> AddCallback2["resolve_queue.AddCallback(AttackCheck)"]
-    AttackTargets1 --> AddCallback2
-    Exhaust1 --> AddCallback2
-    AttackTargets2 --> AddCallback2
-    AttackPlayer2 --> AddCallback2
-    Exhaust2 --> AddCallback2
-    
-    AddCallback2 --> ResolveQueue4["resolve_queue.ResolveAll(1f)"]
-    ResolveQueue4 --> AttackCheck
+    Loop --> NoAttacker{공격자<br/>없음?}
+    NoAttacker -- Yes --> QueueEnd["Queue: EndTurn<br/>Delay: 0.1f"]
+    QueueEnd --> EndTurn["EndTurn()"]
 ```
 
 ---
