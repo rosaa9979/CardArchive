@@ -1,5 +1,6 @@
 # CardArchive (카드아카이브)
-![MainImage](./MainImage.png)
+![MainImage](./MainImage.png)(https://www.youtube.com/watch?v=PUtVMtP36ME)
+* 클릭 시 플레이 영상으로 이동합니다.
 
 ## 목차
 1. [프로젝트 개요](#프로젝트-개요)
@@ -12,8 +13,6 @@
 - **프로젝트 목표**: 넥슨의 블루아카이브 IP를 활용한 2차 창작 TCG 팬게임 개발 및 배포
 - **프로젝트 기간**: 2023.10 - 2025.11 (개발 2024.06 - 2025.11)
 - **역할**: 1인 개발 (기획, 개발, 리소스 아웃소싱, 일정 관리 등)
-
-<iframe width="1259" height="675" src="https://www.youtube.com/embed/PUtVMtP36ME" title="카드아카이브 프로젝트 플레이 영상" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ---
 
