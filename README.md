@@ -1,5 +1,5 @@
 # CardArchive (카드아카이브)
-![MainImage](./MainImage.png)(https://www.youtube.com/watch?v=PUtVMtP36ME)
+[![MainImage](./MainImage.png)](https://www.youtube.com/watch?v=PUtVMtP36ME)
 * 클릭 시 플레이 영상으로 이동합니다.
 
 ## 목차
