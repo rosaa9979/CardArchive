@@ -1,6 +1,6 @@
 # CardArchive (카드아카이브)
 
-## 1. 타이틀
+## 타이틀
 ### 프로젝트 개요
 - **프로젝트 이름**: 카드아카이브
 - **프로젝트 목표**: 넥슨의 블루아카이브 IP를 활용한 2차 창작 TCG 팬게임 개발 및 배포
@@ -11,7 +11,7 @@
 
 ---
 
-## 2. 게임 소개
+## 게임 소개
 ### 레퍼런스 게임
 - **하스스톤**: 카드 게임의 기본 규칙 및 마나 시스템
 - **롤토체스 (TFT)**: 기물 배치 및 자동 전투 시스템
@@ -32,9 +32,9 @@
 
 ---
 
-## 3. 구현 내용 소개
+## 구현 내용 소개
 
-### 1) 기존 시스템 분석
+### 기존 시스템 분석
 
 #### 게임 프레임워크 분석
 - **GameClient**와 **GameServer** 간의 통신 및 주요 클래스 관계
@@ -126,7 +126,7 @@ flowchart TD
     CheckCallback -- Yes --> End[End Resolve]
 ```
 
-### 2) 리팩토링 작업 소개
+### 리팩토링 작업 소개
 
 #### Ability 구조 변경
 - **변경 이유**: 복잡한 효과 구현(반복 조건 설정, Slot 기반 효과 발동 등)을 위해 기존의 단순한 타겟팅 구조를 개선할 필요가 있었습니다.
@@ -161,7 +161,7 @@ classDiagram
 - 편성된 학생에 따라 동아리 효과가 덱에 저장되고, 게임 시작 시 세팅되도록 변경했습니다.
 - `DeckData`에 `clubs` 배열을 추가하여 동아리 시너지 정보를 포함시켰습니다.
 
-### 3) 신규 시스템 구현
+### 신규 시스템 구현
 
 #### 라이브 웹 서비스 구축
 - `UnityWebRequest`를 사용하여 NodeJS 서버와 통신하며, 카드 정보 및 이미지를 주고받는 라이브 웹 서비스를 구축했습니다.
@@ -182,16 +182,18 @@ flowchart LR
 classDiagram
     class ManaFilter {
         +List~ManaFilterItem~ mana_list
-        +UnityAction onManaClicked
+        +HashSet~int~ filteredManaValues
         +OnClickedMana(int mana)
+        +GetFilteredMana()
     }
     class ManaFilterItem {
-        +int mana_value
+        +int value
+        +OnClickedMana()
         +SetActive(bool)
     }
-    
-    ManaFilter o-- ManaFilterItem : Notifies
-    ManaFilterItem --> ManaFilter : Subscribes
+
+    ManaFilter "1" o-- "n" ManaFilterItem : Contains
+    ManaFilterItem --> ManaFilter : Calls OnClickedMana
 ```
 
 #### 덱 인포 UI
@@ -237,12 +239,80 @@ sequenceDiagram
 #### 튜토리얼 시스템 (Singleton)
 - 싱글톤 패턴 기반의 `Tutorial` 시스템을 구축하여, 현재 단계에 맞게 플레이어의 입력을 제한하고 안내합니다.
 
+```mermaid
+flowchart TD
+    Input[Player Input] --> CheckTuto{Is Tutorial Active?}
+    CheckTuto -- No --> Allow[Allow Input]
+    CheckTuto -- Yes --> CheckLock{Is Locked?}
+    CheckLock -- Yes --> Block[Block Input]
+    CheckLock -- No --> CheckStep{Is Step Forced?}
+    CheckStep -- No --> Allow
+    CheckStep -- Yes --> CheckTrigger{Trigger Matches?}
+    CheckTrigger -- No --> Block
+    CheckTrigger -- Yes --> CheckTarget{Target Matches?}
+    CheckTarget -- Yes --> Allow
+    CheckTarget -- No --> Block
+```
+
 #### Slot 강조 FX 시스템 (Strategy Pattern)
 - 전략 디자인 패턴을 사용하여 플레이어의 행동(드래그, 타겟팅, 대기 등)에 따라 달라지는 Slot 강조 FX 시스템을 구현했습니다.
+
+```csharp
+private BSlotIndicatorType SetCurrentType(Game game_data, BSlot current_slot)
+{
+    if (GameUI.IsUIOpened())
+        return new BSlotIndicatorTypeNone();
+        
+    HandCard hcard = HandCard.GetDrag();
+
+    if (game_data.selector == SelectorType.SelectTarget)
+        return new BSlotIndicatorTypeSelector();
+
+    if (hcard != null)
+        return new BSlotIndicatorTypeDragCard();
+
+    if (current_slot != null)
+    {
+        Card current_hovering_unit = game_data.GetSlotCard(current_slot.GetSlot());
+
+        if (current_hovering_unit != null && current_hovering_unit.CardData.IsCitizen())
+            return new BSlotIndicatorTypeHoverUnit();
+    }
+
+    return new BSlotIndicatorTypeNone();
+}
+```
 
 #### WeaponType 설계
 - 사거리와 탐색 알고리즘을 별도로 지정할 수 있는 확장이 용이한 `WeaponType` 구조를 설계했습니다.
 - `WeaponData`를 상속받아 다양한 공격 방식을 유연하게 추가할 수 있습니다.
+
+```mermaid
+classDiagram
+    class WeaponData {
+        +GetWeaponID()
+        +GetWeaponType()
+        +GetDefaultRange()
+        +GetWeaponColor()
+        +SearchTarget(GameLogic, Card)
+        +AttackTarget(GameLogic, Card, List~Card~)
+    }
+    class WeaponBACK {
+        +SearchTarget()
+        +AttackTarget()
+    }
+    class WeaponFRONT {
+    }
+    class WeaponMIDDLE {
+    }
+    class WeaponNone {
+    }
+
+    WeaponData <|-- WeaponBACK
+    WeaponData <|-- WeaponFRONT
+    WeaponData <|-- WeaponMIDDLE
+    WeaponData <|-- WeaponNone
+```
 
 #### 공격 페이즈 및 자동 공격 시스템
 - 커스텀 Queue 자료 구조를 활용하여 '하스스톤 전장'과 유사한 자동 공격 페이즈를 구현했습니다.
