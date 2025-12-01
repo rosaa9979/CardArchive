@@ -279,7 +279,7 @@ classDiagram
 - `GameLogic`에서 공격 순서를 계산하고 Attack 큐에 넣어 순차적으로 공격을 수행합니다.
 
 ```mermaid
-flowchart TD
+flowchart LR
     Start["NextStep()"] --> AddCallback["resolve_queue.AddCallback(StartAttackPhase)"]
     AddCallback --> ResolveQueue1["resolve_queue.ResolveAll()"]
     
