@@ -184,7 +184,7 @@ sequenceDiagram
 - 싱글톤 패턴 기반의 `Tutorial` 시스템을 구축하여, 현재 단계에 맞게 플레이어의 입력을 제한하고 안내합니다.
 
 ```mermaid
-flowchart TD
+flowchart LR
     Input[Player Input] --> CheckTuto{Is Tutorial Active?}
     CheckTuto -- No --> Allow[Allow Input]
     CheckTuto -- Yes --> CheckLock{Is Locked?}
@@ -291,15 +291,23 @@ flowchart LR
     QueueEnd --> End["EndTurn()"]
     
     Loop -- Yes --> Search["AttackSearch()"]
-    Search --> Target["타겟 탐색"]
-    Target --> Priority{동아리<br/>효과?}
+    Search --> Target["타겟 탐색<br/>(사거리 내)"]
+    Target --> Execute["AttackTarget()"]
     
-    Priority -- Trinity --> P1["1. 플레이어<br/>2. 타겟<br/>3. Exhaust"]
-    Priority -- Normal --> P2["1. 타겟<br/>2. 플레이어<br/>3. Exhaust"]
+    Execute --> Before["ResolveAttack()<br/>Before Attack"]
+    Before --> TriggerBefore["onAttackStart<br/>Remove Stealth"]
+    TriggerBefore --> After["ResolveAttackHit()<br/>After Attack"]
     
-    P1 --> Execute["공격 실행"]
-    P2 --> Execute
-    Execute --> Queue2["Queue: AttackCheck"]
+    After --> Damage["데미지 계산<br/>반격 처리"]
+    Damage --> TriggerAfter["OnAfterAttack<br/>OnAfterDefend"]
+    TriggerAfter --> Death["ResolveDeath()"]
+    
+    Death --> CheckDeath{HP <= 0?}
+    CheckDeath -- Yes --> Kill["KillCard()"]
+    CheckDeath -- No --> Continue["Continue"]
+    
+    Kill --> Queue2["Queue: AttackCheck"]
+    Continue --> Queue2
     Queue2 --> Check
 ```
 
