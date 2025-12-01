@@ -280,42 +280,27 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    Start["StartAttackPhase()"] --> CheckState1{GameState<br/>== GameEnded?}
-    CheckState1 -- Yes --> End1[Return]
-    CheckState1 -- No --> CheckPhase1{Phase<br/>== Main?}
-    CheckPhase1 -- No --> End2[Return]
-    CheckPhase1 -- Yes --> SetPhase["phase = Attack<br/>selector = None"]
-    SetPhase --> RefreshData["RefreshData()"]
-    RefreshData --> QueueCheck["Queue: AttackCheck<br/>Delay: 1.5f"]
+    Start["StartAttackPhase()"] --> Init["Phase = Attack<br/>RefreshData()"]
+    Init --> Queue1["Queue: AttackCheck"]
     
-    QueueCheck --> AttackCheck["AttackCheck()"]
-    AttackCheck --> CheckState2{GameState<br/>== GameEnded?}
-    CheckState2 -- Yes --> End3[Return]
-    CheckState2 -- No --> CheckPhase2{Phase<br/>== Attack?}
-    CheckPhase2 -- No --> End4[Return]
-    CheckPhase2 -- Yes --> GetOrder["공격 순서 계산<br/>Slot 기준 재정렬"]
+    Queue1 --> Check["AttackCheck()"]
+    Check --> Order["공격 순서 계산"]
+    Order --> Loop{공격 가능한<br/>시민 존재?}
     
-    GetOrder --> Loop["시민 순회"]
-    Loop --> CanAttack{공격 가능?}
-    CanAttack -- No --> NextCitizen["다음 시민"]
-    NextCitizen --> Loop
-    CanAttack -- Yes --> AttackSearch["AttackSearch(attacker)"]
+    Loop -- No --> QueueEnd["Queue: EndTurn"]
+    QueueEnd --> End["EndTurn()"]
     
-    AttackSearch --> GetTargets["사거리 내<br/>타겟 탐색"]
-    GetTargets --> CheckClub{Trinity<br/>Vigilante<br/>Crew?}
+    Loop -- Yes --> Search["AttackSearch()"]
+    Search --> Target["타겟 탐색"]
+    Target --> Priority{동아리<br/>효과?}
     
-    CheckClub -- Yes --> TrinityFlow["우선순위:<br/>1. 플레이어 공격<br/>2. 타겟 공격<br/>3. Exhaust"]
-    CheckClub -- No --> NormalFlow["우선순위:<br/>1. 타겟 공격<br/>2. 플레이어 공격<br/>3. Exhaust"]
+    Priority -- Trinity --> P1["1. 플레이어<br/>2. 타겟<br/>3. Exhaust"]
+    Priority -- Normal --> P2["1. 타겟<br/>2. 플레이어<br/>3. Exhaust"]
     
-    TrinityFlow --> ExecuteAttack["공격 실행"]
-    NormalFlow --> ExecuteAttack
-    
-    ExecuteAttack --> QueueNext["Queue: AttackCheck<br/>Delay: 1f"]
-    QueueNext --> AttackCheck
-    
-    Loop --> NoAttacker{공격자<br/>없음?}
-    NoAttacker -- Yes --> QueueEnd["Queue: EndTurn<br/>Delay: 0.1f"]
-    QueueEnd --> EndTurn["EndTurn()"]
+    P1 --> Execute["공격 실행"]
+    P2 --> Execute
+    Execute --> Queue2["Queue: AttackCheck"]
+    Queue2 --> Check
 ```
 
 ---
