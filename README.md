@@ -174,10 +174,10 @@ classDiagram
 
 ```mermaid
 flowchart LR
-    Client[GameClient] -->|Request (Login/Match/Data)| Api[ApiClient]
-    Api -->|UnityWebRequest (POST/GET)| Node[NodeJS Server]
-    Node -->|JSON Response| Api
-    Api -->|Callback (Action)| Client
+    Client[GameClient] -->|"Request (Login/Match/Data)"| Api[ApiClient]
+    Api -->|"UnityWebRequest (POST/GET)"| Node[NodeJS Server]
+    Node -->|"JSON Response"| Api
+    Api -->|"Callback (Action)"| Client
 ```
 
 #### 마나 필터링 시스템 (Observer Pattern)
