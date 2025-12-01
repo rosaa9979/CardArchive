@@ -13,7 +13,7 @@
 - **프로젝트 기간**: 2023.10 - 2025.11 (개발 2024.06 - 2025.11)
 - **역할**: 1인 개발 (기획, 개발, 리소스 아웃소싱, 일정 관리 등)
 
-[![CardArchive Video](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+<iframe width="1259" height="675" src="https://www.youtube.com/embed/PUtVMtP36ME" title="카드아카이브 프로젝트 플레이 영상" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ---
 
