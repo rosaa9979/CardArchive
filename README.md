@@ -278,6 +278,68 @@ classDiagram
 - 커스텀 Queue 자료 구조를 활용하여 '하스스톤 전장'과 유사한 자동 공격 페이즈를 구현했습니다.
 - `GameLogic`에서 공격 순서를 계산하고 Attack 큐에 넣어 순차적으로 공격을 수행합니다.
 
+```mermaid
+flowchart TD
+    Start["NextStep()"] --> AddCallback["resolve_queue.AddCallback(StartAttackPhase)"]
+    AddCallback --> ResolveQueue1["resolve_queue.ResolveAll()"]
+    
+    ResolveQueue1 --> StartAttack["StartAttackPhase()"]
+    StartAttack --> CheckState1{GameState == GameEnded?}
+    CheckState1 -- Yes --> End1[Return]
+    CheckState1 -- No --> CheckPhase1{Phase == Main?}
+    CheckPhase1 -- No --> End2[Return]
+    CheckPhase1 -- Yes --> SetPhase["phase = Attack<br/>selector = None<br/>onAttackPhase?.Invoke()"]
+    SetPhase --> RefreshData1["RefreshData()"]
+    RefreshData1 --> AddAttackCheck["resolve_queue.AddCallback(AttackCheck)"]
+    AddAttackCheck --> ResolveQueue2["resolve_queue.ResolveAll(1.5f)"]
+    
+    ResolveQueue2 --> AttackCheck["AttackCheck()"]
+    AttackCheck --> CheckState2{GameState == GameEnded?}
+    CheckState2 -- Yes --> End3[Return]
+    CheckState2 -- No --> CheckPhase2{Phase == Attack?}
+    CheckPhase2 -- No --> End4[Return]
+    CheckPhase2 -- Yes --> GetOrder["Get Attack Order<br/>Reorder Citizens by Slot"]
+    GetOrder --> LoopCitizens["Loop through reorderedCitizens"]
+    
+    LoopCitizens --> CanAttack{Can Citizen Attack?}
+    CanAttack -- Yes --> SetFlag["can_attack = true"]
+    SetFlag --> CallAttackSearch["AttackSearch(attacker)"]
+    CallAttackSearch --> Break[Break Loop]
+    CanAttack -- No --> NextCitizen[Next Citizen]
+    NextCitizen --> LoopCitizens
+    
+    Break --> AfterLoop{can_attack?}
+    AfterLoop -- No --> AddEndTurn["resolve_queue.AddCallback(EndTurn)"]
+    AddEndTurn --> ResolveQueue3["resolve_queue.ResolveAll(0.1f)"]
+    ResolveQueue3 --> End5[End]
+    
+    AfterLoop -- Yes --> AttackSearch["AttackSearch(attacker)"]
+    AttackSearch --> GetRange["Get Range Slots<br/>Search Targets"]
+    GetRange --> CheckClub{Has Trinity Vigilante Crew?}
+    
+    CheckClub -- Yes --> CheckRange1{Range includes<br/>opponent slot?}
+    CheckRange1 -- Yes --> AttackPlayer1["AttackTarget(player)"]
+    CheckRange1 -- No --> CheckTarget1{Has Targets?}
+    CheckTarget1 -- Yes --> AttackTargets1["AttackTarget(targets)"]
+    CheckTarget1 -- No --> Exhaust1["ExhaustBattle(attacker)"]
+    
+    CheckClub -- No --> CheckTarget2{Has Targets?}
+    CheckTarget2 -- Yes --> AttackTargets2["AttackTarget(targets)"]
+    CheckTarget2 -- No --> CheckRange2{Range includes<br/>opponent slot?}
+    CheckRange2 -- Yes --> AttackPlayer2["AttackTarget(player)"]
+    CheckRange2 -- No --> Exhaust2["ExhaustBattle(attacker)"]
+    
+    AttackPlayer1 --> AddCallback2["resolve_queue.AddCallback(AttackCheck)"]
+    AttackTargets1 --> AddCallback2
+    Exhaust1 --> AddCallback2
+    AttackTargets2 --> AddCallback2
+    AttackPlayer2 --> AddCallback2
+    Exhaust2 --> AddCallback2
+    
+    AddCallback2 --> ResolveQueue4["resolve_queue.ResolveAll(1f)"]
+    ResolveQueue4 --> AttackCheck
+```
+
 ---
 
 ## 성과
