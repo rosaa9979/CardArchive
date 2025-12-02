@@ -1,5 +1,5 @@
 # CardArchive (카드아카이브)
-[![MainImage](./MainImage.png)](https://www.youtube.com/watch?v=PUtVMtP36ME)
+[![MainImage](./Tool/README_Image/MainImage.png)](https://www.youtube.com/watch?v=FFTW2ZACE-A)
 ※ 클릭 시 플레이 영상으로 이동합니다.
 
 ## 목차
@@ -47,7 +47,7 @@
 - **GameClient**와 **GameServer** 간의 통신 및 주요 클래스 관계
 - 클라이언트는 `GameClient`를 통해 서버에 액션(`GameAction`)을 전송하고, 서버는 `GameServer`에서 로직을 처리한 후 결과를 모든 클라이언트에게 `Refresh` 이벤트로 전송
 
-![GameFramework](/Tool/README_Image/GameFramework.png)
+![GameFramework](/Tool/README_Image/GameFramework.jpg)
 
 #### ResolveQueue 분석
 - **ResolveQueue**는 효과의 누락 없는 순차적 적용을 보장하기 위해 사용됩니다.

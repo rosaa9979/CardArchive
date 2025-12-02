@@ -146,10 +146,11 @@ namespace TcgEngine.Client
         private void OnTargetSlot(AbilityData ability, Card card, Slot target)
         {
             Game data = GameClient.Get().GetGameData();
-            Slot target_slot = new Slot(current_step.target_slot);
-            if (card.player_id == GameClient.Get().GetPlayerID() && target_slot == target)
+            if (card.player_id == GameClient.Get().GetPlayerID())
             {
-                TriggerEndStep(TutoEndTrigger.SelectTarget);
+                Slot target_slot = new Slot(current_step.target_slot);
+                if (target_slot == target)
+                    TriggerEndStep(TutoEndTrigger.SelectTarget);
             }
         }
 

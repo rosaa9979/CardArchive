@@ -16,7 +16,7 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 32
+  criteria_target: 30
   conditions_criteria_target:
   - {fileID: 11400000, guid: 516b374e9a04a0746820dab5c9372774, type: 2}
   - {fileID: 11400000, guid: 0d5d806335e533048a36ec0d0af3435b, type: 2}
@@ -29,6 +29,7 @@ MonoBehaviour:
   status: []
   value: 0
   duration: 0
+  can_cancel: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
@@ -41,3 +42,4 @@ MonoBehaviour:
   title: "\uB4F1\uAD50"
   desc: "\uCCAD\uD718\uC11D\uC744 \uC18C\uBAA8\uD558\uC5EC \uD328\uC5D0\uC11C \uC18C\uD658\uB420
     \uB54C \uBC1C\uB3D9"
+  selector_desc: 
