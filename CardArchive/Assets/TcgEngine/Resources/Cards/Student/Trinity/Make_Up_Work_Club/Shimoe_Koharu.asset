@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Shimoe_Koharu
   title: "\uC2DC\uBAA8\uC5D0 \uCF54\uD558\uB8E8"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: b2b4a13c5191a0e4fa732fc6e95cf86d, type: 3}
+  art_board: {fileID: 21300000, guid: 18044b227b41a784591c41313ab69a1b, type: 3}
   type: 10
   mana: 4
   attack: 1
