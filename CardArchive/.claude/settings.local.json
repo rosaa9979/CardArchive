@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import openpyxl; print\\('openpyxl', openpyxl.__version__\\)\")",
+      "Bash(python -c \"import yaml; print\\('PyYAML', yaml.__version__\\)\")",
+      "Bash(python Tools/DataExport/export_data.py)",
+      "Bash(python -c ' *)",
+      "Bash(xargs grep *)",
+      "Bash(rm -f Tools/DataExport/*.xlsx Tools/DataExport/*.py)",
+      "Bash(rmdir Tools/DataExport)",
+      "Bash(rmdir Tools)"
+    ]
+  }
+}
