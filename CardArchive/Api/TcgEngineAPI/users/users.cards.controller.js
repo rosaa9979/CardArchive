@@ -5,6 +5,7 @@ const VariantModel = require('../variants/variants.model');
 const UserTool = require("./users.tool");
 const CardTool = require("../cards/cards.tool");
 const Activity = require("../activity/activity.model");
+const { withTx } = require('../tools/transaction.tool');
 const config = require('../config');
 
 exports.UpdateDeck = async(req, res) => {
@@ -127,16 +128,18 @@ exports.BuyCard = async (req, res) => {
   if (!valid)
     return res.status(500).send({ error: "Error when adding cards" });
 
-  //Update the user array
-  var updatedUser = await UserModel.save(user, ["coins", "cards"]);
-  if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+  //Save user + log atomically
+  try {
+    await withTx(async (session) => {
+      await UserModel.save(user, ["coins", "cards"], { session });
+      const activityData =  {card: cardId, variant: variantId, quantity: quantity};
+      await Activity.LogActivity("user_buy_card", req.jwt.username, activityData, { session });
+    });
+  } catch (e) {
+    console.error("BuyCard transaction failed:", e);
+    return res.status(500).send({ error: "Error processing purchase, please try again" });
+  }
 
-  // Activity Log -------------
-  const activityData =  {card: cardId, variant: variantId, quantity: quantity};
-  const act = await Activity.LogActivity("user_buy_card", req.jwt.username, activityData);
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-  // -------------
   return res.status(200).send();
 
 };
@@ -182,16 +185,18 @@ exports.SellCard = async (req, res) => {
   if (!valid)
     return res.status(500).send({ error: "Error when removing cards" });
 
-  //Update the user array
-  var updatedUser = await UserModel.save(user, ["coins", "cards"]);
-  if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+  //Save user + log atomically
+  try {
+    await withTx(async (session) => {
+      await UserModel.save(user, ["coins", "cards"], { session });
+      const activityData =  {card: cardId, variant: variantId, quantity: quantity};
+      await Activity.LogActivity("user_sell_card", req.jwt.username, activityData, { session });
+    });
+  } catch (e) {
+    console.error("SellCard transaction failed:", e);
+    return res.status(500).send({ error: "Error processing sale, please try again" });
+  }
 
-  // Activity Log -------------
-  const activityData =  {card: cardId, variant: variantId, quantity: quantity};
-  const act = await Activity.LogActivity("user_sell_card", req.jwt.username, activityData);
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-  // -------------
   return res.status(200).send();
 };
 
@@ -229,16 +234,18 @@ exports.BuyPack = async (req, res) => {
   if (!valid)
     return res.status(500).send({ error: "Error when adding packs" });
 
-  //Update the user array
-  var updatedUser = await UserModel.save(user, ["coins", "packs"]);
-  if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+  //Save user + log atomically
+  try {
+    await withTx(async (session) => {
+      await UserModel.save(user, ["coins", "packs"], { session });
+      const activityData =  {pack: packId, quantity: quantity};
+      await Activity.LogActivity("user_buy_pack", req.jwt.username, activityData, { session });
+    });
+  } catch (e) {
+    console.error("BuyPack transaction failed:", e);
+    return res.status(500).send({ error: "Error processing purchase, please try again" });
+  }
 
-  // Activity Log -------------
-  const activityData =  {pack: packId, quantity: quantity};
-  const act = await Activity.LogActivity("user_buy_pack", req.jwt.username, activityData);
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-  // -------------
   return res.status(200).send();
 
 };
@@ -277,16 +284,18 @@ exports.SellPack = async (req, res) => {
   if (!valid)
     return res.status(500).send({ error: "Error when adding packs" });
 
-  //Update the user array
-  var updatedUser = await UserModel.save(user, ["coins", "packs"]);
-  if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+  //Save user + log atomically
+  try {
+    await withTx(async (session) => {
+      await UserModel.save(user, ["coins", "packs"], { session });
+      const activityData =  {pack: packId, quantity: quantity};
+      await Activity.LogActivity("user_sell_pack", req.jwt.username, activityData, { session });
+    });
+  } catch (e) {
+    console.error("SellPack transaction failed:", e);
+    return res.status(500).send({ error: "Error processing sale, please try again" });
+  }
 
-  // Activity Log -------------
-  const activityData =  {pack: packId, quantity: quantity};
-  const act = await Activity.LogActivity("user_sell_pack", req.jwt.username, activityData);
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-  // -------------
   return res.status(200).send();
 
 };
@@ -318,16 +327,18 @@ exports.OpenPack = async (req, res) => {
   if (!validCards || !validPacks)
     return res.status(500).send({ error: "Error when adding cards" });
 
-  //Update the user array
-  var updatedUser = await UserModel.save(user, ["cards", "packs"]);
-  if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+  //Save user + log atomically
+  try {
+    await withTx(async (session) => {
+      await UserModel.save(user, ["cards", "packs"], { session });
+      const activityData =  {pack: packId, cards: cardsToAdd};
+      await Activity.LogActivity("user_open_pack", req.jwt.username, activityData, { session });
+    });
+  } catch (e) {
+    console.error("OpenPack transaction failed:", e);
+    return res.status(500).send({ error: "Error opening pack, please try again" });
+  }
 
-  // Activity Log -------------
-  const activityData =  {pack: packId, cards: cardsToAdd};
-  const act = await Activity.LogActivity("user_open_pack", req.jwt.username, activityData);
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-  // -------------
   return res.status(200).send(cardsToAdd);
 
 };
@@ -377,9 +388,13 @@ exports.FixVariants = async (req, res) =>
     }
   }
 
-  // Activity Log -------------
-  const act = await Activity.LogActivity("fix_variants", req.jwt.username, {});
-  if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
+  //Best-effort log: user save loop above is not atomic so wrapping the
+  //log in a transaction would buy nothing. Tolerate log failures.
+  try {
+    await Activity.LogActivity("fix_variants", req.jwt.username, {});
+  } catch (e) {
+    console.error("FixVariants log failed:", e);
+  }
 
   return res.status(200).send({updated: count});
 }

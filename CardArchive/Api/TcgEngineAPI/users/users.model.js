@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
 
   username: {type: String, required: true, index: true, unique: true, default: ""},
-  email: {type: String, required: true, index: true, default: ""},
+  email: {type: String, index: true, default: ""},
   password: {type: String, required: true, default: ""},
   
   permission_level: {type: Number, required: true, default: 1},  //Admin or not?
@@ -121,9 +121,9 @@ exports.getByUsername = async(username) => {
     }
 };
 
-exports.create = async(userData) => {
+exports.create = async(userData, opts = {}) => {
     const user = new User(userData);
-    return await user.save();
+    return await user.save(opts);
 };
 
 exports.getAll = async() => {
@@ -162,19 +162,24 @@ exports.getUsernameList = async(username_list) => {
     }
 };
 
-//Saves an already loaded User, by providing a string list of changed keys
-exports.save = async(user, modified_list) => {
+//Saves an already loaded User, by providing a string list of changed keys.
+//When opts.session is set the call participates in a transaction and
+//errors propagate (so the transaction can roll back).
+exports.save = async(user, modified_list, opts = {}) => {
 
-    try{
-        if(!user) return null;
+    if(!user) return null;
 
-        if(modified_list)
-        {
-            for (let i=0; i<modified_list.length; i++) {
-                user.markModified(modified_list[i]);
-            }
+    if(modified_list)
+    {
+        for (let i=0; i<modified_list.length; i++) {
+            user.markModified(modified_list[i]);
         }
+    }
 
+    if(opts.session)
+        return await user.save(opts);
+
+    try {
         return await user.save();
     }
     catch(e){
@@ -184,18 +189,20 @@ exports.save = async(user, modified_list) => {
 };
 
 //Update an already loaded user, by providing an object containing new values
-exports.update = async(user, userData) => {
+exports.update = async(user, userData, opts = {}) => {
 
-    try{
-        if(!user) return null;
+    if(!user) return null;
 
-        for (let i in userData) {
-            user[i] = userData[i];
-            user.markModified(i);
-        }
+    for (let i in userData) {
+        user[i] = userData[i];
+        user.markModified(i);
+    }
 
-        var updatedUser = await user.save();
-        return updatedUser;
+    if(opts.session)
+        return await user.save(opts);
+
+    try {
+        return await user.save();
     }
     catch(e){
         console.log(e);
@@ -204,9 +211,21 @@ exports.update = async(user, userData) => {
 };
 
 //Load, and then update a user, based on userId and an object containing new values
-exports.patch = async(userId, userData) => {
+exports.patch = async(userId, userData, opts = {}) => {
 
-    try{
+    if(opts.session)
+    {
+        var user = await User.findById({_id: userId}).session(opts.session);
+        if(!user) return null;
+
+        for (let i in userData) {
+            user[i] = userData[i];
+        }
+
+        return await user.save(opts);
+    }
+
+    try {
         var user = await User.findById ({_id: userId});
         if(!user) return null;
 

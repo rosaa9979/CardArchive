@@ -111,23 +111,32 @@ exports.add = async(user, card, variant, data) => {
 };
 
 
-exports.reduce = async(user, card, variant, quantity) => {
+exports.reduce = async(user, card, variant, quantity, opts = {}) => {
 
-    try{
-        var offer = await Market.findOne({seller: user, card: card, variant: variant});
+    const runReduce = async () => {
+        var query = Market.findOne({seller: user, card: card, variant: variant});
+        if(opts.session) query = query.session(opts.session);
+        var offer = await query;
         if(offer)
         {
             offer.quantity -= quantity;
             if(offer.quantity > 0)
             {
-                var updated = await offer.save();
-                return updated;
+                return await offer.save(opts);
             }
             else{
-                var result = await Market.deleteOne({seller: user, card: card});
+                var result = await Market.deleteOne({seller: user, card: card}, opts);
                 return result && result.deletedCount > 0;
             }
         }
+        return null;
+    };
+
+    if(opts.session)
+        return await runReduce();
+
+    try{
+        return await runReduce();
     }
     catch{
         return null;

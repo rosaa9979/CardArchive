@@ -1,5 +1,6 @@
 const RewardModel = require('../rewards/rewards.model');
 const Activity = require("../activity/activity.model");
+const { withTx } = require('../tools/transaction.tool');
 const config = require('../config');
 
 exports.AddReward = async(req, res) => 
@@ -49,20 +50,23 @@ exports.AddReward = async(req, res) =>
         cardbacks: cardbacks || [],
     }
 
-    //Update or create
-    var reward = await RewardModel.get(rewardId);
-    if(reward)
-        reward = await RewardModel.update(reward, reward_data);
-    else
-        reward = await RewardModel.create(reward_data);
+    var existing = await RewardModel.get(rewardId);
 
-    if(!reward)
-        res.status(500).send({error: "Error updating reward"});
+    //Upsert reward + log atomically
+    var reward;
+    try {
+        await withTx(async (session) => {
+            if(existing)
+                reward = await RewardModel.update(existing, reward_data, { session });
+            else
+                reward = await RewardModel.create(reward_data, { session });
+            await Activity.LogActivity("reward_add", req.jwt.username, reward, { session });
+        });
+    } catch (e) {
+        console.error("AddReward transaction failed:", e);
+        return res.status(500).send({ error: "Error updating reward, please try again" });
+    }
 
-    //Activity
-    const act = await Activity.LogActivity("reward_add", req.jwt.username, reward);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!" });    
-    
     return res.status(200).send(reward);
 };
 

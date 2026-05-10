@@ -21,20 +21,17 @@ exports.Activity = Activity;
 
 // ------------------------------
 
-exports.LogActivity = async (type, username, data) => {
+//Throws on failure so callers wrapped in a transaction will roll back.
+//Pass { session } as opts to participate in a Mongo transaction.
+exports.LogActivity = async (type, username, data, opts = {}) => {
   var activity_data = {
     type: type,
     username: username,
     timestamp: Date.now(),
     data: data
   }
-  try {
-    const activity = new Activity(activity_data);
-    return await activity.save();
-  }
-  catch{
-      return null;
-  }
+  const activity = new Activity(activity_data);
+  return await activity.save(opts);
 };
 
 exports.GetAll = async () => {

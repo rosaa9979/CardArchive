@@ -6,18 +6,19 @@ const Activity = require("../activity/activity.model");
 const Validator = require('../tools/validator.tool');
 const AuthTool = require('../authorization/auth.tool');
 const Email = require('../tools/email.tool');
+const { withTx } = require('../tools/transaction.tool');
 const config = require('../config');
 
 //Register new user
 exports.RegisterUser = async (req, res, next) => {
 
-    if(!req.body.email || !req.body.username || !req.body.password){
+    if(!req.body.username || !req.body.password){
         return res.status(400).send({error: 'Invalid parameters'});
     }
 
-    var email = req.body.email;
     var username = req.body.username;
     var password = req.body.password;
+    var email = req.body.email || "";
     var avatar = req.body.avatar || "";
 
     //Validations
@@ -25,7 +26,7 @@ exports.RegisterUser = async (req, res, next) => {
         return res.status(400).send({error: 'Invalid username'});
     }
 
-    if(!Validator.validateEmail(email)){
+    if(email && !Validator.validateEmail(email)){
         return res.status(400).send({error: 'Invalid email'});
     }
 
@@ -37,12 +38,14 @@ exports.RegisterUser = async (req, res, next) => {
         return res.status(400).send({error: "Invalid avatar"});
 
     var user_username = await UserModel.getByUsername(username);
-    var user_email = await UserModel.getByEmail(email);
-
     if(user_username)
         return res.status(400).send({error: 'Username already exists'});
-    if(user_email)
-        return res.status(400).send({error: 'Email already exists'});
+
+    if(email){
+        var user_email = await UserModel.getByEmail(email);
+        if(user_email)
+            return res.status(400).send({error: 'Email already exists'});
+    }
 
     //Check if its first user
     var nb_users = await UserModel.count();
@@ -69,18 +72,24 @@ exports.RegisterUser = async (req, res, next) => {
 
     UserTool.setUserPassword(user, password);
 
-    //Create user
-    var nUser = await UserModel.create(user);
-    if(!nUser)
-        return res.status(500).send({ error: "Unable to create user" });
-    
-    //Send confirm email
-    UserTool.sendEmailConfirmKey(nUser, user.email, user.email_confirm_key);
+    //Create user + log atomically
+    var nUser;
+    try {
+        await withTx(async (session) => {
+            nUser = await UserModel.create(user, { session });
+            var activityData = {username: user.username, email: user.email };
+            await Activity.LogActivity("register", user.username, activityData, { session });
+        });
+    } catch (e) {
+        if (e && e.code === 11000)
+            return res.status(400).send({ error: 'Username already exists' });
+        console.error("RegisterUser transaction failed:", e);
+        return res.status(500).send({ error: "Registration failed, please try again" });
+    }
 
-    // Activity Log -------------
-    var activityData = {username: user.username, email: user.email };
-    var act = await Activity.LogActivity("register", user.username, activityData);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
+    //Send confirm email after commit (skipped when no email provided)
+    if(email)
+        UserTool.sendEmailConfirmKey(nUser, user.email, user.email_confirm_key);
 
     //Return response
     return res.status(200).send({ success: true, id: nUser._id });
@@ -187,20 +196,23 @@ exports.EditEmail = async(req, res) => {
     userData.email = email;
     userData.validation_level = 0;
     userData.email_confirm_key = UserTool.generateID(20);
-    
-    //Update user
-    var result = await UserModel.update(user, userData);
-    if(!result)
-        return res.status(400).send({error: "Error updating user email: " + userId});
 
-    //Send confirmation email
+    //Update user + log atomically
+    var result;
+    try {
+        await withTx(async (session) => {
+            result = await UserModel.update(user, userData, { session });
+            var activityData = {prev_email: prev_email, new_email: email };
+            await Activity.LogActivity("edit_email", req.jwt.username, {activityData}, { session });
+        });
+    } catch (e) {
+        console.error("EditEmail transaction failed:", e);
+        return res.status(500).send({ error: "Error updating user email, please try again" });
+    }
+
+    //Send confirmation emails after commit
     UserTool.sendEmailConfirmKey(user, email, userData.email_confirm_key);
     UserTool.sendEmailChangeEmail(user, prev_email, email);
-
-    // Activity Log -------------
-    var activityData = {prev_email: prev_email, new_email: email };
-    var a = await Activity.LogActivity("edit_email", req.jwt.username, {activityData});
-    if (!a) return res.status(500).send({ error: "Failed to log activity!!" });
 
     return res.status(200).send(result.deleteSecrets());
 };
@@ -227,16 +239,18 @@ exports.EditPassword = async(req, res) => {
 
     UserTool.setUserPassword(user, password);
 
-    var result = await UserModel.save(user, ["password", "refresh_key", "password_recovery_key"]);
-    if(!result)
-        return res.status(500).send({error: "Error updating user password: " + userId});
+    try {
+        await withTx(async (session) => {
+            await UserModel.save(user, ["password", "refresh_key", "password_recovery_key"], { session });
+            await Activity.LogActivity("edit_password", req.jwt.username, {}, { session });
+        });
+    } catch (e) {
+        console.error("EditPassword transaction failed:", e);
+        return res.status(500).send({ error: "Error updating user password, please try again" });
+    }
 
-    //Send confirmation email
+    //Send confirmation email after commit
     UserTool.sendEmailChangePassword(user, user.email);
-
-    // Activity Log -------------
-    var a = await Activity.LogActivity("edit_password", req.jwt.username, {});
-    if (!a) return res.status(500).send({ error: "Failed to log activity!!" });
 
     return res.status(204).send({});
 };
@@ -261,15 +275,18 @@ exports.EditPermissions = async(req, res) => {
     //Change avatar
     userData.permission_level = permission_level;
 
-    //Update user
-    var result = await UserModel.update(user, userData);
-    if(!result)
-        return res.status(400).send({error: "Error updating user: " + userId});
-
-    // Activity Log -------------
-    var activityData = {username: user.username, permission_level: userData.permission_level };
-    var act = await Activity.LogActivity("edit_permission", req.jwt.username, activityData);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
+    //Update user + log atomically
+    var result;
+    try {
+        await withTx(async (session) => {
+            result = await UserModel.update(user, userData, { session });
+            var activityData = {username: user.username, permission_level: userData.permission_level };
+            await Activity.LogActivity("edit_permission", req.jwt.username, activityData, { session });
+        });
+    } catch (e) {
+        console.error("EditPermissions transaction failed:", e);
+        return res.status(500).send({ error: "Error updating user, please try again" });
+    }
 
     return res.status(200).send(result.deleteSecrets());
 };
@@ -410,16 +427,19 @@ exports.GiveReward = async(req, res) =>
     if (!valid)
         return res.status(500).send({ error: "Error when adding rewards " + userId });
 
-    //Update the user array
-    var updatedUser = await UserModel.save(user, ["cards"]);
-    if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
+    //Save user + log atomically
+    var updatedUser;
+    try {
+        await withTx(async (session) => {
+            updatedUser = await UserModel.save(user, ["cards"], { session });
+            var activityData =  {reward: reward, user: user.username};
+            await Activity.LogActivity("reward_give", req.jwt.username, activityData, { session });
+        });
+    } catch (e) {
+        console.error("GiveReward transaction failed:", e);
+        return res.status(500).send({ error: "Error updating user, please try again" });
+    }
 
-    // Activity Log -------------
-    var activityData =  {reward: reward, user: user.username};
-    var act = await Activity.LogActivity("reward_give", req.jwt.username, activityData);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
-
-    // -------------
     return res.status(200).send(updatedUser.deleteSecrets());
 };
 
@@ -466,14 +486,17 @@ exports.GainReward = async(req, res) =>
     if(!valid)
         return res.status(500).send({error: "Failed adding reward: " + rewardId + " for " + userId});
     
-    //Update the user
-    var updatedUser = await UserModel.save(user, ["rewards", "xp", "coins", "cards", "decks", "avatars", "cardbacks"]);
-    if (!updatedUser) return res.status(500).send({ error: "Error updating user: " + userId });
-
-    //Log activity
-    var activityData =  {reward: reward, user: user.username};
-    var act = await Activity.LogActivity("reward_gain", req.jwt.username, activityData);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!!" });
+    //Save user + log atomically
+    try {
+        await withTx(async (session) => {
+            await UserModel.save(user, ["rewards", "xp", "coins", "cards", "decks", "avatars", "cardbacks"], { session });
+            var activityData =  {reward: reward, user: user.username};
+            await Activity.LogActivity("reward_gain", req.jwt.username, activityData, { session });
+        });
+    } catch (e) {
+        console.error("GainReward transaction failed:", e);
+        return res.status(500).send({ error: "Error updating user, please try again" });
+    }
 
     return res.status(200).send(user.deleteSecrets());
 };

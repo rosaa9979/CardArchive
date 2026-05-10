@@ -58,7 +58,12 @@ exports.getAll = async() => {
     }
 };
 
-exports.create = async(data) => {
+exports.create = async(data, opts = {}) => {
+    if(opts.session)
+    {
+        var reward = new Reward(data);
+        return await reward.save(opts);
+    }
     try{
         var reward = new Reward(data);
         return await reward.save();
@@ -68,18 +73,20 @@ exports.create = async(data) => {
     }
 };
 
-exports.update = async(reward, data) => {
+exports.update = async(reward, data, opts = {}) => {
+
+    if(!reward) return null;
+
+    for (let i in data) {
+        reward[i] = data[i];
+        reward.markModified(i);
+    }
+
+    if(opts.session)
+        return await reward.save(opts);
 
     try{
-        if(!reward) return null;
-
-        for (let i in data) {
-            reward[i] = data[i];
-            reward.markModified(i);
-        }
-
-        var updated = await reward.save();
-        return updated;
+        return await reward.save();
     }
     catch{
         return null;

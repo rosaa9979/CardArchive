@@ -3,6 +3,7 @@ const MarketModel = require('./market.model');
 const UserTool = require('../users/users.tool');
 const DateTool = require('../tools/date.tool');
 const Activity = require("../activity/activity.model");
+const { withTx } = require('../tools/transaction.tool');
 const config = require('../config');
 
 exports.addOffer = async(req, res) => {
@@ -148,17 +149,19 @@ exports.trade = async(req, res) => {
     user.coins -= value;
     seller.coins += value;
 
-    //Update database
-    var uUser = await UserModel.update(user, { coins: user.coins, cards: user.cards });
-    var uSeller = await UserModel.update(seller, { coins: seller.coins });
-    var uOffer = await MarketModel.reduce(seller_user, card_tid, variant, quantity);
-    if(!uUser || !uOffer || !uSeller)
-        return res.status(500).send({ error: "Error trading market offer " + username + " " + seller_user });
-
-    //Activity
+    //Update buyer + seller + market offer + log atomically
     var aData = {buyer: username, seller: seller_user, card: card_tid, quantity: quantity, price: offer.price };
-    var act = await Activity.LogActivity("market_trade", req.jwt.username, aData);
-    if (!act) return res.status(500).send({ error: "Failed to log activity!" });
+    try {
+        await withTx(async (session) => {
+            await UserModel.update(user, { coins: user.coins, cards: user.cards }, { session });
+            await UserModel.update(seller, { coins: seller.coins }, { session });
+            await MarketModel.reduce(seller_user, card_tid, variant, quantity, { session });
+            await Activity.LogActivity("market_trade", req.jwt.username, aData, { session });
+        });
+    } catch (e) {
+        console.error("Market trade transaction failed:", e);
+        return res.status(500).send({ error: "Error trading market offer, please try again" });
+    }
 
     return res.status(200).send(aData);
 };

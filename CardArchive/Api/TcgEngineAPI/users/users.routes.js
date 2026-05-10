@@ -10,7 +10,7 @@ const USER = config.permissions.USER; //Lowest permision, can only do things on 
 
 exports.route = function (app) {
 
-  //Body: username, email, password, avatar
+  //Body: username, password, email (optional), avatar (optional)
   app.post("/users/register", app.auth_limiter, [
     UsersController.RegisterUser,
   ]);
