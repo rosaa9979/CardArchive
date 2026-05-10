@@ -154,7 +154,7 @@ namespace TcgEngine.UI
 
             string email_text = "";
 
-            email_text = !String.IsNullOrWhiteSpace(email) ? email : "example@your-domain.com";
+            //email_text = !String.IsNullOrWhiteSpace(email) ? email : "example@your-domain.com";
 
             bool success = await Authenticator.Get().Register(email_text, register_username.text, register_password.text);
             if (success)
