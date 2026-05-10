@@ -214,6 +214,79 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2133518563
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6356727806833526537, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_Name
+      value: Managers
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6356727806833526550, guid: c2c503c98541be54e98b0f954dfcf6a4,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 6356727807564693147, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
+    - {fileID: 8191306961850547284, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
+    - {fileID: 584955564180919202, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
+    - {fileID: 2316372174112285529, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
+    - {fileID: 6356727806913575701, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c2c503c98541be54e98b0f954dfcf6a4, type: 3}
 --- !u!1 &2134767383
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,15 +320,15 @@ MonoBehaviour:
   max_turns: 50
   player0:
     username: P0
-    deck_asset: {fileID: 0}
+    deck_asset: {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
     deck_id: 
-    ai_type: 1
+    ai_type: 0
     ai_level: 5
   player1:
     username: P1
-    deck_asset: {fileID: 0}
+    deck_asset: {fileID: 11400000, guid: 8aea02f8dfcc2834d8eeca8e259140ce, type: 2}
     deck_id: 
-    ai_type: 1
+    ai_type: 0
     ai_level: 5
 --- !u!4 &2134767385
 Transform:
@@ -278,3 +351,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 2054565131}
   - {fileID: 2134767385}
+  - {fileID: 2133518563}
