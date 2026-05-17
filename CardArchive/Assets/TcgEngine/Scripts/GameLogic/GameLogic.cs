@@ -105,42 +105,86 @@ namespace TcgEngine.Gameplay
             game_data.current_player = game_data.first_player;
             game_data.turn_count = 1;
 
-            bool should_mulligan = GameplayData.Get().mulligan;
+            //Collect match-level setup providers (Adventure level, Total Assault, ...)
+            List<IGameSetupProvider> match_providers = game_data.settings.GetMatchProviders();
 
-            //Adventure settings
-            LevelData level = game_data.settings.GetLevel();
-            if (level != null)
+            //Init boss state if Total Assault match
+            TotalAssaultData assault_data = game_data.settings.GetTotalAssaultData();
+            if (assault_data != null)
             {
-                if (level != null && level.first_player == LevelFirst.Player)
+                Player boss = null;
+                foreach (Player p in game_data.players)
+                {
+                    if (p.is_ai) { boss = p; break; }
+                }
+                if (boss != null)
+                {
+                    game_data.boss_state = new BossState
+                    {
+                        player_id = boss.player_id,
+                        skill_gauge = assault_data.skill_gauge_start,
+                        skill_gauge_max = assault_data.skill_gauge_max,
+                        atg_gauge = assault_data.atg_gauge_start,
+                        atg_gauge_max = assault_data.atg_gauge_max,
+                        groggy_gauge = assault_data.groggy_gauge_start,
+                        groggy_gauge_max = assault_data.groggy_gauge_max,
+                        mana_increases_per_turn = assault_data.boss_mana_increases_per_turn,
+                        skip_next_turn = false,
+                    };
+                }
+            }
+
+            //First player override
+            LevelFirst? first_override = FirstNonNull(match_providers, p => p.GetFirstPlayer());
+            if (first_override.HasValue)
+            {
+                if (first_override.Value == LevelFirst.Player)
                     game_data.first_player = 0;
-                if (level != null && level.first_player == LevelFirst.AI)
+                else if (first_override.Value == LevelFirst.AI)
                     game_data.first_player = 1;
                 game_data.current_player = game_data.first_player;
-                should_mulligan = level.mulligan;
             }
+
+            //Mulligan override
+            bool should_mulligan = FirstNonNull(match_providers, p => p.GetMulligan()) ?? GameplayData.Get().mulligan;
 
             //Init each players
             foreach (Player player in game_data.players)
             {
-                //Puzzle level deck
-                DeckPuzzleData pdeck = DeckPuzzleData.Get(player.deck);
+                //Per-player providers (PlayerSetupData) + match-level providers, in priority order
+                List<IGameSetupProvider> providers = new List<IGameSetupProvider>();
+                PlayerSetupData pdeck = PlayerSetupData.Get(player.deck);
+                if (pdeck != null) providers.Add(pdeck);
+                providers.AddRange(match_providers);
 
                 //Hp / mana
-                player.hp_max = pdeck != null ? pdeck.start_hp : GameplayData.Get().hp_start;
+                player.hp_max = FirstNonNull(providers, prov => prov.GetStartHp(player)) ?? GameplayData.Get().hp_start;
                 player.hp = player.hp_max;
-                player.mana_max = pdeck != null ? pdeck.start_mana : GameplayData.Get().mana_start;
+                player.mana_max = FirstNonNull(providers, prov => prov.GetStartMana(player)) ?? GameplayData.Get().mana_start;
                 player.mana = player.mana_max;
 
                 //Draw starting cards
-                int dcards = pdeck != null ? pdeck.start_cards : GameplayData.Get().cards_start;
-                if (level == null)
+                int dcards = FirstNonNull(providers, prov => prov.GetStartHand(player)) ?? GameplayData.Get().cards_start;
+                if (!first_override.HasValue)
                     dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
                 DrawCard(player, dcards);
 
-                
-                //Add coin second player
-                bool is_random = level == null || level.first_player == LevelFirst.Random;
-                if (is_random && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
+                //Extra clubs (synergy) — additive across providers
+                VariantData variant = VariantData.GetDefault();
+                foreach (IGameSetupProvider prov in providers)
+                {
+                    IEnumerable<CardData> extras = prov.GetExtraClubs(player);
+                    if (extras == null) continue;
+                    foreach (CardData c in extras)
+                    {
+                        if (c != null)
+                            player.cards_club.Add(Card.Create(c, variant, player));
+                    }
+                }
+
+                //Add coin second player — fires when first player was chosen randomly
+                bool is_random_first = !first_override.HasValue || first_override.Value == LevelFirst.Random;
+                if (is_random_first && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
                 {
                     Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
                     player.cards_hand.Add(card);
@@ -156,6 +200,18 @@ namespace TcgEngine.Gameplay
             else
                 StartTurn();
 
+        }
+
+        //Returns the first non-null value produced by selector across providers, or null if none.
+        private static T? FirstNonNull<T>(List<IGameSetupProvider> providers, System.Func<IGameSetupProvider, T?> selector) where T : struct
+        {
+            foreach (IGameSetupProvider p in providers)
+            {
+                T? v = selector(p);
+                if (v.HasValue)
+                    return v;
+            }
+            return null;
         }
 
         public virtual void StartTurn()
@@ -176,9 +232,19 @@ namespace TcgEngine.Gameplay
                 DrawCard(player, GameplayData.Get().cards_per_turn);
             }
 
-            //Mana 
-            player.mana_max += GameplayData.Get().mana_per_turn;
-            player.mana_max = Mathf.Min(player.mana_max, GameplayData.Get().mana_max);
+            //Mana — boss skips the per-turn growth if configured
+            bool grant_mana_growth = true;
+            if (game_data.boss_state != null
+                && player.player_id == game_data.boss_state.player_id
+                && !game_data.boss_state.mana_increases_per_turn)
+            {
+                grant_mana_growth = false;
+            }
+            if (grant_mana_growth)
+            {
+                player.mana_max += GameplayData.Get().mana_per_turn;
+                player.mana_max = Mathf.Min(player.mana_max, GameplayData.Get().mana_max);
+            }
             player.mana = player.mana_max;
 
             //Turn timer and history
@@ -562,7 +628,7 @@ namespace TcgEngine.Gameplay
                 }
             }
 
-            DeckPuzzleData puzzle = deck as DeckPuzzleData;
+            PlayerSetupData puzzle = deck as PlayerSetupData;
 
             //Board cards
             if (puzzle != null)

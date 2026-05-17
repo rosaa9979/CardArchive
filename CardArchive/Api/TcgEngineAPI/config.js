@@ -31,6 +31,7 @@ module.exports = {
   mongo_host: "127.0.0.1",
   mongo_port: "27017",
   mongo_db: "tcgengine",
+  mongo_replica_set: "rs0",   //Leave "" for standalone. Must match `rs.status().set` if using transactions.
 
   //Limiter to protect from DDOS, will block IP that do too many requests
   limiter_window: 1000 * 120,  //in ms, will reset the counts after this time

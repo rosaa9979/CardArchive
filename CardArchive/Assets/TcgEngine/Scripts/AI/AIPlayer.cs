@@ -38,6 +38,8 @@ namespace TcgEngine.AI
                 return new AIPlayerRandom(gameplay, id, level);
             if (type == AIType.MiniMax)
                 return new AIPlayerMM(gameplay, id, level);
+            if (type == AIType.TotalAssault)
+                return new AIPlayerTotalAssault(gameplay, id, level);
             return null;
         }
     }
@@ -45,7 +47,8 @@ namespace TcgEngine.AI
     public enum AIType
     {
         Tutorial = 0,
-        Random = 10,      //Dumb AI that just do random moves, useful for testing cards without getting destroyed
-        MiniMax = 20,    //Stronger AI using Minimax algo with alpha-beta pruning
+        Random = 10,        //Dumb AI that just do random moves, useful for testing cards without getting destroyed
+        MiniMax = 20,       //Stronger AI using Minimax algo with alpha-beta pruning
+        TotalAssault = 30,  //MiniMax + boss-specific hooks (groggy skip, etc.)
     }
 }

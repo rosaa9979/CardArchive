@@ -13,12 +13,20 @@ var user = ""; //User is optional if auth not enabled
 if(config.mongo_user && config.mongo_pass)
 	user = config.mongo_user + ":" + config.mongo_pass + "@";
 
-var connect = "mongodb://" + user + config.mongo_host + ":" + config.mongo_port + "/" + config.mongo_db + "?authSource=admin";
+var rs = config.mongo_replica_set ? "&replicaSet=" + config.mongo_replica_set + "&directConnection=true" : "";
+var connect = "mongodb://" + user + config.mongo_host + ":" + config.mongo_port + "/" + config.mongo_db + "?authSource=admin" + rs;
 mongoose.set('strictQuery', false);
-mongoose.connect(connect);
+mongoose.connect(connect, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 50,
+});
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected!");
 });
+
+process.on('unhandledRejection', (e) => console.error('UnhandledRejection:', e));
+process.on('uncaughtException',  (e) => console.error('UncaughtException:', e));
 
 //Limiter to prevent attacks
 Limiter.limit(app);

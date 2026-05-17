@@ -196,8 +196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e451cc077529a6449060b1c4e92825f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  api_username: rosaa99
-  api_password: REDACTED
+  api_username: SERVER_USERNAME
+  api_password: CHANGE_ME
 --- !u!1 &512310730345885316
 GameObject:
   m_ObjectHideFlags: 0

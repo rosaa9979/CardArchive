@@ -134,9 +134,9 @@ namespace TcgEngine.UI
                     }
                 }
 
-                if (deck is DeckPuzzleData)
+                if (deck is PlayerSetupData)
                 {
-                    DeckPuzzleData pdeck = (DeckPuzzleData)deck;
+                    PlayerSetupData pdeck = (PlayerSetupData)deck;
                     foreach (DeckCardSlot slot in pdeck.board_cards)
                     {
                         if (slot.card != null)

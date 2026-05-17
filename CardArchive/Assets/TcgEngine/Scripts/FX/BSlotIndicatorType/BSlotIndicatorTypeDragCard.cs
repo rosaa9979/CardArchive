@@ -70,7 +70,6 @@ namespace TcgEngine.FX
             {
                 if (BSlotIndicatorUI.Get().GetCurrentBSlot() != null)
                     return true;
-                Debug.Log("Hello");
                 return false;
             }
 

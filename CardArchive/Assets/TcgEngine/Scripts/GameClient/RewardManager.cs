@@ -26,45 +26,78 @@ namespace TcgEngine.Client
         void OnGameEnd(int winner)
         {
             int player_id = GameClient.Get().GetPlayerID();
-            if (GameClient.game_settings.game_type == GameType.Adventure && winner == player_id)
+            if (winner != player_id)
+                return;
+
+            if (GameClient.game_settings.game_type == GameType.Adventure)
             {
                 UserData udata = Authenticator.Get().UserData;
                 LevelData level = LevelData.Get(GameClient.game_settings.level);
                 if (level != null && !udata.HasReward(level.id) && !reward_gained)
                 {
                     if (Authenticator.Get().IsTest())
-                        GainRewardTest(level);
+                        GainRewardTest(level.id, level.reward_coins, level.reward_xp, level.reward_cards, level.reward_packs);
                     if (Authenticator.Get().IsApi())
-                        GainRewardAPI(level);
+                        GainRewardAPIAsync(level.id);
+                }
+            }
+            else if (GameClient.game_settings.game_type == GameType.Tutorial)
+            {
+                UserData udata = Authenticator.Get().UserData;
+                TutorialData tutorial = TutorialData.Get(GameClient.game_settings.level);
+                if (tutorial != null && !udata.HasReward(tutorial.id) && !reward_gained)
+                {
+                    if (Authenticator.Get().IsTest())
+                        GainRewardTest(tutorial.id, tutorial.reward_coins, tutorial.reward_xp, tutorial.reward_cards, tutorial.reward_packs);
+                    if (Authenticator.Get().IsApi())
+                        GainRewardAPIAsync(tutorial.id);
+                }
+            }
+            else if (GameClient.game_settings.game_type == GameType.TotalAssault)
+            {
+                UserData udata = Authenticator.Get().UserData;
+                TotalAssaultData data = TotalAssaultData.Get(GameClient.game_settings.level);
+                if (data != null && !udata.HasReward(data.id) && !reward_gained)
+                {
+                    if (Authenticator.Get().IsTest())
+                        GainRewardTest(data.id, data.reward_coins, data.reward_xp, data.reward_cards, data.reward_packs);
+                    if (Authenticator.Get().IsApi())
+                        GainRewardAPIAsync(data.id);
                 }
             }
         }
 
-        private async void GainRewardTest(LevelData level)
+        private async void GainRewardTest(string reward_id, int coins, int xp, CardData[] cards, PackData[] packs)
         {
             VariantData variant = VariantData.GetDefault();
             UserData udata = Authenticator.Get().UserData;
-            udata.coins += level.reward_coins;
-            udata.xp += level.reward_xp;
-            udata.AddReward(level.id);
+            udata.coins += coins;
+            udata.xp += xp;
+            udata.AddReward(reward_id);
 
-            foreach (CardData card in level.reward_cards)
+            if (cards != null)
             {
-                udata.AddCard(card.id, variant.id, 1);
+                foreach (CardData card in cards)
+                {
+                    udata.AddCard(card.id, variant.id, 1);
+                }
             }
 
-            foreach (PackData pack in level.reward_packs)
+            if (packs != null)
             {
-                udata.AddPack(pack.id, 1);
+                foreach (PackData pack in packs)
+                {
+                    udata.AddPack(pack.id, 1);
+                }
             }
 
             reward_gained = true;
             await Authenticator.Get().SaveUserData();
         }
 
-        private async void GainRewardAPI(LevelData level)
+        private async void GainRewardAPIAsync(string reward_id)
         {
-            bool success = await GainRewardAPI(level.id);
+            bool success = await GainRewardAPI(reward_id);
             reward_gained = success;
         }
 

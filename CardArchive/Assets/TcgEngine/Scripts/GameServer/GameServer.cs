@@ -201,7 +201,15 @@ namespace TcgEngine.Server
             {
                 if (player.is_ai || ai_vs_ai)
                 {
-                    AIPlayer ai_gameplay = Tutorial.Get().IsTuto() ? AIPlayer.Create(GameplayData.Get().tutorial_ai_type, gameplay, player.player_id, player.ai_level) : AIPlayer.Create(GameplayData.Get().ai_type, gameplay, player.player_id, player.ai_level);
+                    AIType ai_type;
+                    if (game_data.settings.IsTotalAssault())
+                        ai_type = AIType.TotalAssault;
+                    else if (Tutorial.Get().IsTuto())
+                        ai_type = GameplayData.Get().tutorial_ai_type;
+                    else
+                        ai_type = GameplayData.Get().ai_type;
+
+                    AIPlayer ai_gameplay = AIPlayer.Create(ai_type, gameplay, player.player_id, player.ai_level);
                     ai_list.Add(ai_gameplay);
                 }
             }
@@ -465,6 +473,18 @@ namespace TcgEngine.Server
             Player player = game_data.GetPlayer(player_id);
             if (player != null && game_data.state == GameState.Connecting)
             {
+                //Total Assault forces preset decks for both sides — bypass user deck lookup
+                if (game_data.settings.IsTotalAssault())
+                {
+                    DeckData fixed_deck = DeckData.Get(deck.tid);
+                    if (fixed_deck != null)
+                    {
+                        gameplay.SetPlayerDeck(player, fixed_deck);
+                        SendPlayerReady(player);
+                        return;
+                    }
+                }
+
                 UserData user = Authenticator.Get().UserData; //Offline game, get local user
 
                 if(Authenticator.Get().IsApi())

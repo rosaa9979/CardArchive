@@ -38,6 +38,8 @@ namespace TcgEngine
             VariantData.Load();
             PackData.Load();
             LevelData.Load();
+            TutorialData.Load();
+            TotalAssaultData.Load();
             DeckData.Load();
             AbilityData.Load();
             StatusData.Load();

@@ -23,14 +23,14 @@ namespace TcgEngine.Client
 
         void Start()
         {
-            if (GameClient.game_settings.game_type == GameType.Adventure)
+            if (GameClient.game_settings.game_type == GameType.Tutorial)
             {
-                LevelData level = GameClient.game_settings.GetLevel();
-                if (level.tuto_prefab != null)
+                TutorialData tutorial = GameClient.game_settings.GetTutorialData();
+                if (tutorial != null && tutorial.tuto_prefab != null)
                 {
                     is_tuto = true;
 
-                    GameObject tuto_obj = Instantiate(level.tuto_prefab);
+                    GameObject tuto_obj = Instantiate(tutorial.tuto_prefab);
                     tuto_obj.GetComponent<Canvas>().worldCamera = GameCamera.GetCamera();
                     tuto_obj.GetComponent<Canvas>().sortingLayerName = "TopUI";
                     tuto_obj.GetComponent<Canvas>().sortingOrder = -1;
@@ -56,12 +56,12 @@ namespace TcgEngine.Client
         private void OnGameStart()
         {
             Game data = GameClient.Get().GetGameData();
-            LevelData level = GameClient.game_settings.GetLevel();
+            TutorialData tutorial = GameClient.game_settings.GetTutorialData();
 
             if (data == null)
                 return;
 
-            if (!level.mulligan)
+            if (tutorial == null || !tutorial.mulligan)
                 return;
 
             EndGroup();

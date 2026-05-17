@@ -1,62 +1,71 @@
-using System.Collections;
 using System.Collections.Generic;
 using TcgEngine.Client;
 using UnityEngine;
 
 namespace TcgEngine
 {
-
-    [CreateAssetMenu(fileName = "LevelData", menuName = "TcgEngine/LevelData", order = 7)]
-    public class LevelData : ScriptableObject, IGameSetupProvider, IGameTypeView
+    /// <summary>
+    /// Tutorial encounter definition. Mirrors LevelData for the fields a tutorial
+    /// match needs, plus the in-game guide prefab (formerly LevelData.tuto_prefab).
+    /// Tutorial.cs instantiates tuto_prefab when a match starts with
+    /// GameType.Tutorial. Implements IGameSetupProvider so first_player / mulligan
+    /// flow through the same setup pipeline as Adventure and Total Assault.
+    /// </summary>
+    [CreateAssetMenu(fileName = "TutorialData", menuName = "TcgEngine/TutorialData", order = 7)]
+    public class TutorialData : ScriptableObject, IGameSetupProvider, IGameTypeView
     {
         public string id;
-        public int level;
+        public int order;
 
         [Header("Display")]
         public string title;
         public Sprite icon;
+        [TextArea(2, 6)] public string description;
 
         [Header("Gameplay")]
         public string scene;
         public DeckData player_deck;
         public DeckData ai_deck;
-        public int ai_level = 10; //From 1 to 10
+        public int ai_level = 1;
         public LevelFirst first_player;
         public bool mulligan = true;
 
+        [Header("Tutorial")]
+        public GameObject tuto_prefab;
+
         [Header("Rewards")]
-        public int reward_xp = 100;
-        public int reward_coins = 100;
+        public int reward_xp = 0;
+        public int reward_coins = 0;
         public PackData[] reward_packs;
         public CardData[] reward_cards;
 
-        public static List<LevelData> level_list = new List<LevelData>();
+        public static List<TutorialData> tutorial_list = new List<TutorialData>();
 
         public static void Load(string folder = "")
         {
-            if (level_list.Count == 0)
+            if (tutorial_list.Count == 0)
             {
-                level_list.AddRange(Resources.LoadAll<LevelData>(folder));
-                level_list.Sort((LevelData a, LevelData b) => { return a.level.CompareTo(b.level); });
+                tutorial_list.AddRange(Resources.LoadAll<TutorialData>(folder));
+                tutorial_list.Sort((a, b) => a.order.CompareTo(b.order));
             }
         }
 
-        public static LevelData Get(string id)
+        public static TutorialData Get(string id)
         {
-            foreach (LevelData level in GetAll())
+            foreach (TutorialData data in tutorial_list)
             {
-                if (level.id == id)
-                    return level;
+                if (data.id == id)
+                    return data;
             }
             return null;
         }
 
-        public static List<LevelData> GetAll()
+        public static List<TutorialData> GetAll()
         {
-            return level_list;
+            return tutorial_list;
         }
 
-        //--- IGameSetupProvider (match-level: Adventure) ---
+        //--- IGameSetupProvider (match-level: Tutorial) ---
         public int? GetStartHp(Player player) { return null; }
         public int? GetStartMana(Player player) { return null; }
         public int? GetStartHand(Player player) { return null; }
@@ -69,7 +78,7 @@ namespace TcgEngine
         public Sprite GetIcon() { return icon; }
         public DeckData GetDisplayDeck() { return player_deck; }
         public string GetId() { return id; }
-        public GameType GetGameType() { return GameType.Adventure; }
+        public GameType GetGameType() { return GameType.Tutorial; }
 
         public void ApplyGameSettings()
         {
@@ -79,12 +88,5 @@ namespace TcgEngine
             GameClient.ai_settings.deck = new UserDeckData(ai_deck);
             GameClient.ai_settings.ai_level = ai_level;
         }
-    }
-
-    public enum LevelFirst
-    {
-        Random = 0,
-        Player = 10,
-        AI = 20,
     }
 }

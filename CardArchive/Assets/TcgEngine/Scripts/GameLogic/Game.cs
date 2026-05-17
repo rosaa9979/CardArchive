@@ -27,6 +27,9 @@ namespace TcgEngine
         //Players
         public Player[] players;
 
+        //Boss-only state (null = non-boss match). Populated at match start from TotalAssaultData.
+        public BossState boss_state;
+
         //Selector
         public SelectorType selector = SelectorType.None;
         public int selector_player_id = 0;

@@ -11,6 +11,8 @@ namespace TcgEngine
     {
         Solo = 0,
         Adventure = 10,
+        Tutorial = 12,      //Single-player tutorial run with guide overlay
+        TotalAssault = 15,  //Single-player boss mode with dedicated rules & cards
         Multiplayer = 20,
         HostP2P = 30,
         Observer = 40,
@@ -42,12 +44,17 @@ namespace TcgEngine
 
         public virtual bool IsHost()
         {
-            return game_type == GameType.Solo || game_type == GameType.Adventure || game_type == GameType.HostP2P;
+            return game_type == GameType.Solo || game_type == GameType.Adventure || game_type == GameType.Tutorial || game_type == GameType.TotalAssault || game_type == GameType.HostP2P;
         }
 
         public virtual bool IsOffline()
         {
-            return game_type == GameType.Solo || game_type == GameType.Adventure;
+            return game_type == GameType.Solo || game_type == GameType.Adventure || game_type == GameType.Tutorial || game_type == GameType.TotalAssault;
+        }
+
+        public virtual bool IsTotalAssault()
+        {
+            return game_type == GameType.TotalAssault;
         }
 
         public virtual bool IsOnline()
@@ -95,6 +102,38 @@ namespace TcgEngine
                 return LevelData.Get(level);
             }
             return null;
+        }
+
+        public virtual TotalAssaultData GetTotalAssaultData()
+        {
+            if (game_type == GameType.TotalAssault)
+            {
+                return TotalAssaultData.Get(level);
+            }
+            return null;
+        }
+
+        public virtual TutorialData GetTutorialData()
+        {
+            if (game_type == GameType.Tutorial)
+            {
+                return TutorialData.Get(level);
+            }
+            return null;
+        }
+
+        //Match-level setup providers active for this match (Adventure, Tutorial, Total Assault, ...).
+        //Per-player providers (e.g. PlayerSetupData) are collected separately by GameLogic.
+        public virtual List<IGameSetupProvider> GetMatchProviders()
+        {
+            List<IGameSetupProvider> list = new List<IGameSetupProvider>();
+            LevelData level_data = GetLevel();
+            if (level_data != null) list.Add(level_data);
+            TutorialData tutorial_data = GetTutorialData();
+            if (tutorial_data != null) list.Add(tutorial_data);
+            TotalAssaultData assault_data = GetTotalAssaultData();
+            if (assault_data != null) list.Add(assault_data);
+            return list;
         }
 
         public virtual void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

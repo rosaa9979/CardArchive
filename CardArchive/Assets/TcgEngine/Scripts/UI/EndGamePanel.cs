@@ -159,6 +159,30 @@ namespace TcgEngine.UI
                     reward_loaded = true;
                 }
             }
+
+            //Tutorial Rewards
+            if (GameClient.game_settings.game_type == GameType.Tutorial)
+            {
+                TutorialData tutorial = TutorialData.Get(GameClient.game_settings.level);
+                if (tutorial != null && RewardManager.Get().IsRewardGained())
+                {
+                    target_coins = tutorial.reward_coins;
+                    target_xp = tutorial.reward_xp;
+                    reward_loaded = true;
+                }
+            }
+
+            //Total Assault Rewards
+            if (GameClient.game_settings.game_type == GameType.TotalAssault)
+            {
+                TotalAssaultData data = TotalAssaultData.Get(GameClient.game_settings.level);
+                if (data != null && RewardManager.Get().IsRewardGained())
+                {
+                    target_coins = data.reward_coins;
+                    target_xp = data.reward_xp;
+                    reward_loaded = true;
+                }
+            }
         }
 
         public void Show(int winner)
