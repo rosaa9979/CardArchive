@@ -19,7 +19,6 @@ namespace TcgEngine
         public int groggy_gauge;
         public int groggy_gauge_max;
 
-        public bool mana_increases_per_turn = true;
         public bool skip_next_turn = false;
 
         public int GetGauge(BossGaugeType type)

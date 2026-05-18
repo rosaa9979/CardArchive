@@ -72,6 +72,8 @@ namespace TcgEngine
         public LevelFirst? GetFirstPlayer() { return first_player; }
         public bool? GetMulligan() { return mulligan; }
         public IEnumerable<CardData> GetExtraClubs(Player player) { return null; }
+        public bool? GetDrawsPerTurn(Player player) { return null; }
+        public bool? GetManaGrowsPerTurn(Player player) { return null; }
 
         //--- IGameTypeView (menu display + launch) ---
         public string GetTitle() { return title; }
@@ -80,7 +82,13 @@ namespace TcgEngine
         public string GetId() { return id; }
         public GameType GetGameType() { return GameType.Tutorial; }
 
-        public void ApplyGameSettings()
+        public void Launch()
+        {
+            ApplyGameSettings();
+            TcgEngine.UI.MainMenu.Get().StartGame(GameType.Tutorial, GameMode.Casual);
+        }
+
+        private void ApplyGameSettings()
         {
             GameClient.game_settings.level = id;
             GameClient.game_settings.scene = scene;

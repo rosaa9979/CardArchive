@@ -134,8 +134,7 @@ namespace TcgEngine.UI
             if (data == null)
                 return;
 
-            data.ApplyGameSettings();
-            MainMenu.Get().StartGame(data.GetGameType(), GameMode.Casual);
+            data.Launch();
         }
     }
 }

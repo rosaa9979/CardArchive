@@ -6,9 +6,12 @@ namespace TcgEngine
 {
     /// <summary>
     /// Encounter definition for the Total Assault (총력전) singleplayer mode.
-    /// Mirrors LevelData but carries the dedicated rule-set fields:
-    /// custom HP, passive cards that occupy the synergy slot,
-    /// dedicated decks and avatars.
+    /// The boss's full loadout (deck, clubs, hp, mana, hand size, board cards,
+    /// avatar) is delegated to a PlayerSetupData asset. TotalAssaultData itself
+    /// only carries the encounter-scope fields: which boss, match rules, boss
+    /// gauges, rewards.
+    /// The player always brings their own deck / avatar / global default stats —
+    /// the encounter only specifies the boss they're fighting.
     /// GameLogic consumes this through IGameSetupProvider — no mode branching.
     /// </summary>
     [CreateAssetMenu(fileName = "TotalAssaultData", menuName = "TcgEngine/TotalAssaultData", order = 8)]
@@ -24,20 +27,9 @@ namespace TcgEngine
 
         [Header("Gameplay")]
         public string scene;
-        public DeckData player_deck;
-        public DeckData boss_deck;
+        public PlayerSetupData boss_deck;
         public LevelFirst first_player;
         public bool mulligan = true;
-
-        [Header("Avatars")]
-        public AvatarData player_avatar;
-        public AvatarData boss_avatar;
-
-        [Header("Stat Table Overrides")]
-        public int player_start_hp = 30;
-        public int player_hand_size = 5;
-        public int boss_start_hp = 80;
-        public int boss_hand_size = 8;
 
         [Header("Boss Gauges (max + start)")]
         public int skill_gauge_max = 100;
@@ -49,14 +41,6 @@ namespace TcgEngine
 
         [Header("Boss Mana Progression")]
         public bool boss_mana_increases_per_turn = true;
-
-        //Appended to boss cards_club at game start. To make these the boss's ONLY
-        //synergy cards, leave boss_deck.clubs empty.
-        [Header("Boss Passives (appended to boss synergy / cards_club slot)")]
-        public CardData[] boss_passives;
-
-        [Header("Phase System")]
-        public TotalAssaultPhase[] phases;
 
         [Header("Rewards")]
         public int reward_xp = 200;
@@ -90,48 +74,51 @@ namespace TcgEngine
             return assault_list;
         }
 
-        //--- IGameSetupProvider (match-level; boss vs player split via player.is_ai) ---
-        public int? GetStartHp(Player player) { return player.is_ai ? boss_start_hp : player_start_hp; }
+        //--- IGameSetupProvider (encounter-level rules; per-player setup delegated to boss_deck PlayerSetupData) ---
+        public int? GetStartHp(Player player) { return null; }
         public int? GetStartMana(Player player) { return null; }
-        public int? GetStartHand(Player player) { return player.is_ai ? boss_hand_size : player_hand_size; }
+        public int? GetStartHand(Player player) { return null; }
         public LevelFirst? GetFirstPlayer() { return first_player; }
         public bool? GetMulligan() { return mulligan; }
-        public IEnumerable<CardData> GetExtraClubs(Player player) { return player.is_ai ? boss_passives : null; }
+        public IEnumerable<CardData> GetExtraClubs(Player player) { return null; }
+        public bool? GetDrawsPerTurn(Player player) { return player.is_ai ? false : (bool?)null; }
+        public bool? GetManaGrowsPerTurn(Player player) { return player.is_ai ? boss_mana_increases_per_turn : (bool?)null; }
 
         //--- IGameTypeView (menu display + launch) ---
         public string GetTitle() { return title; }
         public Sprite GetIcon() { return icon; }
-        public DeckData GetDisplayDeck() { return player_deck; }
+        public DeckData GetDisplayDeck() { return boss_deck; }   //menu shows the boss the player will fight
         public string GetId() { return id; }
         public GameType GetGameType() { return GameType.TotalAssault; }
 
-        public void ApplyGameSettings()
+        public void Launch()
+        {
+            //Boss matches go through DeckSelectorPanel so the player picks their own deck.
+            GameClient.game_settings.game_type = GameType.TotalAssault;
+            GameClient.game_settings.game_mode = GameMode.Casual;
+
+            TcgEngine.UI.DeckSelectorPanel panel = TcgEngine.UI.DeckSelectorPanel.Get();
+            panel.onConfirm = (deck_id) =>
+            {
+                GameClient.player_settings.deck.tid = deck_id;
+                ApplyGameSettings();
+                TcgEngine.UI.MainMenu.Get().StartGame(GameType.TotalAssault, GameMode.Casual);
+            };
+            panel.Show();
+        }
+
+        private void ApplyGameSettings()
         {
             GameClient.game_settings.level = id;
             GameClient.game_settings.scene = scene;
-            if (player_deck != null)
-                GameClient.player_settings.deck = new UserDeckData(player_deck);
+            //Player keeps their own deck + avatar (no override here).
             if (boss_deck != null)
+            {
                 GameClient.ai_settings.deck = new UserDeckData(boss_deck);
+                if (boss_deck.avatar != null)
+                    GameClient.ai_settings.avatar = boss_deck.avatar.id;
+            }
             GameClient.ai_settings.ai_level = 10;
-            if (player_avatar != null)
-                GameClient.player_settings.avatar = player_avatar.id;
-            if (boss_avatar != null)
-                GameClient.ai_settings.avatar = boss_avatar.id;
         }
-    }
-
-    /// <summary>
-    /// One phase of a Total Assault encounter. Phases are entered when the boss's
-    /// HP percentage drops below trigger_hp_percent (evaluated from highest threshold first).
-    /// Passives in this phase are added on top of base boss_passives.
-    /// </summary>
-    [System.Serializable]
-    public class TotalAssaultPhase
-    {
-        public string phase_id;
-        [Range(0, 100)] public int trigger_hp_percent = 100;
-        public AbilityData[] enter_abilities;
-        public AbilityData[] passives;
     }
 }

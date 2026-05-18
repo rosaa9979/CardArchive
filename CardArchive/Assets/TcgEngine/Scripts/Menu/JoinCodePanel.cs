@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TcgEngine.Client;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,8 +39,15 @@ namespace TcgEngine.UI
                 return;
 
             game_code = code_field.text.ToUpper();
-            //MainMenu.Get().StartMathmaking(GameMode.Casual, "code_" + game_code);
-            DeckSelectorPanel.Get().Show();
+            string code_snapshot = game_code;   //capture in closure
+
+            DeckSelectorPanel panel = DeckSelectorPanel.Get();
+            panel.onConfirm = (deck_id) =>
+            {
+                GameClient.player_settings.deck.tid = deck_id;
+                MainMenu.Get().StartMathmaking(GameMode.Casual, "code_" + code_snapshot);
+            };
+            panel.Show();
             Hide();
         }
 

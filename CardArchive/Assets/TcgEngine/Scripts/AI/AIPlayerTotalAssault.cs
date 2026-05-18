@@ -29,12 +29,23 @@ namespace TcgEngine.AI
             if (!CanPlay())
                 return;
 
+            Game game_data = gameplay.GetGameData();
+            Player player = game_data.GetPlayer(player_id);
+
+            //Mulligan: confirm without swapping any cards.
+            if (game_data.IsPlayerMulliganTurn(player))
+            {
+                if (!is_playing)
+                    gameplay.Mulligan(player, new string[0]);
+                return;
+            }
+
             //Groggy: skip our turn (still received start-of-turn resources from StartTurn).
             if (TryConsumeGroggySkip())
                 return;
 
             //Normal turn — kick off boss decision sequence (single in-flight at a time).
-            if (!is_playing)
+            if (!is_playing && game_data.IsPlayerTurn(player))
             {
                 is_playing = true;
                 TimeTool.StartCoroutine(BossTurn());

@@ -49,5 +49,7 @@ namespace TcgEngine
         public LevelFirst? GetFirstPlayer() { return null; }
         public bool? GetMulligan() { return null; }
         public IEnumerable<CardData> GetExtraClubs(Player player) { return null; }
+        public bool? GetDrawsPerTurn(Player player) { return null; }
+        public bool? GetManaGrowsPerTurn(Player player) { return null; }
     }
 }

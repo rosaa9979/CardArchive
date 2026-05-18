@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2d3d8a423501c4d95744471f1b15c3, type: 3}
+  m_Name: TA_Binah
+  m_EditorClassIdentifier: 
+  id: TA_Binah
+  order: 0
+  title: "\uBE44\uB098"
+  icon: {fileID: 0}
+  description: 
+  scene: Game
+  boss_deck: {fileID: 11400000, guid: 8ea01054f27d4204d8c4dc79133f7f59, type: 2}
+  first_player: 10
+  mulligan: 1
+  skill_gauge_max: 100
+  skill_gauge_start: 0
+  atg_gauge_max: 100
+  atg_gauge_start: 0
+  groggy_gauge_max: 100
+  groggy_gauge_start: 0
+  boss_mana_increases_per_turn: 0
+  reward_xp: 200
+  reward_coins: 200
+  reward_packs: []
+  reward_cards: []

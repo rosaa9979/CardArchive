@@ -128,7 +128,6 @@ namespace TcgEngine.Gameplay
                         atg_gauge_max = assault_data.atg_gauge_max,
                         groggy_gauge = assault_data.groggy_gauge_start,
                         groggy_gauge_max = assault_data.groggy_gauge_max,
-                        mana_increases_per_turn = assault_data.boss_mana_increases_per_turn,
                         skip_next_turn = false,
                     };
                 }
@@ -182,6 +181,10 @@ namespace TcgEngine.Gameplay
                     }
                 }
 
+                //Per-turn behavior flags — first non-null provider wins; defaults to true
+                player.draws_per_turn      = FirstNonNull(providers, prov => prov.GetDrawsPerTurn(player))     ?? true;
+                player.mana_grows_per_turn = FirstNonNull(providers, prov => prov.GetManaGrowsPerTurn(player)) ?? true;
+
                 //Add coin second player — fires when first player was chosen randomly
                 bool is_random_first = !first_override.HasValue || first_override.Value == LevelFirst.Random;
                 if (is_random_first && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
@@ -227,20 +230,13 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
 
             //Cards draw
-            if (game_data.turn_count > 1 || player.player_id != game_data.first_player)
+            if (player.draws_per_turn && (game_data.turn_count > 1 || player.player_id != game_data.first_player))
             {
                 DrawCard(player, GameplayData.Get().cards_per_turn);
             }
 
-            //Mana — boss skips the per-turn growth if configured
-            bool grant_mana_growth = true;
-            if (game_data.boss_state != null
-                && player.player_id == game_data.boss_state.player_id
-                && !game_data.boss_state.mana_increases_per_turn)
-            {
-                grant_mana_growth = false;
-            }
-            if (grant_mana_growth)
+            //Mana
+            if (player.mana_grows_per_turn)
             {
                 player.mana_max += GameplayData.Get().mana_per_turn;
                 player.mana_max = Mathf.Min(player.mana_max, GameplayData.Get().mana_max);

@@ -21,5 +21,9 @@ namespace TcgEngine
         bool? GetMulligan();
 
         IEnumerable<CardData> GetExtraClubs(Player player);
+
+        //Per-turn behavior overrides — null = no override, defaults to true.
+        bool? GetDrawsPerTurn(Player player);
+        bool? GetManaGrowsPerTurn(Player player);
     }
 }

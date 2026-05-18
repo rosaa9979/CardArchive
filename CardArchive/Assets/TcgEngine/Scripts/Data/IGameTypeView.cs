@@ -16,8 +16,8 @@ namespace TcgEngine
         string GetId();
         GameType GetGameType();
 
-        //Writes this entry's data into GameClient.{game,player,ai}_settings.
-        //Called by LevelUI right before MainMenu.StartGame.
-        void ApplyGameSettings();
+        //Triggered when the player clicks this entry in AdventurePanel.
+        //Each SO decides its own launch flow (immediate start, deck selector first, etc.).
+        void Launch();
     }
 }

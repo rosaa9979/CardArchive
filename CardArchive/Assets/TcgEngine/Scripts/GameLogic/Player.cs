@@ -20,6 +20,10 @@ namespace TcgEngine
         public bool is_ai = false;
         public int ai_level;
 
+        //Per-turn behavior flags — populated at StartGame from IGameSetupProvider chain.
+        public bool draws_per_turn = true;
+        public bool mana_grows_per_turn = true;
+
         public bool connected = false; //Connected to server and game
         public bool ready = false;     //Sent all player data, ready to play
 

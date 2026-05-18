@@ -230,16 +230,16 @@ namespace TcgEngine.UI
             GameClient.game_settings.game_type = GameType.Solo;
             GameClient.game_settings.game_mode = GameMode.Casual;
 
-            DeckSelectorPanel.Get().Show();
-
-            /*
-            GameClient.player_settings.deck.tid = deck_selector_panel.GetDeckID();
-            GameClient.ai_settings.deck.tid = GameplayData.Get().GetRandomAIDeck();
-            GameClient.ai_settings.ai_level = GameplayData.Get().ai_level;
-            GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
-
-            StartGame(GameType.Solo, GameMode.Casual);
-            */
+            DeckSelectorPanel panel = DeckSelectorPanel.Get();
+            panel.onConfirm = (deck_id) =>
+            {
+                GameClient.player_settings.deck.tid = deck_id;
+                GameClient.ai_settings.deck.tid = GameplayData.Get().GetRandomAIDeck();
+                GameClient.ai_settings.ai_level = GameplayData.Get().ai_level;
+                GameClient.game_settings.scene = GameplayData.Get().GetRandomArena();
+                StartGame(GameType.Solo, GameMode.Casual);
+            };
+            panel.Show();
         }
 
         public void OnClickPvP()
@@ -257,7 +257,14 @@ namespace TcgEngine.UI
 
             GameClient.game_settings.game_type = GameType.Multiplayer;
             GameClient.game_settings.game_mode = GameMode.Ranked;
-            DeckSelectorPanel.Get().Show();
+
+            DeckSelectorPanel panel = DeckSelectorPanel.Get();
+            panel.onConfirm = (deck_id) =>
+            {
+                GameClient.player_settings.deck.tid = deck_id;
+                StartMathmaking(GameMode.Ranked, "");
+            };
+            panel.Show();
         }
 
         public void OnClickAdventure()
