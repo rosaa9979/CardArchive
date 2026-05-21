@@ -49,6 +49,11 @@ namespace TcgEngine
         [System.NonSerialized] private VariantData vdata = null;
         [System.NonSerialized] private List<AbilityData> abilities_data = null;
 
+        [System.NonSerialized] public int prev_attack;
+        [System.NonSerialized] public int prev_hp;
+        [System.NonSerialized] public int prev_range;
+        [System.NonSerialized] public bool stat_tracking_initialized;
+
         public Card(string card_id, string uid, int player_id) { this.card_id = card_id; this.uid = uid; this.player_id = player_id; }
 
         public virtual void Refresh() { exhausted = false; }

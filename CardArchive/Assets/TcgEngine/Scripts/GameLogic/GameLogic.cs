@@ -2139,7 +2139,48 @@ namespace TcgEngine.Gameplay
 
             cards_to_clear.Clear();
 
+            DiffAndFireStatEvents();
+
             Profiler.EndSample();
+        }
+
+        // Fires onCardStatChange only when the displayed stat (GetAttack/GetHP/GetRange) actually changed.
+        // Covers damage, one-shot buffs, ongoing recompute — silent on no-op recompute.
+        protected virtual void DiffAndFireStatEvents()
+        {
+            for (int p = 0; p < game_data.players.Length; p++)
+            {
+                Player pl = game_data.players[p];
+                CheckCardStatDelta(pl.hero);
+                for (int c = 0; c < pl.cards_board.Count; c++)   CheckCardStatDelta(pl.cards_board[c]);
+                for (int c = 0; c < pl.cards_equip.Count; c++)   CheckCardStatDelta(pl.cards_equip[c]);
+                for (int c = 0; c < pl.cards_attach.Count; c++)  CheckCardStatDelta(pl.cards_attach[c]);
+                for (int c = 0; c < pl.cards_hand.Count; c++)    CheckCardStatDelta(pl.cards_hand[c]);
+                for (int c = 0; c < pl.cards_club.Count; c++)    CheckCardStatDelta(pl.cards_club[c]);
+                for (int c = 0; c < pl.player_ability.Count; c++) CheckCardStatDelta(pl.player_ability[c]);
+            }
+        }
+
+        protected virtual void CheckCardStatDelta(Card c)
+        {
+            if (c == null) return;
+
+            int a = c.GetAttack();
+            int h = c.GetHP();
+            int r = c.GetRange();
+
+            if (!c.stat_tracking_initialized)
+            {
+                c.prev_attack = a;
+                c.prev_hp = h;
+                c.prev_range = r;
+                c.stat_tracking_initialized = true;
+                return;
+            }
+
+            if (a != c.prev_attack) { c.prev_attack = a; onCardStatChange?.Invoke(c, EffectStatType.Attack); }
+            if (h != c.prev_hp)     { c.prev_hp = h;     onCardStatChange?.Invoke(c, EffectStatType.HP); }
+            if (r != c.prev_range)  { c.prev_range = r;  onCardStatChange?.Invoke(c, EffectStatType.Range); }
         }
 
         protected virtual void UpdateOngoingAbilities(Player player, Card card)

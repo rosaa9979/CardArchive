@@ -22,6 +22,8 @@ namespace TcgEngine
         private Queue<AttackQueueElement> attack_queue = new Queue<AttackQueueElement>();
         private Queue<CallbackQueueElement> callback_queue = new Queue<CallbackQueueElement>();
 
+        private const float per_effect_delay = 1f;
+
         private Game game_data;
         private bool is_resolving = false;
         private float resolve_delay = 0f;
@@ -215,9 +217,18 @@ namespace TcgEngine
                 return;
 
             is_resolving = true;
-            while (CanResolve())
+
+            if (skip_delay)
+            {
+                while (CanResolve())
+                    Resolve();
+            }
+            else if (CanResolve())
             {
                 Resolve();
+                bool hasMore = ability_queue.Count > 0 || secret_queue.Count > 0 || attack_queue.Count > 0 || callback_queue.Count > 0;
+                if (hasMore)
+                    SetDelay(per_effect_delay);
             }
 
             is_resolving = false;
