@@ -317,6 +317,4 @@ flowchart LR
 ## 성과
 - **2025년 10월**: 일러스타 페스 출품 (**124명** 플레이 후, 설문조사 진행)
 
-    ![IllustarImage](./Tool/README_Image/Illustar_Image.png)
-
 - **2025년 4분기**: 배포 예정
