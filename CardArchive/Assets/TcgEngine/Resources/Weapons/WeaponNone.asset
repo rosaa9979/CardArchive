@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da55ad1a50fb8664787b2a3988655163, type: 3}
+  m_Script: {fileID: 11500000, guid: ad1abed58d6370c439d89883e9b49088, type: 3}
   m_Name: WeaponNONE
-  m_EditorClassIdentifier: 
-  NONE_id: NONE
-  NONE_type: 0
-  NONE_range: 0
+  m_EditorClassIdentifier:
+  id: NONE
+  type: 0
+  range: 0
+  weapon_color: {r: 255, g: 255, b: 255, a: 255}
+  attack_fx: {fileID: 0}
+  hit_fx: {fileID: 0}
+  attack_audio: {fileID: 0}

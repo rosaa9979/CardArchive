@@ -216,10 +216,14 @@ namespace TcgEngine.FX
                     //    DamageFX(target, attacker, transform);
 
                     //Attack FX and Audio
-                    GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                    GameObject fx = (icard.weapon != null && icard.weapon.attack_fx != null) ? icard.weapon.attack_fx
+                                  : icard.attack_fx != null ? icard.attack_fx
+                                  : AssetData.Get().card_attack_fx;
                     GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
-                    AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                    AudioClip audio = (icard?.weapon != null && icard.weapon.attack_audio != null) ? icard.weapon.attack_audio
+                                    : icard?.attack_audio != null ? icard.attack_audio
+                                    : AssetData.Get().card_attack_audio;
                     AudioTool.Get().PlaySFX("card_attack", audio);
                 }
             }
@@ -257,12 +261,16 @@ namespace TcgEngine.FX
                     //    DamageFX(target, attacker, transform);
 
                     //Attack FX and Audio
-                    GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                    GameObject fx = (icard.weapon != null && icard.weapon.attack_fx != null) ? icard.weapon.attack_fx
+                                  : icard.attack_fx != null ? icard.attack_fx
+                                  : AssetData.Get().card_attack_fx;
                     GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
                     //GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     //fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
-                    AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                    AudioClip audio = (icard?.weapon != null && icard.weapon.attack_audio != null) ? icard.weapon.attack_audio
+                                    : icard?.attack_audio != null ? icard.attack_audio
+                                    : AssetData.Get().card_attack_audio;
                     AudioTool.Get().PlaySFX("card_attack", audio);
                 }
             }
@@ -275,7 +283,9 @@ namespace TcgEngine.FX
                 {
                     TimeTool.WaitFor(0.15f, () =>
                     {
-                        GameObject fx = AssetData.Get().card_attack_hit_fx;
+                        CardData iattacker = battacker.GetCardData();
+                        GameObject fx = (iattacker?.weapon != null && iattacker.weapon.hit_fx != null) ? iattacker.weapon.hit_fx
+                                      : AssetData.Get().card_attack_hit_fx;
                         GameObject fx_result = FXTool.DoFX(fx, transform.position);
                         fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
                         int value = battacker.GetCard().GetAttack();
@@ -307,12 +317,16 @@ namespace TcgEngine.FX
                     //    DamageFX(target, attacker, transform);
 
                     //Attack FX and Audio
-                    GameObject fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                    GameObject fx = (icard.weapon != null && icard.weapon.attack_fx != null) ? icard.weapon.attack_fx
+                                  : icard.attack_fx != null ? icard.attack_fx
+                                  : AssetData.Get().card_attack_fx;
                     GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
                     //GameObject fx_result = FXTool.DoFX(fx, battacker.transform.position);
                     //fx_result.transform.rotation = FXTool.GetFXRotation(battacker.gameObject, btarget.gameObject);
-                    AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                    AudioClip audio = (icard?.weapon != null && icard.weapon.attack_audio != null) ? icard.weapon.attack_audio
+                                    : icard?.attack_audio != null ? icard.attack_audio
+                                    : AssetData.Get().card_attack_audio;
                     AudioTool.Get().PlaySFX("card_attack", audio);
                 }
             }
@@ -346,7 +360,9 @@ namespace TcgEngine.FX
 
                 ChargeIntoPlayer(zone);
 
-                AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                AudioClip audio = (icard?.weapon != null && icard.weapon.attack_audio != null) ? icard.weapon.attack_audio
+                                : icard?.attack_audio != null ? icard.attack_audio
+                                : AssetData.Get().card_attack_audio;
                 AudioTool.Get().PlaySFX("card_attack", audio);
 
                 int value = bcard.GetCard().GetAttack();
@@ -369,17 +385,22 @@ namespace TcgEngine.FX
                 CardData icard = bcard.GetCardData();
                 BoardSlotPlayer zone = BoardSlotPlayer.Get(is_other);
 
-                AudioClip audio = icard?.attack_audio != null ? icard.attack_audio : AssetData.Get().card_attack_audio;
+                AudioClip audio = (icard?.weapon != null && icard.weapon.attack_audio != null) ? icard.weapon.attack_audio
+                                : icard?.attack_audio != null ? icard.attack_audio
+                                : AssetData.Get().card_attack_audio;
                 AudioTool.Get().PlaySFX("card_attack", audio);
 
                 //ChargeIntoPlayer(zone);
-                GameObject attack_fx = icard.attack_fx != null ? icard.attack_fx : AssetData.Get().card_attack_fx;
+                GameObject attack_fx = (icard.weapon != null && icard.weapon.attack_fx != null) ? icard.weapon.attack_fx
+                                     : icard.attack_fx != null ? icard.attack_fx
+                                     : AssetData.Get().card_attack_fx;
                 GameObject attack_fx_result = FXTool.DoFX(attack_fx, battacker.transform.position);
                 attack_fx_result.transform.rotation = FXTool.GetFXRotation(attack_fx_result, battacker.gameObject, zone.gameObject);
 
                 TimeTool.WaitFor(0.15f, () =>
                 {
-                    GameObject hit_fx = AssetData.Get().card_attack_hit_fx;
+                    GameObject hit_fx = (icard?.weapon != null && icard.weapon.hit_fx != null) ? icard.weapon.hit_fx
+                                      : AssetData.Get().card_attack_hit_fx;
                     GameObject hit_fx_result = FXTool.DoFX(hit_fx, zone.transform.position);
                     hit_fx_result.transform.rotation = FXTool.GetFXRotation(hit_fx_result, battacker.gameObject, zone.gameObject);
 
