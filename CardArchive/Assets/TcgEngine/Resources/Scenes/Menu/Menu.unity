@@ -2096,7 +2096,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 132745999}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -8544,7 +8544,7 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8554,17 +8554,17 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 390
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 109
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8604,12 +8604,12 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 203.44
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -54.5
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}

@@ -201,7 +201,7 @@ namespace TcgEngine.Gameplay
             if (should_mulligan)
                 GoToMulligan();
             else
-                StartTurn();
+                StartFirstTurn();
 
         }
 
@@ -215,6 +215,21 @@ namespace TcgEngine.Gameplay
                     return v;
             }
             return null;
+        }
+
+        //Fires game-start abilities once (after mulligan), then begins the first turn
+        public virtual void StartFirstTurn()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            //OnGameStart abilities (club / hero / player_ability cards — board is still empty here)
+            foreach (Player player in game_data.players)
+                TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnGameStart);
+
+            //Resolve order guarantees all abilities (incl. chains) finish before StartTurn runs
+            resolve_queue.AddCallback(StartTurn);
+            resolve_queue.ResolveAll();
         }
 
         public virtual void StartTurn()
@@ -2637,7 +2652,7 @@ namespace TcgEngine.Gameplay
                 onMulligan?.Invoke(player.player_id);
                 if (game_data.AreAllPlayersReady())
                 {
-                    resolve_queue.AddCallback(StartTurn);
+                    resolve_queue.AddCallback(StartFirstTurn);
                     resolve_queue.ResolveAll(5f);
                     //StartTurn();
                 }

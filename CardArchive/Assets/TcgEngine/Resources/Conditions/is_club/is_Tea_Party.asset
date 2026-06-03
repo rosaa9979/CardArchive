@@ -9,15 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad1abed58d6370c439d89883e9b49088, type: 3}
-  m_Name: WeaponFRONT
+  m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
+  m_Name: is_Tea_Party
   m_EditorClassIdentifier: 
-  id: FRONT
-  type: 1
-  range: 1
-  weapon_color:
-    serializedVersion: 2
-    rgba: 4278714514
-  attack_fx: {fileID: 0}
-  hit_fx: {fileID: 0}
-  attack_audio: {fileID: 0}
+  has_type: 
+  has_club:
+  - {fileID: 11400000, guid: d6c7599c84e95ed45899edf9cb90938d, type: 2}
+  has_trait: []
+  oper: 0

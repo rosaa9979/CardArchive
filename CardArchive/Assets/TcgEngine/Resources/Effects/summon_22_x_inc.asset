@@ -9,15 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad1abed58d6370c439d89883e9b49088, type: 3}
-  m_Name: WeaponFRONT
+  m_Script: {fileID: 11500000, guid: 23e9d053912d94e4bafaebc403dcc8fe, type: 3}
+  m_Name: summon_22_x_inc
   m_EditorClassIdentifier: 
-  id: FRONT
-  type: 1
-  range: 1
-  weapon_color:
-    serializedVersion: 2
-    rgba: 4278714514
-  attack_fx: {fileID: 0}
-  hit_fx: {fileID: 0}
-  attack_audio: {fileID: 0}
+  position:
+    x: 2
+    y: 2
+  direction:
+    x: 1
+    y: 0
