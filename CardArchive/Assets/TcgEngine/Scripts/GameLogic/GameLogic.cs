@@ -223,13 +223,20 @@ namespace TcgEngine.Gameplay
             if (game_data.state == GameState.GameEnded)
                 return;
 
+            //Leave the Mulligan phase first so the client closes the mulligan panel
+            //(MulliganSelector shows while phase == Mulligan). GameStart enables no input and
+            //does not fire the new-turn banner (that comes from onTurnStart in StartTurn).
+            game_data.phase = GamePhase.GameStart;
+            RefreshData();
+
             //OnGameStart abilities (club / hero / player_ability cards — board is still empty here)
             foreach (Player player in game_data.players)
                 TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnGameStart);
 
-            //Resolve order guarantees all abilities (incl. chains) finish before StartTurn runs
+            //Delay lets the mulligan panel close before the effects resolve.
+            //Resolve order guarantees all abilities (incl. chains) finish before StartTurn runs.
             resolve_queue.AddCallback(StartTurn);
-            resolve_queue.ResolveAll();
+            resolve_queue.ResolveAll(1f);
         }
 
         public virtual void StartTurn()

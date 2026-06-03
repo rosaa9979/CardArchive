@@ -858,6 +858,7 @@ namespace TcgEngine
     {
         None = 0,
         Mulligan = 5,
+        GameStart = 7,  //After mulligan, before the first turn: OnGameStart abilities resolve here
         StartTurn = 10, //Start of turn resolution
         Main = 20,      //Main play phase
         Attack = 30,    //Attack phase
