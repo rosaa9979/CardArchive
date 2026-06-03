@@ -918,6 +918,8 @@ namespace TcgEngine
 
         OnHeal = 50,
         OnHealOther = 51,
+
+        OnAddClubOther = 55, //When a club is added to a card; the joined card is the triggerer
     }
 
     public enum AbilityTarget

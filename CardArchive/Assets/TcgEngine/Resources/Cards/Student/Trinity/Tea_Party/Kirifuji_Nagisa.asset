@@ -24,7 +24,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d6c7599c84e95ed45899edf9cb90938d, type: 2}
   weapon: {fileID: 11400000, guid: 2a041c81a77cba24bbc82eb1bc717e98, type: 2}
   traits: []
-  stats: []
+  stats:
+  - trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
+    value: 0
   abilities: []
   text: 
   desc: 

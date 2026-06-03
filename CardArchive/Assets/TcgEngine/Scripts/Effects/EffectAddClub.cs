@@ -23,7 +23,7 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            caster.AddClub(target.card_id);
+            logic.AddClub(caster, target.card_id); //GameLogic fires OnAddClubOther
         }
 
         /*

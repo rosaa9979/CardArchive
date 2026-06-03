@@ -251,13 +251,7 @@ namespace TcgEngine.Gameplay
 
             Player player = game_data.GetActivePlayer();
 
-            //Cards draw
-            if (player.draws_per_turn && (game_data.turn_count > 1 || player.player_id != game_data.first_player))
-            {
-                DrawCard(player, GameplayData.Get().cards_per_turn);
-            }
-
-            //Mana
+            //Mana update & refill (before start-of-turn effects; draw happens later, after effects)
             if (player.mana_grows_per_turn)
             {
                 player.mana_max += GameplayData.Get().mana_per_turn;
@@ -320,8 +314,23 @@ namespace TcgEngine.Gameplay
 
             UpdateOngoing();
 
+            //Draw happens after start-of-turn abilities resolve (ability_queue drains before callbacks)
+            resolve_queue.AddCallback(DrawForTurn);
             resolve_queue.AddCallback(StartMainPhase);
             resolve_queue.ResolveAll(0.2f);
+        }
+
+        //Turn draw, runs after start-of-turn effects have resolved
+        protected virtual void DrawForTurn()
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            Player player = game_data.GetActivePlayer();
+            if (player.draws_per_turn && (game_data.turn_count > 1 || player.player_id != game_data.first_player))
+                DrawCard(player, GameplayData.Get().cards_per_turn);
+
+            RefreshData();
         }
 
         public virtual void StartMainPhase()
@@ -1229,6 +1238,17 @@ namespace TcgEngine.Gameplay
             onCardTransformed?.Invoke(card);
 
             return card;
+        }
+
+        //Add a club to a card and notify other cards (OnAddClubOther) that it joined; no-op if already a member
+        public virtual void AddClub(Card card, string club_id)
+        {
+            if (card == null || string.IsNullOrEmpty(club_id) || card.HasClub(club_id))
+                return;
+
+            card.AddClub(club_id);
+            UpdateOngoing();
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnAddClubOther, card);
         }
 
         public virtual void EquipCard(Card card, Card equipment)
