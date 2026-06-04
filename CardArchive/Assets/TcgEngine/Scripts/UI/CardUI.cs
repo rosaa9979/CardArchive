@@ -111,8 +111,40 @@ namespace TcgEngine.UI
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
 
+            //Card (runtime) description: prefer card_desc, fall back to desc when empty.
+            //Resolved with the live card's current stats/status; runs every frame via BoardCard.Update.
+            if (card_text != null)
+            {
+                CardData cd = card.CardData;
+                string template = !string.IsNullOrEmpty(cd.card_desc) ? cd.card_desc : cd.desc;
+                string d = FormatDesc(template, cd, card);
+                if (!string.IsNullOrEmpty(d))
+                    card_text.text = d;
+            }
+
             foreach (TraitUI stat in stats)
                 stat.SetCard(card);
+        }
+
+        //Format a desc template: substitutes {0},{1},... with resolved desc_values.
+        //card may be null (static/CardData context) — values then resolve from base/definition.
+        private string FormatDesc(string template, CardData card_data, Card card)
+        {
+            if (string.IsNullOrEmpty(template) || card_data.desc_values == null || card_data.desc_values.Length == 0)
+                return template;
+
+            object[] args = new object[card_data.desc_values.Length];
+            for (int i = 0; i < card_data.desc_values.Length; i++)
+                args[i] = card_data.desc_values[i] != null ? card_data.desc_values[i].Resolve(card, card_data) : "";
+
+            try
+            {
+                return string.Format(template, args);
+            }
+            catch (System.FormatException)
+            {
+                return template;
+            }
         }
 
         public void SetCard(CardData card, VariantData variant)
@@ -140,8 +172,12 @@ namespace TcgEngine.UI
                 card_image.sprite = card.GetFullArt(variant);
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
+            //CardData (static/collection) description: card data desc only, resolved with no runtime card
             if (card_text != null)
-                card_text.text = card.GetText();
+            {
+                string d = FormatDesc(card.desc, card, null);
+                card_text.text = !string.IsNullOrEmpty(d) ? d : card.GetText();
+            }
 
             if (attack_background != null)
                 attack_background.enabled = card.IsCitizen();

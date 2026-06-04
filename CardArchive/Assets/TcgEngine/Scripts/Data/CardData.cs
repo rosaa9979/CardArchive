@@ -68,7 +68,10 @@ namespace TcgEngine
 
         [Header("Description")]
         [TextArea(5, 10)]
-        public string desc;
+        public string desc;                   //Card data desc (fallback when card_desc is empty)
+        [TextArea(5, 10)]
+        public string card_desc;              //Card desc (preferred; supports {0}, {1}, ... placeholders)
+        public DescValueData[] desc_values;   //Resolved into the shown desc's placeholders, in order
 
         [Header("FX")]
         public GameObject spawn_fx;

@@ -29,8 +29,10 @@ MonoBehaviour:
     value: 0
   abilities:
   - {fileID: 11400000, guid: f7f39687c4baad0479f76df62d0eedcb, type: 2}
+  - {fileID: 11400000, guid: 51646447cadecae42a376987bfa04630, type: 2}
   text: 
   desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
