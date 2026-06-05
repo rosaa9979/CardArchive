@@ -534,9 +534,10 @@ namespace TcgEngine.Gameplay
                     card.ReduceStatusDurations();
             }
 
-            //End of turn abilities
-            Player player = game_data.GetActivePlayer();
-            TriggerPlayerCardsAbilityType(player, AbilityTrigger.EndOfTurn);
+            //End of turn abilities — fire for every player's cards (like StartOfTurn).
+            //Owner-only EndOfTurn effects must gate themselves with a Turn condition.
+            foreach (Player p in game_data.players)
+                TriggerPlayerCardsAbilityType(p, AbilityTrigger.EndOfTurn);
 
             onTurnEnd?.Invoke();
             RefreshData();
