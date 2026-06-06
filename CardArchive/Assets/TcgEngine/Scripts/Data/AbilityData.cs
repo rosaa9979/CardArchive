@@ -886,7 +886,7 @@ namespace TcgEngine
     {
         None = 0,
 
-        OnGameStart = 1, //Once, after mulligan, before the first turn
+        OnGameStart = 1, //Once, before the mulligan
 
         Ongoing = 2,  //Always active (does not work with all effects)
         Activate = 5, //Action

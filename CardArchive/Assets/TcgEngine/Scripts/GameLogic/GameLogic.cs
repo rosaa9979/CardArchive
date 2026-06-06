@@ -147,6 +147,9 @@ namespace TcgEngine.Gameplay
             //Mulligan override
             bool should_mulligan = FirstNonNull(match_providers, p => p.GetMulligan()) ?? GameplayData.Get().mulligan;
 
+            //Starting hand size per player — the actual draw happens after OnGameStart effects resolve
+            Dictionary<Player, int> start_hand_counts = new Dictionary<Player, int>();
+
             //Init each players
             foreach (Player player in game_data.players)
             {
@@ -162,11 +165,11 @@ namespace TcgEngine.Gameplay
                 player.mana_max = FirstNonNull(providers, prov => prov.GetStartMana(player)) ?? GameplayData.Get().mana_start;
                 player.mana = player.mana_max;
 
-                //Draw starting cards
+                //Starting hand size — drawn later, after OnGameStart effects resolve
                 int dcards = FirstNonNull(providers, prov => prov.GetStartHand(player)) ?? GameplayData.Get().cards_start;
                 if (!first_override.HasValue)
                     dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
-                DrawCard(player, dcards);
+                start_hand_counts[player] = dcards;
 
                 //Extra clubs (synergy) — additive across providers
                 VariantData variant = VariantData.GetDefault();
@@ -184,9 +187,43 @@ namespace TcgEngine.Gameplay
                 //Per-turn behavior flags — first non-null provider wins; defaults to true
                 player.draws_per_turn      = FirstNonNull(providers, prov => prov.GetDrawsPerTurn(player))     ?? true;
                 player.mana_grows_per_turn = FirstNonNull(providers, prov => prov.GetManaGrowsPerTurn(player)) ?? true;
+            }
 
-                //Add coin second player — fires when first player was chosen randomly
-                bool is_random_first = !first_override.HasValue || first_override.Value == LevelFirst.Random;
+            //Start state
+            RefreshData();
+            onGameStart?.Invoke();
+
+            //OnGameStart abilities fire BEFORE the draw and mulligan now (hand and board are still empty here).
+            //(club / hero / player_ability cards). The starting hand is drawn once these resolve.
+            game_data.phase = GamePhase.GameStart;
+            RefreshData();
+            foreach (Player player in game_data.players)
+                TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnGameStart);
+
+            //Flow: OnGameStart effects -> draw starting hand -> mulligan -> first turn.
+            //ability_queue drains before callbacks, so effects fully resolve before the draw runs.
+            resolve_queue.AddCallback(() => DrawStartingHands(start_hand_counts, first_override));
+            if (should_mulligan)
+                resolve_queue.AddCallback(GoToMulligan);
+            else
+                resolve_queue.AddCallback(StartFirstTurn);
+            resolve_queue.ResolveAll(1f);
+        }
+
+        //Draws each player's starting hand (after OnGameStart effects), then adds the second player's coin
+        protected virtual void DrawStartingHands(Dictionary<Player, int> start_hand_counts, LevelFirst? first_override)
+        {
+            if (game_data.state == GameState.GameEnded)
+                return;
+
+            bool is_random_first = !first_override.HasValue || first_override.Value == LevelFirst.Random;
+
+            foreach (Player player in game_data.players)
+            {
+                if (start_hand_counts.TryGetValue(player, out int dcards))
+                    DrawCard(player, dcards);
+
+                //Add coin to the second player — fires when first player was chosen randomly
                 if (is_random_first && player.player_id != game_data.first_player && GameplayData.Get().second_bonus != null)
                 {
                     Card card = Card.Create(GameplayData.Get().second_bonus, VariantData.GetDefault(), player);
@@ -194,15 +231,7 @@ namespace TcgEngine.Gameplay
                 }
             }
 
-            //Start state
             RefreshData();
-            onGameStart?.Invoke();
-
-            if (should_mulligan)
-                GoToMulligan();
-            else
-                StartFirstTurn();
-
         }
 
         //Returns the first non-null value produced by selector across providers, or null if none.
@@ -217,7 +246,7 @@ namespace TcgEngine.Gameplay
             return null;
         }
 
-        //Fires game-start abilities once (after mulligan), then begins the first turn
+        //Begins the first turn. OnGameStart abilities already fired before the mulligan (see StartGame).
         public virtual void StartFirstTurn()
         {
             if (game_data.state == GameState.GameEnded)
@@ -229,12 +258,7 @@ namespace TcgEngine.Gameplay
             game_data.phase = GamePhase.GameStart;
             RefreshData();
 
-            //OnGameStart abilities (club / hero / player_ability cards — board is still empty here)
-            foreach (Player player in game_data.players)
-                TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnGameStart);
-
-            //Delay lets the mulligan panel close before the effects resolve.
-            //Resolve order guarantees all abilities (incl. chains) finish before StartTurn runs.
+            //Delay lets the mulligan panel close before the first turn begins.
             resolve_queue.AddCallback(StartTurn);
             resolve_queue.ResolveAll(1f);
         }
