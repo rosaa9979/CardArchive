@@ -18,7 +18,7 @@ MonoBehaviour:
   clubs:
   - {fileID: 11400000, guid: 98e964e3da2a99d4aac76bb9c40af40b, type: 2}
   - {fileID: 11400000, guid: ec3c875c40102e94c92614c71d2231ca, type: 2}
-  - {fileID: 11400000, guid: a50d6db4d2715604c88b5ef0364e548f, type: 2}
+  - {fileID: 11400000, guid: ecd7a72447078ad42a718cecc6db66ac, type: 2}
   cards:
   - {fileID: 11400000, guid: fa9aba2c264de524bafef35275596c83, type: 2}
   - {fileID: 11400000, guid: 14602be6721687f4b9714e29152ba89c, type: 2}
@@ -40,3 +40,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 68187d1fdcb3ddf48857c17d6160eda1, type: 2}
   - {fileID: 11400000, guid: 93a18dc6dd19de245857261bfe960507, type: 2}
   - {fileID: 11400000, guid: 93a18dc6dd19de245857261bfe960507, type: 2}
+  - {fileID: 11400000, guid: 312d8e7c7229db9499443370f2689d7e, type: 2}
+  - {fileID: 11400000, guid: d33c0de529c43f647b67debb689ff3ad, type: 2}
+  - {fileID: 11400000, guid: 4c410b00b60b4334b9a0c65129dbb967, type: 2}

@@ -14,28 +14,36 @@ namespace TcgEngine
         [Header("Possibility (0 <= possibility <= 1)")]
         public float possibility;
 
+        // The probability is rolled ONLY in IsTargetConditionMet, never in IsTriggerConditionMet.
+        // Rationale: a trigger condition is evaluated by AreTriggerConditionsMet, which calls BOTH
+        // IsTriggerConditionMet and IsTargetConditionMet for the same condition. If both rolled,
+        // the effective chance would be possibility^2 (e.g. 0.5 -> 0.25). IsTargetConditionMet is the
+        // method called in EVERY slot (trigger, criteria/target, wide-range), so keeping the single
+        // roll here yields a consistent, correct probability everywhere; IsTriggerConditionMet is a
+        // no-op (true).
         public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
         {
-            float ran_pos = UnityEngine.Random.Range(0f, 1f);
-
-            if (ran_pos < possibility)
-                return true;
-            return false;
+            return true;
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
         {
-            return IsTriggerConditionMet(data, ability, caster);
+            return Roll();
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
         {
-            return IsTriggerConditionMet(data, ability, caster);
+            return Roll();
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
         {
-            return IsTriggerConditionMet(data, ability, caster);
+            return Roll();
+        }
+
+        private bool Roll()
+        {
+            return UnityEngine.Random.Range(0f, 1f) < possibility;
         }
     }
 }

@@ -18,6 +18,7 @@ MonoBehaviour:
   weapon_color:
     serializedVersion: 2
     rgba: 4279136188
-  attack_fx: {fileID: 0}
-  hit_fx: {fileID: 0}
+  attack_fx: {fileID: 3016586134035559660, guid: b9ba5fa5b456efb4d8696abc06cc40b6,
+    type: 3}
+  hit_fx: {fileID: 2948935174751634910, guid: 275ddefe9abb4fb4cbd0190d0d4c9695, type: 3}
   attack_audio: {fileID: 0}

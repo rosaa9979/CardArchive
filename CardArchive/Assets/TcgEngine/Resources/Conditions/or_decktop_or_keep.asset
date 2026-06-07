@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10dde6ffd5c640feadc562b6bf6323b0, type: 3}
+  m_Name: or_decktop_or_keep
+  m_EditorClassIdentifier:
+  any:
+  - {fileID: 11400000, guid: 5d7aa68514a94af0be0dd228dc2e7292, type: 2}
+  - {fileID: 11400000, guid: 81166eb7eea74accb5a015c97840a18a, type: 2}

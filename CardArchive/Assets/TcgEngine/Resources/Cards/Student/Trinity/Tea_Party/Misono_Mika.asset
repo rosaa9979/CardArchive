@@ -17,9 +17,9 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 10
-  mana: 0
-  attack: 0
-  hp: 10
+  mana: 6
+  attack: 2
+  hp: 2
   clubs:
   - {fileID: 11400000, guid: d6c7599c84e95ed45899edf9cb90938d, type: 2}
   weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
@@ -27,9 +27,12 @@ MonoBehaviour:
   stats:
   - trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
     value: 1
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 12701b92080445044bf934c1dd5915ca, type: 2}
   text: 
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

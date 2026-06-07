@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: DV_TeaParty
   m_EditorClassIdentifier: 
   mapping:
+  - value: -1
+    label: "\uC138\uC774\uC544"
   - value: 0
     label: "\uC138\uC774\uC544"
   - value: 1

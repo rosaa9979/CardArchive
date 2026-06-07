@@ -26,10 +26,11 @@ MonoBehaviour:
   traits: []
   stats:
   - trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
-    value: 0
+    value: -1
   abilities:
   - {fileID: 11400000, guid: f7f39687c4baad0479f76df62d0eedcb, type: 2}
   - {fileID: 11400000, guid: 51646447cadecae42a376987bfa04630, type: 2}
+  - {fileID: 11400000, guid: d121e7cbb73a4515a5dcbe69ff2beeca, type: 2}
   text: "\uAC8C\uC784 \uC2DC\uC791 \uC2DC, \uD2F0\uD30C\uD2F0 \uBD80\uC6D0\uC744
     \uBAA8\uB450 \uC18C\uD658\uD569\uB2C8\uB2E4. \uC790\uC2E0\uC758 \uCC28\uB840
     \uC2DC\uC791 \uC2DC, \uD638\uC2A4\uD2B8\uAC00 \uBC14\uB01D\uB2C8\uB2E4."
@@ -39,7 +40,7 @@ MonoBehaviour:
     \uD638\uC2A4\uD2B8\uB294 {0} \uC785\uB2C8\uB2E4."
   card_desc: 
   desc_values:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: e30a3832c9c84ec42ab41f4a770dd9a4, type: 2}
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

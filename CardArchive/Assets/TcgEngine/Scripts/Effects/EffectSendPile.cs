@@ -16,6 +16,9 @@ namespace TcgEngine
     {
         public PileType pile;
 
+        [Header("Deck insert position (only used when pile == Deck)")]
+        public DeckInsert insert = DeckInsert.Bottom;
+
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             Game data = logic.GetGameData();
@@ -24,7 +27,10 @@ namespace TcgEngine
             if (pile == PileType.Deck)
             {
                 player.RemoveCardFromAllGroups(target);
-                player.cards_deck.Add(target);
+                if (insert == DeckInsert.Top)
+                    player.cards_deck.Insert(0, target);   //Top = next card to be drawn
+                else
+                    player.cards_deck.Add(target);         //Bottom (default, backward compatible)
                 target.Clear();
             }
 
@@ -68,6 +74,12 @@ namespace TcgEngine
                 target.Clear();
             }
         }
+    }
+
+    public enum DeckInsert
+    {
+        Bottom = 0,   //Added to the end of the deck (bottom)
+        Top = 1,      //Inserted at index 0 (top, next to be drawn)
     }
 
     public enum PileType

@@ -1748,10 +1748,10 @@ namespace TcgEngine.Gameplay
             if (player.hero != null)
                 TriggerCardAbilityType(type, player.hero, player.hero);
 
-            foreach (Card card in player.cards_board)
+            foreach (Card card in player.cards_club)
                 TriggerCardAbilityType(type, card, card);
             
-            foreach (Card card in player.cards_club)
+            foreach (Card card in player.cards_board)
                 TriggerCardAbilityType(type, card, card);
 
             foreach (Card card in player.cards_attach)
@@ -1765,7 +1765,22 @@ namespace TcgEngine.Gameplay
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
-            if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+
+            // [RESOLVE-TIME TRIGGER CONDITIONS] Trigger conditions are no longer evaluated here at
+            // enqueue time; they are re-evaluated when the ability actually resolves (see
+            // ResolveCardAbility), so each ability sees the latest game state produced by
+            // earlier-resolving abilities in the same trigger batch. Silence is also handled at
+            // resolve time (ResolveCardAbility -> CanDoAbilities).
+            // To REVERT to enqueue-time evaluation, replace the unconditional block below with the
+            // original guarded version:
+            //
+            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+            // {
+            //     int current_repeat = 0;
+            //     int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            //     if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
+            //         RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat);
+            // }
             {
                 int current_repeat = 0;
                 int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
@@ -1777,10 +1792,15 @@ namespace TcgEngine.Gameplay
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0)
         {
-            Debug.Log("이건 언제 발동할까? "+iability.id+" "+current_repeat);
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
-            if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; trigger conditions and silence
+            // are re-checked in ResolveCardAbility against the latest state.
+            // To REVERT, restore the original guard:
+            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+            // {
+            //     resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
+            // }
             {
                 resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
             }
@@ -1788,7 +1808,18 @@ namespace TcgEngine.Gameplay
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Player triggerer)
         {
-            if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; conditions re-checked at resolve.
+            // NOTE: for player-triggered abilities the Player 'triggerer' is not carried into the queue
+            // (the caster is passed as the trigger card), so the resolve-time re-check uses the caster as
+            // the trigger target — matching the existing queue behaviour. Conditions that specifically
+            // depend on the player triggerer would need enqueue-time evaluation; revert if you rely on that.
+            // To REVERT, restore the original guard:
+            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            // {
+            //     int current_repeat = 0;
+            //     int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            //     RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
+            // }
             {
                 int current_repeat = 0;
                 int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
@@ -1799,7 +1830,12 @@ namespace TcgEngine.Gameplay
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Player triggerer, int max_repeat = 0, int current_repeat = 0)
         {
-            if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; conditions re-checked at resolve.
+            // To REVERT, restore the original guard:
+            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            // {
+            //     resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
+            // }
             {
                 resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
             }
@@ -1810,6 +1846,16 @@ namespace TcgEngine.Gameplay
         {
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
+
+            // [RESOLVE-TIME TRIGGER CONDITIONS] Evaluate trigger conditions HERE (at resolve time)
+            // instead of at enqueue time, so each ability sees the latest game state produced by
+            // earlier-resolving abilities in the same trigger batch (e.g. a club host-counter that
+            // was cycled this same turn before this member's ability resolves).
+            // Abilities are now enqueued unconditionally in TriggerCardAbility / RepeatTriggerCardAbility.
+            // To REVERT: remove this guard and restore the enqueue-time guards
+            // (search the file for "[RESOLVE-TIME TRIGGER CONDITIONS]").
+            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+                return;
 
             if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
                 return;
@@ -1838,8 +1884,8 @@ namespace TcgEngine.Gameplay
 
             if (!iability.HasValidSelectTarget(game_data, caster))
                 return false;
-            
-            
+
+
             if (iability.trigger != AbilityTrigger.OnPlay && iability.criteria_target == AbilityTarget.SelectTarget)
             {
                 //Wait for target
