@@ -15,7 +15,7 @@ MonoBehaviour:
   id: SOT_ScryTop_Cleanup
   trigger: 0
   conditions_trigger: []
-  condition_repeat: {fileID: 0}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 0
   conditions_criteria_target: []
   condition_wide_range: {fileID: 0}

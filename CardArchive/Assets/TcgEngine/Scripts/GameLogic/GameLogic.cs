@@ -1885,7 +1885,6 @@ namespace TcgEngine.Gameplay
             if (!iability.HasValidSelectTarget(game_data, caster))
                 return false;
 
-
             if (iability.trigger != AbilityTrigger.OnPlay && iability.criteria_target == AbilityTarget.SelectTarget)
             {
                 //Wait for target
