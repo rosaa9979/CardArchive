@@ -24,6 +24,15 @@ namespace TcgEngine
             target.SetTrait(trait.id, ability.value);
         }
 
+        //[stored_slot exception] When the target is a SLOT, store the encoded slot coordinate on the
+        //CASTER's trait (slot-memory, e.g. "포격"). The slot is encoded via Slot.ToTraitCode().
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            if (trait == null)
+                return;
+            caster.SetTrait(trait.id, target.ToTraitCode());
+        }
+
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             target.SetTrait(trait.id, ability.value);

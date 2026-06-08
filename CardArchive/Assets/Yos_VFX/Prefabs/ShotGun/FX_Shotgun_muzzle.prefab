@@ -4876,7 +4876,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 1
+  m_RenderAlignment: 2
   m_Pivot: {x: 0.38, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
@@ -5013,8 +5013,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.75
-      minScalar: 0.25
+      scalar: 0.7
+      minScalar: 0.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5184,8 +5184,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.15
-      minScalar: 0.1
+      scalar: 0.2
+      minScalar: 0.13
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -9322,7 +9322,7 @@ ParticleSystem:
     vector0_2:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.45
+      scalar: 0.04
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -9498,7 +9498,7 @@ ParticleSystem:
     vector1_0:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 150
+      scalar: 25
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -9796,6 +9796,7 @@ GameObject:
   - component: {fileID: 2748323427137072318}
   - component: {fileID: 3858736869509715985}
   - component: {fileID: 178650651237284735}
+  - component: {fileID: -2955605272913887111}
   m_Layer: 0
   m_Name: FX_Shotgun_muzzle
   m_TagString: Untagged
@@ -14616,6 +14617,19 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-2955605272913887111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5106555135991180102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f1b1fbe200e2864f906b32a88efcda0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotation_option: 10
 --- !u!1 &5717466419036837952
 GameObject:
   m_ObjectHideFlags: 0
@@ -19466,7 +19480,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5366722922438251381
 Transform:
@@ -24326,7 +24340,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 1
+  m_RenderAlignment: 2
   m_Pivot: {x: 0.4, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
@@ -24374,7 +24388,7 @@ Transform:
   m_GameObject: {fileID: 7987637864622064077}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.02699995, y: 0.014000058, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -28682,19 +28696,19 @@ ParticleSystem:
           time: 0
           value: 0.011796933
           inSlope: 0.5910914
-          outSlope: 0.1412267
+          outSlope: -0.079732135
           tangentMode: 1
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 0.13464446
+          outWeight: 0.24369748
         - serializedVersion: 3
           time: 1
           value: 1
-          inSlope: 0.062214624
-          outSlope: 0.062214624
+          inSlope: 2.4697056
+          outSlope: 2.4697056
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.23379648
+          inWeight: 0.08963585
           outWeight: 0.33333334
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -29223,7 +29237,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 1
+  m_RenderAlignment: 2
   m_Pivot: {x: 0.4, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1

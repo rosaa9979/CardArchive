@@ -11,14 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: SOT_ScryTop_Cleanup
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: SOT_ScryTop_Cleanup
   trigger: 0
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 0
   conditions_criteria_target: []
-  condition_wide_range: {fileID: 0}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   condition_target: []
   filters_target: []
   effects:
@@ -36,6 +37,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title:
-  desc:
-  selector_desc:
+  title: 
+  desc: 
+  selector_desc: 

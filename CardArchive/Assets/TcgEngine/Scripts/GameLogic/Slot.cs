@@ -122,6 +122,24 @@ namespace TcgEngine
             return false;
         }
 
+        //Encode this slot into a single positive int so it can be stored in a trait/stat value.
+        //Valid coords are single-digit (x:1-6, y:1-5, p:0-2) => code = x + y*10 + p*100 (always >= 11).
+        //0 means "no slot stored" (matches a trait's default value).
+        public int ToTraitCode()
+        {
+            if (x <= 0 || p < 0)
+                return 0; //invalid / none
+            return x + y * 10 + p * 100;
+        }
+
+        //Decode a trait-stored int back into a Slot (0 or less => Slot.None).
+        public static Slot FromTraitCode(int code)
+        {
+            if (code <= 0)
+                return Slot.None;
+            return new Slot(code % 10, (code / 10) % 10, code / 100);
+        }
+
         public int GetP()
         {
             return ignore_p ? 0 : p;

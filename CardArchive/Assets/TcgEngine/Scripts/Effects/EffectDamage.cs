@@ -30,6 +30,25 @@ namespace TcgEngine
         public EffectValueType value_type;
         public TraitData bonus_damage;
 
+        public const string StoredSlotTrait = "stored_slot";
+
+        //[stored_slot exception] No-target damage: read the caster's "stored_slot" trait, decode it to a
+        //slot and damage the unit on that tile. If nothing is stored (value 0), do nothing and pass.
+        //Used by effects on a card that previously stored a slot via EffectSetStatCustom (e.g. "포격").
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
+        {
+            int code = caster.GetTraitValue(StoredSlotTrait);
+            if (code <= 0)
+                return; //no slot stored -> pass
+
+            Slot slot = Slot.FromTraitCode(code);
+            Card unit = logic.GameData.GetSlotCard(slot);
+            if (unit != null)
+                logic.DamageCard_Event(caster, unit, GetDamage(logic.GameData, caster, ability.value), true);
+
+            //Consume (reset stored_slot to 0) is handled by a separate chained ability/effect, not here.
+        }
+
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             int damage = GetDamage(logic.GameData, caster, ability.value);

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: SOT_ScryTop_Select
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: SOT_ScryTop_Select
   trigger: 0
   conditions_trigger: []
@@ -20,7 +20,8 @@ MonoBehaviour:
   conditions_criteria_target:
   - {fileID: 11400000, guid: 7cd37a623d9649cc943595bebe44b0f3, type: 2}
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  condition_wide_range: {fileID: 0}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   condition_target: []
   filters_target: []
   effects:
@@ -39,6 +40,8 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "덱 맨 위 카드"
-  desc:
-  selector_desc: "맨 위 카드를 고르면 맨 아래로 보냅니다. \"그대로 두기\"를 고르면 그대로 둡니다."
+  title: "\uB371 \uB9E8 \uC704 \uCE74\uB4DC"
+  desc: 
+  selector_desc: "\uB9E8 \uC704 \uCE74\uB4DC\uB97C \uACE0\uB974\uBA74 \uB9E8 \uC544\uB798\uB85C
+    \uBCF4\uB0C5\uB2C8\uB2E4. \"\uADF8\uB300\uB85C \uB450\uAE30\"\uB97C \uACE0\uB974\uBA74
+    \uADF8\uB300\uB85C \uB461\uB2C8\uB2E4."

@@ -94,8 +94,8 @@ Material:
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _CDUV0x_mulText: 1
-    - _CDUV0y_Alpha: 2
-    - _CDUV1x_PowerText: 0.6
+    - _CDUV0y_Alpha: 1
+    - _CDUV1x_PowerText: 1.21
     - _CDUV1y_OnlyC: 0
     - _CDUV2x_int: 2
     - _CD_mulText: 1

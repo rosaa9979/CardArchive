@@ -97,7 +97,7 @@ Material:
     - _CDUV0y_Alpha: 2
     - _CDUV1x_PowerText: 1
     - _CDUV1y_OnlyC: 0
-    - _CDUV2x_int: 1
+    - _CDUV2x_int: 0
     - _CD_mulText: 1
     - _CastShadows: 0
     - _ClearCoatMask: 0
@@ -116,7 +116,7 @@ Material:
     - _OcclusionStrength: 1
     - _OnlyColor: 0
     - _Parallax: 0.005
-    - _PowerColor: 0.19
+    - _PowerColor: 0.61
     - _PowerText: 1
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -137,7 +137,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 0.20769599, b: 0, a: 1}
-    - _Color1: {r: 0.18867922, g: 0.18867922, b: 0.18867922, a: 1}
+    - _Color1: {r: 0.631, g: 0.631, b: 0.631, a: 1}
     - _Color2: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Scale_Text: {r: 1, g: 1, b: 0, a: 0}
