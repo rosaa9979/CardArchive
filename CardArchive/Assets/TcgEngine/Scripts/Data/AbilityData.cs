@@ -29,6 +29,7 @@ namespace TcgEngine
         public ConditionWideAreaRange condition_wide_range;
         public ConditionData[] condition_target;
         public FilterData[] filters_target;  //Condition checked on the target to know if its a valid taget
+        public SortData sort_target;         //Reorder the surviving targets (after filters), before effects are applied
 
         [Header("Effect")]
         public EffectData[] effects;              //WHAT this does?
@@ -149,10 +150,13 @@ namespace TcgEngine
 
         public bool AreOngoingRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times)
         {
-            if (condition_repeat != null && !condition_repeat.IsOngoingRepeatConditionMet(data, this, max_repeat_times, repeat_times))
-                return false;
+            // No repeat condition set => behave like a single execution (run up to max, default 1).
+            // Returning true unconditionally here caused abilities with a null condition_repeat to
+            // re-queue themselves forever in AfterAbilityResolved (infinite loop, e.g. chain_clear_stored_slot).
+            if (condition_repeat == null)
+                return repeat_times < max_repeat_times;
 
-            return true;
+            return condition_repeat.IsOngoingRepeatConditionMet(data, this, max_repeat_times, repeat_times);
         }
 
         public int GetMaxRepeatTimes(Game data, Card caster)
@@ -588,6 +592,10 @@ namespace TcgEngine
                 }
             }
 
+            //Sort targets
+            if (sort_target != null && targets.Count > 1)
+                targets = sort_target.SortTargets(data, this, caster, targets);
+
             return targets;
         }
 
@@ -633,6 +641,10 @@ namespace TcgEngine
                         targets = filter.FilterTargets(data, this, caster, targets, memory_array.GetOther(targets));
                 }
             }
+
+            //Sort targets
+            if (sort_target != null && targets.Count > 1)
+                targets = sort_target.SortTargets(data, this, caster, targets);
 
             return targets;
         }
@@ -725,6 +737,10 @@ namespace TcgEngine
                 }
             }
 
+            //Sort targets
+            if (sort_target != null && targets.Count > 1)
+                targets = sort_target.SortTargets(data, this, caster, targets);
+
             //return targets;
             return targets;
         }
@@ -754,6 +770,10 @@ namespace TcgEngine
                         targets = filter.FilterTargets(data, this, caster, targets, memory_array.GetOther(targets));
                 }
             }
+
+            //Sort targets
+            if (sort_target != null && targets.Count > 1)
+                targets = sort_target.SortTargets(data, this, caster, targets);
 
             return targets;
         }
