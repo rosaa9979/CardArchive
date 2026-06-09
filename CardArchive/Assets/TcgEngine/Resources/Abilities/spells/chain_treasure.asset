@@ -24,6 +24,7 @@ MonoBehaviour:
     type: 2}
   filters_target:
   - {fileID: 11400000, guid: cb5bc89c1ee330b4bb183f1b0a81e3b4, type: 2}
+  sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects:
   - {fileID: 11400000, guid: 8f17c76aa367dd144a0665d4514588e9, type: 2}
   status: []

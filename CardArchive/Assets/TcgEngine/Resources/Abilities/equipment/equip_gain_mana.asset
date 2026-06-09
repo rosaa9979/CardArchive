@@ -18,6 +18,7 @@ MonoBehaviour:
   target: 4
   conditions_target: []
   filters_target: []
+  sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects:
   - {fileID: 11400000, guid: 43c0ea2fb66fde3498b488c0539b96d3, type: 2}
   status: []
