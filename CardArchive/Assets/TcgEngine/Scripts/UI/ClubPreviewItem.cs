@@ -47,9 +47,12 @@ namespace TcgEngine.UI
                 ui_rect.DOKill(complete: false);
             }
 
+            //패널을 먼저 보이게 한 뒤 내용을 채운다.
+            //SetClubInfo(CardUI.SetCard) 중 예외가 나도 패널 자체는 떠 있도록.
+            canvas_group.alpha = 1.0f;
+
             SetClubInfo(club);
 
-            canvas_group.alpha = 1.0f;
             float display_duration = ClubPreviewUI.Get().display_duration;
 
             foreach (RectTransform ui_rect in ui_rects)

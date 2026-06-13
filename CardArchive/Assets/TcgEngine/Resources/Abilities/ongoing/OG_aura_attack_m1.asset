@@ -10,39 +10,35 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: SOT_ScryTop_Select
+  m_Name: OG_aura_attack_m1
   m_EditorClassIdentifier: 
-  id: SOT_ScryTop_Select
-  trigger: 0
+  id: OG_aura_attack_m1
+  trigger: 2
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 40
-  conditions_criteria_target:
-  - {fileID: 11400000, guid: 7cd37a623d9649cc943595bebe44b0f3, type: 2}
-  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  target: 10
+  conditions_target:
+  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  - {fileID: 11400000, guid: 47221d412dc0a014b8a33abb0cbfc773, type: 2}
+  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
-  condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects:
-  - {fileID: 11400000, guid: e5d68365c37c422d964cf8b41c0a68da, type: 2}
+  - {fileID: 11400000, guid: 4c4c317ae3dd4cf4982e8d7c7f1043b9, type: 2}
   status: []
-  value: 0
+  value: -1
   duration: 0
-  can_cancel: 1
-  chain_abilities:
-  - {fileID: 11400000, guid: 03a24686e1214caba30dc34414f2998b, type: 2}
+  chain_abilities: []
   mana_cost: 0
   exhaust: 0
+  show_card_fx: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 0}
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\uB371 \uB9E8 \uC704 \uCE74\uB4DC"
-  desc: 
-  selector_desc: "\uB9E8 \uC704 \uCE74\uB4DC\uB97C \uACE0\uB974\uBA74 \uB9E8 \uC544\uB798\uB85C
-    \uBCF4\uB0C5\uB2C8\uB2E4. \"\uADF8\uB300\uB85C \uB450\uAE30\"\uB97C \uACE0\uB974\uBA74
-    \uADF8\uB300\uB85C \uB461\uB2C8\uB2E4."
+  title: Fear
+  desc: All enemy characters have -1 attack.

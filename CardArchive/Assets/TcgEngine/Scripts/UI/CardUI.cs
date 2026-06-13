@@ -241,9 +241,15 @@ namespace TcgEngine.UI
 
             if (academy_logo != null)
             {
-                if (card.clubs.Length > 0)
+                //academy 아이콘이 유효할 때만 표시. 참조(academy / icon / 부모)가 비어 있으면
+                //미리보기 전체가 예외로 죽지 않도록 투명 처리하고 건너뛴다.
+                Sprite academy_icon = (card.clubs.Length > 0 && card.clubs[0].academy != null)
+                    ? card.clubs[0].academy.acadmey_icon
+                    : null;
+
+                if (academy_icon != null)
                 {
-                    academy_logo.sprite = card.clubs[0].academy.acadmey_icon;
+                    academy_logo.sprite = academy_icon;
                     academy_logo.color = new Color(academy_logo.color.r, academy_logo.color.g, academy_logo.color.b, 0.2f);
 
                     // 컴포넌트 가져오기
@@ -251,25 +257,34 @@ namespace TcgEngine.UI
                     RectTransform rectTransform = academy_logo.GetComponent<RectTransform>();
 
                     // 부모의 부모 크기 가져오기
-                    RectTransform grandParentRect = academy_logo.transform.parent.parent as RectTransform;
-                    float grandParentWidth = grandParentRect.rect.width;
+                    RectTransform grandParentRect = academy_logo.transform.parent != null
+                        ? academy_logo.transform.parent.parent as RectTransform
+                        : null;
 
-                    // 중앙 정렬을 위한 앵커 설정
-                    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-                    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                    rectTransform.anchoredPosition = Vector2.zero; // 중앙에 위치
+                    if (rectTransform != null && grandParentRect != null)
+                    {
+                        float grandParentWidth = grandParentRect.rect.width;
 
-                    // 스프라이트 비율 계산
-                    float spriteAspectRatio = (float)academy_logo.sprite.rect.width / academy_logo.sprite.rect.height;
+                        // 중앙 정렬을 위한 앵커 설정
+                        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                        rectTransform.anchoredPosition = Vector2.zero; // 중앙에 위치
 
-                    // 너비를 부모의 30%로 설정
-                    float desiredWidth = grandParentWidth * 0.3f;
-                    rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
+                        // 스프라이트 비율 계산
+                        float spriteAspectRatio = (float)academy_icon.rect.width / academy_icon.rect.height;
 
-                    // AspectRatioFitter를 너비 기준 모드로 전환
-                    aspectFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
-                    aspectFitter.aspectRatio = spriteAspectRatio;
+                        // 너비를 부모의 30%로 설정
+                        float desiredWidth = grandParentWidth * 0.3f;
+                        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, desiredWidth);
+
+                        // AspectRatioFitter를 너비 기준 모드로 전환
+                        if (aspectFitter != null)
+                        {
+                            aspectFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
+                            aspectFitter.aspectRatio = spriteAspectRatio;
+                        }
+                    }
                 }
 
                 else

@@ -479,7 +479,7 @@ namespace TcgEngine.Tools
             "effects", "status",
             "value", "duration", "can_cancel",
             "chain_abilities", "mana_cost", "exhaust", "charge_target",
-            "board_fx", "caster_fx", "target_fx",
+            "show_card_fx", "board_fx", "caster_fx", "target_fx",
             "cast_audio", "target_audio",
         };
 
@@ -508,6 +508,7 @@ namespace TcgEngine.Tools
                 { "mana_cost", a.mana_cost },
                 { "exhaust", a.exhaust },
                 { "charge_target", a.charge_target },
+                { "show_card_fx", a.show_card_fx },
                 { "board_fx", RefName(a.board_fx) },
                 { "caster_fx", RefName(a.caster_fx) },
                 { "target_fx", RefName(a.target_fx) },

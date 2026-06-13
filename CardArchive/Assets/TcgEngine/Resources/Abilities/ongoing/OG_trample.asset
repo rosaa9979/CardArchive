@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: set_club_ui
+  m_Name: OG_trample
   m_EditorClassIdentifier: 
-  id: set_club_ui
+  id: OG_trample
   trigger: 2
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
@@ -23,21 +23,20 @@ MonoBehaviour:
   condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
-  effects:
-  - {fileID: 11400000, guid: 6515eb62c02aba84faa98df47377a166, type: 2}
-  status: []
+  effects: []
+  status:
+  - {fileID: 11400000, guid: 1daf807454e1ade4da9a4d1dec6d58ca, type: 2}
   value: 0
   duration: 0
-  can_cancel: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
+  show_card_fx: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 0}
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: 
-  desc: 
-  selector_desc: 
+  title: Trample
+  desc: Excess damage is dealt to player hp.

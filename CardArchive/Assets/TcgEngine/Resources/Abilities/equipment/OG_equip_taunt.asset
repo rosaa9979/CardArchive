@@ -10,31 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: fury
+  m_Name: OG_equip_taunt
   m_EditorClassIdentifier: 
-  id: fury
+  id: OG_equip_taunt
   trigger: 2
   conditions_trigger: []
-  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 1
+  target: 27
   conditions_target: []
-  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
-    type: 2}
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects: []
   status:
-  - {fileID: 11400000, guid: c71a5ae31a2cde940b76aa921f2c80ef, type: 2}
+  - {fileID: 11400000, guid: 83592925901bfac42a301332a4829af2, type: 2}
   value: 0
   duration: 0
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
+  show_card_fx: 0
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 0}
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Fury
-  desc: Can attack twice per turn.
+  title: Taunt
+  desc: Bearer has taunt.

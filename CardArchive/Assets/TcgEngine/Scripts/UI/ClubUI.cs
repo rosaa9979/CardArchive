@@ -9,7 +9,7 @@ namespace TcgEngine.UI
 {
     
 
-    public class ClubUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+    public class ClubUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         public bool opponent;
         public GameObject club_area;
@@ -81,25 +81,60 @@ namespace TcgEngine.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            //데스크톱: 커서를 올리면 표시
             if (GameTool.IsMobile())
                 return;
 
             focus = true;
-
-            ClubPreviewUI.Get().Show(club);
+            ShowPreview();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            focus = false;
+            //데스크톱: 커서를 떼면 숨김
+            if (GameTool.IsMobile())
+                return;
 
-            ClubPreviewUI.Get().Hide();
+            focus = false;
+            HidePreview();
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (GameTool.IsMobile())
-                focus = true;
+            //모바일: 터치하면 표시 (누르고 있는 동안 유지)
+            if (!GameTool.IsMobile())
+                return;
+
+            focus = true;
+            ShowPreview();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            //모바일: 손을 떼면 숨김
+            if (!GameTool.IsMobile())
+                return;
+
+            focus = false;
+            HidePreview();
+        }
+
+        private void OnDisable()
+        {
+            focus = false;
+            HidePreview();
+        }
+
+        private void ShowPreview()
+        {
+            if (club != null && ClubPreviewUI.Get() != null)
+                ClubPreviewUI.Get().Show(club);
+        }
+
+        private void HidePreview()
+        {
+            if (ClubPreviewUI.Get() != null)
+                ClubPreviewUI.Get().Hide();
         }
 
         public bool IsFocus()

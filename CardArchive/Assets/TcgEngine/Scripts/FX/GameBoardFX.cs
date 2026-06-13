@@ -51,7 +51,7 @@ namespace TcgEngine.FX
                 if (icard.type == CardType.Spell)
                 {
                     GameObject prefab = player_id == card.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
-                    GameObject obj = FXTool.DoFX(prefab, Vector3.zero);
+                    GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
                     CardUI ui = obj.GetComponentInChildren<CardUI>();
                     ui.SetCard(icard, card.VariantData);
 
@@ -96,6 +96,19 @@ namespace TcgEngine.FX
             if (iability != null)
             {
                 FXTool.DoFX(iability.board_fx, Vector3.zero);
+
+                if (iability.show_card_fx && caster != null)
+                {
+                    CardData icard = CardData.Get(caster.card_id);
+                    if (icard != null && icard.type != CardType.Spell) //Spells already show the zoom in OnPlayCard
+                    {
+                        int player_id = GameClient.Get().GetPlayerID();
+                        GameObject prefab = player_id == caster.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
+                        GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
+                        CardUI ui = obj.GetComponentInChildren<CardUI>();
+                        ui.SetCard(icard, caster.VariantData);
+                    }
+                }
             }
         }
 
