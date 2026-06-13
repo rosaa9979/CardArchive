@@ -168,7 +168,7 @@ namespace TcgEngine.Gameplay
                 //Starting hand size — drawn later, after OnGameStart effects resolve
                 int dcards = FirstNonNull(providers, prov => prov.GetStartHand(player)) ?? GameplayData.Get().cards_start;
                 if (!first_override.HasValue)
-                    dcards = player.player_id == game_data.first_player ? dcards - 1 : dcards;
+                    dcards = player.player_id == game_data.first_player ? dcards : dcards + 1;
                 start_hand_counts[player] = dcards;
 
                 //Extra clubs (synergy) — additive across providers
@@ -351,7 +351,7 @@ namespace TcgEngine.Gameplay
                 return;
 
             Player player = game_data.GetActivePlayer();
-            if (player.draws_per_turn && (game_data.turn_count > 1 || player.player_id != game_data.first_player))
+            if (player.draws_per_turn)
                 DrawCard(player, GameplayData.Get().cards_per_turn);
 
             RefreshData();
