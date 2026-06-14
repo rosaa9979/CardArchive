@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: SOT_Bombard_Fire
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: SOT_Bombard_Fire
   trigger: 20
   conditions_trigger:
@@ -20,7 +20,8 @@ MonoBehaviour:
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 0
   conditions_criteria_target: []
-  condition_wide_range: {fileID: 0}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
+    type: 2}
   condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
@@ -41,6 +42,7 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "포격"
-  desc: "내 턴 시작 시 지정한 타일의 유닛에게 피해를 줍니다."
-  selector_desc:
+  title: "\uD3EC\uACA9"
+  desc: "\uB0B4 \uD134 \uC2DC\uC791 \uC2DC \uC9C0\uC815\uD55C \uD0C0\uC77C\uC758
+    \uC720\uB2DB\uC5D0\uAC8C \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+  selector_desc: 
