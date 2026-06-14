@@ -20,6 +20,9 @@ namespace TcgEngine.UI
         public Material color_mat;
         public Material grayscale_mat;
 
+        [Header("Dimmed")]
+        [SerializeField] private GameObject dimmed; //Shown when the card can't be added to the deck (club full / already at max in deck)
+
         public UnityAction<CardUI> onClick;
         public UnityAction<CardUI> onClickRight;
 
@@ -50,15 +53,19 @@ namespace TcgEngine.UI
             if (grayscale)
             {
                 quantity_bar.material = grayscale_mat;
-                quantity_bar.material = grayscale_mat;
                 card_ui.SetMaterial(grayscale_mat);
             }
             else
             {
                 quantity_bar.material = color_mat;
-                quantity_bar.material = color_mat;
                 card_ui.SetMaterial(color_mat);
             }
+        }
+
+        public void SetDimmed(bool dim)
+        {
+            if (dimmed != null)
+                dimmed.SetActive(dim);
         }
 
         public CardData GetCard()

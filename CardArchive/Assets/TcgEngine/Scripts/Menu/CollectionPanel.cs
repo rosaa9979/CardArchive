@@ -148,13 +148,7 @@ namespace TcgEngine.UI
 
         private void LateUpdate()
         {
-            GridLayoutGroup grid_layout = grid_content.GetGrid();
-
-            float grid_width = grid_content.GetRect().rect.width;
-
-            float cell_width = (grid_width - (grid_layout.spacing.x * (grid_layout.constraintCount - 1))) / grid_layout.constraintCount;
-
-            grid_layout.cellSize = new Vector2(cell_width, cell_width * 1.428f);
+            //Cell size is now auto-computed by CardGrid (ResizeCells)
 
             //Resize grid
             update_grid_timer += Time.deltaTime;
@@ -373,7 +367,24 @@ namespace TcgEngine.UI
                 int quantity = 2;
                 //int quantity = udata.GetCardQuantity(icard, ivariant);
                 card.SetQuantity(quantity);
+
+                // 덱 편집 중일 때, 더 이상 덱에 편성할 수 없는 카드도 grayscale 처리
+                bool can_add = true;
+                if (editing_deck)
+                {
+                    // 1. 이미 최대 club 수에 도달하여 이 카드의 club을 추가할 수 없는 경우
+                    bool club_limit = CountDeckClubs(icard) <= GameplayData.Get().club_size;
+
+                    // 2. 이미 이 카드를 최대 개수만큼 편성하여 더 추가할 수 없는 경우
+                    int in_deck_same = CountDeckCards(icard);
+                    int max_size = icard.IsStudent() ? GameplayData.Get().deck_student_duplicate_max : GameplayData.Get().deck_non_student_duplicate_max;
+                    bool deck_limit = in_deck_same < max_size;
+
+                    can_add = club_limit && deck_limit;
+                }
+
                 card.SetGrayscale(!owned);
+                card.SetDimmed(!can_add);
             }
         }
 
