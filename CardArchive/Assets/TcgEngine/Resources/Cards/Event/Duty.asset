@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
-  m_Name: Student_Council_Supply
+  m_Name: Duty
   m_EditorClassIdentifier: 
-  id: Student_Council_Supply
-  title: "\uD559\uC0DD\uD68C \uBCF4\uAE09"
+  id: Duty
+  title: "\uB2F9\uBC88"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  mana: 3
+  mana: 2
   attack: 0
   hp: 0
   clubs: []
@@ -25,10 +25,13 @@ MonoBehaviour:
   traits: []
   stats: []
   abilities:
-  - {fileID: 11400000, guid: 2841093c6dacc2c419c03663c168fb72, type: 2}
-  text: "\uCE74\uB4DC\uB97C 2\uC7A5 \uBF51\uC2B5\uB2C8\uB2E4."
-  desc: 
-  card_desc: 
+  - {fileID: 11400000, guid: a63f7d75112f46a69336ea55187eaed3, type: 2}
+  text: "\uC790\uC2E0\uC758 \uB371\uC5D0\uC11C \uBB34\uC791\uC704 \uD559\uC0DD 1\uBA85\uC744
+    \uBF51\uC2B5\uB2C8\uB2E4."
+  desc: "\uC790\uC2E0\uC758 \uB371\uC5D0\uC11C \uBB34\uC791\uC704 \uD559\uC0DD 1\uBA85\uC744
+    \uBF51\uC2B5\uB2C8\uB2E4."
+  card_desc: "\uC790\uC2E0\uC758 \uB371\uC5D0\uC11C \uBB34\uC791\uC704 \uD559\uC0DD
+    1\uBA85\uC744 \uBF51\uC2B5\uB2C8\uB2E4."
   desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

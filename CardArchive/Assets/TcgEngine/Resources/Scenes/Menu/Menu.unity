@@ -8544,7 +8544,7 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8554,17 +8554,17 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 390
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 109
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -8604,12 +8604,12 @@ PrefabInstance:
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 203.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -54.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7172856987813669152, guid: 5713ee3483051ec4bbcfc7feeea10fbc,
         type: 3}
@@ -16703,8 +16703,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: edae855830c948f49ade8fe11c1274ed, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Padding:
     m_Left: 0
     m_Right: 0
@@ -16717,6 +16717,8 @@ MonoBehaviour:
   m_Spacing: {x: 50, y: 80}
   m_Constraint: 0
   m_ConstraintCount: 2
+  auto_cell_scale: 1
+  design_cell_size: {x: 252, y: 360}
 --- !u!224 &1245947044
 RectTransform:
   m_ObjectHideFlags: 0
@@ -27353,6 +27355,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 135660992253889989, guid: 0cb2963f39e7f7c45ba2ad3c6de2e37c,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.4750001
+      objectReference: {fileID: 0}
+    - target: {fileID: 135660992253889989, guid: 0cb2963f39e7f7c45ba2ad3c6de2e37c,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4750001
+      objectReference: {fileID: 0}
+    - target: {fileID: 135660992253889989, guid: 0cb2963f39e7f7c45ba2ad3c6de2e37c,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -27425,6 +27437,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2400898010821128895, guid: 0cb2963f39e7f7c45ba2ad3c6de2e37c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -56.954956
       objectReference: {fileID: 0}
     - target: {fileID: 3288047151964318454, guid: 0cb2963f39e7f7c45ba2ad3c6de2e37c,
         type: 3}
@@ -28974,7 +28991,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396921782448154705}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -31247,8 +31264,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: edae855830c948f49ade8fe11c1274ed, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Padding:
     m_Left: 0
     m_Right: 0
@@ -31257,10 +31274,12 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 252, y: 360}
+  m_CellSize: {x: 199.50005, y: 323.0001}
   m_Spacing: {x: 30, y: 20}
   m_Constraint: 1
-  m_ConstraintCount: 4
+  m_ConstraintCount: 5
+  auto_cell_scale: 1
+  design_cell_size: {x: 420, y: 680}
 --- !u!1 &396921783635782503
 GameObject:
   m_ObjectHideFlags: 0

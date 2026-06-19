@@ -56,6 +56,9 @@ namespace TcgEngine.Client
 
         private static List<HandCard> card_list = new List<HandCard>();
 
+        private float default_move_speed;
+        private bool auto_restore_speed = false;
+
         void Awake()
         {
             card_list.Add(this);
@@ -63,6 +66,7 @@ namespace TcgEngine.Client
             hand_transform = transform.parent.GetComponent<RectTransform>();
             canvas_group = GetComponent<CanvasGroup>();
             start_scale = transform.localScale;
+            default_move_speed = move_speed;
         }
 
         private void Start()
@@ -150,6 +154,14 @@ namespace TcgEngine.Client
             card_transform.localRotation = Quaternion.Slerp(card_transform.localRotation, Quaternion.Euler(current_rotate), Time.deltaTime * move_speed);
             card_transform.localScale = Vector3.Lerp(card_transform.localScale, target_size, 5f * Time.deltaTime);
 
+            //Once a temporary (e.g. mulligan handoff) move speed has carried the card home, restore the default
+            if (auto_restore_speed && !IsDrag() && !IsFocus()
+                && Vector2.Distance(card_transform.anchoredPosition, deck_position) < 1f)
+            {
+                move_speed = default_move_speed;
+                auto_restore_speed = false;
+            }
+
             hand_card_ui.SetCard(card);
             board_card_ui.SetCard(card);
             //card_glow.enabled = IsFocus() || IsDrag();
@@ -206,6 +218,11 @@ namespace TcgEngine.Client
 
         public bool IsFocus()
         {
+            //No hover/preview during game start and mulligan (cards may be gliding into hand here)
+            Game game_data = GameClient.Get().GetGameData();
+            if (game_data != null && (game_data.phase == GamePhase.GameStart || game_data.phase == GamePhase.Mulligan))
+                return false;
+
             if (GameTool.IsMobile())
                 return selected && !drag;
             return focus && !drag && focus_timer > 0f;
@@ -354,6 +371,66 @@ namespace TcgEngine.Client
         public void SetHide(bool status)
         {
             this.gameObject.SetActive(status);
+        }
+
+        // General per-situation control over how fast the card lerps toward its hand slot.
+        // restore_on_arrive: revert to the default (prefab) speed once the card reaches its slot.
+        public void SetMoveSpeed(float speed, bool restore_on_arrive = false)
+        {
+            move_speed = speed;
+            auto_restore_speed = restore_on_arrive;
+        }
+
+        public void ResetMoveSpeed()
+        {
+            move_speed = default_move_speed;
+            auto_restore_speed = false;
+        }
+
+        // Places this card at the same screen position and size as the given mulligan card visual,
+        // so the normal Update() lerp can then carry it into its hand slot (deck_position / start_scale).
+        public void StartHandoffFrom(RectTransform source)
+        {
+            if (source == null)
+                return;
+
+            RectTransform rt = card_transform != null ? card_transform : (RectTransform)transform;
+            RectTransform parent = hand_transform != null ? hand_transform : transform.parent as RectTransform;
+            if (parent == null)
+                return;
+
+            Camera src_cam = GetCanvasCamera(source.GetComponentInParent<Canvas>());
+            Camera dst_cam = GetCanvasCamera(GetComponentInParent<Canvas>());
+
+            //Baseline scale so the world-height measurement below is consistent
+            rt.localScale = start_scale;
+
+            //Match the source card's on-screen size using the visible card UI as reference
+            RectTransform my_vis = hand_card_ui != null ? (RectTransform)hand_card_ui.transform : rt;
+            float src_h = source.rect.height * source.lossyScale.y;
+            float my_h = my_vis.rect.height * my_vis.lossyScale.y;
+            if (src_h > 0.0001f && my_h > 0.0001f)
+                rt.localScale = start_scale * (src_h / my_h);
+
+            //Match the source card's position (root center -> source center)
+            Vector3 src_world = source.TransformPoint(source.rect.center);
+            Vector2 screen = RectTransformUtility.WorldToScreenPoint(src_cam, src_world);
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screen, dst_cam, out Vector2 local))
+                rt.anchoredPosition = local;
+
+            focus = false;
+            drag = false;
+            if (canvas_group != null)
+                canvas_group.alpha = 1f;
+        }
+
+        private Camera GetCanvasCamera(Canvas canvas)
+        {
+            if (canvas == null)
+                return null;
+            if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                return null;
+            return canvas.worldCamera != null ? canvas.worldCamera : Camera.main;
         }
 
         public CardData CardData { get { return GetCardData(); } }

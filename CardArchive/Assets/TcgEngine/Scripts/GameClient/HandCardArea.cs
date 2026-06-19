@@ -79,10 +79,19 @@ namespace TcgEngine.Client
             HandCard selected_card = HandCard.GetDrag();
             List<HandCard> card_list = HandCard.GetAll();
 
+            //During mulligan selection the hand is shown through the mulligan UI only.
+            //This also covers the GameStart phase (starting hand is drawn there, just before the
+            //mulligan phase begins) so the freshly drawn cards don't flash in hand first.
+            //Once the handoff reveals them, the mulligan cards turn into these real hand cards.
+            bool mulligan_flow = GameplayData.Get() != null && GameplayData.Get().mulligan;
+            bool mulligan_hold = mulligan_flow
+                && (data.phase == GamePhase.Mulligan || data.phase == GamePhase.GameStart)
+                && (MulliganSelector.Get() == null || !MulliganSelector.Get().IsHandReady());
+
             foreach (HandCard hcard in card_list)
             {
                 bool visible = false;
-                if (!GameUI.Get().GetHideUI())
+                if (!mulligan_hold && !GameUI.Get().GetHideUI())
                 {
                     if (selected_card == null)
                         visible = true;

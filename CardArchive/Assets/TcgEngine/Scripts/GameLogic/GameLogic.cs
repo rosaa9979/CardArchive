@@ -2749,8 +2749,10 @@ namespace TcgEngine.Gameplay
                 onMulligan?.Invoke(player.player_id);
                 if (game_data.AreAllPlayersReady())
                 {
+                    //Buffer covers the client-side mulligan->hand handoff animation
+                    //before the mulligan panel closes and the first turn begins.
                     resolve_queue.AddCallback(StartFirstTurn);
-                    resolve_queue.ResolveAll(5f);
+                    resolve_queue.ResolveAll(4f);
                     //StartTurn();
                 }
             }
