@@ -26,7 +26,7 @@ namespace TcgEngine
             if (create_opponent)
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);
 
-            CardData selected_card = GetRandomCardData();
+            CardData selected_card = GetRandomCardData(logic.GetRandom());
             Card card = Card.Create(selected_card, caster.VariantData, player);
             //logic.GameData.last_summoned = card.uid;
             
@@ -46,11 +46,11 @@ namespace TcgEngine
                 player.player_ability.Add(card);
         }
 
-        public CardData GetRandomCardData()
+        public CardData GetRandomCardData(System.Random rng)
         {
             if (is_same_possibility)
             {
-                int random = UnityEngine.Random.Range(0, create_card.Count);
+                int random = rng.Next(0, create_card.Count);
 
                 return create_card[random].card;
             }
@@ -58,7 +58,7 @@ namespace TcgEngine
             else
             {
                 float current = 0f;
-                float random = UnityEngine.Random.Range(0.0f, 1.0f);
+                double random = rng.NextDouble();
 
                 foreach(var candidate in create_card)
                 {

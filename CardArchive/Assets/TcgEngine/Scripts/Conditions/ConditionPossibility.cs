@@ -28,22 +28,22 @@ namespace TcgEngine
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
         {
-            return Roll();
+            return Roll(data);
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
         {
-            return Roll();
+            return Roll(data);
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
         {
-            return Roll();
+            return Roll(data);
         }
 
-        private bool Roll()
+        private bool Roll(Game data)
         {
-            return UnityEngine.Random.Range(0f, 1f) < possibility;
+            return data.GetRandom().NextDouble() < possibility;
         }
     }
 }

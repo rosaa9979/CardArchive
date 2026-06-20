@@ -19,7 +19,7 @@ namespace TcgEngine.AI
         public int ai_depth_wide = 1;           //For these first few turns, will consider more options, slow!
         public int actions_per_turn = 2;          //AI wont predict more than this number of sequential actions per turn, if more than that will EndTurn (Do A, then do B, then do C, then end turn)
         public int actions_per_turn_wide = 3;     //Same but in wide depth
-        public int nodes_per_action = 4;         //For a turn action (1st, 2nd, or 3rd...), cannot evaluate more than this number of child nodes, if more, will only process the AIActions with with best score
+        public int nodes_per_action = 6;         //For a turn action (1st, 2nd, or 3rd...), cannot evaluate more than this number of child nodes, if more, will only process the AIActions with with best score
         public int nodes_per_action_wide = 7;    //Same but in wide depth
 
         //Example: for the first turn, AI will predict 3 sequential actions (I play a card, then attack with this one, then play a spell),
@@ -62,6 +62,9 @@ namespace TcgEngine.AI
 
             job.heuristic = new AIHeuristic(player_id, level);
             job.game_logic = new GameLogic(true); //Skip all delays for the AI calculations
+
+            //Warm the pure-geometry neighbor cache here (main thread) so the AI worker thread only ever reads it.
+            Slot.WarmNeighborCache(Slot.x_max + Slot.y_max);
 
             return job;
         }
@@ -336,10 +339,10 @@ namespace TcgEngine.AI
             {
                 if (card.CardData.IsBoardCard())
                 {
-                    //Doesn't matter where the card is played
-                    Slot slot = player.GetRandomEmptySlot(random_gen, slot_array.Get());
+                    //Pick the single best slot via placement heuristic (range / face / survival / weapon-row)
+                    Slot slot = heuristic.GetBestSlot(data, player, card, slot_array.Get());
 
-                    if (data.CanPlayCard(card, slot))
+                    if (slot != Slot.None && data.CanPlayCard(card, slot))
                     {
                         AIAction action = CreateAction(type, card);
                         action.slot = slot;

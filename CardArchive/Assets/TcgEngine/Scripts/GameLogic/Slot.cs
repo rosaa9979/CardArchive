@@ -32,8 +32,13 @@ namespace TcgEngine
         private static Dictionary<int, List<Slot>> player_self_slots = new Dictionary<int, List<Slot>>();
         private static Dictionary<int, List<Slot>> outside_slots = new Dictionary<int, List<Slot>>();
         private static List<Slot> all_slots = new List<Slot>();
-        private static List<Slot> neutral_slots = new List<Slot>();  
-        private static Dictionary<int, List<Slot>> attack_order = new Dictionary<int, List<Slot>>();    
+        private static List<Slot> neutral_slots = new List<Slot>();
+        private static Dictionary<int, List<Slot>> attack_order = new Dictionary<int, List<Slot>>();
+
+        //(slot, range) -> neighbor slots. Pure board geometry (independent of game state), so it is shared
+        //across all sessions/clones. Writes happen only in WarmNeighborCache (main thread); reads are lock-free.
+        private static Dictionary<int, List<Slot>> neighbor_cache = new Dictionary<int, List<Slot>>();
+        private static int neighbor_cache_range = -1; //Highest range already warmed (-1 = not warmed yet)
 
         public Slot(int pid)
         {
@@ -560,7 +565,18 @@ namespace TcgEngine
             return neighbor_slots;
         }
 
+        //Returns all slots within 'range' steps of this slot (this slot included).
+        //Pure board geometry: the result may be a SHARED cached list - treat it as READ-ONLY, never mutate it.
         public List<Slot> GetNeighborSlot(int range)
+        {
+            int key = NeighborKey(x, y, p, range);
+            if (neighbor_cache.TryGetValue(key, out List<Slot> cached))
+                return cached;
+            //Cache miss: compute without storing. Writes happen only in WarmNeighborCache so reads stay thread-safe.
+            return BuildNeighborSlot(range);
+        }
+
+        private List<Slot> BuildNeighborSlot(int range)
         {
             HashSet<Slot> visited = new HashSet<Slot>();
             List<Slot> neighbor_slot = new List<Slot>();
@@ -594,7 +610,34 @@ namespace TcgEngine
             }
 
             return neighbor_slot;
-        } 
+        }
+
+        //Encode (x,y,p,range) into a unique int key (x:1-6, y:1-5, p:0-2, range bounded small).
+        private static int NeighborKey(int x, int y, int p, int range)
+        {
+            return x + y * 10 + p * 100 + range * 1000;
+        }
+
+        //Precompute neighbor lists for every slot for ranges 0..max_range.
+        //Call once on the MAIN thread before any AI worker thread starts. Idempotent.
+        public static void WarmNeighborCache(int max_range)
+        {
+            if (neighbor_cache_range >= max_range)
+                return; //Already warmed at least this far
+
+            List<Slot> slots = GetAll();
+            for (int r = 0; r <= max_range; r++)
+            {
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    Slot s = slots[i];
+                    int key = NeighborKey(s.x, s.y, s.p, r);
+                    if (!neighbor_cache.ContainsKey(key))
+                        neighbor_cache[key] = s.BuildNeighborSlot(r);
+                }
+            }
+            neighbor_cache_range = max_range;
+        }
 
         public List<Slot> GetRowSlot()
         {

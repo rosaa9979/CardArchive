@@ -84,6 +84,7 @@ namespace TcgEngine.Gameplay
         public virtual void SetData(Game game)
         {
             game_data = game;
+            game.SetRandom(random); //Share logic's thread-safe RNG with the data layer (conditions, etc.)
             resolve_queue.SetData(game);
         }
 
@@ -966,7 +967,7 @@ namespace TcgEngine.Gameplay
             
             if (attacker.HasStatus(StatusType.MassShooting) || target.HasStatus(StatusType.Evasion))
             {
-                float ran = UnityEngine.Random.Range(0.0f, 1.0f);
+                double ran = random.NextDouble();
                 if (ran < 0.5)
                 {
                     if (!game_data.attack_evade_list.Contains(target))

@@ -118,7 +118,7 @@ namespace TcgEngine
         public virtual bool IsPlayerActionTurn(Player player)
         {
             return player != null && current_player == player.player_id
-                && state == GameState.Play && selector == SelectorType.None;
+                && state == GameState.Play && phase != GamePhase.Mulligan && selector == SelectorType.None;
         }
 
         public virtual bool IsPlayerSelectorTurn(Player player)
@@ -704,6 +704,12 @@ namespace TcgEngine
             return null;
         }
         
+        //Thread-safe RNG shared from the owning GameLogic (injected via GameLogic.SetData).
+        //Lets the data layer (e.g. conditions) roll randomness without referencing GameLogic and without UnityEngine.Random.
+        [System.NonSerialized] private System.Random rng;
+        public void SetRandom(System.Random r) { rng = r; }
+        public System.Random GetRandom() { return rng ?? (rng = new System.Random()); }
+
         public virtual Player GetRandomPlayer(System.Random rand)
         {
             Player player = GetPlayer(rand.NextDouble() < 0.5 ? 1 : 0);

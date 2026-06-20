@@ -28,7 +28,7 @@ MonoBehaviour:
   deck_student_duplicate_max: 1
   sell_ratio: 0.8
   tutorial_ai_type: 0
-  ai_type: 10
+  ai_type: 20
   ai_level: 10
   free_decks: []
   starter_decks:

@@ -16,3 +16,6 @@ MonoBehaviour:
   title: "\uC5D4\uC9C0\uB2C8\uC5B4\uBD80"
   academy: {fileID: 11400000, guid: f7520625d0195574ca1c03a1f6d5def2, type: 2}
   icon: {fileID: 21300000, guid: 83d8ad993ea33b547b23b61ceaaad015, type: 3}
+  synergy_type: 1
+  synergy_value: 10
+  synergy_threshold: 1

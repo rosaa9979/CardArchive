@@ -28,15 +28,14 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             Player player = game_data.GetPlayer(player_id);
 
-            if (!is_playing && game_data.IsPlayerTurn(player))
-            {
-                is_playing = true;
-                TimeTool.StartCoroutine(AiTurn());
-            }
-
             if (!is_playing && game_data.IsPlayerMulliganTurn(player))
             {
                 SkipMulligan();
+            }
+            else if (!is_playing && game_data.IsPlayerTurn(player))
+            {
+                is_playing = true;
+                TimeTool.StartCoroutine(AiTurn());
             }
 
             if (!game_data.IsPlayerTurn(player) && ai_logic.IsRunning())

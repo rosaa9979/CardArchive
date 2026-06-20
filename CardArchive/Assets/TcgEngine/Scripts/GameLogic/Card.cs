@@ -665,15 +665,20 @@ namespace TcgEngine
             dest.attack = source.attack;
             dest.hp = source.hp;
             dest.mana = source.mana;
+            dest.range = source.range;
+            dest.weapon = source.weapon; //CardWeapon is an immutable id/data wrapper, safe to share by reference
 
             dest.mana_ongoing = source.mana_ongoing;
             dest.attack_ongoing = source.attack_ongoing;
             dest.hp_ongoing = source.hp_ongoing;
+            dest.range_ongoing = source.range_ongoing;
 
             dest.equipped_uid = source.equipped_uid;
 
             CardTrait.CloneList(source.traits, dest.traits);
             CardTrait.CloneList(source.ongoing_traits, dest.ongoing_traits);
+            CardClub.CloneList(source.clubs, dest.clubs);
+            CardClub.CloneList(source.ongoing_clubs, dest.ongoing_clubs);
             CardStatus.CloneList(source.status, dest.status);
             CardStatus.CloneList(source.ongoing_status, dest.ongoing_status);
             GameTool.CloneList(source.abilities, dest.abilities); 
