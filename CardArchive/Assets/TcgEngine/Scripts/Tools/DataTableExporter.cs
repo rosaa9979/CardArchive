@@ -15,26 +15,41 @@ namespace TcgEngine.Tools
     // Plays the scene -> writes one .xlsx per ScriptableObject type
     // (CardData, AbilityData, EffectData, etc.) under <project>/Tools/DataExport/.
     //
-    // Each .xlsx contains 3 sheets:
-    //   1. References — list of other .xlsx files this table refers to
-    //   2. Enums      — enum definitions (each block: `_ID_Name` header, then
-    //                   value/int rows, separated by blank rows). Each enum is
-    //                   declared in exactly one "owner" table.
-    //   3. {Table}    — actual data:
-    //                     row 1: column names (id always first)
-    //                     row 2: type row (`_ID_<Sheet>` for id, `_ID_<Other>`
-    //                            for table refs, `_ID_<Enum>` for enums,
-    //                            `int`/`string`/`bool`/`float` for primitives,
-    //                            `path` for external assets)
-    //                     row 3+: data
+    // Output follows the external table-tool spec (see `Skill (2).xlsx`):
+    // a left margin of empty columns, then `!`-prefixed directives. The parser
+    // locks onto the directive cell, so the margin is just layout.
     //
-    //   `!EndTable` markers at top-right (row 1, col N+1) and bottom-left
-    //   (row M+1, col 1) of every sheet — so parsers can detect end-of-cols
-    //   and end-of-rows.
+    // Each .xlsx contains 4 sheets:
+    //   1. Reference — external table dependencies. Row 1 blank; then one row
+    //                  per dependency: (col A empty, B `!Reference`, C `<File>.xlsx`).
+    //   2. Enum      — enum definitions. Content starts at col D. Each block:
+    //                    D `!Enum`       E <EnumName> F `!Int` G `!GenerateCsEnum` H <backing>
+    //                    D `!Enumerator` E <ValueName> F <EnumName> G <intValue>
+    //                  Blocks separated by blank rows. One owner table per enum.
+    //   3. _컬럼 설명 — per-column dictionary skeleton (No/Name/Type auto-filled;
+    //                  Detail/설명/비고 blank for designers). Content at col B.
+    //   4. {Table}   — actual data. Content starts at col D:
+    //                    row 1 : D `!Table` E <TableName> F `!AutoKey;!GenerateCsEnum`
+    //                    row 2 : field names (id first), terminated by `!EndField`
+    //                    row 3 : type row (`!Id` for id, `_ID_<Table>` for table
+    //                            refs, bare `<EnumName>` for enums, `!String`/`!Int`/
+    //                            `!Float`/`!Bool` for primitives; external assets ->
+    //                            `!String`; lists keep a trailing `[]`)
+    //                    row 4+: data
+    //                    last  : `!EndTable` in the table's first content column (D)
     [DisallowMultipleComponent]
     public class DataTableExporter : MonoBehaviour
     {
         const string EndTable = "!EndTable";
+        const string EndField = "!EndField";
+        const string TableMarker = "!Table";
+        const string TableOptions = "!AutoKey;!GenerateCsEnum";
+        const string EnumMarker = "!Enum";
+        const string EnumeratorMarker = "!Enumerator";
+
+        // Empty left-margin columns before the table content (cols A-C), matching
+        // the spec's layout. Reference sheet uses a 1-col margin instead (col B).
+        const int DataMargin = 3;
 
         [Header("Output")]
         [Tooltip("Folder, relative to the project root, where the .xlsx files will be written.")]
@@ -169,10 +184,11 @@ namespace TcgEngine.Tools
 
             var refSheet  = BuildReferencesSheet(fileBase);
             var enumSheet = BuildEnumsSheet(fileBase);
+            var descSheet = BuildColumnDescSheet(fileBase, cols, typeRow);
             var dataSheet = BuildDataSheet(fileBase, cols, typeRow, dataRows);
 
             string outPath = Path.Combine(outDir, fileBase + ".xlsx");
-            SimpleXlsx.Write(outPath, new[] { refSheet, enumSheet, dataSheet });
+            SimpleXlsx.Write(outPath, new[] { refSheet, enumSheet, descSheet, dataSheet });
             Debug.Log(string.Format("[DataTableExporter] {0,-10} {1,4} rows -> {2}",
                                     fileBase, dataRows.Count, outPath));
             return dataRows.Count;
@@ -201,24 +217,23 @@ namespace TcgEngine.Tools
             { "Level",     new[] { "Deck.xlsx", "Pack.xlsx", "CardData.xlsx" } },
         };
 
+        const string ReferenceMarker = "!Reference";
+
         SimpleXlsx.Sheet BuildReferencesSheet(string table)
         {
             var rows = new List<IList<object>>();
-            // Row 1: column header + top-right end marker
-            rows.Add(new List<object> { "File", EndTable });
-            // Row 2: type row
-            rows.Add(new List<object> { "string" });
+            // Row 1: blank spacer (column A is reserved/empty across the sheet).
+            rows.Add(new List<object> { null, null, null });
 
             string[] refs;
             if (REFERENCES.TryGetValue(table, out refs))
             {
                 foreach (var r in refs)
-                    rows.Add(new List<object> { r });
+                    // col A empty, col B `!Reference`, col C `<File>.xlsx`
+                    rows.Add(new List<object> { null, ReferenceMarker, r });
             }
-            // Bottom-left end marker
-            rows.Add(new List<object> { EndTable });
 
-            return new SimpleXlsx.Sheet { Name = "References", Rows = rows, FreezeRows = 2 };
+            return new SimpleXlsx.Sheet { Name = "Reference", Rows = rows, FreezeRows = 0 };
         }
 
         // ------------------------------------------------------------------
@@ -249,63 +264,90 @@ namespace TcgEngine.Tools
         SimpleXlsx.Sheet BuildEnumsSheet(string table)
         {
             var rows = new List<IList<object>>();
-            Type[] enumTypes;
-            bool first = true;
-            bool topMarkerWritten = false;
+            rows.Add(new List<object>());  // row 1: blank spacer
 
+            Type[] enumTypes;
             if (ENUM_OWNER.TryGetValue(table, out enumTypes))
             {
+                bool first = true;
                 foreach (var t in enumTypes)
                 {
-                    if (!first) rows.Add(new List<object>());  // blank separator row
+                    if (!first) rows.Add(new List<object>());  // blank separator between blocks
                     first = false;
 
-                    // First row of each block: `_ID_<EnumName>`.  The very
-                    // first block also gets the top-right `!EndTable` marker.
-                    var headerRow = new List<object> { "_ID_" + t.Name };
-                    if (!topMarkerWritten)
-                    {
-                        headerRow.Add(null);     // value column placeholder
-                        headerRow.Add(EndTable); // top-right marker
-                        topMarkerWritten = true;
-                    }
-                    rows.Add(headerRow);
+                    // D `!Enum` E <Name> F `!Int` G `!GenerateCsEnum` H <backing>
+                    rows.Add(Indent(DataMargin,
+                        EnumMarker, t.Name, "!Int", "!GenerateCsEnum", EnumBackingToken(Enum.GetUnderlyingType(t))));
 
+                    // D `!Enumerator` E <ValueName> F <EnumName> G <intValue>
                     foreach (var v in Enum.GetValues(t))
-                    {
-                        rows.Add(new List<object> { v.ToString(), Convert.ToInt32(v) });
-                    }
+                        rows.Add(Indent(DataMargin,
+                            EnumeratorMarker, v.ToString(), t.Name, Convert.ToInt32(v)));
                 }
             }
 
-            // Bottom-left end-of-rows marker
-            rows.Add(new List<object> { EndTable });
+            return new SimpleXlsx.Sheet { Name = "Enum", Rows = rows, FreezeRows = 0 };
+        }
 
-            return new SimpleXlsx.Sheet { Name = "Enums", Rows = rows, FreezeRows = 0 };
+        static string EnumBackingToken(Type ut)
+        {
+            if (ut == typeof(byte)) return "byte";
+            if (ut == typeof(sbyte)) return "sbyte";
+            if (ut == typeof(short)) return "short";
+            if (ut == typeof(ushort)) return "ushort";
+            if (ut == typeof(uint)) return "uint";
+            if (ut == typeof(long)) return "long";
+            if (ut == typeof(ulong)) return "ulong";
+            return "int";
         }
 
         // ------------------------------------------------------------------
-        // Sheet 3: Data
-        //   row 1: column names + top-right `!EndTable`
-        //   row 2: types        (`_ID_<Sheet>` for id, etc.)
-        //   row 3+: data
-        //   row M+1: bottom-left `!EndTable`
+        // Sheet 3: _컬럼 설명 — per-column dictionary (skeleton only).
+        //   No / Name / Type auto-filled; Detail / 설명 / 비고 left blank for
+        //   designers to fill in. Content starts at col B (1-col margin).
+        // ------------------------------------------------------------------
+        SimpleXlsx.Sheet BuildColumnDescSheet(string fileBase, List<string> cols, List<string> typeRow)
+        {
+            const int margin = 1;
+            var rows = new List<IList<object>>(cols.Count + 6);
+
+            rows.Add(new List<object>());                       // row 1: blank spacer
+            rows.Add(Indent(margin, "TableName", fileBase));    // B: label, C: table name
+            rows.Add(Indent(margin, "설명", null));             // table description (blank)
+            // header row, terminated by !EndField
+            rows.Add(Indent(margin, "No", "Name", "Type", "Detail", "설명", "비고", EndField));
+
+            for (int i = 0; i < cols.Count; i++)
+                rows.Add(Indent(margin, i + 1, cols[i], typeRow[i], null, null, null));
+
+            rows.Add(Indent(margin, EndTable));                 // bottom-left end marker
+            return new SimpleXlsx.Sheet { Name = "_컬럼 설명", Rows = rows, FreezeRows = 0 };
+        }
+
+        // ------------------------------------------------------------------
+        // Sheet 4: Data  (content starts at col D — see DataMargin)
+        //   row 1 : `!Table` <TableName> <options>
+        //   row 2 : field names (id first) + `!EndField`
+        //   row 3 : type row
+        //   row 4+: data
+        //   last  : `!EndTable` in the first content column
         // ------------------------------------------------------------------
         SimpleXlsx.Sheet BuildDataSheet(string fileBase, List<string> cols, List<string> typeRow,
                                         List<IDictionary<string, object>> dataRows)
         {
-            var rows = new List<IList<object>>(dataRows.Count + 4);
+            var rows = new List<IList<object>>(dataRows.Count + 6);
 
-            // Row 1: header + top-right marker
+            // Row 1: !Table | <TableName> | options
+            rows.Add(Indent(DataMargin, TableMarker, fileBase, TableOptions));
+
+            // Row 2: field names, terminated by !EndField (top-right marker)
             var header = new List<object>(cols.Count + 1);
             foreach (var c in cols) header.Add(c);
-            header.Add(EndTable);
-            rows.Add(header);
+            header.Add(EndField);
+            rows.Add(Indent(DataMargin, header));
 
-            // Row 2: type row (no marker)
-            var types = new List<object>(typeRow.Count);
-            foreach (var t in typeRow) types.Add(t);
-            rows.Add(types);
+            // Row 3: type row
+            rows.Add(Indent(DataMargin, typeRow));
 
             // Data rows
             foreach (var dr in dataRows)
@@ -315,15 +357,34 @@ namespace TcgEngine.Tools
                 {
                     object v;
                     dr.TryGetValue(c, out v);
+                    if (v is bool bb) v = bb ? 1 : 0;   // bool -> 0/1 int
                     row.Add(v);
                 }
-                rows.Add(row);
+                rows.Add(Indent(DataMargin, row));
             }
 
-            // Bottom-left end-of-rows marker
-            rows.Add(new List<object> { EndTable });
+            // Bottom-left end-of-rows marker, in the first content column
+            rows.Add(Indent(DataMargin, EndTable));
 
-            return new SimpleXlsx.Sheet { Name = fileBase, Rows = rows, FreezeRows = 2 };
+            return new SimpleXlsx.Sheet { Name = fileBase, Rows = rows, FreezeRows = 3 };
+        }
+
+        // Prepend `margin` empty cells, then the given content cells.
+        static List<object> Indent(int margin, params object[] cells)
+        {
+            var row = new List<object>(margin + (cells != null ? cells.Length : 0));
+            for (int i = 0; i < margin; i++) row.Add(null);
+            if (cells != null) row.AddRange(cells);
+            return row;
+        }
+
+        // Overload for a pre-built cell list (e.g. a data row).
+        static List<object> Indent(int margin, IEnumerable<object> cells)
+        {
+            var row = new List<object>(margin + 8);
+            for (int i = 0; i < margin; i++) row.Add(null);
+            if (cells != null) row.AddRange(cells);
+            return row;
         }
 
         // ------------------------------------------------------------------
@@ -364,11 +425,11 @@ namespace TcgEngine.Tools
 
         string DescribeColumnType(string column, string sheetName, Dictionary<string, FieldInfo> fieldByCol)
         {
-            if (column == "id") return "_ID_" + sheetName;
-            if (column == "effect_class" || column == "condition_class") return "string";
+            if (column == "id") return "!Id";
+            if (column == "effect_class" || column == "condition_class") return "!String";
 
             FieldInfo f;
-            if (!fieldByCol.TryGetValue(column, out f)) return "string";
+            if (!fieldByCol.TryGetValue(column, out f)) return "!String";
             return DescribeFieldType(f.FieldType);
         }
 
@@ -387,15 +448,15 @@ namespace TcgEngine.Tools
             }
 
             string s;
-            if (t.IsEnum) s = "_ID_" + t.Name;
-            else if (t == typeof(string)) s = "string";
+            if (t.IsEnum) s = t.Name;                       // bare enum name (defined in Enum sheet)
+            else if (t == typeof(string)) s = "!String";
             else if (t == typeof(int) || t == typeof(long) || t == typeof(short) || t == typeof(byte)
                      || t == typeof(uint) || t == typeof(ulong) || t == typeof(ushort) || t == typeof(sbyte))
-                s = "int";
-            else if (t == typeof(float) || t == typeof(double)) s = "float";
-            else if (t == typeof(bool)) s = "bool";
+                s = "!Int";
+            else if (t == typeof(float) || t == typeof(double)) s = "!Float";
+            else if (t == typeof(bool)) s = "!Int";   // bool exported as 0/1 int
             else if (typeof(ScriptableObject).IsAssignableFrom(t)) s = "_ID_" + TableNameOf(t);
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(t)) s = "path";
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(t)) s = "!String";  // external asset -> path string
             else s = t.Name;  // structs (TraitStat, PackRarity, WeightedCard, ...)
 
             return isList ? s + "[]" : s;
