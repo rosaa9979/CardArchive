@@ -29,6 +29,21 @@ namespace TcgEngine.Server
         {
             Application.runInBackground = true;
             Application.targetFrameRate = 200; //Limit server frame rate to prevent using 100% cpu
+
+            LoadApiCredentials();
+        }
+
+        //Load API credentials from environment variables so they are not baked into the build/scene.
+        //Falls back to the values set in the scene Inspector (useful for in-editor testing).
+        protected virtual void LoadApiCredentials()
+        {
+            string env_user = Environment.GetEnvironmentVariable("API_USERNAME");
+            string env_pass = Environment.GetEnvironmentVariable("API_PASSWORD");
+
+            if (!string.IsNullOrEmpty(env_user))
+                api_username = env_user;
+            if (!string.IsNullOrEmpty(env_pass))
+                api_password = env_pass;
         }
 
         protected virtual void Start()
