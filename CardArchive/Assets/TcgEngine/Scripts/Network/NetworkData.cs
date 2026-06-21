@@ -23,7 +23,7 @@ namespace TcgEngine
         [Header("Settings")]
         public SoloType solo_type;              //Wether to use Netcode or not in Solo mode (multiplayer always use netcode), using Netcode means more consistency between the 2 modes
         public AuthenticatorType auth_type;     //Test Mode (local mode) or API mode
-        
+
         public static NetworkData Get()
         {
             return TcgNetwork.Get().data;
