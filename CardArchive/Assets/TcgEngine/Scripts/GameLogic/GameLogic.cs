@@ -78,7 +78,8 @@ namespace TcgEngine.Gameplay
         public GameLogic(Game game)
         {
             game_data = game;
-            resolve_queue = new ResolveQueue(game, false);
+            TimingData timing = GameplayData.Get() != null ? GameplayData.Get().timing : null;
+            resolve_queue = new ResolveQueue(game, false, timing);
         }
 
         public virtual void SetData(Game game)
@@ -208,7 +209,7 @@ namespace TcgEngine.Gameplay
                 resolve_queue.AddCallback(GoToMulligan);
             else
                 resolve_queue.AddCallback(StartFirstTurn);
-            resolve_queue.ResolveAll(1f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.game_start);
         }
 
         //Draws each player's starting hand (after OnGameStart effects), then adds the second player's coin
@@ -261,7 +262,7 @@ namespace TcgEngine.Gameplay
 
             //Delay lets the mulligan panel close before the first turn begins.
             resolve_queue.AddCallback(StartTurn);
-            resolve_queue.ResolveAll(1f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.first_turn);
         }
 
         public virtual void StartTurn()
@@ -291,7 +292,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
             RefreshData();
             resolve_queue.AddCallback(BeforeMainPahse);
-            resolve_queue.ResolveAll(1.5f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.turn_start);
         }
 
         public virtual void StartNextTurn()
@@ -342,7 +343,7 @@ namespace TcgEngine.Gameplay
             //Draw happens after start-of-turn abilities resolve (ability_queue drains before callbacks)
             resolve_queue.AddCallback(DrawForTurn);
             resolve_queue.AddCallback(StartMainPhase);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.pre_main_phase);
         }
 
         //Turn draw, runs after start-of-turn effects have resolved
@@ -377,11 +378,12 @@ namespace TcgEngine.Gameplay
 
             game_data.selector = SelectorType.None;
             game_data.phase = GamePhase.Attack;
+            game_data.attack_index = 0; //Start a fresh single-pass over the attack order
             onAttackPhase?.Invoke();
             RefreshData();
-            
+
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(1.5f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_phase_start);
         }
 
         public virtual void AttackCheck()
@@ -392,51 +394,34 @@ namespace TcgEngine.Gameplay
                 return;
 
             Player player = game_data.GetActivePlayer();
-            bool can_attack = false;
 
-            attack_list.Clear(); 
+            attack_list.Clear();
 
             List<Slot> attack_order = Slot.GetAttackOrder(player.player_id);
 
-            // List B의 Slot을 key로, List A의 Monster를 value로 하는 Dictionary 생성
-            var citizensBySlot = player.cards_board.ToDictionary(citizen => citizen.slot, citizen => citizen);
-
-            // List B의 순서대로 Monster를 추출
-            var orderedCitizens = attack_order.Select(slot =>
+            // 단일 패스: attack_index 커서를 따라 한 방향으로만 진행한다.
+            // 이미 지나간(커서보다 앞선) 타일에 유닛이 소환/부활해도 다시 보지 않으므로
+            // exhausted가 풀려 있어도 이번 전투에는 공격하지 않는다.
+            // 반대로 아직 지나지 않은 타일은 커서가 도달할 때 평가되므로 공격 가능하다.
+            while (game_data.attack_index < attack_order.Count)
             {
-                if (citizensBySlot.TryGetValue(slot, out var citizen))
-                {
-                    return citizen;
-                }
-                else
-                {
-                    return null; // 또는 다른 기본값
-                }
-            }).ToList();
+                Slot slot = attack_order[game_data.attack_index];
+                Card attacker = game_data.GetSlotCard(slot);
 
-            // orderedMonsters를 새로운 List에 복사
-            List<Card> reorderedCitizens = orderedCitizens.ToList();
-
-            // reorderedMonsters가 재배열된 결과
-
-            foreach (Card attacker in reorderedCitizens)
-            { 
-                if (attacker != null && attacker.CanAttack())
+                if (attacker != null && attacker.player_id == player.player_id && attacker.CanAttack())
                 {
-                    can_attack = true;
-                    //resolve_queue.AddAttack(attacker, AttackSearch);
-                    //resolve_queue.ResolveAll(0.2f);
+                    // 한 명 발사 후 콜백으로 AttackCheck에 복귀한다.
+                    // Fury 등으로 exhausted가 풀린 동안은 커서를 전진시키지 않아 같은 타일에서 재공격한다.
                     AttackSearch(attacker);
-                    break;
+                    return;
                 }
+
+                game_data.attack_index++; //이 타일은 처리 완료(=지나감)
             }
 
-            if (!can_attack)
-            {
-                resolve_queue.AddCallback(EndTurn);
-                resolve_queue.ResolveAll(0.1f);
-            }
-
+            // 한 바퀴 종료
+            resolve_queue.AddCallback(EndTurn);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_phase_end);
         }
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
@@ -493,7 +478,7 @@ namespace TcgEngine.Gameplay
             //ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(1f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.between_attackers);
         }
 
         public virtual Dictionary<int, List<Card>> GetAllTarget(Card attacker)
@@ -568,7 +553,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             resolve_queue.AddCallback(StartNextTurn);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.turn_end);
         }
 
         //End game with winner
@@ -851,7 +836,7 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardPlayed?.Invoke(card, slot);
-                resolve_queue.ResolveAll(0.3f);
+                resolve_queue.ResolveAll(GameplayData.Get().timing.play_card);
             }
         }
 
@@ -876,7 +861,7 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardMoved?.Invoke(card, slot);
-                resolve_queue.ResolveAll(0.2f);
+                resolve_queue.ResolveAll(GameplayData.Get().timing.move_card);
             }
         }
 
@@ -911,7 +896,7 @@ namespace TcgEngine.Gameplay
                 if (!game_data.attack_complete_list.Contains(target) && !game_data.attack_evade_list.Contains(target))
                 {
                     resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
-                    resolve_queue.ResolveAll(0.05f);
+                    resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
                     return;
                 }
             }
@@ -948,7 +933,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
-            resolve_queue.ResolveAll(0.05f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
         }
 
         protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
@@ -983,7 +968,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
-            resolve_queue.ResolveAll(0.05f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
         }
 
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
@@ -1025,7 +1010,7 @@ namespace TcgEngine.Gameplay
             }
 
             resolve_queue.AddAttack(attacker, target, ResolveDeath, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_hit);
 
             if (!game_data.attack_evade_list.Contains(target))
                 onAttackHit?.Invoke(attacker, target);
@@ -1053,7 +1038,7 @@ namespace TcgEngine.Gameplay
 
 
             resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
-            resolve_queue.ResolveAll(0.05f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
             
             RefreshData();
             CheckForWinner();
@@ -1081,7 +1066,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
         }
 
         protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
@@ -1098,7 +1083,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
         }
 
         protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
@@ -1123,7 +1108,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
             CheckForWinner();
 
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
         }
 
         //Exhaust after battle
@@ -2057,7 +2042,7 @@ namespace TcgEngine.Gameplay
             }
 
             onAbilityEnd?.Invoke(iability, caster);
-            resolve_queue.ResolveAll(0.2f);
+            resolve_queue.ResolveAll(GameplayData.Get().timing.ability_resolve);
 
             if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat+1))
                 RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat+1);
@@ -2753,7 +2738,7 @@ namespace TcgEngine.Gameplay
                     //Buffer covers the client-side mulligan->hand handoff animation
                     //before the mulligan panel closes and the first turn begins.
                     resolve_queue.AddCallback(StartFirstTurn);
-                    resolve_queue.ResolveAll(4f);
+                    resolve_queue.ResolveAll(GameplayData.Get().timing.mulligan_to_turn);
                     //StartTurn();
                 }
             }

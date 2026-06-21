@@ -70,6 +70,8 @@ namespace TcgEngine
         public List<Card> attack_complete_list = new List<Card>();
         public List<Card> attack_evade_list = new List<Card>();
 
+        public int attack_index = 0; //Single-pass attack order cursor (index into Slot.GetAttackOrder). Monotonic within an attack phase.
+
 
         //Other reference arrays 
         public HashSet<string> ability_played = new HashSet<string>();
@@ -838,6 +840,7 @@ namespace TcgEngine
             dest.last_summoned_slot = source.last_summoned_slot;
             dest.ability_triggerer = source.ability_triggerer;
             dest.rolled_value = source.rolled_value;
+            dest.attack_index = source.attack_index;
 
             CloneHash(source.ability_played, dest.ability_played);
             CloneHash(source.cards_attacked, dest.cards_attacked);

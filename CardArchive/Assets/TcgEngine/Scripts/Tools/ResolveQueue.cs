@@ -22,17 +22,21 @@ namespace TcgEngine
         private Queue<AttackQueueElement> attack_queue = new Queue<AttackQueueElement>();
         private Queue<CallbackQueueElement> callback_queue = new Queue<CallbackQueueElement>();
 
-        private const float per_effect_delay = 1f;
+        //Per-queue "gap before the next element" lives in GameplayData.timing (single source of truth).
+        //Replaces the old single per_effect_delay so combat micro-steps and ability chains can be paced independently.
+        //null only on the AI/skip_delay path, where delays are never applied (see GetNextQueueDelay).
+        private TimingData timing;
 
         private Game game_data;
         private bool is_resolving = false;
         private float resolve_delay = 0f;
         private bool skip_delay = false;
 
-        public ResolveQueue(Game data, bool skip)
+        public ResolveQueue(Game data, bool skip, TimingData timing = null)
         {
             game_data = data;
             skip_delay = skip;
+            this.timing = timing;
         }
 
         public void SetData(Game data)
@@ -228,7 +232,7 @@ namespace TcgEngine
                 Resolve();
                 bool hasMore = ability_queue.Count > 0 || secret_queue.Count > 0 || attack_queue.Count > 0 || callback_queue.Count > 0;
                 if (hasMore)
-                    SetDelay(per_effect_delay);
+                    SetDelay(GetNextQueueDelay());
             }
 
             is_resolving = false;
@@ -240,6 +244,23 @@ namespace TcgEngine
             {
                 resolve_delay = Mathf.Max(resolve_delay, delay);
             }
+        }
+
+        //Default gap before the NEXT element resolves, picked by the queue it will come from.
+        //Must mirror Resolve()'s priority order (ability -> secret -> attack -> callback).
+        protected virtual float GetNextQueueDelay()
+        {
+            if (timing == null)
+                return 0f;
+            if (ability_queue.Count > 0)
+                return timing.ability;
+            if (secret_queue.Count > 0)
+                return timing.secret;
+            if (attack_queue.Count > 0)
+                return timing.attack;
+            if (callback_queue.Count > 0)
+                return timing.callback;
+            return 0f;
         }
 
         public virtual bool CanResolve()
