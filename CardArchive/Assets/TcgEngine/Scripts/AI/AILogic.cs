@@ -144,8 +144,8 @@ namespace TcgEngine.AI
                     for (int c = 0; c < player.cards_board.Count; c++)
                     {
                         Card card = player.cards_board[c];
-                        AddActions(action_list, data, node, GameAction.Attack, card);
-                        AddActions(action_list, data, node, GameAction.AttackPlayer, card);
+                        //Attacks are resolved automatically during the attack phase (not as main-phase actions),
+                        //so the AI never generates GameAction.Attack / GameAction.AttackPlayer.
                         AddActions(action_list, data, node, GameAction.CastAbility, card);
                         //AddActions(action_list, data, node, GameAction.Move, card);        //Uncomment to consider move actions
                     }
@@ -159,10 +159,9 @@ namespace TcgEngine.AI
                 }
             }
 
-            //End Turn (dont add action if ai can still attack player, or ai hasnt spent any mana)
+            //End Turn (dont add action if ai hasnt spent any mana)
             bool is_full_mana = HasAction(action_list, GameAction.PlayCard) && player.mana >= player.mana_max;
-            bool can_attack_player = HasAction(action_list, GameAction.AttackPlayer);
-            bool can_end = !can_attack_player && !is_full_mana && data.selector == SelectorType.None;
+            bool can_end = !is_full_mana && data.selector == SelectorType.None;
             if (action_list.Count == 0 || can_end)
             {
                 AIAction actiont = CreateAction(GameAction.EndTurn);
@@ -394,50 +393,6 @@ namespace TcgEngine.AI
                 {
                     AIAction action = CreateAction(type, card);
                     actions.Add(action);
-                }
-            }
-
-            if (type == GameAction.Attack)
-            {
-                if (card.CanAttack())
-                {
-                    for (int p = 0; p < data.players.Length; p++)
-                    {
-                        if (p != player.player_id)
-                        {
-                            Player oplayer = data.players[p];
-                            for (int tc = 0; tc < oplayer.cards_board.Count; tc++)
-                            {
-                                Card target = oplayer.cards_board[tc];
-                                if (data.CanAttackTarget(card, target))
-                                {
-                                    AIAction action = CreateAction(type, card);
-                                    action.target_uid = target.uid;
-                                    actions.Add(action);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (type == GameAction.AttackPlayer)
-            {
-                if (card.CanAttack())
-                {
-                    for (int p = 0; p < data.players.Length; p++)
-                    {
-                        if (p != player.player_id)
-                        {
-                            Player oplayer = data.players[p];
-                            if (data.CanAttackTarget(card, oplayer))
-                            {
-                                AIAction action = CreateAction(type, card);
-                                action.target_player_id = oplayer.player_id;
-                                actions.Add(action);
-                            }
-                        }
-                    }
                 }
             }
 

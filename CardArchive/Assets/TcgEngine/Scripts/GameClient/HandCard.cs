@@ -93,6 +93,16 @@ namespace TcgEngine.Client
 
             focus_timer += Time.deltaTime;
 
+            //Release hover focus when a target/choice selector is active — the hand isn't interactable
+            //in that modal state, so a card hovered at the moment of entering selector mode must release.
+            //Gated by `focus` so this runs once on entry (mirrors OnMouseExitCard).
+            if (game_data.selector != SelectorType.None && focus)
+            {
+                focus = false;
+                HandCardArea.Get().SortCards();
+                focus_timer = -0.2f;
+            }
+
             canvas_group.alpha = IsFocus() ? 0.0f : 1.0f;
             hand_canvas_group.alpha = 1;
             board_canvas_group.alpha = 0;

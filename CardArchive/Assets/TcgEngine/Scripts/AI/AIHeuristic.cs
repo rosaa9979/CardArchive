@@ -294,21 +294,6 @@ namespace TcgEngine.AI
                 return 200;
             }
 
-            if (order.type == GameAction.Attack)
-            {
-                Card card = data.GetCard(order.card_uid);
-                Card target = data.GetCard(order.target_uid);
-                int ascore = card.GetAttack() >= target.GetHP() ? 300 : 100; //Are you killing the card?
-                int oscore = target.GetAttack() >= card.GetHP() ? -200 : 0; //Are you getting killed?
-                return ascore + oscore + target.GetAttack() * 5;            //Always better to get rid of high-attack cards
-            }
-            if (order.type == GameAction.AttackPlayer)
-            {
-                Card card = data.GetCard(order.card_uid);
-                Player player = data.GetPlayer(order.target_player_id);
-                int ascore = card.GetAttack() >= player.hp ? 500 : 200;     //Are you killing the player?
-                return ascore + (card.GetAttack() * 10) - player.hp;        //Always better to inflict more damage
-            }
             if (order.type == GameAction.PlayCard)
             {
                 Player player = data.GetPlayer(ai_player_id);
@@ -352,10 +337,6 @@ namespace TcgEngine.AI
                 type_sort = 2; //Card Abilities second
             if (order.type == GameAction.Move)
                 type_sort = 3; //Move third
-            if (order.type == GameAction.Attack)
-                type_sort = 4; //Attacks fourth
-            if (order.type == GameAction.AttackPlayer)
-                type_sort = 5; //Player attacks fifth
             if (order.type == GameAction.PlayCard && !is_spell)
                 type_sort = 7; //Play Citizens last
 
