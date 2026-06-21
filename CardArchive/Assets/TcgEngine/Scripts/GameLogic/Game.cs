@@ -160,9 +160,9 @@ namespace TcgEngine
                 }
 
 
-                //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
-                //    return false; //Cant play on opponent side
-
+                //Units can only be placed on the player's own side or a neutral slot, never the opponent's.
+                if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
+                    return false; //Cant play on opponent side
 
                 if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
                 {
