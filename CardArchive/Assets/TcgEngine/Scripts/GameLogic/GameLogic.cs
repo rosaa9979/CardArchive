@@ -2721,30 +2721,23 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.phase == GamePhase.Mulligan && !player.ready)
             {
-                int count = 0;
-                List<Card> remove_list = new List<Card>();
-                foreach (Card card in player.cards_hand)
+                //Replace each mulliganed card with a freshly drawn one AT THE SAME hand index, so the new
+                //card occupies the slot of the card it replaced (the hand keeps its order/positions).
+                for (int i = 0; i < player.cards_hand.Count; i++)
                 {
-                    if (cards.Contains(card.uid))
+                    Card card = player.cards_hand[i];
+                    if (cards.Contains(card.uid) && player.cards_deck.Count > 0)
                     {
-                        remove_list.Add(card);
-                        count++;
+                        Card new_card = player.cards_deck[0];
+                        player.cards_deck.RemoveAt(0);
+                        player.cards_hand[i] = new_card;   //new card takes the removed card's slot
+                        player.cards_deck.Add(card);       //mulliganed card returns to the deck (shuffled below)
                     }
-                }
-
-                DrawCard(player, count);
-
-                foreach (Card card in remove_list)
-                {
-                    player.RemoveCardFromAllGroups(card);
-                    //player.cards_discard.Add(card);
-                    player.cards_deck.Add(card);
                 }
 
                 ShuffleDeck(player.cards_deck);
 
                 player.ready = true;
-                //DrawCard(player, count);
                 RefreshData();
 
                 onMulligan?.Invoke(player.player_id);

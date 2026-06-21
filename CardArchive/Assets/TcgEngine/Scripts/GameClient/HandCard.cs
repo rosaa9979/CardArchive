@@ -125,7 +125,8 @@ namespace TcgEngine.Client
                 Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
                 BSlot bslot = BSlot.GetNearest(mouse_pos);
 
-                if (bslot != null && game_data.CanPlaceCard(GetCard(), bslot.GetSlot()))
+                if (bslot != null && game_data.CanPlaceCard(GetCard(), bslot.GetSlot())
+                    && GameClient.Get().IsYourTurn() && player.CanPayMana(GetCard()))
                 {
                     hand_canvas_group.alpha = 0;
                     board_canvas_group.alpha = 1;
@@ -199,7 +200,8 @@ namespace TcgEngine.Client
                 Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
                 BSlot bslot = BSlot.GetNearest(mouse_pos);
 
-                if (bslot != null && game_data.CanPlaceCard(card, bslot.GetSlot()))
+                if (bslot != null && game_data.CanPlaceCard(card, bslot.GetSlot())
+                    && GameClient.Get().IsYourTurn() && GameClient.Get().GetPlayer().CanPayMana(card))
                 {
                     Vector3 screenPos = Camera.main.WorldToScreenPoint(bslot.transform.position);
             

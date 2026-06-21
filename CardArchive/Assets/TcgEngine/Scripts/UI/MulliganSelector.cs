@@ -97,7 +97,6 @@ namespace TcgEngine.UI
                 if (!cards.Any(icard => icard.GetCard().uid == new_card.uid) && new_card.card_id != bonus_id)
                 {
                     int new_index = removed_card_index.Dequeue();
-                    cards.RemoveAt(new_index);
 
                     GameObject mulligan_card = Instantiate(mulligan_template, content.transform);
                     mulligan_card.SetActive(true);
@@ -107,9 +106,10 @@ namespace TcgEngine.UI
                     mcard.SetCard(new_card);
                     mcard.SetIndex(new_index);
                     mcard.Hide();
-                    cards.Add(mcard);
 
-                    cards.Insert(new_index, mcard);
+                    //Server keeps the mulliganed slot's index, so drop the new card into that same UI slot
+                    //(the old card there was already hidden/destroyed by DoHide). No Add/Insert -> no dupes.
+                    cards[new_index] = mcard;
 
                     mcard.DoShow(GetCardPos(mcard));
 
