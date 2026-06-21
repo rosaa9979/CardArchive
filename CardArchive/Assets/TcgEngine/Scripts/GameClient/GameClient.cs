@@ -303,18 +303,24 @@ namespace TcgEngine.Client
 
         public void AttackTarget(Card card, Card target)
         {
-            MsgAttack mdata = new MsgAttack();
-            mdata.attacker_uid = card.uid;
-            mdata.target_uid = target.uid;
-            SendAction(GameAction.Attack, mdata);
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Kept for reference; the send path below is intentionally blocked at the start.
+            return;
+            //MsgAttack mdata = new MsgAttack();
+            //mdata.attacker_uid = card.uid;
+            //mdata.target_uid = target.uid;
+            //SendAction(GameAction.Attack, mdata);
         }
 
         public void AttackPlayer(Card card, Player target)
         {
-            MsgAttackPlayer mdata = new MsgAttackPlayer();
-            mdata.attacker_uid = card.uid;
-            mdata.target_id = target.player_id;
-            SendAction(GameAction.AttackPlayer, mdata);
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Kept for reference; the send path below is intentionally blocked at the start.
+            return;
+            //MsgAttackPlayer mdata = new MsgAttackPlayer();
+            //mdata.attacker_uid = card.uid;
+            //mdata.target_id = target.player_id;
+            //SendAction(GameAction.AttackPlayer, mdata);
         }
 
         public void Move(Card card, Slot slot)

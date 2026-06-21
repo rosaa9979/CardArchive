@@ -325,55 +325,25 @@ namespace TcgEngine
         public virtual bool CanAttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
             if (attacker == null || target == null)
-            {
-                Debug.Log("Debug1");
                 return false;
-            }
-
 
             if (!attacker.CanAttack(skip_cost))
-            {
-                Debug.Log("Debug2");
-                return false;
-            }
-
-                //return false; //Card cant attack
+                return false; //Card cant attack
 
             if (attacker.player_id == target.player_id)
-            {
-                Debug.Log("Debug3");
-                return false;
-            }
-                //return false; //Cant attack same player
+                return false; //Cant attack same player
 
             if (!IsOnBoard(attacker) || !IsOnBoard(target))
-            {
-                Debug.Log("Debug4");
-                return false;
-            }
-                //return false; //Cards not on board
+                return false; //Cards not on board
 
             if (!attacker.CardData.IsCitizen() || !target.CardData.IsBoardCard())
-            {
-                Debug.Log("Debug5");
-                return false;
-            }
-                //return false; //Only citizen can attack
+                return false; //Only citizen can attack
 
             if (target.HasStatus(StatusType.Stealth))
-            {
-                Debug.Log("Debug6");
-                return false;
-            }
-                //return false; //Stealth cant be attacked
+                return false; //Stealth cant be attacked
 
             if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot))
-            {
-                Debug.Log("Debug7");
-                return false;
-            }
-                //return false;
-
+                return false; //Out of range
 
             //if (target.HasStatus(StatusType.Protected) && !attacker.HasStatus(StatusType.Flying))
             //    return false; //Protected by adjacent card

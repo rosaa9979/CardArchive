@@ -880,6 +880,11 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackTargets(Card attacker, bool skip_cost = false)
         {
+            //Attacks only happen automatically during the attack phase. Block any out-of-phase normal attack.
+            //Ability-forced attacks (EffectAttack) pass skip_cost=true and are allowed at any time.
+            if (game_data.phase != GamePhase.Attack && !skip_cost)
+                return;
+
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -906,6 +911,11 @@ namespace TcgEngine.Gameplay
 
         public virtual void AttackTarget(Card attacker, Card target, bool skip_cost = false)
         {
+            //Attacks only happen automatically during the attack phase. Block any out-of-phase normal attack.
+            //Ability-forced attacks (EffectAttack) pass skip_cost=true and are allowed at any time.
+            if (game_data.phase != GamePhase.Attack && !skip_cost)
+                return;
+
             Player player = game_data.GetPlayer(attacker.player_id);
 
             //if (!game_data.CanAttackTarget(attacker, target))
@@ -1047,6 +1057,11 @@ namespace TcgEngine.Gameplay
         public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
         {
             if (attacker == null || target == null)
+                return;
+
+            //Attacks only happen automatically during the attack phase. Block any out-of-phase normal attack.
+            //Ability-forced attacks (EffectAttack) pass skip_cost=true and are allowed at any time.
+            if (game_data.phase != GamePhase.Attack && !skip_cost)
                 return;
 
             //if (!game_data.CanAttackTarget(attacker, target, skip_cost))
