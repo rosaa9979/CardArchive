@@ -18,8 +18,25 @@ MonoBehaviour:
   clubs:
   - {fileID: 11400000, guid: e23dc823cb33f7c489a8baed74d749eb, type: 2}
   - {fileID: 11400000, guid: d733ea28c6fa6cf47ba4c301a406b557, type: 2}
-  - {fileID: 11400000, guid: ecd7a72447078ad42a718cecc6db66ac, type: 2}
+  - {fileID: 11400000, guid: 574c2e6f2bf49c14dac5ad27d7add2b3, type: 2}
   cards:
-  - {fileID: 11400000, guid: 4c410b00b60b4334b9a0c65129dbb967, type: 2}
-  - {fileID: 11400000, guid: d33c0de529c43f647b67debb689ff3ad, type: 2}
-  - {fileID: 11400000, guid: 312d8e7c7229db9499443370f2689d7e, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: ea7bab7a41147524c95810191d31cd13, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}
+  - {fileID: 11400000, guid: 5e79ac1555cb4e529c78dce6d3cf04cf, type: 2}

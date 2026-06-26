@@ -2338,6 +2338,17 @@ namespace TcgEngine.Gameplay
                         }
                     }
 
+                    if (ability.criteria_target == AbilityTarget.Club)
+                    {
+                        //Buff the caster owner's club card(s); ongoing so it is wiped/recomputed each
+                        //cycle and naturally drops when the granter (card) is silenced.
+                        foreach (Card club in player.cards_club)
+                        {
+                            if (ability.AreCriteriaTargetConditionsMet(game_data, card, club))
+                                ability.DoOngoingEffects(this, card, club);
+                        }
+                    }
+
                     if (ability.criteria_target == AbilityTarget.EquippedCard)
                     {
                         if (card.CardData.IsEquipment())

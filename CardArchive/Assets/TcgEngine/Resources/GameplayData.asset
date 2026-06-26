@@ -39,6 +39,26 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
   arena_list:
   - Game
-  test_deck: {fileID: 11400000, guid: e371ae9abcc31014992b685a145a087c, type: 2}
+  test_deck: {fileID: 11400000, guid: 0e6326c43c0688e40bbf592cf3ea6dec, type: 2}
   test_deck_ai: {fileID: 11400000, guid: 8539b1ce42aef234786631b3c4bfb067, type: 2}
   ai_vs_ai: 0
+  timing:
+    ability: 1
+    secret: 1
+    attack: 0.2
+    callback: 0.1
+    game_start: 1
+    first_turn: 1
+    mulligan_to_turn: 4
+    turn_start: 1.5
+    pre_main_phase: 0.2
+    attack_phase_start: 1.5
+    turn_end: 0.2
+    between_attackers: 1
+    attack_phase_end: 0.1
+    attack_step: 0.05
+    attack_hit: 0.2
+    attack_player_step: 0.2
+    play_card: 0.3
+    move_card: 0.2
+    ability_resolve: 0.2

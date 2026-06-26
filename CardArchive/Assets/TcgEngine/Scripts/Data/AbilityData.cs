@@ -955,6 +955,7 @@ namespace TcgEngine
         AllCardsBoard = 10,
         AllCardsHand = 11,
         AllCardsAllPiles = 12,
+        Club = 13,              //The caster owner's club card(s) in cards_club (ongoing path only)
         AllSlots = 15,
         AllCardData = 17,       //For card Create effects only
 
