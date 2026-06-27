@@ -74,6 +74,14 @@ namespace TcgEngine
                 target.Clear();
             }
         }
+
+        //When the target is a slot, send the unit standing on that slot
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            Card slot_card = logic.GetGameData().GetSlotCard(target);
+            if (slot_card != null)
+                DoEffect(logic, ability, caster, slot_card);
+        }
     }
 
     public enum DeckInsert
