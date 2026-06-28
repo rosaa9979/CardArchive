@@ -37,6 +37,9 @@ namespace TcgEngine.Client
         public CanvasGroup canvas_group;         //Panel content; Show/Hide toggles its alpha/interactable
         public List<AIDebugActionItem> items = new List<AIDebugActionItem>(); //Ranked rows (defines max count)
         public TMP_Text status_text;             //Optional: messages when there is nothing to rank
+        public CanvasGroup detail_group;         //Optional: hover popup that shows a row's score breakdown
+        public TMP_Text detail_text;             //Optional: text inside detail_group
+        public float detail_padding = 14f;       //Inner margin used when auto-sizing the popup height to the text
 
         [Header("Settings")]
         public int ai_level = 10;                //10 = strongest / least randomized heuristic (most deterministic)
@@ -57,6 +60,7 @@ namespace TcgEngine.Client
                 SetGroupVisible(false);
             ClearItems();
             SetStatus("");
+            SetDetailVisible(false);
         }
 
         void Update()
@@ -139,6 +143,7 @@ namespace TcgEngine.Client
             StopAndClear();
             evaluating = false;
             ShowNetworkLoading(false);
+            SetDetailVisible(false);
         }
 
         public void Toggle()
@@ -266,7 +271,9 @@ namespace TcgEngine.Client
                     continue;
 
                 NodeState node = nodes[i];
-                item.SetData(i + 1, node.hvalue, DescribeAction(data, node.last_action));
+                //Compute the score breakdown now, while ai_logic is still alive (StopAndClear runs after this).
+                string details = ai_logic != null ? ai_logic.BuildScoreReport(node) : "";
+                item.SetData(i + 1, node.hvalue, DescribeAction(data, node.last_action), details, this);
             }
         }
 
@@ -329,6 +336,102 @@ namespace TcgEngine.Client
                 if (items[i] != null)
                     items[i].Clear();
             }
+        }
+
+        //--- Hover detail popup -------------------------------------------
+
+        //Called by an item row on pointer enter: fill + size + position the breakdown beside that row.
+        //The popup auto-sizes its height to the text and is clamped to stay fully on screen.
+        //Setup assumption: detail_text is stretch-anchored inside detail_group (so it fills the resized box),
+        //and detail_group has NO ContentSizeFitter (this code drives the size instead).
+        public void ShowDetail(AIDebugActionItem item, string details)
+        {
+            if (detail_group == null)
+                return;
+
+            RectTransform drt = detail_group.transform as RectTransform;
+
+            if (detail_text != null)
+            {
+                detail_text.enableWordWrapping = true;
+                detail_text.overflowMode = TextOverflowModes.Overflow; //Show all lines; height follows the text
+                detail_text.text = string.IsNullOrEmpty(details) ? "(분해 정보 없음)" : details;
+            }
+
+            //Height = preferred text height (wrapped at the box width) + padding, capped to the canvas height.
+            if (drt != null && detail_text != null)
+            {
+                float pad = Mathf.Max(0f, detail_padding);
+                float box_w = Mathf.Max(10f, drt.rect.width);
+                float text_w = Mathf.Max(10f, box_w - pad * 2f);
+                float h = detail_text.GetPreferredValues(detail_text.text, text_w, 0f).y + pad * 2f;
+
+                RectTransform canvas_rt = GetCanvasRect(drt);
+                if (canvas_rt != null)
+                    h = Mathf.Min(h, canvas_rt.rect.height - pad * 2f);
+
+                drt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
+            }
+
+            //Follow the hovered row vertically (keep the popup's own horizontal placement), then clamp on-screen.
+            RectTransform irt = item != null ? item.transform as RectTransform : null;
+            if (drt != null && irt != null)
+            {
+                Vector3 p = drt.position;
+                p.y = irt.position.y;
+                drt.position = p;
+            }
+            ClampToCanvas(drt);
+
+            SetDetailVisible(true);
+        }
+
+        //Root canvas RectTransform that 'rt' lives under (used as the on-screen bounds).
+        private RectTransform GetCanvasRect(RectTransform rt)
+        {
+            if (rt == null)
+                return null;
+            Canvas c = rt.GetComponentInParent<Canvas>();
+            return c != null ? c.rootCanvas.transform as RectTransform : null;
+        }
+
+        //Shift 'rt' so all four corners stay inside the root canvas rect (no off-screen overflow).
+        private void ClampToCanvas(RectTransform rt)
+        {
+            RectTransform canvas_rt = GetCanvasRect(rt);
+            if (canvas_rt == null)
+                return;
+
+            Canvas.ForceUpdateCanvases(); //Make sure the resize above is reflected before reading corners
+
+            Vector3[] rc = new Vector3[4];
+            Vector3[] cc = new Vector3[4];
+            rt.GetWorldCorners(rc);        //[0]=bottom-left, [2]=top-right
+            canvas_rt.GetWorldCorners(cc);
+
+            float dx = 0f, dy = 0f;
+            if (rc[0].x < cc[0].x) dx += cc[0].x - rc[0].x; //past left edge -> push right
+            if (rc[2].x > cc[2].x) dx -= rc[2].x - cc[2].x; //past right edge -> push left
+            if (rc[0].y < cc[0].y) dy += cc[0].y - rc[0].y; //past bottom -> push up
+            if (rc[2].y > cc[2].y) dy -= rc[2].y - cc[2].y; //past top -> push down
+
+            if (dx != 0f || dy != 0f)
+                rt.position += new Vector3(dx, dy, 0f);
+        }
+
+        //Called by an item row on pointer exit.
+        public void HideDetail(AIDebugActionItem item)
+        {
+            SetDetailVisible(false);
+        }
+
+        private void SetDetailVisible(bool show)
+        {
+            if (detail_group == null)
+                return;
+            detail_group.alpha = show ? 1f : 0f;
+            detail_group.interactable = false;   //Never steal interaction
+            detail_group.blocksRaycasts = false; //Let hover pass through to the rows underneath
         }
 
         //Reuse the existing network loading panel (already blocks touch input).

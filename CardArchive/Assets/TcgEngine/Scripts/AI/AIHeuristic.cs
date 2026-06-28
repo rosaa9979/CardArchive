@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace TcgEngine.AI
@@ -404,6 +405,148 @@ namespace TcgEngine.AI
         {
             return node.hvalue > 50000 || node.hvalue < -50000;
         }
+
+#if UNITY_EDITOR
+        //EDITOR-ONLY: detailed, per-term breakdown of CalculateHeuristic for the AI-debug panel.
+        //Scalar terms are shown split by side (count x weight); units are listed per card and clubs per club.
+        //Mirrors CalculateHeuristic exactly; the random level modifier is NOT added (0 at level 10), so the
+        //listed contributions sum to node.hvalue exactly at level 10 (off by at most +-modifier below that).
+        public void AppendBreakdown(Game data, NodeState node, StringBuilder sb)
+        {
+            Player ai = data.GetPlayer(ai_player_id);
+            Player op = data.GetOpponentPlayer(ai_player_id);
+
+            if (ai.IsDead())
+                AddNet(sb, "패배(내 본진 파괴)", -100000 + node.tdepth * 1000);
+            if (op.IsDead())
+                AddNet(sb, "승리(상대 본진 파괴)", 100000 - node.tdepth * 1000);
+
+            AddSplit(sb, "보드 카드", ai.cards_board.Count, op.cards_board.Count, board_card_value);
+            AddSplit(sb, "장비", ai.cards_equip.Count, op.cards_equip.Count, board_card_value);
+            AddSplit(sb, "시크릿", ai.cards_secret.Count, op.cards_secret.Count, secret_card_value);
+            AddSplit(sb, "손패", ai.cards_hand.Count, op.cards_hand.Count, hand_card_value);
+            AddSplit(sb, "킬 수", ai.kill_count, op.kill_count, kill_value);
+            AddSplit(sb, "플레이어 HP", ai.hp, op.hp, player_hp_value);
+
+            //Units: per-card (attack x card_attack_value, hp x card_hp_value, status x card_status_value)
+            if (ai.cards_board.Count > 0 || op.cards_board.Count > 0)
+            {
+                sb.Append("유닛 (공격력×").Append(card_attack_value)
+                  .Append(", 체력×").Append(card_hp_value)
+                  .Append(", 상태이상×").Append(card_status_value).Append("):\n");
+                int aiu = AppendUnits(sb, "나", ai);
+                int opu = AppendUnits(sb, "상대", op);
+                AddNet(sb, "  └ 유닛 소계 (나 " + aiu + " − 상대 " + opu + ")", aiu - opu);
+            }
+
+            //Clubs: per-club synergy
+            int aic = AppendClubs(sb, "나", data, ai);
+            int opc = AppendClubs(sb, "상대", data, op);
+            if (aic != 0 || opc != 0)
+                AddNet(sb, "  └ 클럽 소계 (나 " + aic + " − 상대 " + opc + ")", aic - opc);
+
+            if (heuristic_modifier > 0)
+                sb.Append("  (레벨<10: 랜덤 보정 ±").Append(heuristic_modifier).Append(" 추가 적용)\n");
+        }
+
+        //Lists each board unit's attack/hp/status contribution; returns the side's unit total.
+        private int AppendUnits(StringBuilder sb, string side, Player p)
+        {
+            int total = 0;
+            foreach (Card c in p.cards_board)
+            {
+                int a = c.GetAttack() * card_attack_value;
+                int h = c.GetHP() * card_hp_value;
+                int s = StatusSum(c);
+                int t = a + h + s;
+                total += t;
+                string name = c.CardData != null ? c.CardData.GetTitle() : c.card_id;
+                sb.Append("  [").Append(side).Append("] ").Append(name)
+                  .Append(": 공").Append(c.GetAttack()).Append("→").Append(a)
+                  .Append(", 체").Append(c.GetHP()).Append("→").Append(h);
+                if (s != 0)
+                    sb.Append(", 상태→").Append(s);
+                sb.Append(" (계 ").Append(t).Append(")\n");
+            }
+            return total;
+        }
+
+        //Lists each club's synergy contribution (same rules as GetClubScore); returns the side's club total.
+        private int AppendClubs(StringBuilder sb, string side, Game data, Player p)
+        {
+            club_buf.Clear();
+            foreach (Card card in p.cards_board)
+            {
+                foreach (CardClub cc in card.GetAllClubs())
+                {
+                    if (cc.ClubData != null)
+                        club_buf.Add(cc.ClubData);
+                }
+            }
+
+            int total = 0;
+            foreach (ClubData club in club_buf)
+            {
+                int n = data.GetClubCount(p, club);
+                if (n <= 0)
+                    continue;
+
+                int val = 0;
+                string how;
+                switch (club.synergy_type)
+                {
+                    case ClubSynergyType.OnOff:
+                        if (n >= club.synergy_threshold) { val = club.synergy_value; how = "임계 " + club.synergy_threshold + " 달성"; }
+                        else how = n + "/" + club.synergy_threshold + " 미달";
+                        break;
+                    case ClubSynergyType.Count:
+                        val = club.synergy_value * n; how = club.synergy_value + "×" + n;
+                        break;
+                    default: //Individual: no board synergy value
+                        how = "시너지 없음";
+                        break;
+                }
+                total += val;
+                sb.Append("  [").Append(side).Append("] 클럽 ").Append(club.GetTitle())
+                  .Append(" (").Append(how).Append(") → ").Append(val).Append('\n');
+            }
+            return total;
+        }
+
+        private int StatusSum(Card c)
+        {
+            int s = 0;
+            foreach (CardStatus st in c.status)
+                s += st.StatusData.hvalue * card_status_value;
+            foreach (CardStatus st in c.ongoing_status)
+                s += st.StatusData.hvalue * card_status_value;
+            return s;
+        }
+
+        //"label: 나 ai_n×w=aiV − 상대 op_n×w=opV = net"  (skipped when both sides are 0)
+        private void AddSplit(StringBuilder sb, string label, int ai_n, int op_n, int weight)
+        {
+            if (ai_n == 0 && op_n == 0)
+                return;
+            int aiV = ai_n * weight;
+            int opV = op_n * weight;
+            sb.Append(label).Append(": 나 ").Append(ai_n).Append("×").Append(weight).Append("=").Append(aiV)
+              .Append(" − 상대 ").Append(op_n).Append("×").Append(weight).Append("=").Append(opV)
+              .Append(" = ").Append(Signed(aiV - opV)).Append('\n');
+        }
+
+        private void AddNet(StringBuilder sb, string label, int net)
+        {
+            if (net == 0)
+                return;
+            sb.Append(label).Append(": ").Append(Signed(net)).Append('\n');
+        }
+
+        private string Signed(int v)
+        {
+            return v > 0 ? "+" + v : v.ToString();
+        }
+#endif
 
     }
 }

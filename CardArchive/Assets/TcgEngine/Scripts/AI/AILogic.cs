@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -656,6 +657,76 @@ namespace TcgEngine.AI
         {
             return first_node;
         }
+
+#if UNITY_EDITOR
+        //EDITOR-ONLY (AI debug panel): explain how 'first_child' got its score.
+        //The displayed score is a minimax value = the heuristic of the leaf board state at the end of the
+        //principal variation (both sides playing their best_child). So we replay that action path from the
+        //original state to reconstruct the leaf board, then dump the heuristic term-by-term.
+        //Must be called while the search data is still alive (before ClearMemory), on the main thread.
+        public string BuildScoreReport(NodeState first_child)
+        {
+            if (first_child == null || original_data == null)
+                return "";
+
+            //Principal variation: first_child, then its best_child chain down to the leaf.
+            List<NodeState> pv = new List<NodeState>();
+            NodeState n = first_child;
+            while (n != null)
+            {
+                pv.Add(n);
+                n = n.best_child;
+            }
+            NodeState leaf = pv[pv.Count - 1];
+
+            //Replay the path from a fresh clone of the original state.
+            Game data = data_pool.Create();
+            Game.Clone(original_data, data);
+            game_logic.ClearResolve();
+            game_logic.SetData(data);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("■ 예측 경로 (양측 최선 수)\n");
+            for (int i = 0; i < pv.Count; i++)
+            {
+                NodeState pn = pv[i];
+                if (pn.last_action == null)
+                    continue;
+                string who = pn.current_player == ai_player_id ? "나" : "상대";
+                sb.Append("  ").Append(who).Append(": ").Append(DescribeAction(data, pn.last_action)).Append('\n');
+                DoAIAction(data, pn.last_action, pn.current_player); //Advance the board exactly like the search did
+            }
+
+            sb.Append("\n■ 리프 상태 점수 분해 (나 − 상대)\n");
+            heuristic.AppendBreakdown(data, leaf, sb);
+            sb.Append("\n합계(hvalue): ").Append(leaf.hvalue);
+
+            data_pool.Dispose(data);
+            return sb.ToString();
+        }
+
+        //Short, readable description of an AIAction for the report (resolves ids to titles).
+        private string DescribeAction(Game data, AIAction a)
+        {
+            Card card = !string.IsNullOrEmpty(a.card_uid) ? data.GetCard(a.card_uid) : null;
+            string name = (card != null && card.CardData != null) ? card.CardData.GetTitle() : a.card_uid;
+
+            if (a.type == GameAction.PlayCard)
+                return "카드 플레이 " + name;
+            if (a.type == GameAction.CastAbility)
+            {
+                AbilityData ab = AbilityData.Get(a.ability_id);
+                return "능력 발동 " + name + " → " + (ab != null ? ab.GetTitle() : a.ability_id);
+            }
+            if (a.type == GameAction.Move)
+                return "이동 " + name;
+            if (a.type == GameAction.EndTurn)
+                return "턴 종료";
+
+            string verb = GameAction.GetString(a.type);
+            return name != null ? verb + " " + name : verb;
+        }
+#endif
 
         public AIAction GetBestAction()
         {
