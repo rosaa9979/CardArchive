@@ -980,17 +980,17 @@ namespace TcgEngine
 
         public List<Card> SearchTarget(GameLogic logic, Card attacker)
         {
-            return data.SearchTarget(logic, attacker);
+            return WeaponData.SearchTarget(logic, attacker); //Lazy-load: data may be null on cloned/deserialized weapons
         }
 
         public void AttackTarget(GameLogic logic, Card attacker, List<Card>targets)
         {
-            data.AttackTarget(logic, attacker, targets);
+            WeaponData.AttackTarget(logic, attacker, targets);
         }
 
         public void AttackTarget(GameLogic logic, Card attacker, Player player)
         {
-            data.AttackTarget(logic, attacker, player);
+            WeaponData.AttackTarget(logic, attacker, player);
         }
     }
 }

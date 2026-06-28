@@ -11,14 +11,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: spell_bounce_enemy
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: spell_bounce_enemy
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 20
   conditions_criteria_target:
-  - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
   - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
   - {fileID: 11400000, guid: 707ab85bffdfd2643a7375e15b2fa634, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
@@ -42,6 +41,7 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title:
-  desc: "지정한 적 1명을 상대의 손으로 되돌립니다."
-  selector_desc: "손으로 되돌릴 적을 지정하세요."
+  title: 
+  desc: "\uC9C0\uC815\uD55C \uC801 1\uBA85\uC744 \uC0C1\uB300\uC758 \uC190\uC73C\uB85C
+    \uB418\uB3CC\uB9BD\uB2C8\uB2E4."
+  selector_desc: "\uC190\uC73C\uB85C \uB418\uB3CC\uB9B4 \uC801\uC744 \uC9C0\uC815\uD558\uC138\uC694."
