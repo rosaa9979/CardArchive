@@ -861,6 +861,11 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardMoved?.Invoke(card, slot);
+
+                //Trigger move abilities (only on player-initiated moves, not forced relocation such as knockback)
+                if (!skip_cost)
+                    TriggerCardAbilityType(AbilityTrigger.OnMove, card);
+
                 resolve_queue.ResolveAll(GameplayData.Get().timing.move_card);
             }
         }

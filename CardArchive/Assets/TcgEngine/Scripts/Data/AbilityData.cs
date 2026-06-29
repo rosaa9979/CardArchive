@@ -937,6 +937,8 @@ namespace TcgEngine
 
         OnDraw = 45,
 
+        OnMove = 47, //When this card moves to another slot (player-initiated move, not forced relocation)
+
         OnHeal = 50,
         OnHealOther = 51,
 
