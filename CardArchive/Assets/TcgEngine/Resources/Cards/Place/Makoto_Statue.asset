@@ -29,6 +29,8 @@ MonoBehaviour:
   text: "\uC8FC\uBCC0 \uD55C \uCE78\uC758 \uBAA8\uB4E0 \uC720\uB2DB\uC740 \uACF5\uACA9\uB825\uC774
     3 \uAC10\uC18C\uD569\uB2C8\uB2E4"
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
@@ -38,6 +40,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []
