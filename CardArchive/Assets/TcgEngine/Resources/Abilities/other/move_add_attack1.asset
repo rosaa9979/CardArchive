@@ -11,12 +11,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: move_add_attack1
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: move_add_attack1
   trigger: 47
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 1
+  criteria_target: 25
   conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
@@ -39,6 +39,7 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "기동 전술"
-  desc: "이동할 때마다 이번 턴 동안 공격력이 1 증가합니다."
-  selector_desc:
+  title: "\uAE30\uB3D9 \uC804\uC220"
+  desc: "\uC774\uB3D9\uD560 \uB54C\uB9C8\uB2E4 \uC774\uBC88 \uD134 \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
+    1 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  selector_desc: 
