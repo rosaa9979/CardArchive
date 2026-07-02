@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Akashi_Junko
   title: "\uC544\uCE74\uC2DC \uC900\uCF54"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 6e383d8f5694673409f97e5624fc26b0, type: 3}
+  art_board: {fileID: 21300000, guid: 4d27d3972980a354fa8a83b6478e0c8c, type: 3}
   type: 10
   mana: 3
   attack: 3
@@ -29,6 +29,8 @@ MonoBehaviour:
   text: "\uC790\uC2E0\uC5D0\uAC8C \uBC1B\uB294 \uCE58\uC720\uB7C9\uC744 0\uC73C\uB85C
     \uB9CC\uB4ED\uB2C8\uB2E4."
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
@@ -38,6 +40,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []

@@ -14,10 +14,14 @@ namespace TcgEngine.Tools
 {
     // Plays the scene -> writes .xlsx tables under <project>/Tools/DataExport/.
     // Most ScriptableObject types map 1:1 to a file (CardData, AbilityData, ...).
-    // The data-driven families are different: Effect.xlsx and Condition.xlsx
-    // (the latter bundling Condition/Filter/Sort/Repeat/WideAreaRange sheets)
-    // collapse each subclass into one row with columns compressed BY DATA TYPE
-    // (see the "Data-driven tables" region).
+    // The data-driven families are different:
+    //   - Effect.xlsx collapses each subclass into one row with columns
+    //     compressed BY DATA TYPE (generic str/ref/int slot pools — see the
+    //     "Data-driven tables" region).
+    //   - Condition.xlsx bundles 5 sheets (Condition/WideAreaRange/Filter/
+    //     Sort/Repeat) with hand-mapped SEMANTIC columns sharing one column
+    //     vocabulary (value/range/flag/scope/stat/pile/card_kinds/ref_*) —
+    //     see docs/condition-family-datatable-schema.md.
     //
     // Output follows the external table-tool spec (see `Skill (2).xlsx`):
     // a left margin of empty columns, then `!`-prefixed directives. The parser
@@ -278,14 +282,14 @@ namespace TcgEngine.Tools
             { "Weapon",    new[] { typeof(WeaponType) } },
             { "Status",    new[] { typeof(StatusType) } },
             // Condition.xlsx bundles Condition/Filter/Sort/Repeat/WideAreaRange
-            // sheets, so it owns all of their enums.
+            // sheets, so it owns all of their enums. FilterPlayerType and
+            // PosMode are gone from the table: filters share ConditionPlayerType
+            // (same member names), PosMode is exported as virtual PilePosType.
             { "Condition", new[] {
                 typeof(ConditionType), typeof(FilterType), typeof(SortType), typeof(RepeatType),
                 typeof(ConditionOperator),
                 typeof(ConditionStatType), typeof(ConditionPlayerType),
                 typeof(ConditionLastType), typeof(ConditionTargetType),
-                typeof(FilterPlayerType),
-                typeof(ConditionPilePosition.PosMode),
             } },
             { "Pack",      new[] { typeof(PackType) } },
             { "Level",     new[] { typeof(LevelFirst) } },
@@ -293,28 +297,98 @@ namespace TcgEngine.Tools
             { "Network",   new[] { typeof(SoloType), typeof(AuthenticatorType) } },
         };
 
+        // v2 (docs/condition-family-datatable-schema.md): the TABLE-level enum
+        // shape can differ from the runtime C# enum until the matching code
+        // TODOs land. Three escape hatches:
+        //   ENUM_OVERRIDES      — full member replacement, keyed by enum NAME
+        //   ENUM_MEMBER_EXCLUDE — members hidden from the table
+        //   ENUM_VIRTUAL        — enums with no runtime Type yet (per table;
+        //                         members must come from ENUM_OVERRIDES)
+        struct EnumMember
+        {
+            public string name; public int value;
+            public EnumMember(string n, int v) { name = n; value = v; }
+        }
+
+        static readonly Dictionary<string, EnumMember[]> ENUM_OVERRIDES = new Dictionary<string, EnumMember[]>
+        {
+            // TODO-2: ConditionStatType extended with the boss gauges so the
+            // Condition/Filter `stat` column replaces the old `gauge` column.
+            { "ConditionStatType", new[] {
+                new EnumMember("None", 0), new EnumMember("Attack", 10),
+                new EnumMember("HP", 20), new EnumMember("Mana", 30),
+                new EnumMember("BossSkill", 40), new EnumMember("BossAtg", 41),
+                new EnumMember("BossGroggy", 42),
+            } },
+            // TODO-3: ConditionPilePosition.PosMode promoted to top-level PilePosType.
+            { "PilePosType", new[] {
+                new EnumMember("Top", 0), new EnumMember("Bottom", 1), new EnumMember("Index", 2),
+            } },
+        };
+
+        static readonly Dictionary<string, string[]> ENUM_MEMBER_EXCLUDE = new Dictionary<string, string[]>
+        {
+            // TODO-4: WideAreaRange has its own sheet — not a Condition dispatch value.
+            { "ConditionType", new[] { "WideAreaRange" } },
+        };
+
+        static readonly Dictionary<string, string[]> ENUM_VIRTUAL = new Dictionary<string, string[]>
+        {
+            { "Condition", new[] { "PilePosType" } },
+        };
+
         SimpleXlsx.Sheet BuildEnumsSheet(string table)
         {
             var rows = new List<IList<object>>();
             rows.Add(new List<object>());  // row 1: blank spacer
 
+            bool first = true;
+            Action<string, string, IEnumerable<EnumMember>> emit = (name, backing, members) =>
+            {
+                if (!first) rows.Add(new List<object>());  // blank separator between blocks
+                first = false;
+
+                // D `!Enum` E <Name> F `!Int` G `!GenerateCsEnum` H <backing>
+                rows.Add(Indent(DataMargin, EnumMarker, name, "!Int", "!GenerateCsEnum", backing));
+
+                // D `!Enumerator` E <ValueName> F <EnumName> G <intValue>
+                foreach (var m in members)
+                    rows.Add(Indent(DataMargin, EnumeratorMarker, m.name, name, m.value));
+            };
+
             Type[] enumTypes;
             if (ENUM_OWNER.TryGetValue(table, out enumTypes))
             {
-                bool first = true;
                 foreach (var t in enumTypes)
                 {
-                    if (!first) rows.Add(new List<object>());  // blank separator between blocks
-                    first = false;
+                    EnumMember[] over;
+                    if (ENUM_OVERRIDES.TryGetValue(t.Name, out over))
+                    {
+                        emit(t.Name, "int", over);
+                        continue;
+                    }
 
-                    // D `!Enum` E <Name> F `!Int` G `!GenerateCsEnum` H <backing>
-                    rows.Add(Indent(DataMargin,
-                        EnumMarker, t.Name, "!Int", "!GenerateCsEnum", EnumBackingToken(Enum.GetUnderlyingType(t))));
-
-                    // D `!Enumerator` E <ValueName> F <EnumName> G <intValue>
+                    string[] excl;
+                    ENUM_MEMBER_EXCLUDE.TryGetValue(t.Name, out excl);
+                    var members = new List<EnumMember>();
                     foreach (var v in Enum.GetValues(t))
-                        rows.Add(Indent(DataMargin,
-                            EnumeratorMarker, v.ToString(), t.Name, Convert.ToInt32(v)));
+                    {
+                        string n = v.ToString();
+                        if (excl != null && Array.IndexOf(excl, n) >= 0) continue;
+                        members.Add(new EnumMember(n, Convert.ToInt32(v)));
+                    }
+                    emit(t.Name, EnumBackingToken(Enum.GetUnderlyingType(t)), members);
+                }
+            }
+
+            string[] virtuals;
+            if (ENUM_VIRTUAL.TryGetValue(table, out virtuals))
+            {
+                foreach (var vn in virtuals)
+                {
+                    EnumMember[] over;
+                    if (ENUM_OVERRIDES.TryGetValue(vn, out over))
+                        emit(vn, "int", over);
                 }
             }
 
@@ -346,8 +420,8 @@ namespace TcgEngine.Tools
             rows.Add(new List<object>());                       // row 1: blank spacer
             rows.Add(Indent(margin, "TableName", fileBase));    // B: label, C: table name
             rows.Add(Indent(margin, "설명", null));             // table description (blank)
-            // header row, terminated by !EndField
-            rows.Add(Indent(margin, "No", "Name", "Type", "Detail", "설명", "비고", EndField));
+            // header row, terminated by !EndField — colored to stand out
+            rows.Add(HeaderRow(margin, "No", "Name", "Type", "Detail", "설명", "비고", EndField));
 
             for (int i = 0; i < cols.Count; i++)
                 rows.Add(Indent(margin, i + 1, cols[i], typeRow[i], null, null, null));
@@ -416,6 +490,21 @@ namespace TcgEngine.Tools
             var row = new List<object>(margin + 8);
             for (int i = 0; i < margin; i++) row.Add(null);
             if (cells != null) row.AddRange(cells);
+            return row;
+        }
+
+        // Same as Indent, but wraps every content cell so it renders with the
+        // header style (bold + fill) — margin cells stay unstyled (layout only).
+        static List<object> HeaderRow(int margin, params object[] cells)
+            => HeaderRow(margin, (IEnumerable<object>)cells);
+
+        static List<object> HeaderRow(int margin, IEnumerable<object> cells)
+        {
+            var row = new List<object>(margin + 8);
+            for (int i = 0; i < margin; i++) row.Add(null);
+            if (cells != null)
+                foreach (var c in cells)
+                    row.Add(new SimpleXlsx.StyledCell { Value = c, Style = SimpleXlsx.HeaderStyle });
             return row;
         }
 
@@ -518,7 +607,7 @@ namespace TcgEngine.Tools
         //
         // One row per asset; columns are compressed BY DATA TYPE, not by
         // meaning. Each subclass's fields pack into generic typed slots:
-        //   - one column per enum type   (e.g. `pile`, `oper`, `stat_type`)
+        //   - one column per enum type   (e.g. `pile`, `oper`)
         //   - `ref1..refN`               : table refs (any `_ID_*`; just the id)
         //   - `int1..intM`               : int / bool(0/1) / float(x10000) / SlotXY(x,y)
         //   - `create_card`, `directions`: special list encodings
@@ -729,19 +818,23 @@ namespace TcgEngine.Tools
         }
 
         // ==================================================================
-        // Condition-family semantic tables
+        // Condition-family semantic tables (v2)
         //   Condition / WideAreaRange / Filter / Sort / Repeat.
         //
         // Unlike the generic BuildDDTable pooling (str1/ref1/int1...), these use
-        // hand-mapped, MEANING-named columns (see
-        // docs/condition-family-datatable-schema.md). Same-meaning fields across
-        // subclasses are merged into one column, and multi-valued cells are
-        // ';'-joined in a single cell (the table tool has no array type).
-        //   - oper: ConditionOperatorBool/Int merged -> ConditionOperator.
-        //   - single-vs-list refs unified into ';'-joined ref columns.
-        //   - value: shared comparison int (threshold/index/probability x10000).
+        // hand-mapped, MEANING-named columns sharing ONE column vocabulary
+        // across all 5 sheets (see docs/condition-family-datatable-schema.md).
+        //   - id   : plain sanitized asset name on EVERY sheet, so Ability's
+        //            FK cells (RefName) resolve without a prefix scheme.
+        //   - oper : ConditionOperatorBool/Int merged -> ConditionOperator.
+        //   - value: shared int (threshold/index/amount/probability x10000).
         //   - range: shared neighbor radius (distance/range).
-        //   - area_mask: SlotLocate(zone) / SlotPid(side) bitmask.
+        //   - flag : bool 0/1 (compare_to_max/diagonals/rest/descending) or
+        //            bitmask 1|2|4 (SlotPid side / SlotLocate zone).
+        //   - scope: ConditionPlayerType (Self/Opponent/Both) on every sheet.
+        //   - stat : ConditionStatType extended with BossSkill/BossAtg/BossGroggy
+        //            (table-level; replaces the old `gauge` column).
+        //   - single-vs-list refs unified into ';'-joined ref columns.
         // ==================================================================
 
         // Build a table with an explicit (col, token) schema and a doc header
@@ -773,6 +866,11 @@ namespace TcgEngine.Tools
         // ConditionOperatorInt member names already equal ConditionOperator's.
         static string Oper(ConditionOperatorInt o) => o.ToString();
         static string Oper(ConditionOperatorBool o) => o == ConditionOperatorBool.IsTrue ? "Equal" : "NotEqual";
+
+        // Single CardType field -> `card_kinds` list cell. None means
+        // "no type filter" in code, which a list encodes as an empty cell.
+        static string CardKind(CardType kind)
+            => kind == CardType.None ? string.Empty : kind.ToString();
 
         static string JoinEnums(System.Collections.IEnumerable items)
         {
@@ -813,28 +911,26 @@ namespace TcgEngine.Tools
         // ------------------------------------------------------------------
         DDTable BuildConditionTable()
         {
-            // `condition`(ConditionType) is the dispatch enum column — the type is
-            // no longer encoded in `id` (id = asset name, matching Ability's FK).
-            // Each meaning-specific enum keeps its OWN column (one enum type per
-            // field); none are merged.
+            // `type`(ConditionType) is the dispatch enum column — the type is
+            // not encoded in `id` (id = asset name, matching Ability's FK).
             var t = NewDDTable("Condition",
-                "id", "!Id", "condition", "ConditionType", "oper", "ConditionOperator",
-                "value", "!Int", "range", "!Int", "flag", "!Int", "area_mask", "!Int",
-                "stat_type", "ConditionStatType", "pile", "PileType",
-                "pile_pos", "PosMode", "player_scope", "ConditionPlayerType",
+                "id", "!Id", "type", "ConditionType", "oper", "ConditionOperator",
+                "value", "!Int", "range", "!Int", "flag", "!Int",
+                "scope", "ConditionPlayerType", "stat", "ConditionStatType",
+                "pile", "PileType", "pile_pos", "PilePosType",
                 "last_type", "ConditionLastType", "target_kind", "ConditionTargetType",
-                "gauge", "BossGaugeType", "card_kinds", "CardType",
+                "card_kinds", "CardType",
                 "ref_cards", "_ID_CardData", "ref_clubs", "_ID_Club",
                 "ref_traits", "_ID_Trait", "ref_status", "_ID_Status",
                 "sub_conditions", "_ID_Condition");
             foreach (var d in new[] { "Effect.xlsx", "CardData.xlsx", "Club.xlsx", "Trait.xlsx", "Status.xlsx" }) t.refDeps.Add(d);
 
             // [type별 슬롯 의미] — col -> original field name
-            DocRow(t, "Stat", "stat_type", "type", "oper", "oper", "value", "value");
+            DocRow(t, "Stat", "stat", "type", "oper", "oper", "value", "value");
             DocRow(t, "StatCustom", "ref_traits", "trait", "oper", "oper", "value", "value");
-            DocRow(t, "PlayerStat", "stat_type", "type", "oper", "oper", "value", "value");
+            DocRow(t, "PlayerStat", "stat", "type", "oper", "oper", "value", "value");
             DocRow(t, "ClubStatMatch", "ref_clubs", "club", "ref_traits", "trait", "oper", "oper");
-            DocRow(t, "BossGauge", "gauge", "gauge", "oper", "oper", "value", "value", "flag", "compare_to_max");
+            DocRow(t, "BossGauge", "stat", "gauge(Boss*)", "oper", "oper", "value", "value", "flag", "compare_to_max");
             DocRow(t, "CardType", "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait", "oper", "oper");
             DocRow(t, "CardData", "ref_cards", "card_types", "oper", "oper");
             DocRow(t, "Status", "ref_status", "has_status", "value", "value(최소스택)", "oper", "oper");
@@ -847,16 +943,16 @@ namespace TcgEngine.Tools
             DocRow(t, "Self", "oper", "oper");
             DocRow(t, "Target", "target_kind", "type", "oper", "oper");
             DocRow(t, "Triggered", "oper", "is_oper");
-            DocRow(t, "Count", "player_scope", "target", "pile", "pile", "oper", "oper", "value", "value",
+            DocRow(t, "Count", "scope", "target", "pile", "pile", "oper", "oper", "value", "value",
                 "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait", "ref_cards", "has_card");
             DocRow(t, "CardPile", "pile", "type", "oper", "oper");
             DocRow(t, "PilePosition", "pile", "pile", "pile_pos", "mode", "value", "index", "oper", "oper");
-            DocRow(t, "CanPlace", "last_type", "last_type", "ref_cards", "place_card", "player_scope", "card_owner", "oper", "oper");
+            DocRow(t, "CanPlace", "last_type", "last_type", "ref_cards", "place_card", "scope", "card_owner", "oper", "oper");
             DocRow(t, "SlotDist", "range", "distance", "flag", "diagonals");
             DocRow(t, "SlotRange", "oper", "oper");
             DocRow(t, "SlotNeighbor", "range", "range");
-            DocRow(t, "SlotPid", "area_mask", "아군+적군+중립 비트합 (SlotSideMask: 1·2·4)");
-            DocRow(t, "SlotLocate", "area_mask", "안쪽+바깥+중립 비트합 (SlotZoneMask: 1·2·4)");
+            DocRow(t, "SlotPid", "flag", "아군(1)+적군(2)+중립(4) 비트합 (SlotSideMask)");
+            DocRow(t, "SlotLocate", "flag", "안쪽(1)+바깥(2)+중립(4) 비트합 (SlotZoneMask)");
             DocRow(t, "SlotAttachmentEmpty", "oper", "oper");
             DocRow(t, "SlotUnitEmpty", "oper", "oper");
             DocRow(t, "Turn", "oper", "oper");
@@ -871,8 +967,8 @@ namespace TcgEngine.Tools
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var a in LoadSorted<ConditionData>(tp => tp == typeof(ConditionWideAreaRange)))
             {
-                string condition = MemberName(a.GetType(), "Condition");
-                var row = new Dictionary<string, object> { ["condition"] = condition };
+                string type = MemberName(a.GetType(), "Condition");
+                var row = new Dictionary<string, object> { ["type"] = type };
                 FillConditionRow(a, row);
                 row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
                 t.rows.Add(row);
@@ -885,9 +981,10 @@ namespace TcgEngine.Tools
             switch (a)
             {
                 case ConditionBossGauge c:
-                    row["gauge"] = c.gauge.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; row["flag"] = c.compare_to_max ? 1 : 0; break;
+                    // gauge -> extended ConditionStatType member (BossSkill/BossAtg/BossGroggy)
+                    row["stat"] = "Boss" + c.gauge; row["oper"] = Oper(c.oper); row["value"] = c.value; row["flag"] = c.compare_to_max ? 1 : 0; break;
                 case ConditionCanPlace c:
-                    row["last_type"] = c.last_type.ToString(); row["ref_cards"] = RefName(c.place_card); row["player_scope"] = c.card_owner.ToString(); row["oper"] = Oper(c.oper); break;
+                    row["last_type"] = c.last_type.ToString(); row["ref_cards"] = RefName(c.place_card); row["scope"] = c.card_owner.ToString(); row["oper"] = Oper(c.oper); break;
                 case ConditionCardData c:
                     row["ref_cards"] = JoinRefs(c.card_types); row["oper"] = Oper(c.oper); break;
                 case ConditionCardPile c:
@@ -899,7 +996,7 @@ namespace TcgEngine.Tools
                 case ConditionCompositeOr c:
                     row["sub_conditions"] = JoinConditionRefs(c.any); break;
                 case ConditionCount c:
-                    row["player_scope"] = c.target.ToString(); row["pile"] = c.pile.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value;
+                    row["scope"] = c.target.ToString(); row["pile"] = c.pile.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value;
                     row["card_kinds"] = JoinEnums(c.has_type); row["ref_clubs"] = JoinRefs(c.has_club); row["ref_traits"] = JoinRefs(c.has_trait); row["ref_cards"] = JoinRefs(c.has_card); break;
                 case ConditionDamaged c: row["oper"] = Oper(c.oper); break;
                 case ConditionDeckbuilding c: row["oper"] = Oper(c.oper); break;
@@ -910,7 +1007,7 @@ namespace TcgEngine.Tools
                 case ConditionOwnerAI c: row["oper"] = Oper(c.oper); break;   // AI-only check; same data as Owner
                 case ConditionOwner c: row["oper"] = Oper(c.oper); break;
                 case ConditionPilePosition c: row["pile"] = c.pile.ToString(); row["pile_pos"] = c.mode.ToString(); row["value"] = c.index; row["oper"] = Oper(c.oper); break;
-                case ConditionPlayerStat c: row["stat_type"] = c.type.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
+                case ConditionPlayerStat c: row["stat"] = c.type.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
                 case ConditionPossibility c: row["value"] = (int)Math.Round(c.possibility * 10000.0); break;
                 case ConditionRolled c: row["oper"] = Oper(c.oper); row["value"] = c.value; break;
                 case ConditionSelf c: row["oper"] = Oper(c.oper); break;
@@ -922,7 +1019,7 @@ namespace TcgEngine.Tools
                     if (c.Inside) m |= SlotZoneMask.Inside;
                     if (c.Outside) m |= SlotZoneMask.Outside;
                     if (c.Neutral) m |= SlotZoneMask.Neutral;
-                    row["area_mask"] = (int)m;
+                    row["flag"] = (int)m;
                     break;
                 }
                 case ConditionSlotNeighbor c: row["range"] = c.range; break;
@@ -932,12 +1029,12 @@ namespace TcgEngine.Tools
                     if (c.player) m |= SlotSideMask.Player;
                     if (c.opponent) m |= SlotSideMask.Opponent;
                     if (c.neutral) m |= SlotSideMask.Neutral;
-                    row["area_mask"] = (int)m;
+                    row["flag"] = (int)m;
                     break;
                 }
                 case ConditionSlotRange c: row["oper"] = Oper(c.oper); break;
                 case ConditionSlotUnitEmpty c: row["oper"] = Oper(c.oper); break;
-                case ConditionStat c: row["stat_type"] = c.type.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
+                case ConditionStat c: row["stat"] = c.type.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
                 case ConditionStatCustom c: row["ref_traits"] = RefName(c.trait); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
                 case ConditionStatus c: row["ref_status"] = StatusId(c.has_status); row["value"] = c.value; row["oper"] = Oper(c.oper); break;
                 case ConditionTarget c: row["target_kind"] = c.type.ToString(); row["oper"] = Oper(c.oper); break;
@@ -954,19 +1051,22 @@ namespace TcgEngine.Tools
         // ------------------------------------------------------------------
         DDTable BuildFilterTable()
         {
+            // amount -> shared `value`, rest -> shared `flag`. `scope` reuses
+            // ConditionPlayerType (FilterPlayerType has the same member names);
+            // FilterRandomCount's bool player_self maps to Self/Opponent.
             var t = NewDDTable("Filter",
-                "id", "!Id", "type", "FilterType", "amount", "!Int", "rest", "!Int",
-                "stat_type", "ConditionStatType", "range", "!Int", "player_scope", "FilterPlayerType",
-                "pile", "PileType", "card_kinds", "CardType", "ref_clubs", "_ID_Club", "ref_traits", "_ID_Trait");
+                "id", "!Id", "type", "FilterType", "value", "!Int", "range", "!Int", "flag", "!Int",
+                "scope", "ConditionPlayerType", "stat", "ConditionStatType", "pile", "PileType",
+                "card_kinds", "CardType", "ref_clubs", "_ID_Club", "ref_traits", "_ID_Trait");
             foreach (var d in new[] { "Effect.xlsx", "CardData.xlsx", "Club.xlsx", "Trait.xlsx" }) t.refDeps.Add(d);
 
-            DocRow(t, "First", "amount", "amount");
-            DocRow(t, "Random", "amount", "amount", "rest", "rest");
-            DocRow(t, "RandomCount", "pile", "pile", "player_scope", "player_self", "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait");
-            DocRow(t, "HighestStat", "stat_type", "stat");
-            DocRow(t, "LowestStat", "stat_type", "stat");
-            DocRow(t, "MostUnitSlot", "range", "distance", "player_scope", "player_type");
-            DocRow(t, "MostWoundedSlot", "range", "distance", "player_scope", "player_type");
+            DocRow(t, "First", "value", "amount");
+            DocRow(t, "Random", "value", "amount", "flag", "rest");
+            DocRow(t, "RandomCount", "pile", "pile", "scope", "player_self", "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait");
+            DocRow(t, "HighestStat", "stat", "stat");
+            DocRow(t, "LowestStat", "stat", "stat");
+            DocRow(t, "MostUnitSlot", "range", "distance", "scope", "player_type");
+            DocRow(t, "MostWoundedSlot", "range", "distance", "scope", "player_type");
 
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var a in LoadSorted<FilterData>())
@@ -975,18 +1075,18 @@ namespace TcgEngine.Tools
                 var row = new Dictionary<string, object> { ["type"] = type };
                 switch (a)
                 {
-                    case FilterFirst f: row["amount"] = f.amount; break;
-                    case FilterRandom f: row["amount"] = f.amount; row["rest"] = f.rest ? 1 : 0; break;
+                    case FilterFirst f: row["value"] = f.amount; break;
+                    case FilterRandom f: row["value"] = f.amount; row["flag"] = f.rest ? 1 : 0; break;
                     case FilterRandomCount f:
-                        row["pile"] = f.pile.ToString(); row["player_scope"] = (f.player_self ? FilterPlayerType.Self : FilterPlayerType.Opponent).ToString();
-                        row["card_kinds"] = f.has_type.ToString(); row["ref_clubs"] = RefName(f.has_club); row["ref_traits"] = RefName(f.has_trait); break;
-                    case FilterHighestStat f: row["stat_type"] = f.stat.ToString(); break;
-                    case FilterLowestStat f: row["stat_type"] = f.stat.ToString(); break;
-                    case FilterMostUnitSlot f: row["range"] = f.distance; row["player_scope"] = f.player_type.ToString(); break;
-                    case FilterMostWoundedSlot f: row["range"] = f.distance; row["player_scope"] = f.player_type.ToString(); break;
+                        row["pile"] = f.pile.ToString(); row["scope"] = (f.player_self ? ConditionPlayerType.Self : ConditionPlayerType.Opponent).ToString();
+                        row["card_kinds"] = CardKind(f.has_type); row["ref_clubs"] = RefName(f.has_club); row["ref_traits"] = RefName(f.has_trait); break;
+                    case FilterHighestStat f: row["stat"] = f.stat.ToString(); break;
+                    case FilterLowestStat f: row["stat"] = f.stat.ToString(); break;
+                    case FilterMostUnitSlot f: row["range"] = f.distance; row["scope"] = f.player_type.ToString(); break;
+                    case FilterMostWoundedSlot f: row["range"] = f.distance; row["scope"] = f.player_type.ToString(); break;
                     default: Debug.LogWarning("[DataTableExporter] Unmapped filter: " + a.GetType().Name); break;
                 }
-                row["id"] = MakeUniqueId(type + "_" + Sanitize(a.name), idUsed);
+                row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
                 t.rows.Add(row);
             }
             return t;
@@ -997,21 +1097,22 @@ namespace TcgEngine.Tools
         // ------------------------------------------------------------------
         DDTable BuildSortTable()
         {
-            var t = NewDDTable("Sort", "id", "!Id", "type", "SortType", "descending", "!Int", "ref_trait", "_ID_Trait");
+            // descending (SortData base field) -> shared `flag` (0=asc, 1=desc).
+            var t = NewDDTable("Sort", "id", "!Id", "type", "SortType", "flag", "!Int", "ref_traits", "_ID_Trait");
             t.refDeps.Add("Trait.xlsx");
-            DocRow(t, "Trait", "descending", "descending", "ref_trait", "trait");
+            DocRow(t, "Trait", "flag", "descending", "ref_traits", "trait");
 
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var a in LoadSorted<SortData>())
             {
                 string type = MemberName(a.GetType(), "Sort");
-                var row = new Dictionary<string, object> { ["type"] = type, ["descending"] = a.descending ? 1 : 0 };
+                var row = new Dictionary<string, object> { ["type"] = type, ["flag"] = a.descending ? 1 : 0 };
                 switch (a)
                 {
-                    case SortTrait s: row["ref_trait"] = RefName(s.trait); break;
+                    case SortTrait s: row["ref_traits"] = RefName(s.trait); break;
                     default: Debug.LogWarning("[DataTableExporter] Unmapped sort: " + a.GetType().Name); break;
                 }
-                row["id"] = MakeUniqueId(type + "_" + Sanitize(a.name), idUsed);
+                row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
                 t.rows.Add(row);
             }
             return t;
@@ -1023,12 +1124,12 @@ namespace TcgEngine.Tools
         DDTable BuildRepeatTable()
         {
             var t = NewDDTable("Repeat",
-                "id", "!Id", "type", "RepeatType", "value", "!Int", "pile", "PileType",
-                "player_scope", "ConditionPlayerType", "card_kinds", "CardType", "ref_clubs", "_ID_Club", "ref_traits", "_ID_Trait");
+                "id", "!Id", "type", "RepeatType", "value", "!Int", "scope", "ConditionPlayerType",
+                "pile", "PileType", "card_kinds", "CardType", "ref_clubs", "_ID_Club", "ref_traits", "_ID_Trait");
             foreach (var d in new[] { "Effect.xlsx", "CardData.xlsx", "Club.xlsx", "Trait.xlsx" }) t.refDeps.Add(d);
 
             DocRow(t, "StaticValue", "value", "value");
-            DocRow(t, "CountType", "pile", "pile", "player_scope", "player", "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait");
+            DocRow(t, "CountType", "pile", "pile", "scope", "player", "card_kinds", "has_type", "ref_clubs", "has_club", "ref_traits", "has_trait");
 
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var a in LoadSorted<RepeatConditionData>())
@@ -1039,24 +1140,26 @@ namespace TcgEngine.Tools
                 {
                     case RepeatStaticValue r: row["value"] = r.value; break;
                     case RepeatCountType r:
-                        row["pile"] = r.pile.ToString(); row["player_scope"] = r.player.ToString();
-                        row["card_kinds"] = r.has_type.ToString(); row["ref_clubs"] = RefName(r.has_club); row["ref_traits"] = RefName(r.has_trait); break;
+                        row["pile"] = r.pile.ToString(); row["scope"] = r.player.ToString();
+                        row["card_kinds"] = CardKind(r.has_type); row["ref_clubs"] = RefName(r.has_club); row["ref_traits"] = RefName(r.has_trait); break;
                     default: Debug.LogWarning("[DataTableExporter] Unmapped repeat: " + a.GetType().Name); break;
                 }
-                row["id"] = MakeUniqueId(type + "_" + Sanitize(a.name), idUsed);
+                row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
                 t.rows.Add(row);
             }
             return t;
         }
 
         // ------------------------------------------------------------------
-        // WideAreaRange — direction offsets only (Sprite thumbnail dropped).
-        // directions -> two ';'-joined int columns dx / dy (index-aligned).
+        // WideAreaRange — direction offsets + preview sprite path.
+        // directions -> two ';'-joined int columns dx / dy (index-aligned;
+        // both cells must have the same element count). The player-1 mirroring
+        // (dx/dy sign flip) is a RULE, not data — it stays in code.
         // id = asset name (matches Ability.condition_wide_range FK via RefName).
         // ------------------------------------------------------------------
         DDTable BuildWideAreaRangeTable()
         {
-            var t = NewDDTable("WideAreaRange", "id", "!Id", "dx", "!Int", "dy", "!Int");
+            var t = NewDDTable("WideAreaRange", "id", "!Id", "dx", "!Int", "dy", "!Int", "thumbnail", "!String");
             t.doc.Clear();  // single type, no per-type breakdown
 
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
@@ -1067,6 +1170,7 @@ namespace TcgEngine.Tools
                 {
                     ["dx"] = string.Join(";", dirs.Where(d => d != null).Select(d => d.dx)),
                     ["dy"] = string.Join(";", dirs.Where(d => d != null).Select(d => d.dy)),
+                    ["thumbnail"] = RefName(a.thumnail),
                 };
                 row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
                 t.rows.Add(row);
@@ -1201,14 +1305,29 @@ namespace TcgEngine.Tools
             foreach (var tb in tables)
             {
                 rows.Add(Indent(margin, "TableName", tb.sheet));
-                rows.Add(Indent(margin, "id", "{Type}_{이름} — 첫 '_' 앞이 dispatch 타입"));
-                rows.Add(Indent(margin, "No", "Name", "Type", "설명", EndField));
+                // column dictionary — header row colored
+                rows.Add(HeaderRow(margin, "No", "Name", "Type", "설명", EndField));
                 for (int i = 0; i < tb.cols.Count; i++)
                     rows.Add(Indent(margin, i + 1, tb.cols[i], tb.toks[i], SlotColDesc(tb.cols[i])));
 
                 rows.Add(new List<object>());
                 rows.Add(Indent(margin, "[type별 슬롯 의미]"));
-                foreach (var dr in tb.doc) rows.Add(Indent(margin, dr));
+
+                // append a trailing "검사 내용" column only when this table has
+                // per-type behavior text (Condition/Filter/Sort/Repeat; not Effect).
+                bool hasBehavior = false;
+                for (int di = 1; di < tb.doc.Count; di++)
+                    if (!string.IsNullOrEmpty(TypeBehaviorKo(tb.sheet, tb.doc[di].Count > 0 ? tb.doc[di][0] as string : null)))
+                    { hasBehavior = true; break; }
+
+                for (int di = 0; di < tb.doc.Count; di++)
+                {
+                    var cells = new List<object>(tb.doc[di]);
+                    if (hasBehavior)
+                        cells.Add(di == 0 ? "검사 내용 (무엇을·어떻게)"
+                                          : TypeBehaviorKo(tb.sheet, cells.Count > 0 ? cells[0] as string : null));
+                    rows.Add(di == 0 ? HeaderRow(margin, cells) : Indent(margin, cells));
+                }
                 rows.Add(new List<object>());  // spacer between tables
             }
             return new SimpleXlsx.Sheet { Name = "_컬럼 설명", Rows = rows, FreezeRows = 0 };
@@ -1220,32 +1339,26 @@ namespace TcgEngine.Tools
         static readonly Dictionary<string, string> COL_DESC_KO = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             { "id",             "고유 식별자. 에셋 이름이며 능력이 이 값으로 참조" },
-            { "condition",      "조건 종류. 어떤 판정을 하는지 가르는 분기 값" },
-            { "type",           "종류. 어떤 항목인지 가르는 분기 값" },
+            { "type",           "종류. 어떤 판정/동작을 하는지 가르는 분기 값" },
             { "oper",           "비교 연산자. 같음·다름·이상·이하·초과·미만 (참거짓 조건은 같음=참, 다름=거짓)" },
-            { "value",          "기준 정수값. 스탯 임계값·인덱스·최소 스택·반복 횟수 등 (확률은 만분율)" },
+            { "value",          "기준 정수값. 스탯 임계값·인덱스·최소 스택·선택 개수·반복 횟수 등 (확률은 만분율)" },
             { "range",          "이웃 슬롯 반경. 거리" },
-            { "flag",           "참거짓 플래그. 0=거짓, 1=참 (대각선 포함·최대치 비교 등)" },
-            { "area_mask",      "영역 비트합. 값 1·2·4를 더해 여러 영역 동시 선택 (진영 또는 구역)" },
+            { "flag",           "참거짓(0/1) 또는 비트합(1·2·4). 대각선 포함·최대치 비교·나머지 선택·내림차순·진영/구역 마스크" },
+            { "scope",          "대상 플레이어. 자신·상대·양쪽" },
+            { "stat",           "스탯 종류. 공격·체력·마나 또는 보스 게이지(스킬·ATG·그로기)" },
             { "pile",           "카드 더미. 덱·손·필드·장착·무덤·비밀·임시 등" },
-            { "player_scope",   "대상 플레이어. 자신·상대·양쪽" },
-            { "stat_type",      "스탯 종류. 공격·체력·마나" },
             { "pile_pos",       "더미 내 위치. 맨위·맨아래·지정 인덱스" },
             { "last_type",      "마지막 행동 종류. 마지막 선택·지정·소환·공격·파괴·플레이" },
             { "target_kind",    "대상 분류. 카드·플레이어·슬롯" },
-            { "gauge",          "보스 게이지 종류. 스킬·ATG·그로기" },
-            { "card_kinds",     "카드 종류 목록. 세미콜론 구분, 하나라도 일치하면 매칭" },
+            { "card_kinds",     "카드 종류 목록. 세미콜론 구분, 하나라도 일치하면 매칭 (빈 칸=필터 없음)" },
             { "ref_cards",      "참조 카드 목록. 카드 식별자, 세미콜론 구분" },
             { "ref_clubs",      "참조 클럽 목록. 클럽 식별자, 세미콜론 구분" },
             { "ref_traits",     "참조 특성 목록. 특성 식별자, 세미콜론 구분" },
             { "ref_status",     "참조 상태이상. 상태 식별자" },
-            { "ref_trait",      "정렬 기준 특성. 특성 식별자" },
             { "sub_conditions", "하위 조건 목록. 조건 식별자, 세미콜론 구분 (하나라도 충족 시 참)" },
-            { "amount",         "선택 개수" },
-            { "rest",           "나머지 선택 여부. 0=아니오, 1=예 (예이면 선택분을 제외한 나머지를 고름)" },
-            { "descending",     "정렬 방향. 0=오름차순, 1=내림차순" },
             { "dx",             "가로 오프셋 목록. 세미콜론 구분, 세로와 순서 정렬" },
             { "dy",             "세로 오프셋 목록. 세미콜론 구분, 가로와 순서 정렬" },
+            { "thumbnail",      "범위 미리보기 스프라이트. 에셋 경로 문자열" },
         };
 
         static string SlotColDesc(string col)
@@ -1259,6 +1372,66 @@ namespace TcgEngine.Tools
             if (col.StartsWith("int")) return "정수 슬롯 — 타입별 의미 다름. float은 ×10000, bool은 0/1 ([type별 슬롯 의미] 참조)";
             return "[type별 슬롯 의미] 참조";
         }
+
+        // 각 dispatch 타입이 "무엇을 어떻게 검사/동작" 하는지 한국어 한 줄.
+        // _컬럼 설명 시트의 [type별 슬롯 의미] 표 마지막 열에 출력된다.
+        // 키 = "{시트}.{타입}".
+        static readonly Dictionary<string, string> TYPE_BEHAVIOR_KO = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            // --- Condition ---
+            { "Condition.Stat",          "타깃(카드/플레이어)의 스탯(공격·체력·마나)을 value와 oper로 비교" },
+            { "Condition.StatCustom",    "타깃의 특정 특성(trait) 값을 value와 oper로 비교" },
+            { "Condition.PlayerStat",    "타깃 플레이어의 스탯(체력·마나)을 value와 oper로 비교 (카드면 소유 플레이어로 환산)" },
+            { "Condition.ClubStatMatch", "시전자의 특성값과 소유 클럽 카드의 같은 특성값을 oper로 비교" },
+            { "Condition.BossGauge",     "보스 게이지 현재값을 value(또는 최대치)와 oper로 비교. 보스 없으면 거짓" },
+            { "Condition.CardType",      "타깃 카드가 지정 타입·클럽·특성 중 하나라도 해당하는지 검사 (각 목록은 OR)" },
+            { "Condition.CardData",      "타깃 카드가 지정 카드 목록에 속하는지(card_id 일치) 검사" },
+            { "Condition.Status",        "타깃이 해당 상태이상을 value 스택 이상 보유했는지 검사" },
+            { "Condition.Damaged",       "타깃이 피해를 입었는지 검사 (카드 damage>0, 플레이어 hp<최대)" },
+            { "Condition.Exhaust",       "타깃 카드가 탈진 상태인지 검사" },
+            { "Condition.Equipped",      "타깃 카드에 장비가 장착됐는지 검사" },
+            { "Condition.Deckbuilding",  "카드가 덱빌딩 가능 카드인지(소환 토큰 아님) 검사" },
+            { "Condition.Owner",         "타깃의 소유자가 시전자와 같은지 검사" },
+            { "Condition.OwnerAI",       "AI일 때만 타깃 소유자가 시전자와 같은지 검사 (사람은 항상 통과)" },
+            { "Condition.Self",          "타깃이 시전자 자신인지 검사" },
+            { "Condition.Target",        "현재 타깃의 분류(카드·플레이어·슬롯)가 지정 종류와 일치하는지 검사" },
+            { "Condition.Triggered",     "타깃이 이번 능력을 발동시킨 주체인지 검사" },
+            { "Condition.Count",         "지정 플레이어·더미의 (조건 일치) 카드 수를 세어 value와 oper로 비교" },
+            { "Condition.CardPile",      "타깃 카드가 지정 더미(덱·손·필드 등)에 있는지 검사" },
+            { "Condition.PilePosition",  "타깃 카드가 더미의 지정 위치(맨위·맨아래·인덱스)에 있는지 검사" },
+            { "Condition.CanPlace",      "지정 카드를 타깃 슬롯에 배치할 수 있는지 검사" },
+            { "Condition.SlotDist",      "타깃 슬롯이 시전자로부터 range 이동거리 내인지 검사 (대각선 포함=flag)" },
+            { "Condition.SlotRange",     "타깃 슬롯이 시전자 사거리 내 이웃인지 검사" },
+            { "Condition.SlotNeighbor",  "타깃 슬롯이 시전자 기준 range 이웃 범위인지 검사" },
+            { "Condition.SlotPid",       "타깃 슬롯의 진영이 flag 비트합(1=아군·2=적군·4=중립)에 포함되는지 검사" },
+            { "Condition.SlotLocate",    "타깃 슬롯의 구역이 flag 비트합(1=안쪽·2=바깥·4=중립)에 포함되는지 검사" },
+            { "Condition.SlotAttachmentEmpty", "타깃 슬롯의 부착 칸이 비었는지 검사" },
+            { "Condition.SlotUnitEmpty", "타깃 슬롯에 유닛이 없는지 검사" },
+            { "Condition.Turn",          "현재 시전자의 턴인지 검사" },
+            { "Condition.Rolled",        "주사위 결과값을 value와 oper로 비교" },
+            { "Condition.Once",          "이번 능력이 이 턴에 아직 발동되지 않았는지 검사" },
+            { "Condition.Possibility",   "value(만분율) 확률로 통과" },
+            { "Condition.None",          "항상 참 (조건 없음)" },
+            { "Condition.LastTypeExist", "마지막 행동 기록(예: 마지막 선택)이 존재하는지 검사" },
+            { "Condition.LastTypeRange", "타깃이 마지막 행동(공격·지정·소환·파괴·플레이) 위치 기준 range 내인지 검사" },
+            { "Condition.CompositeOr",   "하위 조건 중 하나라도 충족하면 참 (OR 합성)" },
+            // --- Filter ---
+            { "Filter.First",            "앞에서부터 value개 선택" },
+            { "Filter.Random",           "무작위 value개 선택 (flag=1이면 선택분을 제외한 나머지를 선택)" },
+            { "Filter.RandomCount",      "지정 더미의 (조건 일치) 카드 수만큼 무작위 선택" },
+            { "Filter.HighestStat",      "지정 스탯이 가장 높은 대상만 선택" },
+            { "Filter.LowestStat",       "지정 스탯이 가장 낮은 대상만 선택" },
+            { "Filter.MostUnitSlot",     "range 내 유닛이 가장 많은 슬롯 1개 선택" },
+            { "Filter.MostWoundedSlot",  "range 내 부상 유닛이 가장 많은 슬롯 1개 선택" },
+            // --- Sort ---
+            { "Sort.Trait",              "지정 특성값 기준 정렬 (flag=1이면 내림차순)" },
+            // --- Repeat ---
+            { "Repeat.StaticValue",      "고정 value회 반복" },
+            { "Repeat.CountType",        "지정 플레이어·더미의 (조건 일치) 카드 수만큼 반복" },
+        };
+
+        static string TypeBehaviorKo(string sheet, string type)
+            => type != null && TYPE_BEHAVIOR_KO.TryGetValue(sheet + "." + type, out var d) ? d : "";
 
         // ------------------------------------------------------------------
         // CardData / AbilityData / WeaponData: explicit columns for ordering

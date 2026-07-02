@@ -26,6 +26,17 @@ namespace TcgEngine.Tools
             public int FreezeRows;
         }
 
+        // Wrap a cell value to attach a style index (see BuildStylesXml).
+        // Style 0 = default, 1 = header (bold text + light-blue fill).
+        public class StyledCell
+        {
+            public object Value;
+            public int Style;
+        }
+
+        // Convenience style index for header rows.
+        public const int HeaderStyle = 1;
+
         public static void Write(string path, IList<Sheet> sheets)
         {
             if (sheets == null || sheets.Count == 0)
@@ -45,6 +56,7 @@ namespace TcgEngine.Tools
                 WriteEntry(zip, "_rels/.rels", RootRels);
                 WriteEntry(zip, "xl/workbook.xml", BuildWorkbookXml(sheets));
                 WriteEntry(zip, "xl/_rels/workbook.xml.rels", BuildWorkbookRels(sheets.Count));
+                WriteEntry(zip, "xl/styles.xml", BuildStylesXml());
 
                 for (int i = 0; i < sheets.Count; i++)
                 {
@@ -100,7 +112,11 @@ namespace TcgEngine.Tools
 
         static void AppendCell(StringBuilder sb, string col, int row, object val)
         {
+            int style = 0;
+            if (val is StyledCell sc) { style = sc.Style; val = sc.Value; }
+
             sb.Append("<c r=\"").Append(col).Append(row).Append('"');
+            if (style != 0) sb.Append(" s=\"").Append(style).Append('"');
 
             if (val == null)
             {
@@ -182,6 +198,7 @@ namespace TcgEngine.Tools
             sb.Append("<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>");
             sb.Append("<Default Extension=\"xml\" ContentType=\"application/xml\"/>");
             sb.Append("<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>");
+            sb.Append("<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>");
             for (int i = 1; i <= sheetCount; i++)
             {
                 sb.Append("<Override PartName=\"/xl/worksheets/sheet").Append(i)
@@ -208,8 +225,34 @@ namespace TcgEngine.Tools
                   .Append("\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet")
                   .Append(i).Append(".xml\"/>");
             }
+            // styles part (rId right after the worksheets)
+            sb.Append("<Relationship Id=\"rId").Append(sheetCount + 1)
+              .Append("\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>");
             sb.Append("</Relationships>");
             return sb.ToString();
+        }
+
+        // Minimal style table: one default cell format (0) and one header
+        // format (1) = bold font + solid light-blue fill. Fill ids 0/1 are the
+        // OOXML-reserved 'none'/'gray125'; the custom fill is id 2.
+        static string BuildStylesXml()
+        {
+            return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                + "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"
+                + "<fonts count=\"2\"><font/><font><b/></font></fonts>"
+                + "<fills count=\"3\">"
+                  + "<fill><patternFill patternType=\"none\"/></fill>"
+                  + "<fill><patternFill patternType=\"gray125\"/></fill>"
+                  + "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFBDD7EE\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+                + "</fills>"
+                + "<borders count=\"1\"><border/></borders>"
+                + "<cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>"
+                + "<cellXfs count=\"2\">"
+                  + "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>"
+                  + "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+                + "</cellXfs>"
+                + "<cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles>"
+                + "</styleSheet>";
         }
 
         static string BuildWorkbookXml(IList<Sheet> sheets)

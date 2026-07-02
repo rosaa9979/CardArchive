@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Kurodate_Haruna
   title: "\uCFE0\uB85C\uB2E4\uD14C \uD558\uB8E8\uB098"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 0fb96467b0d3adf4a9d20855b587e851, type: 3}
+  art_board: {fileID: 21300000, guid: 616d0b4205e93d745868c1aae66905cb, type: 3}
   type: 10
   mana: 6
   attack: 4
@@ -41,6 +41,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []
