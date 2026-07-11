@@ -87,6 +87,7 @@ namespace TcgEngine.Server
             gameplay.onCardDiscarded += OnCardDiscarded;
             gameplay.onCardDissolved += OnCardDissolved;
             gameplay.onCardDrawn += OnCardDraw;
+            gameplay.onExhaustDamage += OnExhaustDamage;
             gameplay.onRollValue += OnValueRolled;
             gameplay.onCardStatChange += OnCardStatChange;
 
@@ -122,6 +123,7 @@ namespace TcgEngine.Server
             gameplay.onCardDiscarded -= OnCardDiscarded;
             gameplay.onCardDissolved -= OnCardDissolved;
             gameplay.onCardDrawn -= OnCardDraw;
+            gameplay.onExhaustDamage -= OnExhaustDamage;
             gameplay.onRollValue -= OnValueRolled;
 
             gameplay.onAbilityStart -= OnAbilityStart;
@@ -801,6 +803,13 @@ namespace TcgEngine.Server
             MsgInt mdata = new MsgInt();
             mdata.value = nb;
             SendToAll(GameAction.CardDrawn, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnExhaustDamage(Player player)
+        {
+            MsgInt mdata = new MsgInt();
+            mdata.value = player.player_id;
+            SendToAll(GameAction.ExhaustDamage, mdata, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnValueRolled(int nb)

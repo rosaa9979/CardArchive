@@ -31,6 +31,11 @@ exports.AddCard = async(req, res) =>
         var cost = card_data.cost || 1;
         var packs = card_data.packs || [];
 
+        //Website filter/stats info (optional fields)
+        var title = card_data.title || "";
+        var academy = card_data.academy || "";
+        var club_titles = card_data.club_titles || [];
+
         // 유효성 검증
         if(!tid || typeof tid !== "string")
             return res.status(400).send({error: "Invalid tid parameter"});
@@ -51,6 +56,12 @@ exports.AddCard = async(req, res) =>
         if(packs && !Array.isArray(packs))
             return res.status(400).send({error: "Invalid packs parameter"});
 
+        if(typeof title !== "string" || typeof academy !== "string")
+            return res.status(400).send({error: "Invalid title/academy parameter"});
+
+        if(!Array.isArray(club_titles))
+            return res.status(400).send({error: "Invalid club_titles parameter"});
+
         const image_file = req.files?.['image_file']?.[0] || null;
 
         var data = {
@@ -63,6 +74,9 @@ exports.AddCard = async(req, res) =>
             hp: hp,
             cost: cost,
             packs: packs,
+            title: title,
+            academy: academy,
+            club_titles: club_titles,
         }
 
         // Update or create

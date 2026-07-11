@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Mobile_Recon_Drone
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: Mobile_Recon_Drone
-  title: "기동 정찰 드론"
+  title: "\uAE30\uB3D9 \uC815\uCC30 \uB4DC\uB860"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 11
@@ -22,14 +22,13 @@ MonoBehaviour:
   hp: 2
   clubs: []
   weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
-  traits:
-  - {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
+  traits: []
   stats: []
   abilities:
   - {fileID: 11400000, guid: c677d1c9a3644e23b2a2d1c8f9aeb532, type: 2}
-  text: "기동 전술"
-  desc:
-  card_desc:
+  text: "\uAE30\uB3D9 \uC804\uC220"
+  desc: 
+  card_desc: 
   desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

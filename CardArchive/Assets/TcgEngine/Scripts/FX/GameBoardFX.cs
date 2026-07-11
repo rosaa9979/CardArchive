@@ -21,6 +21,7 @@ namespace TcgEngine.FX
             client.onCardPlayed += OnPlayCard;
             client.onCardDraw += OnCardDraw;
             client.onCardDissolved += OnDissolveCard;
+            client.onExhaustDamage += OnExhaustDamage;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -76,6 +77,17 @@ namespace TcgEngine.FX
             AudioClip draw_audio = AssetData.Get().card_draw_audio;
             AudioTool.Get().PlaySFX("card_draw", draw_audio);
             
+        }
+
+        void OnExhaustDamage(int player_id)
+        {
+            bool opponent = player_id != GameClient.Get().GetPlayerID();
+            BoardSlotPlayer bslot = BoardSlotPlayer.Get(opponent);
+            if (bslot != null)
+            {
+                FXTool.DoFX(AssetData.Get().player_exhausted_fx, bslot.transform.position);
+                AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
+            }
         }
 
         void OnDissolveCard(Card card)

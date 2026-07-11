@@ -11,24 +11,24 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Riot_Shield_Trooper
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: Riot_Shield_Trooper
-  title: "방패 진압병"
+  title: "\uBC29\uD328 \uC9C4\uC555\uBCD1"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 11
-  mana: 3
-  attack: 2
-  hp: 3
+  mana: 4
+  attack: 1
+  hp: 4
   clubs: []
   weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
   traits: []
   stats: []
   abilities:
   - {fileID: 11400000, guid: 9f8e7d6c5b4a392817069f5e4d3c2b1a, type: 2}
-  text: "넉백"
-  desc:
-  card_desc:
+  text: "\uB109\uBC31"
+  desc: 
+  card_desc: 
   desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

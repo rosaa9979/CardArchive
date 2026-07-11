@@ -238,9 +238,15 @@ namespace TcgEngine
             req.cost = card.cost;
             req.packs = new string[card.packs.Length];
 
+            //Website filter/stats info (Korean names)
+            req.title = card.GetTitle();
+            req.academy = (card.clubs.Length > 0 && card.clubs[0].academy != null) ? card.clubs[0].academy.GetTitle() : "";
+            req.club_titles = new string[card.clubs.Length];
+
             for (int i = 0; i < req.clubs.Length; i++)
             {
                 req.clubs[i] = card.clubs[i].id;
+                req.club_titles[i] = card.clubs[i].GetTitle();
             }
 
             for (int i = 0; i < req.packs.Length; i++)
@@ -389,6 +395,11 @@ namespace TcgEngine
         public int hp;
         public int cost;
         public string[] packs;
+
+        //Website filter/stats info
+        public string title;
+        public string academy;
+        public string[] club_titles;
     }
 
     [System.Serializable]

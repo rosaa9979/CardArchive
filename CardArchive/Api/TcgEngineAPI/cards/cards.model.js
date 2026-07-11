@@ -18,6 +18,11 @@ const cardsSchema = new Schema({
     hp: {type: Number, default: 0},
     cost: {type: Number, default: 0},
 
+    //Website filter/stats info (Korean names)
+    title: { type: String, default: "" },
+    academy: { type: String, default: "" },
+    club_titles: [{type: String}],
+
     packs: [{type: String}],  //Card is available in those packs
     image: { type: String, default: "" },
 });

@@ -29,11 +29,11 @@ namespace TcgEngine
 
         Play = 40, PlayCard = 41, UseCard = 42, Transform = 43,
 
-        SummonSlot = 50, Move = 51, Knockback = 52, Attack = 53, AttackRedirect = 54,
+        SummonSlot = 50, MoveUnit = 51, Knockback = 52, Attack = 53, AttackRedirect = 54,
 
         AddAbility = 60, RemoveAbility = 61, AddTrait = 62, RemoveTrait = 63, AddClub = 64,
 
-        ClearStatus = 70, Attach = 71, ChangeWeapon = 72, ChangeOwner = 73,
+        ClearStatus = 70, AttachCard = 71, ChangeWeapon = 72, ChangeOwner = 73,
         Destroy = 74, DestroyEquip = 75, Exhaust = 76,
 
         Mana = 80, Roll = 81, BossGauge = 82, StoreCount = 83, SetClubCardUI = 84,
@@ -72,10 +72,10 @@ namespace TcgEngine
         Equal = 0, NotEqual = 1, GreaterEqual = 2, LessEqual = 3, Greater = 4, Less = 5,
     }
 
-    // Backing [Flags] enums for the Condition table's shared `area_mask` column.
-    // The table stores a plain !Int (the external tool has no flags-enum support);
-    // these exist so the exporter/runtime read & write the bits type-safely instead
-    // of magic numbers. Bit layout is identical (1/2/4) so one int column serves both.
+    // Runtime [Flags] masks for ConditionSlotPid / ConditionSlotLocate.
+    // The TABLE stores a single-select `side`/`zone` enum instead (virtual
+    // SlotSide/SlotZone, values matching these bits 1/2/4) — multi-bit assets
+    // are OR-decomposed into CompositeOr rows by the exporter.
     //   SlotSideMask  <- ConditionSlotPid    (player / opponent / neutral)
     //   SlotZoneMask  <- ConditionSlotLocate (inside / outside / neutral)
     [System.Flags]

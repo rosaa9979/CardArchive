@@ -11,13 +11,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 843a21f7f6f205741a0a7341aec8e84d, type: 3}
   m_Name: Angel_24_Lunchbox
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: Angel_24_Lunchbox
-  title: "엔젤 24 도시락"
+  title: "\uC5D4\uC824 24 \uB3C4\uC2DC\uB77D"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
-  mana: 2
+  mana: 1
   attack: 0
   hp: 0
   clubs: []
@@ -26,9 +26,12 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: f0a0d1de1026498b8d33237fee8c6feb, type: 2}
-  text: "지정한 아군 1명의 체력을 3만큼 회복합니다."
-  desc: "지정한 아군 1명의 체력을 3만큼 회복합니다."
-  card_desc: "지정한 아군 1명의 체력을 3만큼 회복합니다."
+  text: "\uC9C0\uC815\uD55C \uC544\uAD70 1\uBA85\uC758 \uCCB4\uB825\uC744 3\uB9CC\uD07C
+    \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  desc: "\uC9C0\uC815\uD55C \uC544\uAD70 1\uBA85\uC758 \uCCB4\uB825\uC744 3\uB9CC\uD07C
+    \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  card_desc: "\uC9C0\uC815\uD55C \uC544\uAD70 1\uBA85\uC758 \uCCB4\uB825\uC744 3\uB9CC\uD07C
+    \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}

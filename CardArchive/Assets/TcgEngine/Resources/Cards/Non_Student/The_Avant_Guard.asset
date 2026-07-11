@@ -17,8 +17,8 @@ MonoBehaviour:
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 11
-  mana: 5
-  attack: 4
+  mana: 4
+  attack: 6
   hp: 2
   clubs: []
   weapon: {fileID: 11400000, guid: 40685c5836512d04fa03119ee5d81fa9, type: 2}
@@ -27,7 +27,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 3e633064b8ed24c4294c69cb519efd9f, type: 2}
-  text: "\uC18D\uC0AC"
+  text: "\uC18D\uC0AC, \uC720\uB2DB\uBCF4\uB2E4 \uD50C\uB808\uC774\uC5B4 \uC6B0\uC120"
   desc: 
   card_desc: 
   desc_values: []

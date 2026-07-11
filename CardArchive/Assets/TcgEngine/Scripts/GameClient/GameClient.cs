@@ -42,6 +42,7 @@ namespace TcgEngine.Client
         public UnityAction<Card> onCardTransformed;
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<int> onCardDraw;
+        public UnityAction<int> onExhaustDamage; //player_id
         public UnityAction<int> onValueRolled;
         public UnityAction<Card, EffectStatType> onCardStatChange;
 
@@ -99,6 +100,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.CardDiscarded, OnCardDiscarded);
             RegisterRefresh(GameAction.CardDissolved, OnCardDissolved);
             RegisterRefresh(GameAction.CardDrawn, OnCardDraw);
+            RegisterRefresh(GameAction.ExhaustDamage, OnExhaustDamage);
             RegisterRefresh(GameAction.ValueRolled, OnValueRolled);
             RegisterRefresh(GameAction.CardStatChange, OnCardStatChange);
 
@@ -553,6 +555,12 @@ namespace TcgEngine.Client
         {
             MsgInt msg = sdata.Get<MsgInt>();
             onCardDraw?.Invoke(msg.value);
+        }
+
+        private void OnExhaustDamage(SerializedData sdata)
+        {
+            MsgInt msg = sdata.Get<MsgInt>();
+            onExhaustDamage?.Invoke(msg.value);
         }
 
         private void OnValueRolled(SerializedData sdata)

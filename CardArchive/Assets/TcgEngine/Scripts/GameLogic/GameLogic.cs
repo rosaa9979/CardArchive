@@ -30,6 +30,7 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<Card, int> onCardDissolved;
         public UnityAction<int> onCardDrawn;
+        public UnityAction<Player> onExhaustDamage;
         public UnityAction<int> onRollValue;
         public UnityAction<Card, EffectStatType> onCardStatChange;
 
@@ -1198,7 +1199,7 @@ namespace TcgEngine.Gameplay
                     }
                     else
                     {
-                        DrawDiscardCard(player); // 손패 가득 → 묘지로 보냄
+                        player.cards_discard.Add(card); // 손패 가득 → 뽑은 카드를 묘지로 보냄
 
                         onCardDissolved?.Invoke(card, player.player_id);
                     }
@@ -1388,6 +1389,8 @@ namespace TcgEngine.Gameplay
             //Damage player
             target.hp -= target.exhaust_damage;
             target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
+
+            onExhaustDamage?.Invoke(target);
         }
 
         //Heal a card
