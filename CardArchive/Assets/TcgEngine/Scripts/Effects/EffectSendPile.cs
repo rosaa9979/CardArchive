@@ -72,6 +72,7 @@ namespace TcgEngine
                 player.RemoveCardFromAllGroups(target);
                 player.player_ability.Add(target);
                 target.Clear();
+                logic.AssignPlayOrder(target); //Player abilities are in play (trigger batches)
             }
         }
 

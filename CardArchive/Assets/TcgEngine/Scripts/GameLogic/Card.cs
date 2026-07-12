@@ -18,6 +18,14 @@ namespace TcgEngine
         public Slot slot;
         public bool exhausted;
         public int damage = 0;
+        public int play_order = 0; //Order the card entered play (game_data.play_order_counter); 0 = never entered play
+
+        //Death phase (Phase 2): destroy effects mark the card dying instead of removing it immediately.
+        //It stays on board (keeps its slot, keeps reacting to triggers) until the Death Creation Step
+        //removes it. Healing cannot save a dying card; damage deaths (GetHP()<=0) are re-checked at the step.
+        public bool dying = false;
+        public string death_source_uid = null;   //Kill attribution (kill_count / OnKill), finalized at the death step
+        public bool death_source_counter = false; //Killed by a counter-attack: kill credited but no OnKill trigger
 
         public int mana = 0;
         public int attack = 0;
@@ -61,9 +69,10 @@ namespace TcgEngine
 
         public virtual void Clear()
         {
-            ClearOngoing(); Refresh(); damage = 0; status.Clear(); 
+            ClearOngoing(); Refresh(); damage = 0; status.Clear();
             SetCard(CardData, VariantData); //Reset to initial stats
             equipped_uid = null;
+            dying = false; death_source_uid = null; death_source_counter = false;
         }
 
         public virtual int GetAttack() { return Mathf.Max(attack + attack_ongoing, 0); }
@@ -661,6 +670,10 @@ namespace TcgEngine
             dest.slot = source.slot;
             dest.exhausted = source.exhausted;
             dest.damage = source.damage;
+            dest.play_order = source.play_order;
+            dest.dying = source.dying;
+            dest.death_source_uid = source.death_source_uid;
+            dest.death_source_counter = source.death_source_counter;
 
             dest.attack = source.attack;
             dest.hp = source.hp;

@@ -73,6 +73,7 @@ namespace TcgEngine.Gameplay
         {
             //is_instant ignores all gameplay delays and process everything immediately, needed for AI prediction
             resolve_queue = new ResolveQueue(null, is_ai);
+            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths);
             is_ai_predict = is_ai;
         }
 
@@ -81,6 +82,7 @@ namespace TcgEngine.Gameplay
             game_data = game;
             TimingData timing = GameplayData.Get() != null ? GameplayData.Get().timing : null;
             resolve_queue = new ResolveQueue(game, false, timing);
+            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths);
         }
 
         public virtual void SetData(Game game)
@@ -190,6 +192,19 @@ namespace TcgEngine.Gameplay
                 //Per-turn behavior flags — first non-null provider wins; defaults to true
                 player.draws_per_turn      = FirstNonNull(providers, prov => prov.GetDrawsPerTurn(player))     ?? true;
                 player.mana_grows_per_turn = FirstNonNull(providers, prov => prov.GetManaGrowsPerTurn(player)) ?? true;
+            }
+
+            //Assign play order to cards that start the game already in play (hero, clubs,
+            //puzzle board cards, player abilities). Order of play drives simultaneous trigger ordering.
+            foreach (Player player in game_data.players)
+            {
+                AssignPlayOrder(player.hero);
+                foreach (Card card in player.cards_club)
+                    AssignPlayOrder(card);
+                foreach (Card card in player.cards_board)
+                    AssignPlayOrder(card);
+                foreach (Card card in player.player_ability)
+                    AssignPlayOrder(card);
             }
 
             //Start state
@@ -771,6 +786,9 @@ namespace TcgEngine.Gameplay
             {
                 Player player = game_data.GetPlayer(card.player_id);
 
+                //Entering play: assign order of play (drives simultaneous trigger ordering)
+                AssignPlayOrder(card);
+
                 //Cost
                 if (!skip_cost)
                     player.PayMana(card);
@@ -839,6 +857,15 @@ namespace TcgEngine.Gameplay
                 onCardPlayed?.Invoke(card, slot);
                 resolve_queue.ResolveAll(GameplayData.Get().timing.play_card);
             }
+        }
+
+        //Order of play: called whenever a card enters the field (board/hero/club/equip/attach/player ability).
+        //Leaving and re-entering the field assigns a new value (Hearthstone rule). Drives the
+        //activation order of simultaneous trigger batches (TriggerOtherCardsAbilityType and co).
+        public virtual void AssignPlayOrder(Card card)
+        {
+            if (card != null)
+                card.play_order = ++game_data.play_order_counter;
         }
 
         public virtual void MoveCard(Card card, Slot slot, bool skip_cost = false)
@@ -1041,23 +1068,13 @@ namespace TcgEngine.Gameplay
         
         protected virtual void ResolveDeath(Card attacker, Card target, bool skip_cost)
         {
-            if (game_data.attack_complete_list.Contains(target))
-            {
-                if (target.GetHP() <= 0)
-                {
-                    KillCard(attacker, target, false);
-                }
-
-                if (attacker.GetHP() <= 0)
-                    KillCard(target, attacker, true);
-            }
-
-
+            //Phase 2: lethal combat damage no longer kills here. Kill attribution was recorded in
+            //DamageCard when hp dropped to 0, and the Death Creation Step (ProcessDeathStep) removes
+            //the dying cards between attack micro-steps. This step only chains the multi-target attack.
             resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
             resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
-            
+
             RefreshData();
-            CheckForWinner();
         }
 
         public virtual void AttackPlayer(Card attacker, Player target, bool skip_cost = false)
@@ -1296,6 +1313,7 @@ namespace TcgEngine.Gameplay
                     player.cards_equip.Add(equipment);
                     card.equipped_uid = equipment.uid;
                     equipment.slot = card.slot;
+                    AssignPlayOrder(equipment); //Field entry can bypass PlayCard (effect-driven equip)
                 }
             }
         }
@@ -1325,6 +1343,7 @@ namespace TcgEngine.Gameplay
                     player.RemoveCardFromAllGroups(attachment);
                     player.cards_attach.Add(attachment);
                     attachment.slot = slot;
+                    AssignPlayOrder(attachment); //Field entry can bypass PlayCard (EffectAttach)
                 }
             }
         }
@@ -1410,6 +1429,14 @@ namespace TcgEngine.Gameplay
             target.damage -= value;
             target.damage = Mathf.Max(target.damage, 0);
 
+            //Healed back above 0 before the death step: it survives, clear stale kill attribution
+            //(a card marked dying can't be saved and keeps its attribution)
+            if (!target.dying && target.GetHP() > 0)
+            {
+                target.death_source_uid = null;
+                target.death_source_counter = false;
+            }
+
             Player p = game_data.GetPlayer(target.player_id);
 
             p.total_heal += (before - target.damage);
@@ -1445,7 +1472,8 @@ namespace TcgEngine.Gameplay
 
             target.damage += value;
 
-            if (target.GetHP() <= 0)
+            //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
+            if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
                 DiscardCard(target);
         }
 
@@ -1477,6 +1505,10 @@ namespace TcgEngine.Gameplay
             int damage_max = Mathf.Min(value, target.GetHP());
             int extra = value - target.GetHP();
             target.damage += value;
+
+            //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
+            if (value > 0 && target.GetHP() <= 0)
+                SetDeathSource(attacker, target, counter_attack);
 
             if (value > 0)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
@@ -1529,7 +1561,8 @@ namespace TcgEngine.Gameplay
 
             target.damage += value;
 
-            if (target.GetHP() <= 0)
+            //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
+            if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
                 DiscardCard(target);
         }
 
@@ -1569,6 +1602,10 @@ namespace TcgEngine.Gameplay
             int extra = value - target.GetHP();
             target.damage += value;
 
+            //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
+            if (value > 0 && target.GetHP() <= 0)
+                SetDeathSource(attacker, target, false);
+
             if (value > 0)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
 
@@ -1586,13 +1623,12 @@ namespace TcgEngine.Gameplay
             //Remove sleep on damage
             target.RemoveStatus(StatusType.Sleep);
 
-            //Deathtouch
+            //Deathtouch: marks the target dying (removed at the next Death Creation Step)
             if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
                 KillCard(attacker, target);
 
-            //Kill card if no hp
-            if (target.GetHP() <= 0)
-                KillCard(attacker, target);
+            //0 hp: no immediate kill — the Death Creation Step collects GetHP()<=0 at step time,
+            //so a heal triggered before the step can still save the card (Hearthstone rule)
         }
 
         //Damage a slot with attacker/caster
@@ -1625,28 +1661,66 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
         }
 
-        //A card that kills another card
+        //A card that kills another card. Board cards are only marked dying and are removed at the
+        //next Death Creation Step (ProcessDeathStep), which finalizes kill_count/OnKill; equipment
+        //doesn't go through the death phase and is removed immediately (previous behavior).
         public virtual void KillCard(Card attacker, Card target, bool counter_attack = false)
         {
             if (attacker == null || target == null)
                 return;
 
-            if (!game_data.IsOnBoard(target) && !game_data.IsEquipped(target))
-                return; //Already killed
+            if (game_data.IsOnBoard(target))
+            {
+                MarkDying(attacker, target, counter_attack);
+            }
+            else if (game_data.IsEquipped(target))
+            {
+                if (target.HasStatus(StatusType.Invincibility))
+                    return; //Cant be killed
+
+                Player pattacker = game_data.GetPlayer(attacker.player_id);
+                if (attacker.player_id != target.player_id)
+                    pattacker.kill_count++;
+
+                DiscardCard(target);
+
+                if (!counter_attack)
+                    TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+            }
+        }
+
+        //Phase 2: mark a board card as mortally wounded instead of removing it immediately.
+        //It keeps its slot and keeps reacting to triggers until the next Death Creation Step;
+        //healing cannot save a card marked dying (unlike plain 0-hp damage deaths).
+        public virtual void MarkDying(Card attacker, Card target, bool counter_attack = false)
+        {
+            if (target == null || !game_data.IsOnBoard(target))
+                return;
 
             if (target.HasStatus(StatusType.Invincibility))
                 return; //Cant be killed
 
-            Player pattacker = game_data.GetPlayer(attacker.player_id);
-            if (attacker.player_id != target.player_id)
-                pattacker.kill_count++;
-
-            DiscardCard(target);
-
-            if (!counter_attack)
-                TriggerCardAbilityType(AbilityTrigger.OnKill, attacker, target);
+            target.dying = true;
+            SetDeathSource(attacker, target, counter_attack);
         }
-        //Send card into discard
+
+        //Record which card gets kill credit (kill_count / OnKill) when the target dies at the
+        //death step. First lethal source wins; cleared if the card is healed back above 0.
+        protected virtual void SetDeathSource(Card attacker, Card target, bool counter_attack)
+        {
+            if (attacker == null || target == null)
+                return;
+
+            if (target.death_source_uid != null)
+                return; //Already attributed
+
+            target.death_source_uid = attacker.uid;
+            target.death_source_counter = counter_attack;
+        }
+
+        //Send card into discard. Immediate removal path (hand/deck discard, equipment, secrets,
+        //direct pile moves). Board combat/destroy deaths do NOT come through here anymore: they
+        //are marked dying and removed by the Death Creation Step, which fires the death triggers.
         public virtual void DiscardCard(Card card)
         {
             if (card == null)
@@ -1655,9 +1729,26 @@ namespace TcgEngine.Gameplay
             if (game_data.IsInDiscard(card))
                 return; //Already discarded
 
-            CardData icard = card.CardData;
-            Player player = game_data.GetPlayer(card.player_id);
             bool was_on_board = game_data.IsOnBoard(card) || game_data.IsEquipped(card);
+
+            RemoveFromPlay(card);
+
+            if (was_on_board)
+            {
+                //Trigger on death abilities (immediate path; death-step deaths fire these in ProcessDeathStep)
+                TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
+                TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
+                TriggerSecrets(AbilityTrigger.OnDeathOther, card);
+            }
+
+            onCardDiscarded?.Invoke(card);
+        }
+
+        //Remove a card from play into the discard pile WITHOUT firing death triggers.
+        //Shared by DiscardCard (immediate removal) and the Death Creation Step (simultaneous removal).
+        protected virtual void RemoveFromPlay(Card card)
+        {
+            Player player = game_data.GetPlayer(card.player_id);
 
             //Unequip card
             UnequipAll(card);
@@ -1675,22 +1766,121 @@ namespace TcgEngine.Gameplay
                 game_data.last_destroyed_slot = card.slot;
             }
 
-
             //Remove from bearer
             Card bearer = player.GetBearerCard(card);
             if (bearer != null)
                 bearer.equipped_uid = null;
 
-            if (was_on_board)
+            cards_to_clear.Add(card); //Will be Clear() in the next UpdateOngoing, so that simultaneous damage effects work
+        }
+
+        //---- Death Creation Step (Phase 2) ----
+        //Deaths are deferred: lethal damage / destroy effects only mark cards as mortally wounded
+        //(Card.dying, or GetHP()<=0 re-checked at step time). ResolveQueue invokes this step whenever
+        //the ability phase stack, base ability queue and secret queue are all drained — including
+        //between attack micro-steps. See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
+
+        private List<Card> dying_batch = new List<Card>();
+
+        //Mortally wounded at this instant (invincible cards can never die; predicate must match
+        //ProcessDeathStep's collection exactly or the resolve loop could spin forever)
+        protected virtual bool IsDying(Card card)
+        {
+            if (card.HasStatus(StatusType.Invincibility))
+                return false; //Cant be killed
+            return card.dying || card.GetHP() <= 0;
+        }
+
+        //Quick check used by ResolveQueue.CanResolve to keep the resolve loop alive while a death
+        //step is still pending (e.g. the last resolved element left a 0-hp card behind)
+        protected virtual bool HasPendingDeaths()
+        {
+            if (game_data == null || game_data.state == GameState.GameEnded)
+                return false;
+
+            foreach (Player player in game_data.players)
             {
-                //Trigger on death abilities
+                foreach (Card card in player.cards_board)
+                {
+                    if (IsDying(card))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        //Runs one death wave. Returns true if anything died (the resolve loop then resolves the
+        //queued death triggers and re-runs the step until the board is stable — deathrattle chains).
+        //All dying cards are removed BEFORE any trigger fires, so cards that die in the same wave
+        //don't receive each other's OnDeathOther (Hearthstone simultaneous-death rule).
+        protected virtual bool ProcessDeathStep()
+        {
+            if (game_data == null || game_data.state == GameState.GameEnded)
+                return false;
+
+            UpdateOngoing(); //Refresh auras first so hp reflects lost/gained ongoing bonuses
+
+            //Collect dying cards, ordered by order of play (first played dies/triggers first)
+            dying_batch.Clear();
+            foreach (Player player in game_data.players)
+            {
+                foreach (Card card in player.cards_board)
+                {
+                    if (IsDying(card))
+                        dying_batch.Add(card);
+                }
+            }
+
+            if (dying_batch.Count == 0)
+            {
+                CheckForWinner(); //Board stable: integrated win check
+                return false;
+            }
+
+            dying_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
+
+            //Death triggers open their own phase: they resolve depth-first, before anything
+            //that was already waiting (attack micro-steps, callbacks, ...)
+            resolve_queue.BeginPhase();
+
+            //Remove all at once, without triggers (simultaneous deaths)
+            foreach (Card card in dying_batch)
+            {
+                RemoveFromPlay(card);
+                onCardDiscarded?.Invoke(card);
+            }
+
+            //Finalize kill attribution (kill_count / OnKill), in death order
+            foreach (Card card in dying_batch)
+            {
+                Card killer = card.death_source_uid != null ? game_data.GetCard(card.death_source_uid) : null;
+                if (killer != null)
+                {
+                    if (killer.player_id != card.player_id)
+                        game_data.GetPlayer(killer.player_id).kill_count++;
+
+                    if (!card.death_source_counter)
+                        TriggerCardAbilityType(AbilityTrigger.OnKill, killer, card);
+                }
+            }
+
+            //OnDeath of the dead + OnDeathOther of survivors + secrets, in death order
+            foreach (Card card in dying_batch)
+            {
                 TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
                 TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
                 TriggerSecrets(AbilityTrigger.OnDeathOther, card);
             }
 
-            cards_to_clear.Add(card); //Will be Clear() in the next UpdateOngoing, so that simultaneous damage effects work
-            onCardDiscarded?.Invoke(card);
+            resolve_queue.EndPhase();
+
+            //Recompute auras now that the dead are gone, so cards that only lived off a dead
+            //card's ongoing bonus are seen by HasPendingDeaths and die in the next wave even
+            //when this wave queued no triggers (stability loop)
+            UpdateOngoing();
+
+            RefreshData();
+            return true;
         }
 
         public int RollRandomValue(int dice)
@@ -1738,40 +1928,56 @@ namespace TcgEngine.Gameplay
                 TriggerCardAbilityType(type, equipped, triggerer);
         }
         
+        //Reused buffer for ordering simultaneous trigger batches. Safe to share: TriggerCardAbilityType
+        //only enqueues abilities, it never resolves during the iteration below.
+        private List<Card> trigger_batch = new List<Card>();
+
         public virtual void TriggerOtherCardsAbilityType(AbilityTrigger type, Card triggerer)
         {
+            //Order of play: cards that entered the field first trigger first (not board slot order)
+            trigger_batch.Clear();
             foreach (Player oplayer in game_data.players)
             {
-                if(oplayer.hero != null)
-                    TriggerCardAbilityType(type, oplayer.hero, triggerer);
+                if (oplayer.hero != null)
+                    trigger_batch.Add(oplayer.hero);
 
                 foreach (Card card in oplayer.cards_board)
-                    TriggerCardAbilityType(type, card, triggerer);
+                    trigger_batch.Add(card);
                 foreach (Card club in oplayer.cards_club)
-                    TriggerCardAbilityType(type, club, triggerer);
+                    trigger_batch.Add(club);
             }
+            trigger_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
+
+            foreach (Card card in trigger_batch)
+                TriggerCardAbilityType(type, card, triggerer);
         }
 
         public virtual void TriggerPlayerCardsAbilityType(Player player, AbilityTrigger type)
         {
+            //Order of play: cards that entered the field first trigger first (not board slot order)
+            trigger_batch.Clear();
             if (player.hero != null)
-                TriggerCardAbilityType(type, player.hero, player.hero);
+                trigger_batch.Add(player.hero);
 
             foreach (Card card in player.cards_club)
-                TriggerCardAbilityType(type, card, card);
-            
+                trigger_batch.Add(card);
+
             foreach (Card card in player.cards_board)
-                TriggerCardAbilityType(type, card, card);
+                trigger_batch.Add(card);
 
             foreach (Card card in player.cards_attach)
-                TriggerCardAbilityType(type, card, card);
+                trigger_batch.Add(card);
 
             foreach (Card card in player.player_ability)
-                TriggerCardAbilityType(type, card, card);
+                trigger_batch.Add(card);
 
+            trigger_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
+
+            foreach (Card card in trigger_batch)
+                TriggerCardAbilityType(type, card, card);
         }
 
-        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null)
+        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, bool is_chain = false)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
@@ -1795,11 +2001,11 @@ namespace TcgEngine.Gameplay
                 int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
 
                 if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
-                    RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat);
+                    RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain);
             }
         }
 
-        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0)
+        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0, bool is_chain = false)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
@@ -1811,7 +2017,7 @@ namespace TcgEngine.Gameplay
             //     resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
             // }
             {
-                resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
+                resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility, is_chain);
             }
         }
 
@@ -1863,7 +2069,11 @@ namespace TcgEngine.Gameplay
             // Abilities are now enqueued unconditionally in TriggerCardAbility / RepeatTriggerCardAbility.
             // To REVERT: remove this guard and restore the enqueue-time guards
             // (search the file for "[RESOLVE-TIME TRIGGER CONDITIONS]").
-            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            // Repeat iterations (current_repeat > 0) skip this check on purpose: once an ability
+            // fired, its repeats are governed only by the repeat condition (checked at enqueue in
+            // AfterAbilityResolved), even if the first iteration's effects made the trigger
+            // condition false. See docs/resolve-queue-hearthstone-redesign.md
+            if (current_repeat == 0 && !iability.AreTriggerConditionsMet(game_data, caster, triggerer))
                 return;
 
             if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
@@ -2051,14 +2261,14 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
             CheckForWinner();
 
-            //Chain ability
+            //Chain ability (is_chain: resolves before abilities triggered by this ability's effects)
             if (iability.criteria_target != AbilityTarget.ChoiceSelector && game_data.state != GameState.GameEnded)
             {
                 foreach (AbilityData chain_ability in iability.chain_abilities)
                 {
                     if (chain_ability != null)
                     {
-                        TriggerCardAbility(chain_ability, caster);
+                        TriggerCardAbility(chain_ability, caster, null, true);
                         //TriggerCardAbility(iability, caster);
                     }
                 }
@@ -2225,15 +2435,10 @@ namespace TcgEngine.Gameplay
                         DiscardCard(card);
                 }
 
-                if (!except_death)
-                {
-                    for (int i = player.cards_board.Count - 1; i >= 0; i--)
-                    {
-                        Card card = player.cards_board[i];
-                        if (card.GetHP() <= 0)
-                            DiscardCard(card);
-                    }
-                }
+                //Phase 2: board cards at 0 hp are NOT discarded here anymore. They stay on board
+                //(mortally wounded) until the Death Creation Step removes them (ProcessDeathStep),
+                //so simultaneous deaths and death-trigger ordering are handled in one place.
+                //(except_death is kept for signature compatibility; it no longer changes behavior)
 
                 for (int i = player.cards_equip.Count - 1; i >= 0; i--)
                 {
@@ -2578,10 +2783,13 @@ namespace TcgEngine.Gameplay
                     PlayCard(caster, game_data.selector_caster_slot);
                 else
                 {
+                    //Phase: effects applied outside Resolve(), so open the depth-first scope manually
+                    resolve_queue.BeginPhase();
                     ResolveEffectTarget(ability, caster, target);
                     AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
-                }                
+                }
             }
 
             if (game_data.selector == SelectorType.SelectorCard)
@@ -2592,8 +2800,10 @@ namespace TcgEngine.Gameplay
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_card_uid = target.uid;
 
+                resolve_queue.BeginPhase();
                 ResolveEffectTarget(ability, caster, target);
                 AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                resolve_queue.EndPhase();
                 resolve_queue.ResolveAll();
             }
         }
@@ -2626,10 +2836,12 @@ namespace TcgEngine.Gameplay
                     PlayCard(caster, game_data.selector_caster_slot);
                 else
                 {
+                    resolve_queue.BeginPhase();
                     ResolveEffectTarget(ability, caster, target);
                     AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
-                }                
+                }
             }
         }
 
@@ -2666,7 +2878,8 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     List<Slot> targets = Slot.GetAll();
-                    
+
+                    resolve_queue.BeginPhase();
                     foreach (Slot targ in targets)
                     {
                         if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
@@ -2677,8 +2890,9 @@ namespace TcgEngine.Gameplay
                     }
 
                     AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
-                }    
+                }
             }
         }
 
@@ -2702,8 +2916,10 @@ namespace TcgEngine.Gameplay
                     if (achoice != null && game_data.CanSelectAbility(caster, achoice))
                     {
                         game_data.selector = SelectorType.None;
+                        resolve_queue.BeginPhase();
                         AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
                         ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data, caster), 0);
+                        resolve_queue.EndPhase();
                         resolve_queue.ResolveAll();
                     }
                 }

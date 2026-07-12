@@ -43,7 +43,10 @@ namespace TcgEngine
                 player.cards_temp.Add(card);
 
             if (create_pile == PileType.PlayerAbility)
+            {
                 player.player_ability.Add(card);
+                logic.AssignPlayOrder(card); //Player abilities are in play (trigger batches)
+            }
         }
 
         public CardData GetRandomCardData(System.Random rng)

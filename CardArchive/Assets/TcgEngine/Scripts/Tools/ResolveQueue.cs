@@ -10,22 +10,43 @@ namespace TcgEngine
     /// Resolve abilties and actions one by one, with an optional delay in between each
     /// </summary>
 
-    public class ResolveQueue 
+    public class ResolveQueue
     {
         private Pool<AbilityQueueElement> ability_elem_pool = new Pool<AbilityQueueElement>();
         private Pool<SecretQueueElement> secret_elem_pool = new Pool<SecretQueueElement>();
         private Pool<AttackQueueElement> attack_elem_pool = new Pool<AttackQueueElement>();
         private Pool<CallbackQueueElement> callback_elem_pool = new Pool<CallbackQueueElement>();
+        private Pool<AbilityPhase> phase_pool = new Pool<AbilityPhase>();
 
+        //ability_queue holds the initial simultaneous trigger batch of a top-level action.
+        //Abilities triggered WHILE an element is resolving do not go here: they go into the
+        //phase of the resolving element (see phase_stack) so they resolve depth-first,
+        //before anything that was already waiting. See docs/resolve-queue-hearthstone-redesign.md
         private Queue<AbilityQueueElement> ability_queue = new Queue<AbilityQueueElement>();
         private Queue<SecretQueueElement> secret_queue = new Queue<SecretQueueElement>();
         private Queue<AttackQueueElement> attack_queue = new Queue<AttackQueueElement>();
         private Queue<CallbackQueueElement> callback_queue = new Queue<CallbackQueueElement>();
 
+        //Depth-first phases. Every resolving element (ability/secret/attack/callback) opens
+        //a phase; abilities it triggers are added there. Phases resolve top-first, and within
+        //a phase chain abilities resolve before effect-triggered abilities.
+        //phase_stack: last item = top. insert_stack: where AddAbility currently routes to
+        //(a stack because a selector completion can nest inside another resolution).
+        private List<AbilityPhase> phase_stack = new List<AbilityPhase>();
+        private Stack<AbilityPhase> insert_stack = new Stack<AbilityPhase>();
+
         //Per-queue "gap before the next element" lives in GameplayData.timing (single source of truth).
         //Replaces the old single per_effect_delay so combat micro-steps and ability chains can be paced independently.
         //null only on the AI/skip_delay path, where delays are never applied (see GetNextQueueDelay).
         private TimingData timing;
+
+        //Death Creation Step hooks (Phase 2), set by GameLogic. death_step runs whenever the
+        //phase stack, base ability queue and secret queue are ALL drained (so also between
+        //attack micro-steps); it removes dying cards and queues their death triggers, returning
+        //true if anything died. has_deaths keeps the resolve loop alive (CanResolve) when a
+        //death step is still pending. See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
+        private Func<bool> death_step;
+        private Func<bool> has_deaths;
 
         private Game game_data;
         private bool is_resolving = false;
@@ -44,6 +65,12 @@ namespace TcgEngine
             game_data = data;
         }
 
+        public void SetDeathStep(Func<bool> death_step, Func<bool> has_deaths)
+        {
+            this.death_step = death_step;
+            this.has_deaths = has_deaths;
+        }
+
         public virtual void Update(float delta)
         {
             if (resolve_delay > 0f)
@@ -54,7 +81,7 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, int max_repeat, int current_repeat, Action<AbilityData, Card, Card, int, int> callback)
+        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, int max_repeat, int current_repeat, Action<AbilityData, Card, Card, int, int> callback, bool is_chain = false)
         {
             if (ability != null && caster != null)
             {
@@ -65,7 +92,46 @@ namespace TcgEngine
                 elem.current_repeat = current_repeat;
                 elem.ability = ability;
                 elem.callback = callback;
-                ability_queue.Enqueue(elem);
+
+                if (insert_stack.Count > 0)
+                {
+                    //Triggered while an element is resolving: goes into that element's phase
+                    //(depth-first). Chains resolve before effect-triggered abilities.
+                    AbilityPhase phase = insert_stack.Peek();
+                    if (is_chain)
+                        phase.chains.Enqueue(elem);
+                    else
+                        phase.triggers.Enqueue(elem);
+                }
+                else
+                {
+                    //Top-level simultaneous batch (e.g. OnPlay + OnPlayOther after a card is played)
+                    ability_queue.Enqueue(elem);
+                }
+            }
+        }
+
+        //Open a phase: abilities added until EndPhase resolve before everything already queued.
+        //Called automatically around each resolving element; GameLogic also calls it manually
+        //around selector completions (which apply effects outside of Resolve()).
+        public virtual void BeginPhase()
+        {
+            AbilityPhase phase = phase_pool.Create();
+            phase.active = true;
+            phase_stack.Add(phase);
+            insert_stack.Push(phase);
+        }
+
+        public virtual void EndPhase()
+        {
+            if (insert_stack.Count == 0)
+                return;
+            AbilityPhase phase = insert_stack.Pop();
+            phase.active = false;
+            if (phase.Count == 0)
+            {
+                phase_stack.Remove(phase);
+                phase_pool.Dispose(phase);
             }
         }
 
@@ -170,25 +236,39 @@ namespace TcgEngine
 
         public virtual void Resolve()
         {
-            if (ability_queue.Count > 0)
+            //Each resolving element opens its own phase so anything it triggers resolves
+            //depth-first (before elements that were already waiting).
+            AbilityQueueElement aelem = DequeueAbilityElement();
+            if (aelem != null)
             {
                 //Resolve Ability
-                AbilityQueueElement elem = ability_queue.Dequeue();
-                ability_elem_pool.Dispose(elem);
-                elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer, elem.max_repeat, elem.current_repeat);
+                ability_elem_pool.Dispose(aelem);
+                BeginPhase();
+                aelem.callback?.Invoke(aelem.ability, aelem.caster, aelem.triggerer, aelem.max_repeat, aelem.current_repeat);
+                EndPhase();
             }
             else if (secret_queue.Count > 0)
             {
                 //Resolve Secret
                 SecretQueueElement elem = secret_queue.Dequeue();
                 secret_elem_pool.Dispose(elem);
+                BeginPhase();
                 elem.callback?.Invoke(elem.secret_trigger, elem.secret, elem.triggerer);
+                EndPhase();
+            }
+            else if (death_step != null && death_step())
+            {
+                //Death Creation Step: runs only when the phase stack, base ability queue and
+                //secret queue are all drained (including between attack micro-steps). Dying cards
+                //were removed and their death triggers queued; those resolve before the next
+                //attack/callback element. Returns false (falls through) when nothing was dying.
             }
             else if (attack_queue.Count > 0)
             {
                 //Resolve Attack
                 AttackQueueElement elem = attack_queue.Dequeue();
                 attack_elem_pool.Dispose(elem);
+                BeginPhase();
                 if (elem.ptarget != null)
                     elem.pcallback?.Invoke(elem.attacker, elem.ptarget, elem.skip_cost);
                 else if (elem.target != null)
@@ -197,16 +277,59 @@ namespace TcgEngine
                     elem.acallback?.Invoke(elem.attacker, elem.atarget, elem.skip_cost);
                 else
                     elem.scallback?.Invoke(elem.attacker, elem.skip_cost);
+                EndPhase();
             }
             else if (callback_queue.Count > 0)
             {
                 CallbackQueueElement elem = callback_queue.Dequeue();
                 callback_elem_pool.Dispose(elem);
+                BeginPhase();
                 if (elem.target != null)
                     elem.acallback?.Invoke(elem.attacker, elem.target);
                 else
                     elem.callback.Invoke();
+                EndPhase();
             }
+        }
+
+        //Next ability to resolve: topmost non-empty phase first (chains before triggers),
+        //then the base queue. Cleans up drained inactive phases from the top.
+        protected virtual AbilityQueueElement DequeueAbilityElement()
+        {
+            PruneDrainedPhases();
+
+            for (int i = phase_stack.Count - 1; i >= 0; i--)
+            {
+                AbilityPhase phase = phase_stack[i];
+                if (phase.chains.Count > 0)
+                    return phase.chains.Dequeue();
+                if (phase.triggers.Count > 0)
+                    return phase.triggers.Dequeue();
+            }
+
+            if (ability_queue.Count > 0)
+                return ability_queue.Dequeue();
+            return null;
+        }
+
+        protected void PruneDrainedPhases()
+        {
+            while (phase_stack.Count > 0)
+            {
+                AbilityPhase top = phase_stack[phase_stack.Count - 1];
+                if (top.Count > 0 || top.active)
+                    break;
+                phase_stack.RemoveAt(phase_stack.Count - 1);
+                phase_pool.Dispose(top);
+            }
+        }
+
+        protected int CountAbilityElements()
+        {
+            int count = ability_queue.Count;
+            for (int i = 0; i < phase_stack.Count; i++)
+                count += phase_stack[i].Count;
+            return count;
         }
 
         public virtual void ResolveAll(float delay)
@@ -230,7 +353,7 @@ namespace TcgEngine
             else if (CanResolve())
             {
                 Resolve();
-                bool hasMore = ability_queue.Count > 0 || secret_queue.Count > 0 || attack_queue.Count > 0 || callback_queue.Count > 0;
+                bool hasMore = CountAbilityElements() > 0 || secret_queue.Count > 0 || attack_queue.Count > 0 || callback_queue.Count > 0 || HasPendingDeaths();
                 if (hasMore)
                     SetDelay(GetNextQueueDelay());
             }
@@ -246,16 +369,23 @@ namespace TcgEngine
             }
         }
 
+        protected bool HasPendingDeaths()
+        {
+            return has_deaths != null && has_deaths();
+        }
+
         //Default gap before the NEXT element resolves, picked by the queue it will come from.
-        //Must mirror Resolve()'s priority order (ability -> secret -> attack -> callback).
+        //Must mirror Resolve()'s priority order (ability -> secret -> death step -> attack -> callback).
         protected virtual float GetNextQueueDelay()
         {
             if (timing == null)
                 return 0f;
-            if (ability_queue.Count > 0)
+            if (CountAbilityElements() > 0)
                 return timing.ability;
             if (secret_queue.Count > 0)
                 return timing.secret;
+            if (HasPendingDeaths())
+                return timing.ability; //Death Creation Step is next; paced like an ability
             if (attack_queue.Count > 0)
                 return timing.attack;
             if (callback_queue.Count > 0)
@@ -271,7 +401,7 @@ namespace TcgEngine
                 return false; //Cant execute anymore when game is ended
             if (game_data.selector != SelectorType.None)
                 return false; //Waiting for player input, in the middle of resolve loop
-            return attack_queue.Count > 0 || ability_queue.Count > 0 || secret_queue.Count > 0 || callback_queue.Count > 0;
+            return attack_queue.Count > 0 || CountAbilityElements() > 0 || secret_queue.Count > 0 || callback_queue.Count > 0 || HasPendingDeaths();
         }
 
         public virtual bool IsResolving()
@@ -285,10 +415,18 @@ namespace TcgEngine
             ability_elem_pool.DisposeAll();
             secret_elem_pool.DisposeAll();
             callback_elem_pool.DisposeAll();
+            phase_pool.DisposeAll();
             attack_queue.Clear();
             ability_queue.Clear();
             secret_queue.Clear();
             callback_queue.Clear();
+            for (int i = 0; i < phase_stack.Count; i++)
+            {
+                phase_stack[i].chains.Clear();
+                phase_stack[i].triggers.Clear();
+            }
+            phase_stack.Clear();
+            insert_stack.Clear();
         }
 
         public Queue<AttackQueueElement> GetAttackQueue()
@@ -320,6 +458,18 @@ namespace TcgEngine
         public int max_repeat;
         public int current_repeat;
         public Action<AbilityData, Card, Card, int, int> callback;
+    }
+
+    //One depth-first resolution phase: everything triggered by a single resolving element.
+    //Chains resolve before effect-triggered abilities. 'active' = the owning element is
+    //still resolving (the phase may still receive elements and must not be pruned).
+    public class AbilityPhase
+    {
+        public Queue<AbilityQueueElement> chains = new Queue<AbilityQueueElement>();
+        public Queue<AbilityQueueElement> triggers = new Queue<AbilityQueueElement>();
+        public bool active;
+
+        public int Count { get { return chains.Count + triggers.Count; } }
     }
 
     public class AttackQueueElement

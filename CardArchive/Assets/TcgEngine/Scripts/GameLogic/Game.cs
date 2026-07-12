@@ -65,6 +65,7 @@ namespace TcgEngine
         public Slot last_summoned_temp_slot;
         public string ability_triggerer;
         public int rolled_value;
+        public int play_order_counter; //Increments each time a card enters play; source of Card.play_order
 
         public List<Card> attack_list = new List<Card>();
         public List<Card> attack_complete_list = new List<Card>();
@@ -810,6 +811,7 @@ namespace TcgEngine
             dest.last_summoned_slot = source.last_summoned_slot;
             dest.ability_triggerer = source.ability_triggerer;
             dest.rolled_value = source.rolled_value;
+            dest.play_order_counter = source.play_order_counter;
             dest.attack_index = source.attack_index;
 
             CloneHash(source.ability_played, dest.ability_played);
