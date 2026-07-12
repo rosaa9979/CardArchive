@@ -121,6 +121,11 @@ namespace TcgEngine.UI
             }
             dropdown_club.AddOptions(club_options);
 
+            //Pre-spawn the card pool at scene load (hidden behind BlackPanel)
+            //so opening the panel doesn't hitch on the first Show()
+            if (!spawned)
+                SpawnCards();
+
             /*
             //Set power abilities hover text
             foreach (IconButton btn in hero_powers)
@@ -172,18 +177,18 @@ namespace TcgEngine.UI
                 Destroy(card.gameObject);
             all_list.Clear();
 
-            foreach (VariantData variant in VariantData.GetAll())
+            //all_list is a reusable pool: RefreshCards() overwrites each entry with SetCard(),
+            //so only spawn as many as can ever be shown (deckbuilding cards, default variant)
+            VariantData variant = VariantData.GetDefault();
+            foreach (CardData card in CardData.GetAllDeckbuilding())
             {
-                foreach (CardData card in CardData.GetAll())
-                {
-                    GameObject nCard = Instantiate(card_prefab, grid_content.transform);
-                    CollectionCard dCard = nCard.GetComponent<CollectionCard>();
-                    dCard.SetCard(card, variant, 0);
-                    dCard.onClick += OnClickCard;
-                    dCard.onClickRight += OnClickCardRight;
-                    all_list.Add(dCard);
-                    nCard.SetActive(false);
-                }
+                GameObject nCard = Instantiate(card_prefab, grid_content.transform);
+                CollectionCard dCard = nCard.GetComponent<CollectionCard>();
+                dCard.SetCard(card, variant, 0);
+                dCard.onClick += OnClickCard;
+                dCard.onClickRight += OnClickCardRight;
+                all_list.Add(dCard);
+                nCard.SetActive(false);
             }
         }
 
