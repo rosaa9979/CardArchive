@@ -21,7 +21,9 @@ namespace TcgEngine
         public ConditionData[] conditions_trigger; //Condition checked on the card triggering the ability (usually the caster)
 
         [Header("Repeat")]
-        public RepeatConditionData condition_repeat; //Condition checked on the card triggering the ability (usually the caster)
+        public RepeatConditionData condition_repeat; //Condition checked on the card triggering the ability (usually the caster).
+                                                     //Iterations are paced Hearthstone-style: the condition is evaluated after the
+                                                     //Death Phase of the previous iteration (deaths + death triggers resolved).
 
         [Header("Target")]
         public AbilityTarget criteria_target;               //WHO is targeted?

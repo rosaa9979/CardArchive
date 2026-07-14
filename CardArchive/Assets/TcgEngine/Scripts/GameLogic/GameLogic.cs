@@ -630,6 +630,7 @@ namespace TcgEngine.Gameplay
         {
             game_data.selector = SelectorType.None;
             resolve_queue.Clear();
+            pending_repeats.Clear();
             card_array.Clear();
             player_array.Clear();
             slot_array.Clear();
@@ -1774,13 +1775,29 @@ namespace TcgEngine.Gameplay
             cards_to_clear.Add(card); //Will be Clear() in the next UpdateOngoing, so that simultaneous damage effects work
         }
 
-        //---- Death Creation Step (Phase 2) ----
+        //---- Death Phase / Death Creation Step (Phase 2) ----
         //Deaths are deferred: lethal damage / destroy effects only mark cards as mortally wounded
-        //(Card.dying, or GetHP()<=0 re-checked at step time). ResolveQueue invokes this step whenever
-        //the ability phase stack, base ability queue and secret queue are all drained — including
-        //between attack micro-steps. See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
+        //(Card.dying, or GetHP()<=0 re-checked at step time). ResolveQueue invokes this step at
+        //every outermost boundary — whenever an element and its whole depth-first subtree have
+        //finished (phase stack empty), before the next waiting element (Hearthstone rule). It also
+        //runs between attack micro-steps and before callbacks.
+        //See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
 
         private List<Card> dying_batch = new List<Card>();
+
+        //Repeat iteration deferred by AfterAbilityResolved: its repeat condition is evaluated
+        //at the Death Phase stable point, after the deaths and death triggers caused by the
+        //previous iteration fully resolved (Hearthstone/Defile pacing).
+        protected class PendingRepeat
+        {
+            public AbilityData ability;
+            public Card caster;
+            public Card triggerer;
+            public int max_repeat;
+            public int next_repeat;
+        }
+
+        private List<PendingRepeat> pending_repeats = new List<PendingRepeat>();
 
         //Mortally wounded at this instant (invincible cards can never die; predicate must match
         //ProcessDeathStep's collection exactly or the resolve loop could spin forever)
@@ -1797,6 +1814,9 @@ namespace TcgEngine.Gameplay
         {
             if (game_data == null || game_data.state == GameState.GameEnded)
                 return false;
+
+            if (pending_repeats.Count > 0)
+                return true; //Deferred repeat iteration awaiting evaluation at the stable point
 
             foreach (Player player in game_data.players)
             {
@@ -1833,7 +1853,12 @@ namespace TcgEngine.Gameplay
 
             if (dying_batch.Count == 0)
             {
-                CheckForWinner(); //Board stable: integrated win check
+                //Board stable: deaths and death triggers of the previous wave are fully resolved.
+                //This is the Defile timing — deferred repeat iterations are judged here.
+                if (ProcessPendingRepeats())
+                    return true; //Next iteration(s) queued; the resolve loop picks them up
+
+                CheckForWinner(); //Integrated win check
                 return false;
             }
 
@@ -1881,6 +1906,34 @@ namespace TcgEngine.Gameplay
 
             RefreshData();
             return true;
+        }
+
+        //Evaluates deferred repeat iterations at the Death Phase stable point. A failed repeat
+        //condition ends that repeat chain. Iterations are enqueued into a NEW phase so they
+        //resolve before anything waiting in the base queue ("repeats before the waiting batch"),
+        //and each iteration's own Death Phase runs before the next one (Defile pacing).
+        //Returns true if any next iteration was queued.
+        protected virtual bool ProcessPendingRepeats()
+        {
+            if (pending_repeats.Count == 0)
+                return false;
+
+            bool any = false;
+            resolve_queue.BeginPhase();
+            //Reverse order: entries added later come from deeper elements of the finished
+            //subtree; depth-first wants their repeat chains to complete before an outer one's.
+            for (int i = pending_repeats.Count - 1; i >= 0; i--)
+            {
+                PendingRepeat pending = pending_repeats[i];
+                if (pending.ability.AreOngoingRepeatConditionsMet(game_data, pending.max_repeat, pending.next_repeat))
+                {
+                    RepeatTriggerCardAbility(pending.ability, pending.caster, pending.triggerer, pending.max_repeat, pending.next_repeat);
+                    any = true;
+                }
+            }
+            resolve_queue.EndPhase();
+            pending_repeats.Clear();
+            return any;
         }
 
         public int RollRandomValue(int dice)
@@ -1981,79 +2034,58 @@ namespace TcgEngine.Gameplay
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
-            // [RESOLVE-TIME TRIGGER CONDITIONS] Trigger conditions are no longer evaluated here at
-            // enqueue time; they are re-evaluated when the ability actually resolves (see
-            // ResolveCardAbility), so each ability sees the latest game state produced by
-            // earlier-resolving abilities in the same trigger batch. Silence is also handled at
-            // resolve time (ResolveCardAbility -> CanDoAbilities).
-            // To REVERT to enqueue-time evaluation, replace the unconditional block below with the
-            // original guarded version:
-            //
-            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
-            // {
-            //     int current_repeat = 0;
-            //     int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
-            //     if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
-            //         RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat);
-            // }
-            {
-                int current_repeat = 0;
-                int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            // [DOUBLE-CHECK TRIGGER CONDITIONS] Hearthstone rule: trigger conditions are evaluated
+            // HERE at enqueue time (against the state of the triggering event) AND again at resolve
+            // time in ResolveCardAbility (against the latest state). The ability fires only if BOTH
+            // pass. Consequence: a condition that was false at the event but becomes true before
+            // resolve (e.g. a club host-counter cycled by an earlier ability in the same batch)
+            // does NOT fire — the ability is never enqueued.
+            // Repeat iterations skip both checks (repeat condition only, see ProcessPendingRepeats).
+            if (!caster.CanDoAbilities())
+                return; //Silenced card cant trigger
+            if (!iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+                return;
 
-                if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
-                    RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain);
-            }
+            int current_repeat = 0;
+            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+
+            if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
+                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain);
         }
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0, bool is_chain = false)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
-            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; trigger conditions and silence
-            // are re-checked in ResolveCardAbility against the latest state.
-            // To REVERT, restore the original guard:
-            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
-            // {
-            //     resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility);
-            // }
-            {
-                resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility, is_chain);
-            }
+            //Raw enqueue. First iterations arrive here through TriggerCardAbility (enqueue-time
+            //trigger-condition check already passed); repeat iterations arrive through
+            //ProcessPendingRepeats (repeat condition only, trigger conditions never re-checked).
+            //Silence and trigger conditions are re-verified at resolve time (ResolveCardAbility).
+            resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility, is_chain);
         }
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Player triggerer)
         {
-            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; conditions re-checked at resolve.
-            // NOTE: for player-triggered abilities the Player 'triggerer' is not carried into the queue
-            // (the caster is passed as the trigger card), so the resolve-time re-check uses the caster as
-            // the trigger target — matching the existing queue behaviour. Conditions that specifically
-            // depend on the player triggerer would need enqueue-time evaluation; revert if you rely on that.
-            // To REVERT, restore the original guard:
-            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
-            // {
-            //     int current_repeat = 0;
-            //     int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
-            //     RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
-            // }
-            {
-                int current_repeat = 0;
-                int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            // [DOUBLE-CHECK TRIGGER CONDITIONS] Enqueue-time check against the Player triggerer.
+            // This is the only point where player-triggerer conditions can be evaluated: the Player
+            // is not carried into the queue (the caster is passed as the trigger card), so the
+            // resolve-time re-check in ResolveCardAbility uses the caster as the trigger target.
+            if (!caster.CanDoAbilities())
+                return; //Silenced card cant trigger
+            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+                return;
 
-                RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
-            }
+            int current_repeat = 0;
+            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+
+            RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
         }
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Player triggerer, int max_repeat = 0, int current_repeat = 0)
         {
-            // [RESOLVE-TIME TRIGGER CONDITIONS] Enqueue unconditionally; conditions re-checked at resolve.
-            // To REVERT, restore the original guard:
-            // if (!caster.HasStatus(StatusType.Silenced) && iability.AreTriggerConditionsMet(game_data, caster, triggerer))
-            // {
-            //     resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
-            // }
-            {
-                resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
-            }
+            //Raw enqueue (see the Card-triggerer overload above). Enqueue-time checks happen in
+            //TriggerCardAbility; resolve-time re-check happens in ResolveCardAbility.
+            resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
         }
 
         //Resolve a card ability, may stop to ask for target
@@ -2062,17 +2094,14 @@ namespace TcgEngine.Gameplay
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
 
-            // [RESOLVE-TIME TRIGGER CONDITIONS] Evaluate trigger conditions HERE (at resolve time)
-            // instead of at enqueue time, so each ability sees the latest game state produced by
-            // earlier-resolving abilities in the same trigger batch (e.g. a club host-counter that
-            // was cycled this same turn before this member's ability resolves).
-            // Abilities are now enqueued unconditionally in TriggerCardAbility / RepeatTriggerCardAbility.
-            // To REVERT: remove this guard and restore the enqueue-time guards
-            // (search the file for "[RESOLVE-TIME TRIGGER CONDITIONS]").
+            // [DOUBLE-CHECK TRIGGER CONDITIONS] Resolve-time re-check (Hearthstone rule): the
+            // conditions already passed at enqueue time (TriggerCardAbility), and are verified
+            // again here against the latest state — an ability whose condition was invalidated by
+            // an earlier-resolving ability in the same batch is cancelled.
             // Repeat iterations (current_repeat > 0) skip this check on purpose: once an ability
-            // fired, its repeats are governed only by the repeat condition (checked at enqueue in
-            // AfterAbilityResolved), even if the first iteration's effects made the trigger
-            // condition false. See docs/resolve-queue-hearthstone-redesign.md
+            // fired, its repeats are governed only by the repeat condition (evaluated at the death
+            // phase stable point, see ProcessPendingRepeats), even if the first iteration's effects
+            // made the trigger condition false. See docs/resolve-queue-hearthstone-redesign.md
             if (current_repeat == 0 && !iability.AreTriggerConditionsMet(game_data, caster, triggerer))
                 return;
 
@@ -2277,8 +2306,22 @@ namespace TcgEngine.Gameplay
             onAbilityEnd?.Invoke(iability, caster);
             resolve_queue.ResolveAll(GameplayData.Get().timing.ability_resolve);
 
-            if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat+1))
-                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat+1);
+            //Repeat (Hearthstone/Defile pacing): the next iteration is deferred to the Death
+            //Phase stable point after this iteration's consequences (deaths + death triggers
+            //included) fully resolve. ProcessPendingRepeats then judges it by the repeat
+            //condition only (trigger condition is never re-evaluated) and re-enqueues it in a
+            //new phase, so iterations still resolve before the waiting batch.
+            if (iability.condition_repeat != null || current_repeat + 1 < max_repeat)
+            {
+                pending_repeats.Add(new PendingRepeat
+                {
+                    ability = iability,
+                    caster = caster,
+                    triggerer = trigger_card,
+                    max_repeat = max_repeat,
+                    next_repeat = current_repeat + 1,
+                });
+            }
 
 
             RefreshData();

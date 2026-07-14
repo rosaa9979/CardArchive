@@ -40,11 +40,13 @@ namespace TcgEngine
         //null only on the AI/skip_delay path, where delays are never applied (see GetNextQueueDelay).
         private TimingData timing;
 
-        //Death Creation Step hooks (Phase 2), set by GameLogic. death_step runs whenever the
-        //phase stack, base ability queue and secret queue are ALL drained (so also between
-        //attack micro-steps); it removes dying cards and queues their death triggers, returning
-        //true if anything died. has_deaths keeps the resolve loop alive (CanResolve) when a
-        //death step is still pending. See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
+        //Death Phase hooks (Phase 2), set by GameLogic. death_step runs at every outermost
+        //boundary — whenever an element and its whole depth-first subtree have finished
+        //(phase stack empty), before the next waiting element (Hearthstone rule). It removes
+        //dying cards, queues their death triggers, and at the stable point re-enqueues
+        //deferred repeat iterations; returns true if it did any of that. has_deaths gates the
+        //call and keeps the resolve loop alive (CanResolve) while a death step or deferred
+        //repeat is pending. See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
         private Func<bool> death_step;
         private Func<bool> has_deaths;
 
@@ -236,6 +238,13 @@ namespace TcgEngine
 
         public virtual void Resolve()
         {
+            //Death Phase (Hearthstone rule): runs whenever an outermost element and its whole
+            //depth-first subtree have finished (phase stack empty) — between waiting elements,
+            //never mid-subtree. Gated on has_deaths so idle boundaries skip the full step.
+            PruneDrainedPhases();
+            if (phase_stack.Count == 0 && death_step != null && has_deaths != null && has_deaths() && death_step())
+                return; //Deaths processed and/or deferred repeat iterations queued; resolve those next
+
             //Each resolving element opens its own phase so anything it triggers resolves
             //depth-first (before elements that were already waiting).
             AbilityQueueElement aelem = DequeueAbilityElement();
@@ -255,13 +264,6 @@ namespace TcgEngine
                 BeginPhase();
                 elem.callback?.Invoke(elem.secret_trigger, elem.secret, elem.triggerer);
                 EndPhase();
-            }
-            else if (death_step != null && death_step())
-            {
-                //Death Creation Step: runs only when the phase stack, base ability queue and
-                //secret queue are all drained (including between attack micro-steps). Dying cards
-                //were removed and their death triggers queued; those resolve before the next
-                //attack/callback element. Returns false (falls through) when nothing was dying.
             }
             else if (attack_queue.Count > 0)
             {
@@ -375,17 +377,18 @@ namespace TcgEngine
         }
 
         //Default gap before the NEXT element resolves, picked by the queue it will come from.
-        //Must mirror Resolve()'s priority order (ability -> secret -> death step -> attack -> callback).
+        //Must mirror Resolve()'s priority order (death phase at outermost boundaries ->
+        //ability -> secret -> attack -> callback).
         protected virtual float GetNextQueueDelay()
         {
             if (timing == null)
                 return 0f;
             if (CountAbilityElements() > 0)
                 return timing.ability;
+            if (HasPendingDeaths())
+                return timing.ability; //Death Phase is next; paced like an ability
             if (secret_queue.Count > 0)
                 return timing.secret;
-            if (HasPendingDeaths())
-                return timing.ability; //Death Creation Step is next; paced like an ability
             if (attack_queue.Count > 0)
                 return timing.attack;
             if (callback_queue.Count > 0)

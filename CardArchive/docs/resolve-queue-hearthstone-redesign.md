@@ -50,12 +50,16 @@ Phase 1 검증 (2026-07-12): 실제 `ResolveQueue.cs`를 스텁과 함께 단독
 ③ selector 중단/재개 시 chain→유발→중단 전 대기분 순서 유지, ④ secret/callback
 depth-first. 인게임 수동 확인(기존 카드 풀 대표 연계)은 남아 있음.
 
-Phase 2 검증 (2026-07-13): 같은 방식(실제 `ResolveQueue.cs` + 스텁 단독 컴파일,
-`ProcessDeathStep` 로직을 미러링한 하네스)으로 시나리오 5종 통과 —
+Phase 2 검증 (2026-07-13, 하스스톤식 통합 구조로 개정 후 2026-07-14 재검증):
+같은 방식(실제 `ResolveQueue.cs` + 스텁 단독 컴파일, `ProcessDeathStep` 로직을
+미러링한 하네스)으로 시나리오 8종 통과 —
 ① 동시 죽음(전원 제거 후 트리거, 같은 웨이브끼리 OnDeathOther 미발동, OnKill →
 OnDeath 순, play_order 순), ② 죽메 연쇄(웨이브 반복), ③ 아우라 상실 연쇄(트리거
 없는 웨이브에서도 루프 유지), ④ attack 마이크로스텝 사이 죽음 스텝 선행,
-⑤ Phase 1 depth-first/chain 회귀. 인게임 수동 확인은 남아 있음.
+⑤ Phase 1 depth-first/chain 회귀, ⑥ 모독 타이밍(회차 → 죽음 페이즈에서 죽메 토큰
+소환 → 토큰이 다음 회차에 참여 → 아무도 안 죽으면 종료), ⑦ 배치 요소 사이 죽음
+페이즈(B1이 죽인 카드의 죽음+죽메가 C1보다 먼저), ⑧ 지연 반복이 대기 배치보다 앞
+(A1 → A2 → B). 인게임 수동 확인은 남아 있음.
 
 ---
 
@@ -100,9 +104,19 @@ Stack<AbilityPhase> insert_stack; // 현재 삽입 대상 (중첩 대비)
 1. `TriggerCardAbility` / `RepeatTriggerCardAbility` (Card triggerer 버전)에
    `bool is_chain = false` 파라미터 추가, `AddAbility`까지 관통.
    `AfterAbilityResolved`의 chain 등록 루프에서만 `true`.
-2. `ResolveCardAbility`: trigger condition 검사를 `current_repeat == 0`일 때만.
-   반복 회차는 repeat condition(등록 시점의 `AreOngoingRepeatConditionsMet`)만으로
-   판정. 침묵(`CanDoAbilities`)·OnDeathOther 보드 이탈 체크는 전 회차 유지.
+2. **트리거 조건 이중 검사** (2026-07-14, 하스스톤 동일): `TriggerCardAbility`가
+   **등록 시점**에 침묵 + trigger condition을 검사해 통과한 것만 큐에 넣고,
+   `ResolveCardAbility`가 **발동 시점**에 최신 상태로 재검사 (`current_repeat == 0`일
+   때만). 둘 다 통과해야 발동. 등록 시 거짓 → 발동 시 참이 된 경우(예: 같은 배치의
+   선행 어빌리티가 갱신한 클럽 호스트 카운터를 보는 케이스)는 **발동하지 않음** —
+   이전의 "발동 시만" 정책에서 의도적으로 허용했던 케이스이므로 관련 카드 확인 필요.
+   Player triggerer 버전은 등록 시 검사가 Player 조건을 볼 수 있는 유일한 지점
+   (큐에는 Player가 보존되지 않음). 반복 회차는 양쪽 검사 모두 건너뛰고
+   repeat condition만으로 판정 (죽음 페이즈 안정 시점, `ProcessPendingRepeats`).
+   침묵(`CanDoAbilities`)·OnDeathOther 보드 이탈 체크는 발동 시점에 전 회차 유지.
+3. selector 완료 4경로(`SelectCard`/`SelectPlayer`/`SelectSlot`/`SelectChoice`)는
+   `Resolve()` 밖에서 효과를 적용하므로 효과 적용 ~ `AfterAbilityResolved` 구간을
+   `BeginPhase()`/`EndPhase()`로 직접 감싼다.
 3. selector 완료 4경로(`SelectCard`/`SelectPlayer`/`SelectSlot`/`SelectChoice`)는
    `Resolve()` 밖에서 효과를 적용하므로 효과 적용 ~ `AfterAbilityResolved` 구간을
    `BeginPhase()`/`EndPhase()`로 직접 감싼다.
@@ -119,7 +133,7 @@ Stack<AbilityPhase> insert_stack; // 현재 삽입 대상 (중첩 대비)
 
 ---
 
-## Phase 2 — 죽음 페이즈 (구현 완료, 2026-07-13)
+## Phase 2 — 죽음 페이즈 (구현 완료 2026-07-13, 하스스톤식 통합 구조로 개정 2026-07-14)
 
 ### 현재 구조의 문제
 
@@ -135,33 +149,42 @@ OnDeath/OnDeathOther/시크릿 트리거. 죽음이 데미지 적용 도중에 �
   (kill_count/OnKill용) 기록.
 - `DiscardCard`는 손/덱에서 버리기 등 비전투 즉시 제거 전용으로 남긴다.
 
-### Death Creation Step
+### Death Phase (Death Creation Step)
 
-ability 페이즈 스택 + base 큐 + secret 큐가 **모두 빈 시점마다** 실행
-(attack_queue 마이크로스텝 사이에도 실행됨):
+**outermost 요소 하나(와 그것이 유발한 depth-first 서브트리 전체)가 끝날 때마다**
+실행 — 즉 페이즈 스택이 비는 경계마다, 다음 대기 요소(base 큐의 ability/secret/
+attack 마이크로스텝/callback)를 꺼내기 **전에** 돈다 (하스스톤 원본 규칙과 동일).
+중첩 연쇄 도중(페이즈 스택 비지 않음)에는 돌지 않는다.
 
 ```
 1. UpdateOngoing()                          // 오라 갱신
 2. 죽을 대상 수집: dying || GetHP()<=0, play_order 순 정렬
-3. 없으면 CheckForWinner() 후 종료
+3. 없으면 지연 반복(pending repeat) 평가 → 없으면 CheckForWinner() 후 종료
 4. 전원 동시에 보드 제거 + 무덤 이동 (트리거 없이), 킬 귀속 확정(OnKill 등록)
 5. 죽은 카드의 OnDeath + 생존 카드의 OnDeathOther + 시크릿을 죽은 순서대로
    새 페이즈로 등록
-6. resolve 계속 → 큐가 다시 비면 재실행 (죽메 연쇄) → 안정될 때까지 반복
+6. resolve 계속 → 다음 경계에서 재실행 (죽메 연쇄) → 안정될 때까지 반복
 ```
 
-- **동시 죽음 규칙**: 4에서 전원을 먼저 제거하므로, 같은 스텝에 죽은 카드끼리는
-  서로의 OnDeathOther를 받지 않는다 (하스스톤 Cult Master 규칙).
+- **동시 죽음 규칙**: 4에서 전원을 먼저 제거하므로, 같은 웨이브에 죽은 카드끼리는
+  서로의 OnDeathOther를 받지 않는다 (하스스톤 Cult Master 규칙). 웨이브 단위가
+  "같은 outermost 요소가 만든 죽음"이므로, **서로 다른 배치 요소가 죽인 카드끼리는
+  별개 웨이브**가 되어 OnDeathOther를 주고받는다 (하스스톤과 동일).
+- 요소별 경계에서 죽음이 처리되므로, 어떤 요소가 죽인 카드의 죽메는 **다음 대기
+  요소보다 먼저** 발동한다 — 죽음/죽메까지 depth-first 원칙에 포함됨 (요구사항 1과
+  정합).
 - `cards_to_clear` 장치는 죽음 스텝에 흡수.
-- 승패 판정(`CheckForWinner`)은 죽음 스텝 마지막에 통합.
+- 승패 판정(`CheckForWinner`)은 죽음 스텝의 안정 시점에 통합.
 
 ### 구현 상세 (실제 반영 내용)
 
 - `ResolveQueue.SetDeathStep(death_step, has_deaths)`: GameLogic이
-  `ProcessDeathStep` / `HasPendingDeaths`를 훅으로 주입. `Resolve()`는
-  ability(페이즈 스택+base) → secret → **죽음 스텝** → attack → callback 순으로 판정,
+  `ProcessDeathStep` / `HasPendingDeaths`를 훅으로 주입. `Resolve()` **맨 앞**에서
+  "페이즈 스택 비어 있음(outermost 경계) && has_deaths"일 때 죽음 스텝을 먼저 돌리고,
+  아니면 ability(페이즈 스택+base) → secret → attack → callback 순으로 진행.
+  has_deaths 게이트 덕에 죽음/지연 반복이 없는 경계는 비용 없이 통과.
   `CanResolve()`/`GetNextQueueDelay()`/비-skip `hasMore`에도 `has_deaths` 반영
-  (마지막 요소가 남긴 죽음도 루프가 이어서 처리).
+  (마지막 요소가 남긴 죽음·지연 반복도 루프가 이어서 처리).
 - **빈사 판정** (`GameLogic.IsDying`): `dying || GetHP() <= 0`, Invincibility 제외.
   - 데미지 사망은 dying 플래그를 세우지 않고 **스텝 시점에 GetHP()<=0 재평가** →
     스텝 전에 힐이 들어오면 생존 (하스스톤 규칙).
@@ -181,13 +204,34 @@ ability 페이즈 스택 + base 큐 + secret 큐가 **모두 빈 시점마다** 
   OnDeath + OnDeathOther + 시크릿 순으로 등록 → 대기 중인 attack/callback보다 먼저
   resolve (depth-first 유지).
 
+### 반복(repeat) 페이싱 — 하스스톤/모독(Defile) 방식으로 통일
+
+모든 repeat는 다음 회차를 즉시 등록하지 않고 지연시킨다 (옵트인 플래그 없음, 단일
+구조):
+
+- `AfterAbilityResolved`는 반복 가능성이 있을 때(`condition_repeat != null ||
+  next < max_repeat`)만 `pending_repeats`에 적재. repeat condition 평가는 하지 않음.
+- 죽음 스텝의 **안정 시점**(이번 회차의 죽음 + 죽메 연쇄 완결)에
+  `ProcessPendingRepeats`가 repeat condition을 평가하고, 다음 회차를 **새 페이즈**에
+  등록 → 페이즈가 base 큐보다 먼저 소진되므로 **"반복분은 대기 배치보다 앞"
+  규칙이 그대로 유지**된다: `A1 → (죽음 페이즈) → A2 → … → B → C`.
+- 여러 pending이 공존하면(한 서브트리 안의 중첩 요소가 각자 반복) **역순(나중 등록
+  = 더 깊은 요소) 우선**으로 등록 — depth-first 정합.
+- 조건 실패 = 그 반복 체인 종료. `HasPendingDeaths`가 pending도 감지하므로 큐가
+  완전히 비어도 평가가 유실되지 않는다.
+- repeat condition은 죽음 처리가 끝난 보드를 보고 평가되므로 "이번 회차로
+  죽었는가" 류 조건(모독)을 그대로 쓸 수 있고, 죽메 토큰이 다음 회차에 참여한다.
+  대기 배치(B, C)는 아직 실행 전이므로 남의 킬이 판정에 섞이지 않는다.
+- trigger condition을 회차마다 재평가하지 않는 원칙은 변화 없음 (평가 시점만 이동).
+
 ### Phase 2 리스크 (구현 시 전수 확인 필요)
 
 - 빈사 카드가 죽음 스텝까지 슬롯을 점유 → 그 슬롯 대상 소환/이동 효과 타이밍 변화.
 - `last_destroyed` / `last_destroyed_slot` 참조 효과의 시점 변화.
 - "죽자마자 부활" 류 효과, `Shishido_Izumi` 등 하드코딩 특수 케이스.
-- 클라 연출: 사망 애니메이션이 페이즈 끝에 일괄 발생 (하스스톤과 동일한 연출이지만
-  기존 연출 타이밍과 달라짐). 빈사 상태 표시 여부는 별도 결정.
+- 클라 연출: 사망 애니메이션이 요소별 죽음 페이즈 경계마다 웨이브 단위로 발생
+  (하스스톤과 동일한 연출이지만 기존 즉시-사망 타이밍과 달라짐). 빈사 상태 표시
+  여부는 별도 결정.
 
 ---
 
@@ -195,10 +239,10 @@ ability 페이즈 스택 + base 큐 + secret 큐가 **모두 빈 시점마다** 
 
 | 항목 | 하스스톤 | 본 프로젝트 |
 |---|---|---|
-| 트리거 조건 평가 시점 | 큐 등록 시 + 발동 시 | **발동 시만** (선행 효과가 바꾼 최신 상태 기준) |
-| repeat 회차의 조건 | (해당 개념 없음) | repeat condition만 평가, trigger condition 미평가 |
+| repeat 회차의 조건 | (해당 개념 없음) | repeat condition만 평가, trigger condition 미평가. 회차 사이 죽음 페이즈 완결은 하스스톤(모독)과 동일 |
 | 무한 연쇄 가드 | 있음 | 없음 (기획 관리) |
 | 큐 불변성 | 등록 후 immutable | 배치 선등록 방식이라 사실상 동일 |
+| 떠난 카드의 잔존 큐 트리거 | 큐에서 제거 | OnDeathOther만 보드 이탈 가드, 그 외는 resolve됨 |
 
 ## 검증 계획
 
