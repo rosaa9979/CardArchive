@@ -472,6 +472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotation_option: 0
+  animator: {fileID: 5504506057772327067}
 --- !u!1 &1106283227620440780
 GameObject:
   m_ObjectHideFlags: 0

@@ -90,17 +90,28 @@ namespace TcgEngine.FX
             }
         }
 
-        void OnDissolveCard(Card card)
+        void OnDissolveCard(Card card, int owner_player_id)
         {
-            if (card != null)
-            {
-                GameObject prefab = AssetData.Get().card_dissolve_fx;
-                GameObject obj = FXTool.DoFX(prefab, Vector3.zero, 2.0f);
-                CardUI ui = obj.GetComponentInChildren<CardUI>();
+            if (card == null)
+                return;
 
-                CardData icard = CardData.Get(card.card_id);
-                ui.SetCard(icard, card.VariantData);
-            }
+            //스크린 UI 연출이므로 게임 캔버스 아래에 스폰 (루트가 stretch라 화면 전체에 맞춰짐)
+            GameUI game_ui = GameUI.Get();
+            if (game_ui == null || game_ui.game_canvas == null)
+                return;
+
+            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand, 2.0f);
+            if (obj == null)
+                return;
+
+            //재생 전에 카드 정보 주입, 연출은 프리팹의 Self/Enemy 애니메이션이 담당
+            CardUI ui = obj.GetComponentInChildren<CardUI>(true);
+            if (ui != null)
+                ui.SetCard(CardData.Get(card.card_id), card.VariantData);
+
+            FXSetting setting = obj.GetComponentInChildren<FXSetting>(true);
+            if (setting != null)
+                setting.PlayOwnerState(owner_player_id);
         }
 
         private void OnAbility(AbilityData iability, Card caster)

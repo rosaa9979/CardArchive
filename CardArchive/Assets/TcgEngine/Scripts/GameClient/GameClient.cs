@@ -36,7 +36,7 @@ namespace TcgEngine.Client
         public UnityAction<int> onMulligan;
 
         public UnityAction<Card, Slot> onCardPlayed;
-        public UnityAction<Card> onCardDissolved;
+        public UnityAction<Card, int> onCardDissolved; //Card, owner player_id
         public UnityAction<Card, Slot> onCardMoved;
         public UnityAction<Slot> onCardSummoned;
         public UnityAction<Card> onCardTransformed;
@@ -545,10 +545,7 @@ namespace TcgEngine.Client
         {
             MsgDissolveCard msg = sdata.Get<MsgDissolveCard>();
             Card card = game_data.GetCard(msg.card_uid);
-            int player_id = msg.player_id;
-
-            if (player_id == 2 || GetPlayerID() == player_id)
-                onCardDissolved?.Invoke(card);
+            onCardDissolved?.Invoke(card, msg.player_id);
         }
 
         private void OnCardDraw(SerializedData sdata)
