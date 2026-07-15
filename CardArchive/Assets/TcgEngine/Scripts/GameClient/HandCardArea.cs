@@ -66,6 +66,10 @@ namespace TcgEngine.Client
                 }
             }
 
+            //Keep the hand ordered exactly like the server's cards_hand, regardless of how the local
+            //list was built (it can diverge - e.g. mulligan inserts new cards before removing old ones).
+            cards.Sort(SortFunc);
+
             //Set card index
             int index = 0;
             float count_half = cards.Count / 2f;
@@ -79,10 +83,19 @@ namespace TcgEngine.Client
             HandCard selected_card = HandCard.GetDrag();
             List<HandCard> card_list = HandCard.GetAll();
 
+            //During mulligan selection the hand is shown through the mulligan UI only.
+            //This also covers the GameStart phase (starting hand is drawn there, just before the
+            //mulligan phase begins) so the freshly drawn cards don't flash in hand first.
+            //Once the handoff reveals them, the mulligan cards turn into these real hand cards.
+            bool mulligan_flow = GameplayData.Get() != null && GameplayData.Get().mulligan;
+            bool mulligan_hold = mulligan_flow
+                && (data.phase == GamePhase.Mulligan || data.phase == GamePhase.GameStart)
+                && (MulliganSelector.Get() == null || !MulliganSelector.Get().IsHandReady());
+
             foreach (HandCard hcard in card_list)
             {
                 bool visible = false;
-                if (!GameUI.Get().GetHideUI())
+                if (!mulligan_hold && !GameUI.Get().GetHideUI())
                 {
                     if (selected_card == null)
                         visible = true;
@@ -137,7 +150,19 @@ namespace TcgEngine.Client
 
         private int SortFunc(HandCard a, HandCard b)
         {
-            return cards.IndexOf(a).CompareTo(cards.IndexOf(b));
+            return HandIndex(a).CompareTo(HandIndex(b));
+        }
+
+        //Position of a hand card within the server's cards_hand (the authoritative hand order).
+        //Cards not currently in hand sort to the end.
+        private int HandIndex(HandCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+            Card c = card.GetCard();
+            Player player = c != null ? GameClient.Get().GetPlayer() : null;
+            int idx = player != null ? player.cards_hand.FindIndex(hc => hc.uid == c.uid) : -1;
+            return idx >= 0 ? idx : int.MaxValue;
         }
 
         public bool HasCard(string card_uid)

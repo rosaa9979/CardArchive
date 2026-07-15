@@ -1,5 +1,8 @@
+// Load secrets from .env (kept out of git). See .env.example for the required keys.
+require('dotenv').config();
+
 module.exports = {
-  version: "1.09", 
+  version: "1.09",
 
   port: 80,
   port_https: 443,
@@ -7,14 +10,14 @@ module.exports = {
   api_url: "",                  //If you set the URL, will block all direct IP access, or wrong url access, leave blank to allow all url access
 
   //HTTPS config, certificate is required if you want to enable HTTPS
-  https_key: "/etc/letsencrypt/live/your-domain.com/privkey.pem",
-  https_ca: "/etc/letsencrypt/live/your-domain.com/chain.pem",
-  https_cert: "/etc/letsencrypt/live/your-domain.com/cert.pem",
+  https_key: process.env.HTTPS_KEY || "/etc/letsencrypt/live/your-domain.com/privkey.pem",
+  https_ca: process.env.HTTPS_CA || "/etc/letsencrypt/live/your-domain.com/chain.pem",
+  https_cert: process.env.HTTPS_CERT || "/etc/letsencrypt/live/your-domain.com/cert.pem",
   allow_http: true,
   allow_https: true,
 
   //JS Web Token Config
-  jwt_secret: "JWT_REDACTED",     //Change this to a unique secret value
+  jwt_secret: process.env.JWT_SECRET || "",     //Set in .env  (JWT_SECRET)
   jwt_expiration: 3600 * 10,         //In seconds  (10 hours)
   jwt_refresh_expiration: 3600 * 100, //In seconds  (100 hours)
   
@@ -26,8 +29,8 @@ module.exports = {
   },
 
   //Mongo Connection
-  mongo_user: "",
-  mongo_pass: "REDACTED",
+  mongo_user: process.env.MONGO_USER || "",   //Set in .env  (MONGO_USER)
+  mongo_pass: process.env.MONGO_PASS || "",   //Set in .env  (MONGO_PASS)
   mongo_host: "127.0.0.1",
   mongo_port: "27017",
   mongo_db: "tcgengine",
@@ -49,8 +52,8 @@ module.exports = {
   smtp_email: "",           //Email used to send
   smtp_server: "",          //SMTP server URL
   smtp_port: "465",
-  smtp_user: "",            //SMTP auth user
-  smtp_password: "",        //SMTP auth password
+  smtp_user: process.env.SMTP_USER || "",            //SMTP auth user      (.env SMTP_USER)
+  smtp_password: process.env.SMTP_PASSWORD || "",    //SMTP auth password  (.env SMTP_PASSWORD)
 
   //ELO settings
   elo_k: 32,                //Higher K number will affect elo more each match

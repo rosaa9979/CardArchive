@@ -188,7 +188,7 @@ namespace TcgEngine.UI
 
         public void OnClickMenu()
         {
-            menu_panel.Show();
+            SettingsPanel.Get().Show();
         }
 
         public void OnClickBack()

@@ -14,6 +14,22 @@ namespace TcgEngine
 
     public class FXTool : MonoBehaviour
     {
+        private static Dictionary<string, GameObject> unique_fx = new Dictionary<string, GameObject>();
+
+        //Only one FX per key can be alive at a time, spawning a new one destroys the previous one
+        public static GameObject DoUniqueFX(string key, GameObject fx_prefab, Vector3 pos, float duration = 5f)
+        {
+            if (fx_prefab == null)
+                return null;
+
+            if (unique_fx.TryGetValue(key, out GameObject existing) && existing != null)
+                Destroy(existing);
+
+            GameObject fx = DoFX(fx_prefab, pos, duration);
+            unique_fx[key] = fx;
+            return fx;
+        }
+
         public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = 5f)
         {
             if (fx_prefab != null)

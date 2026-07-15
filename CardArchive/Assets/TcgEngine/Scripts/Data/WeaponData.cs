@@ -103,7 +103,7 @@ namespace TcgEngine
 
                 if (candidate_target.Count > 0)
                 {
-                    int ran = UnityEngine.Random.Range(0, candidate_target.Count);
+                    int ran = logic.GetRandom().Next(0, candidate_target.Count);
                     target.Add(candidate_target[ran]);
                 }
             }

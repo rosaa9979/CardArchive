@@ -26,7 +26,9 @@ namespace TcgEngine.FX
 
             if (current_bslot != null)
             {
-                if (card.CardData.IsBoardCard())
+                //Only show unit range over real board slots. The player zone's slot is (0,0,pid)
+                //(IsPlayerSlot), whose neighbor BFS would bogusly originate the range near field (1,1).
+                if (card.CardData.IsBoardCard() && !current_bslot.GetSlot().IsPlayerSlot())
                 {
                     List<Slot> range_slots = current_bslot.GetSlot().GetNeighborSlot(card.GetRange());
 
@@ -68,7 +70,9 @@ namespace TcgEngine.FX
 
             if (card != null && card.CardData.IsBoardCard())
             {
-                if (BSlotIndicatorUI.Get().GetCurrentBSlot() != null)
+                //Don't dim when hovering the player zone (slot (0,0,pid)) — a unit can't be placed there.
+                BSlot current = BSlotIndicatorUI.Get().GetCurrentBSlot();
+                if (current != null && !current.GetSlot().IsPlayerSlot())
                     return true;
                 return false;
             }

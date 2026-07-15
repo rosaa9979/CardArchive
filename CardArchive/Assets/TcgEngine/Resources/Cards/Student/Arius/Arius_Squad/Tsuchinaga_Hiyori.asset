@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Tsuchinaga_Hiyori
   title: "\uCE20\uCE58\uB098\uAC00 \uD788\uC694\uB9AC"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 055cba2f97c5a0f40bc7fd356b61f7f3, type: 3}
+  art_board: {fileID: 21300000, guid: 871ae9c24f364ac4bbd6dff4ea9aa815, type: 3}
   type: 10
   mana: 5
   attack: 5
@@ -30,6 +30,8 @@ MonoBehaviour:
   text: "\uC790\uC2E0\uC758 \uCC28\uB840 \uC2DC\uC791 \uC2DC, \uB9C8\uB098\uB97C
     \uD558\uB098 \uC81C\uAC70\uD558\uACE0 \uCE74\uB4DC\uB97C \uD55C \uC7A5 \uBF51\uC2B5\uB2C8\uB2E4."
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

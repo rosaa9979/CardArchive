@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Kurodate_Haruna
   title: "\uCFE0\uB85C\uB2E4\uD14C \uD558\uB8E8\uB098"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 0fb96467b0d3adf4a9d20855b587e851, type: 3}
+  art_board: {fileID: 21300000, guid: 616d0b4205e93d745868c1aae66905cb, type: 3}
   type: 10
   mana: 6
   attack: 4
@@ -25,10 +25,13 @@ MonoBehaviour:
   weapon: {fileID: 11400000, guid: 2a041c81a77cba24bbc82eb1bc717e98, type: 2}
   traits: []
   stats: []
-  abilities: []
-  text: "\uBBF8\uC2DD\uC5F0\uAD6C\uBD80 \uB3D9\uC544\uB9AC \uD6A8\uACFC \uBC1C\uB3D9
-    \uC2DC, \uCD94\uAC00 \uD53C\uD574 5\uB97C \uC785\uD78C\uB2E4."
+  abilities:
+  - {fileID: 11400000, guid: 3e925f0590eb48b597c1f9a0e7a69c4a, type: 2}
+  text: "\uBBF8\uC2DD\uC5F0\uAD6C\uBD80 \uB3D9\uC544\uB9AC \uD6A8\uACFC\uAC00 \uD53C\uD574
+    \uB300\uC2E0 \uD30C\uAD34\uB85C \uBC14\uAFBC\uB2E4."
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
@@ -38,6 +41,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []

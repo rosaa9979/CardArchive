@@ -42,6 +42,7 @@ namespace TcgEngine.Client
         public UnityAction<Card> onCardTransformed;
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<int> onCardDraw;
+        public UnityAction<int> onExhaustDamage; //player_id
         public UnityAction<int> onValueRolled;
         public UnityAction<Card, EffectStatType> onCardStatChange;
 
@@ -99,6 +100,7 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.CardDiscarded, OnCardDiscarded);
             RegisterRefresh(GameAction.CardDissolved, OnCardDissolved);
             RegisterRefresh(GameAction.CardDrawn, OnCardDraw);
+            RegisterRefresh(GameAction.ExhaustDamage, OnExhaustDamage);
             RegisterRefresh(GameAction.ValueRolled, OnValueRolled);
             RegisterRefresh(GameAction.CardStatChange, OnCardStatChange);
 
@@ -303,18 +305,24 @@ namespace TcgEngine.Client
 
         public void AttackTarget(Card card, Card target)
         {
-            MsgAttack mdata = new MsgAttack();
-            mdata.attacker_uid = card.uid;
-            mdata.target_uid = target.uid;
-            SendAction(GameAction.Attack, mdata);
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Kept for reference; the send path below is intentionally blocked at the start.
+            return;
+            //MsgAttack mdata = new MsgAttack();
+            //mdata.attacker_uid = card.uid;
+            //mdata.target_uid = target.uid;
+            //SendAction(GameAction.Attack, mdata);
         }
 
         public void AttackPlayer(Card card, Player target)
         {
-            MsgAttackPlayer mdata = new MsgAttackPlayer();
-            mdata.attacker_uid = card.uid;
-            mdata.target_id = target.player_id;
-            SendAction(GameAction.AttackPlayer, mdata);
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Kept for reference; the send path below is intentionally blocked at the start.
+            return;
+            //MsgAttackPlayer mdata = new MsgAttackPlayer();
+            //mdata.attacker_uid = card.uid;
+            //mdata.target_id = target.player_id;
+            //SendAction(GameAction.AttackPlayer, mdata);
         }
 
         public void Move(Card card, Slot slot)
@@ -547,6 +555,12 @@ namespace TcgEngine.Client
         {
             MsgInt msg = sdata.Get<MsgInt>();
             onCardDraw?.Invoke(msg.value);
+        }
+
+        private void OnExhaustDamage(SerializedData sdata)
+        {
+            MsgInt msg = sdata.Get<MsgInt>();
+            onExhaustDamage?.Invoke(msg.value);
         }
 
         private void OnValueRolled(SerializedData sdata)

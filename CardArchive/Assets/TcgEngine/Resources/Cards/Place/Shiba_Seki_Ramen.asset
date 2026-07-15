@@ -28,6 +28,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c3fe70524938e3340b2f41032a826f1b, type: 2}
   text: 
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
@@ -37,6 +39,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []

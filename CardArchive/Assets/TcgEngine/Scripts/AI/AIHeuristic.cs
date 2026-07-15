@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace TcgEngine.AI
@@ -25,18 +26,33 @@ namespace TcgEngine.AI
         public int card_hp_value = 2;           //Score per board card hp
         public int card_status_value = 15;       //Score per status on card (multiplied by hvalue of StatusData)
 
+        //---------- Placement (slot) PARAMS -------------
+
+        public int slot_coverage_value     = 8;   //Per enemy card within attack range from this slot (x2 for buildings)
+        public int slot_kill_bonus         = 12;  //If a covered enemy can be killed this combat
+        public int slot_face_value         = 30;  //Reaches enemy hero/base AND no enemy unit blocks range (win-condition)
+        public int slot_face_value_blocked = 6;   //Reaches enemy base but an enemy unit in range will be hit first
+        public int slot_exposure_value     = 6;   //Per enemy that can hit this slot (scaled by attacker value -> protect carries)
+        public int slot_row_fit_value      = 5;   //Weapon type fits the row (BACK->inside, FRONT->outside)
+
         //-----------
 
         private int ai_player_id;           //ID of this AI, usually the human is 0 and AI is 1
         private int ai_level;               //ai level (level 10 is the best, level 1 is the worst)
         private int heuristic_modifier;     //Randomize heuristic for lower level ai
+        private int placement_epsilon;      //Slot-score band width for placement noise (separate scale from heuristic_modifier)
         private System.Random random_gen;
+        private readonly HashSet<ClubData> club_buf = new HashSet<ClubData>(); //Reused, single AI thread
+        private readonly Dictionary<Slot, int> threat_buf = new Dictionary<Slot, int>(); //Reused: enemy threat count per slot
+        private readonly List<Slot> cand_slots = new List<Slot>();   //Reused: playable slot candidates
+        private readonly List<int> cand_scores = new List<int>();    //Reused: base score per candidate (parallel to cand_slots)
 
         public AIHeuristic(int player_id, int level)
         {
             ai_player_id = player_id;
             ai_level = level;
             heuristic_modifier = GetHeuristicModifier();
+            placement_epsilon = GetPlacementEpsilon();
             random_gen = new System.Random();
         }
 
@@ -96,8 +112,169 @@ namespace TcgEngine.AI
                     score -= status.StatusData.hvalue * card_status_value;
             }
 
+            //Club synergy (position-independent, each club scored on its own)
+            score += GetClubScore(data, aiplayer);
+            score -= GetClubScore(data, oplayer);
+
             if (heuristic_modifier > 0)
                 score += random_gen.Next(-heuristic_modifier, heuristic_modifier);
+
+            return score;
+        }
+
+        //Score the board-composition value of a player's clubs.
+        //Each club is evaluated independently using its ClubSynergyType; other clubs never matter.
+        private int GetClubScore(Game data, Player player)
+        {
+            club_buf.Clear();
+            foreach (Card card in player.cards_board)
+            {
+                foreach (CardClub cc in card.GetAllClubs())
+                {
+                    if (cc.ClubData != null)
+                        club_buf.Add(cc.ClubData);
+                }
+            }
+
+            int total = 0;
+            foreach (ClubData club in club_buf)
+            {
+                int n = data.GetClubCount(player, club); //Count of this club on board
+                if (n <= 0)
+                    continue;
+
+                switch (club.synergy_type)
+                {
+                    case ClubSynergyType.OnOff:
+                        if (n >= club.synergy_threshold)
+                            total += club.synergy_value; //Fixed once active, stacking adds nothing
+                        break;
+                    case ClubSynergyType.Count:
+                        total += club.synergy_value * n; //More of this club = better
+                        break;
+                    case ClubSynergyType.Individual:
+                        break; //No synergy value
+                }
+            }
+            return total;
+        }
+
+        //--------- Placement ---------
+
+        //Pick the single best empty slot to play 'card' on (m=1).
+        //Only playable slots are considered, so the returned slot is always valid (or Slot.None).
+        public Slot GetBestSlot(Game data, Player player, Card card, List<Slot> empty_mem)
+        {
+            if (empty_mem != null)
+                empty_mem.Clear();
+            //Include neutral slots as summon candidates (not just the player's own side)
+            List<Slot> empties = empty_mem != null ? empty_mem : new List<Slot>();
+            foreach (Slot s in Slot.GetAllIncludeNeutral(player.player_id))
+            {
+                if (data.GetSlotCard(s) == null)
+                    empties.Add(s);
+            }
+            Player oplayer = data.GetOpponentPlayer(player.player_id);
+
+            //Precompute enemy threat once: how many enemies can hit each slot.
+            //This does NOT depend on where we place our card, so it is hoisted out of the per-slot loop.
+            threat_buf.Clear();
+            foreach (Card e in oplayer.cards_board)
+            {
+                foreach (Slot ts in e.slot.GetNeighborSlot(e.GetRange()))
+                {
+                    threat_buf.TryGetValue(ts, out int c);
+                    threat_buf[ts] = c + 1;
+                }
+            }
+
+            //Pass 1: deterministic base score for every playable slot, and track the maximum.
+            cand_slots.Clear();
+            cand_scores.Clear();
+            int max_score = int.MinValue;
+            for (int i = 0; i < empties.Count; i++)
+            {
+                Slot s = empties[i];
+                if (!data.CanPlayCard(card, s))
+                    continue; //e.g. Place cards may only go on outside slots
+
+                int sc = EvaluateSlot(data, player, oplayer, card, s, threat_buf);
+                cand_slots.Add(s);
+                cand_scores.Add(sc);
+                if (sc > max_score)
+                    max_score = sc;
+            }
+
+            if (cand_slots.Count == 0)
+                return Slot.None; //No playable slot
+
+            //Pass 2: noise as an epsilon BAND (not an additive override). Only slots within 'epsilon' of the
+            //best are candidates, so a clearly-better slot is alone in the band and always wins; near-ties get
+            //randomized. epsilon = placement_epsilon (own curve, sized to EvaluateSlot's scale; 0 at lvl10).
+            int epsilon = placement_epsilon;
+            int threshold = max_score - epsilon;
+            Slot best = Slot.None;
+            int tie = 0;
+            for (int i = 0; i < cand_slots.Count; i++)
+            {
+                if (cand_scores[i] < threshold)
+                    continue; //outside the band
+                tie++;
+                if (random_gen.Next(tie) == 0) //reservoir sampling -> uniform among band members
+                    best = cand_slots[i];
+            }
+
+            return best;
+        }
+
+        //Static placement score for putting 'card' on slot 's' (no game cloning).
+        //Considers: attack-range coverage, reaching the enemy base (conditional), survival exposure, weapon-row fit.
+        //'threat' = precomputed enemy-threat count per slot (see GetBestSlot).
+        public int EvaluateSlot(Game data, Player player, Player oplayer, Card card, Slot s, Dictionary<Slot, int> threat)
+        {
+            List<Slot> reach = s.GetNeighborSlot(card.GetRange());
+            int score = 0;
+
+            //(1) Enemy cards within attack range from this slot
+            bool has_unit_target = false;
+            foreach (Card e in oplayer.cards_board)
+            {
+                if (!reach.Contains(e.slot))
+                    continue;
+                has_unit_target = true;
+                score += slot_coverage_value;
+                if (e.CardData.IsPlace())
+                    score += slot_coverage_value;       //Buildings are priority targets
+                if (card.GetAttack() >= e.GetHP())
+                    score += slot_kill_bonus;            //Can kill it this combat
+            }
+
+            //(1b) Reaching the enemy base (face). Combat hits units first, so weight by whether range is blocked.
+            List<Slot> enemy_inside = Slot.GetInsideSlot(oplayer.player_id);
+            bool face_reach = false;
+            for (int i = 0; i < reach.Count; i++)
+            {
+                if (enemy_inside.Contains(reach[i]))
+                {
+                    face_reach = true;
+                    break;
+                }
+            }
+            if (face_reach)
+                score += has_unit_target ? slot_face_value_blocked : slot_face_value;
+
+            //(2) Survival exposure - O(1) lookup of how many enemies cover this slot (scale by attack -> protect carries)
+            threat.TryGetValue(s, out int threat_count);
+            if (threat_count > 0)
+                score -= slot_exposure_value * (1 + card.GetAttack() / 4) * threat_count;
+
+            //(3) Weapon-row fit: ranged units want the back (inside), melee wants the front (outside)
+            bool inside = Slot.GetInsideSlot(player.player_id).Contains(s);
+            WeaponType wtype = card.weapon != null ? card.GetWeaponType() : WeaponType.NONE;
+            if (wtype == WeaponType.BACK && inside)
+                score += slot_row_fit_value;
+            if (wtype == WeaponType.FRONT && !inside)
+                score += slot_row_fit_value;
 
             return score;
         }
@@ -118,21 +295,6 @@ namespace TcgEngine.AI
                 return 200;
             }
 
-            if (order.type == GameAction.Attack)
-            {
-                Card card = data.GetCard(order.card_uid);
-                Card target = data.GetCard(order.target_uid);
-                int ascore = card.GetAttack() >= target.GetHP() ? 300 : 100; //Are you killing the card?
-                int oscore = target.GetAttack() >= card.GetHP() ? -200 : 0; //Are you getting killed?
-                return ascore + oscore + target.GetAttack() * 5;            //Always better to get rid of high-attack cards
-            }
-            if (order.type == GameAction.AttackPlayer)
-            {
-                Card card = data.GetCard(order.card_uid);
-                Player player = data.GetPlayer(order.target_player_id);
-                int ascore = card.GetAttack() >= player.hp ? 500 : 200;     //Are you killing the player?
-                return ascore + (card.GetAttack() * 10) - player.hp;        //Always better to inflict more damage
-            }
             if (order.type == GameAction.PlayCard)
             {
                 Player player = data.GetPlayer(ai_player_id);
@@ -176,10 +338,6 @@ namespace TcgEngine.AI
                 type_sort = 2; //Card Abilities second
             if (order.type == GameAction.Move)
                 type_sort = 3; //Move third
-            if (order.type == GameAction.Attack)
-                type_sort = 4; //Attacks fourth
-            if (order.type == GameAction.AttackPlayer)
-                type_sort = 5; //Player attacks fifth
             if (order.type == GameAction.PlayCard && !is_spell)
                 type_sort = 7; //Play Citizens last
 
@@ -215,11 +373,180 @@ namespace TcgEngine.AI
             return 0;
         }
 
+        //Placement noise band width, on EvaluateSlot's score scale (~0-60), separate from heuristic_modifier.
+        //0 at lvl10 (strict best); widens at lower levels so weaker AIs vary placement among comparable slots.
+        private int GetPlacementEpsilon()
+        {
+            if (ai_level >= 10)
+                return 0;
+            if (ai_level == 9)
+                return 1;
+            if (ai_level == 8)
+                return 2;
+            if (ai_level == 7)
+                return 4;
+            if (ai_level == 6)
+                return 6;
+            if (ai_level == 5)
+                return 8;
+            if (ai_level == 4)
+                return 10;
+            if (ai_level == 3)
+                return 14;
+            if (ai_level == 2)
+                return 18;
+            if (ai_level <= 1)
+                return 25;
+            return 0;
+        }
+
         //Check if this node represent one of the players winning
         public bool IsWin(NodeState node)
         {
             return node.hvalue > 50000 || node.hvalue < -50000;
         }
+
+#if UNITY_EDITOR
+        //EDITOR-ONLY: detailed, per-term breakdown of CalculateHeuristic for the AI-debug panel.
+        //Scalar terms are shown split by side (count x weight); units are listed per card and clubs per club.
+        //Mirrors CalculateHeuristic exactly; the random level modifier is NOT added (0 at level 10), so the
+        //listed contributions sum to node.hvalue exactly at level 10 (off by at most +-modifier below that).
+        public void AppendBreakdown(Game data, NodeState node, StringBuilder sb)
+        {
+            Player ai = data.GetPlayer(ai_player_id);
+            Player op = data.GetOpponentPlayer(ai_player_id);
+
+            if (ai.IsDead())
+                AddNet(sb, "패배(내 본진 파괴)", -100000 + node.tdepth * 1000);
+            if (op.IsDead())
+                AddNet(sb, "승리(상대 본진 파괴)", 100000 - node.tdepth * 1000);
+
+            AddSplit(sb, "보드 카드", ai.cards_board.Count, op.cards_board.Count, board_card_value);
+            AddSplit(sb, "장비", ai.cards_equip.Count, op.cards_equip.Count, board_card_value);
+            AddSplit(sb, "시크릿", ai.cards_secret.Count, op.cards_secret.Count, secret_card_value);
+            AddSplit(sb, "손패", ai.cards_hand.Count, op.cards_hand.Count, hand_card_value);
+            AddSplit(sb, "킬 수", ai.kill_count, op.kill_count, kill_value);
+            AddSplit(sb, "플레이어 HP", ai.hp, op.hp, player_hp_value);
+
+            //Units: per-card (attack x card_attack_value, hp x card_hp_value, status x card_status_value)
+            if (ai.cards_board.Count > 0 || op.cards_board.Count > 0)
+            {
+                sb.Append("유닛 (공격력×").Append(card_attack_value)
+                  .Append(", 체력×").Append(card_hp_value)
+                  .Append(", 상태이상×").Append(card_status_value).Append("):\n");
+                int aiu = AppendUnits(sb, "나", ai);
+                int opu = AppendUnits(sb, "상대", op);
+                AddNet(sb, "  └ 유닛 소계 (나 " + aiu + " − 상대 " + opu + ")", aiu - opu);
+            }
+
+            //Clubs: per-club synergy
+            int aic = AppendClubs(sb, "나", data, ai);
+            int opc = AppendClubs(sb, "상대", data, op);
+            if (aic != 0 || opc != 0)
+                AddNet(sb, "  └ 클럽 소계 (나 " + aic + " − 상대 " + opc + ")", aic - opc);
+
+            if (heuristic_modifier > 0)
+                sb.Append("  (레벨<10: 랜덤 보정 ±").Append(heuristic_modifier).Append(" 추가 적용)\n");
+        }
+
+        //Lists each board unit's attack/hp/status contribution; returns the side's unit total.
+        private int AppendUnits(StringBuilder sb, string side, Player p)
+        {
+            int total = 0;
+            foreach (Card c in p.cards_board)
+            {
+                int a = c.GetAttack() * card_attack_value;
+                int h = c.GetHP() * card_hp_value;
+                int s = StatusSum(c);
+                int t = a + h + s;
+                total += t;
+                string name = c.CardData != null ? c.CardData.GetTitle() : c.card_id;
+                sb.Append("  [").Append(side).Append("] ").Append(name)
+                  .Append(": 공").Append(c.GetAttack()).Append("→").Append(a)
+                  .Append(", 체").Append(c.GetHP()).Append("→").Append(h);
+                if (s != 0)
+                    sb.Append(", 상태→").Append(s);
+                sb.Append(" (계 ").Append(t).Append(")\n");
+            }
+            return total;
+        }
+
+        //Lists each club's synergy contribution (same rules as GetClubScore); returns the side's club total.
+        private int AppendClubs(StringBuilder sb, string side, Game data, Player p)
+        {
+            club_buf.Clear();
+            foreach (Card card in p.cards_board)
+            {
+                foreach (CardClub cc in card.GetAllClubs())
+                {
+                    if (cc.ClubData != null)
+                        club_buf.Add(cc.ClubData);
+                }
+            }
+
+            int total = 0;
+            foreach (ClubData club in club_buf)
+            {
+                int n = data.GetClubCount(p, club);
+                if (n <= 0)
+                    continue;
+
+                int val = 0;
+                string how;
+                switch (club.synergy_type)
+                {
+                    case ClubSynergyType.OnOff:
+                        if (n >= club.synergy_threshold) { val = club.synergy_value; how = "임계 " + club.synergy_threshold + " 달성"; }
+                        else how = n + "/" + club.synergy_threshold + " 미달";
+                        break;
+                    case ClubSynergyType.Count:
+                        val = club.synergy_value * n; how = club.synergy_value + "×" + n;
+                        break;
+                    default: //Individual: no board synergy value
+                        how = "시너지 없음";
+                        break;
+                }
+                total += val;
+                sb.Append("  [").Append(side).Append("] 클럽 ").Append(club.GetTitle())
+                  .Append(" (").Append(how).Append(") → ").Append(val).Append('\n');
+            }
+            return total;
+        }
+
+        private int StatusSum(Card c)
+        {
+            int s = 0;
+            foreach (CardStatus st in c.status)
+                s += st.StatusData.hvalue * card_status_value;
+            foreach (CardStatus st in c.ongoing_status)
+                s += st.StatusData.hvalue * card_status_value;
+            return s;
+        }
+
+        //"label: 나 ai_n×w=aiV − 상대 op_n×w=opV = net"  (skipped when both sides are 0)
+        private void AddSplit(StringBuilder sb, string label, int ai_n, int op_n, int weight)
+        {
+            if (ai_n == 0 && op_n == 0)
+                return;
+            int aiV = ai_n * weight;
+            int opV = op_n * weight;
+            sb.Append(label).Append(": 나 ").Append(ai_n).Append("×").Append(weight).Append("=").Append(aiV)
+              .Append(" − 상대 ").Append(op_n).Append("×").Append(weight).Append("=").Append(opV)
+              .Append(" = ").Append(Signed(aiV - opV)).Append('\n');
+        }
+
+        private void AddNet(StringBuilder sb, string label, int net)
+        {
+            if (net == 0)
+                return;
+            sb.Append(label).Append(": ").Append(Signed(net)).Append('\n');
+        }
+
+        private string Signed(int v)
+        {
+            return v > 0 ? "+" + v : v.ToString();
+        }
+#endif
 
     }
 }

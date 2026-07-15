@@ -2,6 +2,16 @@
  * 커스텀 스타일
  * 블루아카이브 테마 및 페이지 레이아웃 스타일
 */
+/* 스크롤바를 표시하지 않음 (스크롤 동작은 유지)
+   스크롤바가 없으므로 모달이 열려도 페이지가 옆으로 밀리지 않는다 */
+* {
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* 구형 Edge/IE */
+}
+*::-webkit-scrollbar {
+    display: none;               /* Chrome, Edge, Safari */
+}
+
 body {
     /* 기본 폰트를 Inter로, 한글은 Noto Sans KR로 설정 */
     font-family: 'Inter', 'Noto Sans KR', sans-serif;
@@ -18,9 +28,10 @@ body {
 
     /* 배경색을 덮어씌워 이미지의 채도를 낮추고 은은하게 만듦 */
     background-color: #f3f7fa; /* 연한 하늘색 배경 */
-    position: relative; 
+    position: relative;
     min-height: 100vh;
     color: #333;
+    overflow-x: hidden; /* 카드 목록 섹션의 100vw 풀블리드로 인한 가로 스크롤 방지 */
 }
 
 /* 흰색 반투명 레이어를 고정시켜 배경 이미지를 은은하게 만듦 */
@@ -47,26 +58,41 @@ header {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 헤더 하단 포인트 라인 (배너 데코) */
+header::after {
+    content: '';
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #00AEEF 0%, #7dd3fc 45%, #fbcfe8 75%, rgba(251, 207, 232, 0) 100%);
+}
+
+/* 네비게이션 링크 기본 스타일 (알약 형태) */
+.nav-link {
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #4B5563; /* text-gray-600 */
+    border-radius: 9999px;
+    transition: all 0.2s ease-in-out;
+}
+.nav-link:hover {
+    color: #00AEEF;
+    background: rgba(0, 174, 239, 0.08);
 }
 
 /* 네비게이션 활성 탭 스타일 */
 .nav-link.tab-active {
     font-weight: 700;
-    color: #00AEEF; /* 블루아카이브 메인 블루 */
-    border-bottom: 2px solid #00AEEF;
+    color: #fff;
+    background: #00AEEF; /* 블루아카이브 메인 블루 */
+    box-shadow: 0 4px 12px rgba(0, 174, 239, 0.35);
 }
 
-/* 네비게이션 링크 기본 스타일 */
-.nav-link {
-    padding: 0.5rem 0.75rem;
-    font-weight: 500;
-    color: #4B5563; /* text-gray-600 */
-    transition: all 0.2s ease-in-out;
-    border-bottom: 2px solid transparent;
-}
-.nav-link:hover {
-    color: #00AEEF;
+/* 모바일 드롭다운 메뉴에서는 알약 대신 목록 형태 유지 */
+#mobile-menu .nav-link {
+    border-radius: 0;
 }
 
 /* 둥근 사각형 버튼 스타일 */
@@ -104,23 +130,37 @@ header {
     display: block;
 }
 
-/* 페이드인 애니메이션 */
+/* 페이드인 애니메이션
+   주의: transform을 넣으면 애니메이션 동안 자식의 position:fixed가
+   뷰포트가 아닌 섹션 기준이 되어 필터 패널이 작았다가 커져 보인다. */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+    }
+}
+
+/* 카드 목록 그리드: 작은 카드 + 넉넉한 간격 */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.75rem 1.5rem;
+}
+@media (max-width: 640px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+        gap: 1.25rem 1rem;
     }
 }
 
 /* 카드 이미지 스타일 */
 .card-image {
-    aspect-ratio: 2.5 / 3.5; /* TCG 카드 비율 */
-    object-fit: cover;
+    /* 비율을 강제(aspect-ratio + cover)하면 카드 렌더(856x1200)의
+       가장자리가 잘려 나가므로, 원본 비율 그대로 전체를 표시한다 */
     width: 100%;
+    height: auto;
     border-radius: 8px;
     background-color: #e0e8f0;
     transition: all 0.3s ease;
@@ -128,6 +168,20 @@ header {
 .card-image:hover {
     transform: scale(1.05);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 이미지가 없는 카드의 자리표시자 (카드 이름 표시) */
+.card-image-placeholder {
+    aspect-ratio: 2.5 / 3.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: center;
+    word-break: break-all;
 }
 
 /* 커스텀 폼 요소 스타일 */
@@ -149,46 +203,312 @@ header {
     outline: none;
 }
 
-/* --- '게임 소개' 페이지 스크롤 애니메이션용 스타일 --- */
-
-/* 스티키 뷰포트 (화면에 고정될 영역) */
-.scroll-sticky-viewport {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    height: calc(100vh - 6rem); /* 헤더(h-16, 4rem) 높이 제외 */
-    overflow: hidden;
+/* --- '게임 소개' 기능 카드 (가로 정렬, 화면을 넓게 사용) --- */
+.feature-list {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    margin-top: 4rem;
 }
 
-/* 개별 스크롤 슬라이드 (화면을 채움) */
-.scroll-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.feature-card {
+    width: min(420px, 100%);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 174, 239, 0.15);
+    border-radius: 20px;
+    padding: 3rem 2.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: #00AEEF;
+    box-shadow: 0 16px 32px rgba(0, 174, 239, 0.2);
+}
+.feature-icon {
+    font-size: 3.5rem;
+}
+.feature-card h3 {
+    margin-top: 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1f2937;
+}
+.feature-card p {
+    margin-top: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #6b7280;
+}
+.feature-more {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #00AEEF;
+}
+
+/* --- '게임 소개' 모달 (배경 딤 + 좌 미디어 / 우 설명) --- */
+.feature-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* 자연스러운 애니메이션 */
-    opacity: 0;
-    transition: opacity 0.6s ease-in-out;
+    padding: 1rem;
 }
-
-/* 활성화된 슬라이드 */
-.scroll-slide.slide-active {
-    opacity: 1;
+.feature-modal.hidden {
+    display: none;
 }
-
-/* 스크롤 높이를 제공할 트랙 */
-.scroll-track {
+.feature-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6); /* 딤 처리 */
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+.feature-modal-box {
     position: relative;
+    display: flex;
+    width: min(1100px, 100%);
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+    animation: fadeIn 0.25s ease-in-out;
+}
+/* 좌측: GIF / 동영상 영역 */
+.feature-modal-media {
+    flex: 1 1 50%;
+    min-height: 340px;
+    background: #eef4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.feature-modal-media img,
+.feature-modal-media video {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.media-placeholder {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 2.2;
+    color: #94a3b8;
 }
 
-/* 스크롤 감지를 위한 트리거 (각각 화면 높이만큼) */
-.scroll-trigger {
-    height: 100vh; /* 각 항목이 100vh의 스크롤 길이를 가짐 */
+/* 우측: 설명 영역 */
+.feature-modal-body {
+    flex: 1 1 50%;
+    padding: 2.25rem 2rem;
+    overflow-y: auto;
+    text-align: left;
 }
-/* --- 끝: '게임 소개' 페이지 스타일 --- */
+.feature-modal-body h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111827;
+}
+.feature-modal-body > p {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #00AEEF;
+}
+.feature-modal-desc {
+    margin-top: 1rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: #374151;
+}
+.feature-modal-desc ul {
+    list-style: disc;
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+}
+.feature-modal-desc li {
+    margin-top: 0.35rem;
+}
+
+/* 모바일: 위 미디어 / 아래 설명으로 세로 배치 */
+@media (max-width: 767px) {
+    .feature-modal-box {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    .feature-modal-media {
+        min-height: 200px;
+        flex: none;
+    }
+}
+/* --- 끝: '게임 소개' 스타일 --- */
+
+/* --- 카드 확대 보기 (라이트박스, 외곽 클릭 시 닫힘) --- */
+.card-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+.card-lightbox.hidden {
+    display: none;
+}
+.card-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.card-lightbox img {
+    position: relative;
+    max-height: 42vh; /* 확대 크기 (화면 높이의 약 절반) */
+    max-width: 80vw;
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.2s ease;
+}
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+/* --- 끝: 카드 확대 보기 --- */
+
+/* --- 카드 목록: 좌측 배너형 필터 패널 --- */
+.filter-panel {
+    background: linear-gradient(180deg, #00AEEF 0%, #0077c8 100%);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 119, 200, 0.25);
+}
+.filter-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+.filter-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+}
+.filter-panel span {
+    color: rgba(255, 255, 255, 0.92);
+}
+.filter-check {
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* 필터 입력창/드롭다운: 흰 배경 + 어두운 글자
+   (패널의 color:#fff가 폼 요소까지 상속되어 글자가 안 보이던 문제 수정) */
+.filter-panel .form-input,
+.filter-panel .form-select {
+    color: #1f2937;
+    background-color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0, 60, 120, 0.18);
+}
+.filter-panel .form-input::placeholder {
+    color: #9ca3af;
+}
+.filter-panel .form-input:focus,
+.filter-panel .form-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
+}
+
+/* 드롭다운: 기본 화살표 제거 후 커스텀 화살표 적용 */
+.filter-panel .form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%230077c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2.4rem;
+    cursor: pointer;
+}
+
+/* 체크박스 */
+.filter-panel .form-checkbox {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #fff;
+    cursor: pointer;
+}
+
+/* 초기화 버튼: 흰 배경 + 블루 글자 */
+.filter-reset-btn {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 0.65rem 1rem;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    color: #0077c8;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(0, 60, 120, 0.22);
+    transition: all 0.2s ease;
+}
+.filter-reset-btn:hover {
+    background: #e6f7ff;
+    transform: translateY(-1px);
+}
+.filter-reset-btn:active {
+    transform: translateY(0);
+}
+
+/* 데스크톱: 화면 왼쪽을 세로로 전부 덮는 고정 배너 */
+@media (min-width: 768px) {
+    /* 카드 목록 섹션은 컨테이너를 벗어나 화면 전체 폭 사용 */
+    #page-cards {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        padding-left: 312px; /* 패널 폭(280px) + 여백 */
+        padding-right: 2rem;
+    }
+    .filter-panel {
+        position: fixed;
+        top: 6rem;   /* 헤더(h-24) 높이 */
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        overflow-y: auto;
+        border-radius: 0 20px 0 0;
+        z-index: 40;
+    }
+}
+
+/* 모바일: 일반 흐름 (필터 위, 목록 아래) */
+@media (max-width: 767px) {
+    .filter-panel {
+        margin-bottom: 1.5rem;
+    }
+}
+/* --- 끝: 필터 패널 스타일 --- */

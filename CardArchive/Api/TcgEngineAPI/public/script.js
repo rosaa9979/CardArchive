@@ -47,16 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 페이지 상단으로 스크롤
         window.scrollTo(0, 0);
-
-        // '게임 소개' 페이지로 전환 시, 첫 번째 슬라이드를 활성화
-        if (pageId === 'page-info') {
-            // 모든 슬라이드 비활성화 후 첫 번째 슬라이드 활성화
-            document.querySelectorAll('.scroll-slide').forEach(slide => slide.classList.remove('slide-active'));
-            const firstSlide = document.getElementById('info-slide-0');
-            if (firstSlide) {
-                firstSlide.classList.add('slide-active');
-            }
-        }
     }
 
     // 네비게이션 링크 클릭 이벤트 리스너 등록
@@ -80,41 +70,111 @@ document.addEventListener('DOMContentLoaded', () => {
 
     menuButton.addEventListener('click', toggleMobileMenu);
 
-    // --- 3. '게임 소개' 페이지 스크롤 로직 (Intersection Observer) ---
-    function initInfoPageScroll() {
-        const slides = document.querySelectorAll('.scroll-slide');
-        const triggers = document.querySelectorAll('.scroll-trigger');
+    // --- 3. '게임 소개' 기능 카드 + 모달 로직 ---
 
-        if (triggers.length === 0) return; // '게임 소개' 페이지 요소가 없으면 실행 안함
+    // 소개 항목 정의. 새 항목 추가 시 여기에만 추가하면 됩니다.
+    // media: null이면 "준비 중" 표시, 추후 { type: 'video'|'image', src: '...' } 지정
+    const FEATURES = [
+        {
+            icon: '🃏',
+            title: '전략적인 덱 빌딩',
+            tagline: '다양한 학교와 동아리 소속 학생들로 자신만의 최강 덱을 구성하세요.',
+            desc: `
+                <p>'카드아카이브'에서는 각기 다른 스킬과 코스트를 가진 수백 종의 카드를 만나볼 수 있습니다.
+                아비도스, 게헨나, 트리니티, 밀레니엄 등 익숙한 학원 학생들을 조합하여
+                강력한 시너지를 발휘하는 덱을 만들 수 있습니다.</p>
+                <ul>
+                    <li>100종 이상의 유니크한 학생 카드</li>
+                    <li>다양한 전략을 가능하게 하는 스펠 카드</li>
+                    <li>학원/동아리별 고유 시너지 효과</li>
+                </ul>`,
+            media: null,
+        },
+        {
+            icon: '⚔️',
+            title: '간편하고 전략적인 전투',
+            tagline: '매 턴 주어지는 코스트를 활용하여 최적의 판단을 내려야 합니다.',
+            desc: `
+                <p>전투는 턴제로 진행되며, 플레이어는 매 턴 자동으로 회복되는 '코스트'를 사용하여
+                카드를 필드에 내거나 스킬을 사용할 수 있습니다.
+                상대방의 전략을 예측하고, 학생들의 고유 스킬을 적재적소에 활용하여 전투를 승리로 이끄세요.</p>
+                <ul>
+                    <li>직관적인 드래그 앤 드롭 조작</li>
+                    <li>코스트 기반의 실시간 전략 판단</li>
+                    <li>학생 고유의 EX 스킬 구현</li>
+                </ul>`,
+            media: null,
+        },
+    ];
 
-        const observerOptions = {
-            root: null, // 뷰포트를 root로 사용
-            rootMargin: '0px',
-            threshold: 0.5 // 트리거가 50% 이상 보일 때 감지
-        };
+    function initFeatureCards() {
+        const featureList = document.getElementById('feature-list');
+        const modal = document.getElementById('feature-modal');
+        if (!featureList || !modal) return;
 
-        const handleIntersect = (entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const slideId = entry.target.dataset.slide;
-                    
-                    // 모든 슬라이드 비활성화
-                    slides.forEach(slide => slide.classList.remove('slide-active'));
-                    
-                    // 해당 슬라이드 활성화
-                    const targetSlide = document.getElementById(slideId);
-                    if (targetSlide) {
-                        targetSlide.classList.add('slide-active');
-                    }
-                }
-            });
-        };
+        const mediaEl = document.getElementById('feature-modal-media');
+        const titleEl = document.getElementById('feature-modal-title');
+        const taglineEl = document.getElementById('feature-modal-tagline');
+        const descEl = document.getElementById('feature-modal-desc');
 
-        const observer = new IntersectionObserver(handleIntersect, observerOptions);
-        triggers.forEach(trigger => observer.observe(trigger));
+        function openModal(feature) {
+            titleEl.textContent = feature.title;
+            taglineEl.textContent = feature.tagline;
+            descEl.innerHTML = feature.desc;
+
+            // 좌측 미디어: 영상/GIF는 추후 추가 예정
+            mediaEl.innerHTML = '';
+            if (feature.media && feature.media.type === 'video') {
+                const video = document.createElement('video');
+                video.src = feature.media.src;
+                video.controls = true;
+                video.autoplay = true;
+                video.muted = true;
+                video.loop = true;
+                mediaEl.appendChild(video);
+            } else if (feature.media && feature.media.type === 'image') {
+                const img = document.createElement('img');
+                img.src = feature.media.src;
+                img.alt = feature.title;
+                mediaEl.appendChild(img);
+            } else {
+                mediaEl.innerHTML = '<div class="media-placeholder">🎬<br>시연 영상 준비 중</div>';
+            }
+
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 잠금
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        // 기능 카드 생성 (가로 정렬)
+        FEATURES.forEach(feature => {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'feature-card';
+            card.innerHTML = `
+                <div class="feature-icon">${feature.icon}</div>
+                <h3>${feature.title}</h3>
+                <p>${feature.tagline}</p>
+                <span class="feature-more">자세히 보기 →</span>
+            `;
+            card.addEventListener('click', () => openModal(feature));
+            featureList.appendChild(card);
+        });
+
+        // 닫기: 사각형 바깥(딤 배경) 클릭, ESC
+        document.getElementById('feature-modal-backdrop').addEventListener('click', closeModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+        });
     }
 
-    initInfoPageScroll(); // 스크롤 로직 실행
+    initFeatureCards();
 
     // --- 4. 카드 목록 및 필터링 로직 ---
     
@@ -149,31 +209,140 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 서버 데이터에는 카드 이름이 없어 tid를 표시용 이름으로 사용
+    function getCardTitle(card) {
+        return (card.tid || '').replace(/_/g, ' ');
+    }
+
+    function getImageUrl(card) {
+        if (!card.image) return '';
+        return card.image.startsWith('/public') ? card.image.replace('/public', '') : card.image;
+    }
+
+    // --- 학원/동아리 드롭다운 (카드 데이터 기반으로 자동 구성) ---
+    let academyClubs = {};   // { 학원명: Set(동아리명) }
+    let allClubs = new Set(); // 전체 동아리명
+
+    function buildFilterOptions() {
+        academyClubs = {};
+        allClubs = new Set();
+
+        allCards.forEach(card => {
+            const academy = card.academy || '';
+            const clubs = card.club_titles || [];
+            if (academy && !academyClubs[academy])
+                academyClubs[academy] = new Set();
+            clubs.forEach(club => {
+                if (academy) academyClubs[academy].add(club);
+                allClubs.add(club);
+            });
+        });
+
+        populateSelect(schoolSelect, Object.keys(academyClubs).sort(), '전체 학원');
+        populateSelect(clubSelect, [...allClubs].sort(), '전체 동아리');
+    }
+
+    function populateSelect(select, values, allLabel) {
+        const previous = select.value;
+        select.innerHTML = '';
+
+        const allOption = document.createElement('option');
+        allOption.value = '';
+        allOption.textContent = allLabel;
+        select.appendChild(allOption);
+
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+
+        // 이전 선택이 새 목록에도 있으면 유지, 없으면 '전체'로
+        if ([...select.options].some(o => o.value === previous))
+            select.value = previous;
+    }
+
+    // 학원 선택 시 동아리 드롭다운을 해당 학원 소속 동아리로 갱신
+    function updateClubOptions() {
+        const academy = schoolSelect.value;
+        const clubs = academy ? [...(academyClubs[academy] || [])] : [...allClubs];
+        populateSelect(clubSelect, clubs.sort(), '전체 동아리');
+    }
+
+    // --- 카드 확대 보기 (라이트박스) ---
+    const cardLightbox = document.getElementById('card-lightbox');
+    const cardLightboxImg = document.getElementById('card-lightbox-img');
+
+    function openCardLightbox(card) {
+        cardLightboxImg.src = getImageUrl(card);
+        cardLightboxImg.alt = getCardTitle(card);
+        cardLightbox.classList.remove('hidden');
+        cardLightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden'; // 배경 스크롤 잠금
+    }
+
+    function closeCardLightbox() {
+        cardLightbox.classList.add('hidden');
+        cardLightbox.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    // 닫기: 외곽(딤 배경) 클릭, ESC
+    document.getElementById('card-lightbox-backdrop').addEventListener('click', closeCardLightbox);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !cardLightbox.classList.contains('hidden')) closeCardLightbox();
+    });
+
     /**
      * 카드를 화면에 렌더링하는 함수
      * @param {Array} cardsToRender - 화면에 표시할 카드 객체 배열
      */
     function renderCards(cardsToRender) {
         cardGrid.innerHTML = ''; // 기존 목록 초기화
-        
+
         if (cardsToRender.length === 0) {
             cardGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">일치하는 카드가 없습니다.</p>';
         } else {
             cardsToRender.forEach(card => {
-                const cardElement = document.createElement('a');
-                cardElement.href = '#'; // TBD: 카드 상세 페이지 링크?
-                cardElement.className = 'group';
-                cardElement.setAttribute('title', card.name);
+                const title = getCardTitle(card);
+                const image_url = getImageUrl(card);
 
-                const image_url = card.image.startsWith('/public') ? card.image.replace('/public', '') : card.image;
-                
-                cardElement.innerHTML = `
-                    <img src="${image_url}" alt="${card.name}" class="card-image w-full rounded-lg shadow-sm transition-all group-hover:shadow-xl group-hover:scale-105">
-                `;
+                const cardElement = document.createElement('a');
+                cardElement.href = '#';
+                cardElement.className = 'group';
+                cardElement.setAttribute('title', title);
+
+                // 이미지가 없거나 로드에 실패하면 자리표시자 표시
+                const makePlaceholder = () => {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'card-image card-image-placeholder';
+                    placeholder.textContent = title;
+                    return placeholder;
+                };
+
+                if (image_url) {
+                    const img = document.createElement('img');
+                    img.src = image_url;
+                    img.alt = title;
+                    img.loading = 'lazy';
+                    img.className = 'card-image w-full rounded-lg shadow-sm transition-all group-hover:shadow-xl group-hover:scale-105';
+                    img.onerror = () => { img.replaceWith(makePlaceholder()); };
+                    cardElement.appendChild(img);
+                } else {
+                    cardElement.appendChild(makePlaceholder());
+                }
+
                 cardGrid.appendChild(cardElement);
+
+                // 클릭 시 중앙에 크게 표시 (이미지가 있을 때만)
+                cardElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (image_url) openCardLightbox(card);
+                });
             });
         }
-        
+
         // 카드 개수 업데이트
         cardCountEl.textContent = `총 ${cardsToRender.length}장의 카드를 찾았습니다.`;
     }
@@ -189,29 +358,29 @@ document.addEventListener('DOMContentLoaded', () => {
             .filter(cb => cb.checked)
             .map(cb => cb.value);
         
-        const selectedSchool = schoolSelect.value === '전체 학원' ? '' : schoolSelect.value;
-        const selectedClub = clubSelect.value === '전체 동아리' ? '' : clubSelect.value;
+        const selectedSchool = schoolSelect.value; // ''이면 전체 학원
+        const selectedClub = clubSelect.value;     // ''이면 전체 동아리
         
         const minCost = parseInt(costMinInput.value, 10) || 0;
         const maxCost = parseInt(costMaxInput.value, 10) || Infinity;
 
         // 2. 필터링 수행
         const filteredCards = allCards.filter(card => {
-            // 검색어 필터
-            const nameMatch = card.name.toLowerCase().includes(searchTerm);
-            
+            // 검색어 필터 (서버 데이터에는 카드 이름이 없어 tid 기준)
+            const nameMatch = getCardTitle(card).toLowerCase().includes(searchTerm)
+                || (card.tid || '').toLowerCase().includes(searchTerm);
+
             // 타입 필터
             const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(card.type);
-            
-            // 학원 필터
-            const schoolMatch = !selectedSchool || card.school === selectedSchool;
-            
-            // 동아리 필터
-            const clubMatch = !selectedClub || card.club === selectedClub;
 
-            // 코스트 필터
-            const costMatch = card.cost >= minCost && card.cost <= maxCost;
-            
+            // 학원/동아리 필터 (서버의 academy / club_titles 필드 기준)
+            const schoolMatch = !selectedSchool || (card.academy || '') === selectedSchool;
+            const clubMatch = !selectedClub || (card.club_titles || []).includes(selectedClub);
+
+            // 코스트 필터 (게임 내 사용 코스트 = mana)
+            const mana = card.mana || 0;
+            const costMatch = mana >= minCost && mana <= maxCost;
+
             return nameMatch && typeMatch && schoolMatch && clubMatch && costMatch;
         });
 
@@ -231,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
         costMinInput.value = '';
         costMaxInput.value = '';
 
+        updateClubOptions(); // 동아리 드롭다운을 전체 목록으로 복원
         applyFilters();
     }
 
@@ -238,15 +408,24 @@ document.addEventListener('DOMContentLoaded', () => {
      * 카드 필터링 시스템 초기화
      */
     async function initCardFilter() {
-        // Mock 데이터 사용
         await fetchCardData();
 
+        buildFilterOptions(); // 카드 데이터에서 학원/동아리 드롭다운 구성
         renderCards(allCards);
-        
+
+        // 폼 제출(검색창에서 Enter 등) 시 페이지가 새로고침되어
+        // 메인 홈으로 돌아가는 문제 방지
+        document.getElementById('card-filter-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+        });
+
         // 필터 요소에 이벤트 리스너 바인딩
         searchInput.addEventListener('input', applyFilters);
         typeCheckboxes.forEach(cb => cb.addEventListener('change', applyFilters));
-        schoolSelect.addEventListener('change', applyFilters);
+        schoolSelect.addEventListener('change', () => {
+            updateClubOptions(); // 선택한 학원 소속 동아리만 표시
+            applyFilters();
+        });
         clubSelect.addEventListener('change', applyFilters);
         costMinInput.addEventListener('input', applyFilters);
         costMaxInput.addEventListener('input', applyFilters);

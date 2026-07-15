@@ -87,6 +87,7 @@ namespace TcgEngine.Server
             gameplay.onCardDiscarded += OnCardDiscarded;
             gameplay.onCardDissolved += OnCardDissolved;
             gameplay.onCardDrawn += OnCardDraw;
+            gameplay.onExhaustDamage += OnExhaustDamage;
             gameplay.onRollValue += OnValueRolled;
             gameplay.onCardStatChange += OnCardStatChange;
 
@@ -122,6 +123,7 @@ namespace TcgEngine.Server
             gameplay.onCardDiscarded -= OnCardDiscarded;
             gameplay.onCardDissolved -= OnCardDissolved;
             gameplay.onCardDrawn -= OnCardDraw;
+            gameplay.onExhaustDamage -= OnExhaustDamage;
             gameplay.onRollValue -= OnValueRolled;
 
             gameplay.onAbilityStart -= OnAbilityStart;
@@ -319,32 +321,40 @@ namespace TcgEngine.Server
 
         public void ReceiveAttackTarget(ClientData iclient, SerializedData sdata)
         {
-            MsgAttack msg = sdata.Get<MsgAttack>();
-            Player player = GetPlayer(iclient);
-            if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
-            {
-                Card attacker = player.GetCard(msg.attacker_uid);
-                Card target = game_data.GetCard(msg.target_uid);
-                if (attacker != null && target != null && attacker.player_id == player.player_id)
-                {
-                    gameplay.AttackTarget(attacker, target);
-                }
-            }
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Reject any client-sent attack message up front (before parsing the target) so a crafted
+            //client cannot trigger an out-of-phase attack. gameplay.AttackTarget stays for the attack phase.
+            return;
+            //MsgAttack msg = sdata.Get<MsgAttack>();
+            //Player player = GetPlayer(iclient);
+            //if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
+            //{
+            //    Card attacker = player.GetCard(msg.attacker_uid);
+            //    Card target = game_data.GetCard(msg.target_uid);
+            //    if (attacker != null && target != null && attacker.player_id == player.player_id)
+            //    {
+            //        gameplay.AttackTarget(attacker, target);
+            //    }
+            //}
         }
 
         public void ReceiveAttackPlayer(ClientData iclient, SerializedData sdata)
         {
-            MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
-            Player player = GetPlayer(iclient);
-            if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
-            {
-                Card attacker = player.GetCard(msg.attacker_uid);
-                Player target = game_data.GetPlayer(msg.target_id);
-                if (attacker != null && target != null && attacker.player_id == player.player_id)
-                {
-                    gameplay.AttackPlayer(attacker, target);
-                }
-            }
+            //Manual attacks are disabled: attacks only happen automatically during the attack phase.
+            //Reject any client-sent attack message up front (before parsing the target) so a crafted
+            //client cannot trigger an out-of-phase attack. gameplay.AttackPlayer stays for the attack phase.
+            return;
+            //MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
+            //Player player = GetPlayer(iclient);
+            //if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
+            //{
+            //    Card attacker = player.GetCard(msg.attacker_uid);
+            //    Player target = game_data.GetPlayer(msg.target_id);
+            //    if (attacker != null && target != null && attacker.player_id == player.player_id)
+            //    {
+            //        gameplay.AttackPlayer(attacker, target);
+            //    }
+            //}
         }
 
         public void ReceiveMove(ClientData iclient, SerializedData sdata)
@@ -793,6 +803,13 @@ namespace TcgEngine.Server
             MsgInt mdata = new MsgInt();
             mdata.value = nb;
             SendToAll(GameAction.CardDrawn, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnExhaustDamage(Player player)
+        {
+            MsgInt mdata = new MsgInt();
+            mdata.value = player.player_id;
+            SendToAll(GameAction.ExhaustDamage, mdata, NetworkDelivery.Reliable);
         }
 
         protected virtual void OnValueRolled(int nb)

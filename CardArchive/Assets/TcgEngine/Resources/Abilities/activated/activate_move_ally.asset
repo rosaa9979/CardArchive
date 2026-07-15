@@ -37,6 +37,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2a18190cd46a78b4ebef221c2a358af0, type: 2}
   mana_cost: 1
   exhaust: 0
+  show_card_fx: 1
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 0}

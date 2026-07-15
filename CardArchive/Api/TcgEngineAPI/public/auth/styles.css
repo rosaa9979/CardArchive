@@ -1,0 +1,178 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: "Pretendard", "Malgun Gothic", "Segoe UI", sans-serif;
+    background: #16181d;
+    color: #e6e8ee;
+    min-height: 100vh;
+}
+
+.hidden { display: none !important; }
+
+.error-msg { color: #ff7b72; font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+/* ---- Login ---- */
+
+#login-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login-card {
+    background: #1e2128;
+    border: 1px solid #2c313a;
+    border-radius: 12px;
+    padding: 36px 32px;
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.login-card h1 { font-size: 20px; text-align: center; }
+.login-desc { font-size: 13px; color: #9aa1ad; text-align: center; margin-bottom: 8px; }
+
+.login-card input {
+    background: #14161b;
+    border: 1px solid #2c313a;
+    border-radius: 8px;
+    color: #e6e8ee;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+.login-card input:focus { outline: none; border-color: #4a7dff; }
+
+.login-card button {
+    background: #3b6cff;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+}
+.login-card button:hover { background: #4a7dff; }
+.login-card button:disabled { background: #2c313a; cursor: default; }
+
+/* ---- Dashboard ---- */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    background: #1e2128;
+    border-bottom: 1px solid #2c313a;
+}
+.topbar-title { font-weight: 700; font-size: 15px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #9aa1ad; }
+
+.topbar-right button, .content-tools button {
+    background: #2c313a;
+    border: none;
+    border-radius: 6px;
+    color: #e6e8ee;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.topbar-right button:hover, .content-tools button:hover { background: #3a404c; }
+
+.layout {
+    display: flex;
+    min-height: calc(100vh - 52px);
+}
+
+.side-menu {
+    width: 200px;
+    flex-shrink: 0;
+    background: #1a1d23;
+    border-right: 1px solid #2c313a;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu-item {
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: #b7bdc8;
+    padding: 9px 12px;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+.menu-item:hover { background: #23272f; }
+.menu-item.active { background: #2a3550; color: #fff; font-weight: 600; }
+
+.content {
+    flex: 1;
+    padding: 20px 24px;
+    min-width: 0;
+}
+
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+.content-header h2 { font-size: 18px; }
+
+.content-tools { display: flex; gap: 8px; }
+.content-tools input {
+    background: #14161b;
+    border: 1px solid #2c313a;
+    border-radius: 6px;
+    color: #e6e8ee;
+    padding: 6px 10px;
+    font-size: 13px;
+    width: 200px;
+}
+.content-tools input:focus { outline: none; border-color: #4a7dff; }
+
+.stat-info { font-size: 12px; color: #9aa1ad; margin-bottom: 12px; }
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid #2c313a;
+    border-radius: 10px;
+}
+
+#stat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#stat-table th {
+    background: #1e2128;
+    color: #9aa1ad;
+    text-align: left;
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #2c313a;
+}
+#stat-table th:hover { color: #e6e8ee; }
+
+#stat-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #23272f;
+}
+#stat-table tbody tr:hover { background: #1c2027; }
+#stat-table tbody tr:last-child td { border-bottom: none; }
+
+#stat-table .num { text-align: right; }

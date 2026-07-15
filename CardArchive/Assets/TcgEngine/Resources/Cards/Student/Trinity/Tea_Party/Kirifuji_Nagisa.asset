@@ -27,7 +27,9 @@ MonoBehaviour:
   stats:
   - trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
     value: 2
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 9e658f604dd446b4b1059768d9e0644b, type: 2}
+  - {fileID: 11400000, guid: d3bb78d41db145c9b3922b3b4edae4d3, type: 2}
   text: 
   desc: 
   card_desc: 

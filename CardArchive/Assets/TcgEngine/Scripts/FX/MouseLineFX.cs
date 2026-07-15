@@ -20,6 +20,20 @@ namespace TcgEngine.FX
         private List<GameObject> dot_list = new List<GameObject>();
         private List<Vector3> points = new List<Vector3>();
 
+        //Pushed each frame by TargetingManager: the usable require-target card being dragged, or null.
+        private HandCard play_targeting_card;
+
+        void Awake()
+        {
+            //Register with the manager so it drives this FX (static setter -> Awake-order independent).
+            TargetingManager.SetLineFX(this);
+        }
+
+        public void SetPlayTargetingCard(HandCard card)
+        {
+            play_targeting_card = card;
+        }
+
         void Start()
         {
             dot_template.SetActive(false);
@@ -54,11 +68,13 @@ namespace TcgEngine.FX
             }
             */
 
-            HandCard drag = HandCard.GetDrag();
+            //Targeting state is computed by TargetingManager and pushed into play_targeting_card,
+            //so the aim line shows/hides together with the crosshair/text and only for a usable card.
+            HandCard drag = play_targeting_card;
             if (drag != null)
             {
                 source = drag.transform.position;
-                visible = drag.GetCardData().IsRequireTarget();
+                visible = true;
             }
 
             if (gdata.selector == SelectorType.SelectTarget && gdata.IsPlayerSelectorTurn(GameClient.Get().GetPlayer()))

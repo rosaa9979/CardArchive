@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -19,7 +20,7 @@ namespace TcgEngine.AI
         public int ai_depth_wide = 1;           //For these first few turns, will consider more options, slow!
         public int actions_per_turn = 2;          //AI wont predict more than this number of sequential actions per turn, if more than that will EndTurn (Do A, then do B, then do C, then end turn)
         public int actions_per_turn_wide = 3;     //Same but in wide depth
-        public int nodes_per_action = 4;         //For a turn action (1st, 2nd, or 3rd...), cannot evaluate more than this number of child nodes, if more, will only process the AIActions with with best score
+        public int nodes_per_action = 6;         //For a turn action (1st, 2nd, or 3rd...), cannot evaluate more than this number of child nodes, if more, will only process the AIActions with with best score
         public int nodes_per_action_wide = 7;    //Same but in wide depth
 
         //Example: for the first turn, AI will predict 3 sequential actions (I play a card, then attack with this one, then play a spell),
@@ -62,6 +63,9 @@ namespace TcgEngine.AI
 
             job.heuristic = new AIHeuristic(player_id, level);
             job.game_logic = new GameLogic(true); //Skip all delays for the AI calculations
+
+            //Warm the pure-geometry neighbor cache here (main thread) so the AI worker thread only ever reads it.
+            Slot.WarmNeighborCache(Slot.x_max + Slot.y_max);
 
             return job;
         }
@@ -141,8 +145,8 @@ namespace TcgEngine.AI
                     for (int c = 0; c < player.cards_board.Count; c++)
                     {
                         Card card = player.cards_board[c];
-                        AddActions(action_list, data, node, GameAction.Attack, card);
-                        AddActions(action_list, data, node, GameAction.AttackPlayer, card);
+                        //Attacks are resolved automatically during the attack phase (not as main-phase actions),
+                        //so the AI never generates GameAction.Attack / GameAction.AttackPlayer.
                         AddActions(action_list, data, node, GameAction.CastAbility, card);
                         //AddActions(action_list, data, node, GameAction.Move, card);        //Uncomment to consider move actions
                     }
@@ -156,10 +160,9 @@ namespace TcgEngine.AI
                 }
             }
 
-            //End Turn (dont add action if ai can still attack player, or ai hasnt spent any mana)
+            //End Turn (dont add action if ai hasnt spent any mana)
             bool is_full_mana = HasAction(action_list, GameAction.PlayCard) && player.mana >= player.mana_max;
-            bool can_attack_player = HasAction(action_list, GameAction.AttackPlayer);
-            bool can_end = !can_attack_player && !is_full_mana && data.selector == SelectorType.None;
+            bool can_end = !is_full_mana && data.selector == SelectorType.None;
             if (action_list.Count == 0 || can_end)
             {
                 AIAction actiont = CreateAction(GameAction.EndTurn);
@@ -336,10 +339,10 @@ namespace TcgEngine.AI
             {
                 if (card.CardData.IsBoardCard())
                 {
-                    //Doesn't matter where the card is played
-                    Slot slot = player.GetRandomEmptySlot(random_gen, slot_array.Get());
+                    //Pick the single best slot via placement heuristic (range / face / survival / weapon-row)
+                    Slot slot = heuristic.GetBestSlot(data, player, card, slot_array.Get());
 
-                    if (data.CanPlayCard(card, slot))
+                    if (slot != Slot.None && data.CanPlayCard(card, slot))
                     {
                         AIAction action = CreateAction(type, card);
                         action.slot = slot;
@@ -391,50 +394,6 @@ namespace TcgEngine.AI
                 {
                     AIAction action = CreateAction(type, card);
                     actions.Add(action);
-                }
-            }
-
-            if (type == GameAction.Attack)
-            {
-                if (card.CanAttack())
-                {
-                    for (int p = 0; p < data.players.Length; p++)
-                    {
-                        if (p != player.player_id)
-                        {
-                            Player oplayer = data.players[p];
-                            for (int tc = 0; tc < oplayer.cards_board.Count; tc++)
-                            {
-                                Card target = oplayer.cards_board[tc];
-                                if (data.CanAttackTarget(card, target))
-                                {
-                                    AIAction action = CreateAction(type, card);
-                                    action.target_uid = target.uid;
-                                    actions.Add(action);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (type == GameAction.AttackPlayer)
-            {
-                if (card.CanAttack())
-                {
-                    for (int p = 0; p < data.players.Length; p++)
-                    {
-                        if (p != player.player_id)
-                        {
-                            Player oplayer = data.players[p];
-                            if (data.CanAttackTarget(card, oplayer))
-                            {
-                                AIAction action = CreateAction(type, card);
-                                action.target_player_id = oplayer.player_id;
-                                actions.Add(action);
-                            }
-                        }
-                    }
                 }
             }
 
@@ -698,6 +657,76 @@ namespace TcgEngine.AI
         {
             return first_node;
         }
+
+#if UNITY_EDITOR
+        //EDITOR-ONLY (AI debug panel): explain how 'first_child' got its score.
+        //The displayed score is a minimax value = the heuristic of the leaf board state at the end of the
+        //principal variation (both sides playing their best_child). So we replay that action path from the
+        //original state to reconstruct the leaf board, then dump the heuristic term-by-term.
+        //Must be called while the search data is still alive (before ClearMemory), on the main thread.
+        public string BuildScoreReport(NodeState first_child)
+        {
+            if (first_child == null || original_data == null)
+                return "";
+
+            //Principal variation: first_child, then its best_child chain down to the leaf.
+            List<NodeState> pv = new List<NodeState>();
+            NodeState n = first_child;
+            while (n != null)
+            {
+                pv.Add(n);
+                n = n.best_child;
+            }
+            NodeState leaf = pv[pv.Count - 1];
+
+            //Replay the path from a fresh clone of the original state.
+            Game data = data_pool.Create();
+            Game.Clone(original_data, data);
+            game_logic.ClearResolve();
+            game_logic.SetData(data);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("■ 예측 경로 (양측 최선 수)\n");
+            for (int i = 0; i < pv.Count; i++)
+            {
+                NodeState pn = pv[i];
+                if (pn.last_action == null)
+                    continue;
+                string who = pn.current_player == ai_player_id ? "나" : "상대";
+                sb.Append("  ").Append(who).Append(": ").Append(DescribeAction(data, pn.last_action)).Append('\n');
+                DoAIAction(data, pn.last_action, pn.current_player); //Advance the board exactly like the search did
+            }
+
+            sb.Append("\n■ 리프 상태 점수 분해 (나 − 상대)\n");
+            heuristic.AppendBreakdown(data, leaf, sb);
+            sb.Append("\n합계(hvalue): ").Append(leaf.hvalue);
+
+            data_pool.Dispose(data);
+            return sb.ToString();
+        }
+
+        //Short, readable description of an AIAction for the report (resolves ids to titles).
+        private string DescribeAction(Game data, AIAction a)
+        {
+            Card card = !string.IsNullOrEmpty(a.card_uid) ? data.GetCard(a.card_uid) : null;
+            string name = (card != null && card.CardData != null) ? card.CardData.GetTitle() : a.card_uid;
+
+            if (a.type == GameAction.PlayCard)
+                return "카드 플레이 " + name;
+            if (a.type == GameAction.CastAbility)
+            {
+                AbilityData ab = AbilityData.Get(a.ability_id);
+                return "능력 발동 " + name + " → " + (ab != null ? ab.GetTitle() : a.ability_id);
+            }
+            if (a.type == GameAction.Move)
+                return "이동 " + name;
+            if (a.type == GameAction.EndTurn)
+                return "턴 종료";
+
+            string verb = GameAction.GetString(a.type);
+            return name != null ? verb + " " + name : verb;
+        }
+#endif
 
         public AIAction GetBestAction()
         {

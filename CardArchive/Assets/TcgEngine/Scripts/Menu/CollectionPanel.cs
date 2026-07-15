@@ -121,6 +121,11 @@ namespace TcgEngine.UI
             }
             dropdown_club.AddOptions(club_options);
 
+            //Pre-spawn the card pool at scene load (hidden behind BlackPanel)
+            //so opening the panel doesn't hitch on the first Show()
+            if (!spawned)
+                SpawnCards();
+
             /*
             //Set power abilities hover text
             foreach (IconButton btn in hero_powers)
@@ -148,13 +153,7 @@ namespace TcgEngine.UI
 
         private void LateUpdate()
         {
-            GridLayoutGroup grid_layout = grid_content.GetGrid();
-
-            float grid_width = grid_content.GetRect().rect.width;
-
-            float cell_width = (grid_width - (grid_layout.spacing.x * (grid_layout.constraintCount - 1))) / grid_layout.constraintCount;
-
-            grid_layout.cellSize = new Vector2(cell_width, cell_width * 1.428f);
+            //Cell size is now auto-computed by CardGrid (ResizeCells)
 
             //Resize grid
             update_grid_timer += Time.deltaTime;
@@ -178,18 +177,18 @@ namespace TcgEngine.UI
                 Destroy(card.gameObject);
             all_list.Clear();
 
-            foreach (VariantData variant in VariantData.GetAll())
+            //all_list is a reusable pool: RefreshCards() overwrites each entry with SetCard(),
+            //so only spawn as many as can ever be shown (deckbuilding cards, default variant)
+            VariantData variant = VariantData.GetDefault();
+            foreach (CardData card in CardData.GetAllDeckbuilding())
             {
-                foreach (CardData card in CardData.GetAll())
-                {
-                    GameObject nCard = Instantiate(card_prefab, grid_content.transform);
-                    CollectionCard dCard = nCard.GetComponent<CollectionCard>();
-                    dCard.SetCard(card, variant, 0);
-                    dCard.onClick += OnClickCard;
-                    dCard.onClickRight += OnClickCardRight;
-                    all_list.Add(dCard);
-                    nCard.SetActive(false);
-                }
+                GameObject nCard = Instantiate(card_prefab, grid_content.transform);
+                CollectionCard dCard = nCard.GetComponent<CollectionCard>();
+                dCard.SetCard(card, variant, 0);
+                dCard.onClick += OnClickCard;
+                dCard.onClickRight += OnClickCardRight;
+                all_list.Add(dCard);
+                nCard.SetActive(false);
             }
         }
 
@@ -373,7 +372,24 @@ namespace TcgEngine.UI
                 int quantity = 2;
                 //int quantity = udata.GetCardQuantity(icard, ivariant);
                 card.SetQuantity(quantity);
+
+                // 덱 편집 중일 때, 더 이상 덱에 편성할 수 없는 카드도 grayscale 처리
+                bool can_add = true;
+                if (editing_deck)
+                {
+                    // 1. 이미 최대 club 수에 도달하여 이 카드의 club을 추가할 수 없는 경우
+                    bool club_limit = CountDeckClubs(icard) <= GameplayData.Get().club_size;
+
+                    // 2. 이미 이 카드를 최대 개수만큼 편성하여 더 추가할 수 없는 경우
+                    int in_deck_same = CountDeckCards(icard);
+                    int max_size = icard.IsStudent() ? GameplayData.Get().deck_student_duplicate_max : GameplayData.Get().deck_non_student_duplicate_max;
+                    bool deck_limit = in_deck_same < max_size;
+
+                    can_add = club_limit && deck_limit;
+                }
+
                 card.SetGrayscale(!owned);
+                card.SetDimmed(!can_add);
             }
         }
 

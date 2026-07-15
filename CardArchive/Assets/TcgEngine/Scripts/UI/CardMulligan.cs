@@ -70,6 +70,20 @@ namespace TcgEngine.UI
             });
         }
 
+        public void DoMove(Vector2 position, float duration = 0.3f)
+        {
+            RectTransform card_rect = GetComponent<RectTransform>();
+            card_rect.DOAnchorPos(position, duration).SetEase(Ease.OutQuad);
+        }
+
+        // RectTransform of the actual visible card, used to align the spawned HandCard during the mulligan handoff
+        public RectTransform GetVisualRect()
+        {
+            if (card_ui != null)
+                return card_ui.GetComponent<RectTransform>();
+            return GetComponent<RectTransform>();
+        }
+
         public int GetIndex()
         {
             return index;

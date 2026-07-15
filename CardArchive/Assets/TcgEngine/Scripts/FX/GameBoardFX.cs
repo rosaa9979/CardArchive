@@ -21,6 +21,7 @@ namespace TcgEngine.FX
             client.onCardPlayed += OnPlayCard;
             client.onCardDraw += OnCardDraw;
             client.onCardDissolved += OnDissolveCard;
+            client.onExhaustDamage += OnExhaustDamage;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -51,7 +52,7 @@ namespace TcgEngine.FX
                 if (icard.type == CardType.Spell)
                 {
                     GameObject prefab = player_id == card.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
-                    GameObject obj = FXTool.DoFX(prefab, Vector3.zero);
+                    GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
                     CardUI ui = obj.GetComponentInChildren<CardUI>();
                     ui.SetCard(icard, card.VariantData);
 
@@ -78,6 +79,17 @@ namespace TcgEngine.FX
             
         }
 
+        void OnExhaustDamage(int player_id)
+        {
+            bool opponent = player_id != GameClient.Get().GetPlayerID();
+            BoardSlotPlayer bslot = BoardSlotPlayer.Get(opponent);
+            if (bslot != null)
+            {
+                FXTool.DoFX(AssetData.Get().player_exhausted_fx, bslot.transform.position);
+                AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
+            }
+        }
+
         void OnDissolveCard(Card card)
         {
             if (card != null)
@@ -96,6 +108,19 @@ namespace TcgEngine.FX
             if (iability != null)
             {
                 FXTool.DoFX(iability.board_fx, Vector3.zero);
+
+                if (iability.show_card_fx && caster != null)
+                {
+                    CardData icard = CardData.Get(caster.card_id);
+                    if (icard != null && icard.type != CardType.Spell) //Spells already show the zoom in OnPlayCard
+                    {
+                        int player_id = GameClient.Get().GetPlayerID();
+                        GameObject prefab = player_id == caster.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
+                        GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
+                        CardUI ui = obj.GetComponentInChildren<CardUI>();
+                        ui.SetCard(icard, caster.VariantData);
+                    }
+                }
             }
         }
 

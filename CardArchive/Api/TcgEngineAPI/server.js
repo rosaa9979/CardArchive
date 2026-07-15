@@ -97,6 +97,9 @@ MarketRouter.route(app);
 const ActivityRouter = require("./activity/activity.routes");
 ActivityRouter.route(app);
 
+const StatsRouter = require("./stats/stats.routes");
+StatsRouter.route(app);
+
 
 //HTTP
 if(config.allow_http){

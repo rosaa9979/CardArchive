@@ -48,6 +48,7 @@ namespace TcgEngine
         public bool exhaust;                    //Action cost for activated abilities
 
         [Header("FX")]
+        public bool show_card_fx;               //Show caster card zoom on board when this ability triggers
         public GameObject board_fx;
         public GameObject caster_fx;
         public GameObject target_fx;
@@ -936,6 +937,8 @@ namespace TcgEngine
 
         OnDraw = 45,
 
+        OnMove = 47, //When this card moves to another slot (player-initiated move, not forced relocation)
+
         OnHeal = 50,
         OnHealOther = 51,
 
@@ -954,6 +957,7 @@ namespace TcgEngine
         AllCardsBoard = 10,
         AllCardsHand = 11,
         AllCardsAllPiles = 12,
+        Club = 13,              //The caster owner's club card(s) in cards_club (ongoing path only)
         AllSlots = 15,
         AllCardData = 17,       //For card Create effects only
 

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Shishido_Izumi
   title: "\uC2DC\uC2DC\uB3C4\uC6B0 \uC774\uC988\uBBF8"
-  art_full: {fileID: 0}
-  art_board: {fileID: 0}
+  art_full: {fileID: 21300000, guid: ad6d75b45ded10740a4622cd0468eee5, type: 3}
+  art_board: {fileID: 21300000, guid: 13281b189b273034abcf223bc4bbeae9, type: 3}
   type: 10
   mana: 4
   attack: 4
@@ -29,6 +29,8 @@ MonoBehaviour:
   text: "\uC790\uC2E0\uC774 \uBC1B\uB294 \uD6A8\uACFC \uB370\uBBF8\uC9C0\uB97C \uD68C\uBCF5\uC73C\uB85C
     \uBC1B\uC2B5\uB2C8\uB2E4."
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
@@ -38,6 +40,6 @@ MonoBehaviour:
   death_audio: {fileID: 0}
   attack_audio: {fileID: 0}
   damage_audio: {fileID: 0}
-  deckbuilding: 0
+  deckbuilding: 1
   cost: 100
   packs: []

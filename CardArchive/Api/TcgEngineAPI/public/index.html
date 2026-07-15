@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카드아카이브</title>
-    
+
     <!-- Tailwind CSS CDN 로드 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- 외부 CSS 파일 연결 -->
     <link rel="stylesheet" href="styles.css">
-    
+
     <!-- Google Fonts - Inter & Noto Sans KR -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
+
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide.js"></script>
 </head>
@@ -21,19 +21,20 @@
 
     <!-- === 상단 네비게이션 헤더 === -->
     <header class="sticky top-0 z-50 w-full shadow-sm">
-        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="w-full px-3 sm:px-5">
             <div class="flex items-center justify-between h-24">
-                <!-- 1. 로고 (메인 페이지로 이동) -->
+                <!-- 1. 로고 (왼쪽 끝, 메인 페이지로 이동) -->
                 <div class="flex-shrink-0">
-                    <a href="#" class="flex items-center space-x-2 nav-link-header" data-page="page-main">
+                    <a href="#" class="flex items-center nav-link-header" data-page="page-main">
                         <img src="/images/cardarchive_logo.png" alt="카드아카이브 로고" class="h-60 w-60 object-contain">
                     </a>
                 </div>
 
-                <!-- 2. 네비게이션 탭 (데스크톱) -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#" class="nav-link" data-page="page-info">게임 소개</a>
-                    <a href="#" class="nav-link" data-page="page-cards">카드 목록</a>
+                <!-- 2. 네비게이션 탭 (오른쪽 끝, 데스크톱) -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="#" class="nav-link" data-page="page-main">메인홈</a>
+                    <a href="#" class="nav-link" data-page="page-info">게임소개</a>
+                    <a href="#" class="nav-link" data-page="page-cards">카드목록</a>
                 </div>
 
                 <!-- 3. 모바일 메뉴 버튼 -->
@@ -55,16 +56,16 @@
 
         <!-- 4. 모바일 메뉴 (드롭다운) -->
         <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg">
-            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-main">메인 홈</a>
-            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-info">게임 소개</a>
-            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-cards">카드 목록</a>
+            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-main">메인홈</a>
+            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-info">게임소개</a>
+            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-cards">카드목록</a>
         </div>
     </header>
 
     <!-- === 메인 컨텐츠 영역 === -->
     <main class="container mx-auto p-4 sm:p-6 lg:p-8 pt-8">
 
-        <!-- 
+        <!--
           페이지 1: 메인 페이지 (기본 활성)
         -->
         <section id="page-main" class="page page-active">
@@ -79,7 +80,7 @@
                 <p class="mt-2 text-lg text-gray-600 max-w-2xl">
                     선생님, 키보토스의 학생들과 함께하는 새로운 전략 카드 배틀에 참여해보세요!
                 </p>
-                
+
                 <div class="mt-10">
                     <!-- 둥근 사각형 버튼 -->
                     <a href="#" class="btn-primary">
@@ -87,7 +88,7 @@
                         <span>게임 다운로드 (v0.1)</span>
                     </a>
                 </div>
-                
+
                 <div class="mt-12 p-4 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 rounded-md max-w-2xl">
                     <h4 class="font-bold">안내문</h4>
                     <p class="mt-1 text-sm">
@@ -98,215 +99,132 @@
             </div>
         </section>
 
-        <!-- 
+        <!--
           페이지 2: 게임 소개
+          기능 카드를 가로로 정렬하고, 클릭 시 배경이 딤 처리되며
+          좌측 영상 / 우측 설명 구조의 모달이 열립니다. (script.js의 FEATURES)
         -->
         <section id="page-info" class="page">
-            <!-- 
-              '게임 소개' 페이지를 위한 스티키 스크롤 컨테이너입니다.
-            -->
-            <div class="scroll-viewport-container relative -mt-8"> <!-- -mt-8은 부모의 pt-8을 상쇄 -->
+            <div class="w-full max-w-7xl mx-auto text-center min-h-[75vh] flex flex-col justify-center py-12">
+                <h2 class="text-4xl md:text-6xl font-extrabold text-gray-800">게임 소개</h2>
+                <p class="mt-6 text-xl md:text-2xl text-gray-600">
+                    '카드아카이브'는 블루아카이브의 학생들을 카드로 만나볼 수 있는 1:1 TCG입니다.
+                </p>
+                <p class="mt-3 text-base text-blue-500 font-semibold">
+                    항목을 누르면 자세한 설명을 볼 수 있습니다.
+                </p>
 
-                <!-- 1. 뷰포트 (화면에 고정됨) -->
-                <div class="scroll-sticky-viewport">
-                    
-                    <!-- 슬라이드 0: 인트로 -->
-                    <div class="scroll-slide" id="info-slide-0">
-                        <div class="max-w-4xl mx-auto text-center p-8 bg-white bg-opacity-80 rounded-lg shadow-xl">
-                            <h2 class="text-4xl font-bold text-gray-800">게임 소개</h2>
-                            <p class="mt-3 text-lg text-gray-600">
-                                '카드아카이브'는 블루아카이브의 학생들을 카드로 만나볼 수 있는 1:1 TCG입니다.
-                            </p>
-                            <p class="mt-8 text-blue-500 font-semibold animate-pulse">
-                                아래로 스크롤하여 더 많은 정보를 확인하세요.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- 슬라이드 1: 덱 빌딩 -->
-                    <div class="scroll-slide" id="info-slide-1">
-                        <!-- 
-                          레이아웃: 왼쪽 상단 제목, 중앙부(좌: GIF/우: 상세소개)
-                        -->
-                        <div class="w-full max-w-5xl p-4 md:p-8">
-                            <!-- 1. 왼쪽 상단 제목 -->
-                            <h3 class="text-3xl md:text-4xl font-bold text-blue-600 mb-6">
-                                전략적인 덱 빌딩
-                            </h3>
-                            
-                            <!-- 2. 컨텐츠 영역 (GIF + 상세소개) -->
-                            <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-                                
-                                <!-- 왼쪽: GIF + 한줄소개 -->
-                                <div class="w-full md:w-1/2">
-                                    <img src="https://placehold.co/1280x720/e0e8f0/333?text=덱+빌딩+시연+GIF" 
-                                         alt="덱 빌딩 시연" 
-                                         class="w-full rounded-lg object-cover shadow-xl border-2 border-white">
-                                    <p class="mt-4 text-center text-lg font-medium text-gray-700 bg-white bg-opacity-80 rounded-lg p-2 shadow-md">
-                                        다양한 학교와 동아리 소속 학생들로 자신만의 최강 덱을 구성하세요.
-                                    </p>
-                                </div>
-                                
-                                <!-- 오른쪽: 상세소개 -->
-                                <div class="w-full md:w-1/2 text-gray-700 bg-white bg-opacity-80 p-6 rounded-lg shadow-lg">
-                                    <p>
-                                        '카드아카이브'에서는 각기 다른 스킬과 코스트를 가진 수백 종의 카드를 만나볼 수 있습니다.
-                                        아비도스, 게헨나, 트리니티, 밀레니엄 등 익숙한 학원 학생들을 조합하여
-                                        강력한 시너지를 발휘하는 덱을 만들 수 있습니다.
-                                    </p>
-                                    <ul class="list-disc list-inside mt-4 space-y-2 text-md">
-                                        <li>100종 이상의 유니크한 학생 카드</li>
-                                        <li>다양한 전략을 가능하게 하는 스펠 카드</li>
-                                        <li>학원/동아리별 고유 시너지 효과</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 슬라이드 2: 실시간 전투 -->
-                    <div class="scroll-slide" id="info-slide-2">
-                        <!-- 
-                          레이아웃: 왼쪽 상단 제목, 중앙부(좌: GIF/우: 상세소개)
-                        -->
-                        <div class="w-full max-w-5xl p-4 md:p-8">
-                            <!-- 1. 왼쪽 상단 제목 -->
-                            <h3 class="text-3xl md:text-4xl font-bold text-blue-600 mb-6">
-                                간편하고 전략적인 전투
-                            </h3>
-                            
-                            <!-- 2. 컨텐츠 영역 (GIF + 상세소개) -->
-                            <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-                                
-                                <!-- 왼쪽: GIF + 한줄소개 -->
-                                <div class="w-full md:w-1/2">
-                                    <img src="https://placehold.co/1280x720/e0e8f0/333?text=전투+시연+GIF" 
-                                         alt="전투 시연" 
-                                         class="w-full rounded-lg object-cover shadow-xl border-2 border-white">
-                                    <p class="mt-4 text-center text-lg font-medium text-gray-700 bg-white bg-opacity-80 rounded-lg p-2 shadow-md">
-                                        매 턴 주어지는 코스트를 활용하여 최적의 판단을 내려야 합니다.
-                                    </p>
-                                </div>
-                                
-                                <!-- 오른쪽: 상세소개 -->
-                                <div class="w-full md:w-1/2 text-gray-700 bg-white bg-opacity-80 p-6 rounded-lg shadow-lg">
-                                    <p>
-                                        전투는 턴제로 진행되며, 플레이어는 매 턴 자동으로 회복되는 '코스트'를 사용하여 카드를 필드에 내거나 스킬을 사용할 수 있습니다.
-                                        상대방의 전략을 예측하고, 학생들의 고유 스킬을 적재적소에 활용하여 전투를 승리로 이끄세요.
-                                    </p>
-                                    <ul class="list-disc list-inside mt-4 space-y-2 text-md">
-                                        <li>직관적인 드래그 앤 드롭 조작</li>
-                                        <li>코스트 기반의 실시간 전략 판단</li>
-                                        <li>학생 고유의 EX 스킬 구현</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div> <!-- .scroll-sticky-viewport 끝 -->
-
-                <!-- 2. 스크롤 트랙 (실제 스크롤 높이) -->
-                <div class="scroll-track">
-                    <div class="scroll-trigger" data-slide="info-slide-0"></div>
-                    <div class="scroll-trigger" data-slide="info-slide-1"></div>
-                    <div class="scroll-trigger" data-slide="info-slide-2"></div>
-                </div>
-
+                <!-- 기능 카드 (가로 정렬, script.js에서 생성) -->
+                <div id="feature-list" class="feature-list"></div>
             </div>
         </section>
 
-        <!-- 
+        <!--
           페이지 3: 카드 목록
+          필터는 화면 왼쪽을 세로로 전부 덮는 배너형 고정 패널입니다. (styles.css의 .filter-panel)
         -->
         <section id="page-cards" class="page">
-            <div class="flex flex-col md:flex-row gap-8">
-                
-                <!-- 1. 좌측 필터링 항목 -->
-                <aside class="w-full md:w-1/4 lg:w-1/5">
-                    <div class="sticky top-20 bg-white p-5 rounded-lg shadow-md">
-                        <h3 class="text-xl font-bold mb-4 border-b pb-2">카드 필터</h3>
-                        <form id="card-filter-form" class="space-y-4">
-                            <!-- 검색 -->
-                            <div>
-                                <label for="filter-search" class="block text-sm font-medium text-gray-700">검색</label>
-                                <input type="search" id="filter-search" placeholder="카드 이름..." class="form-input w-full mt-1">
-                            </div>
-                            
-                            <!-- 카드 타입 (체크 리스트) -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">카드 타입</label>
-                                <div class="mt-2 space-y-1">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="form-checkbox filter-type" value="학생">
-                                        <span class="ml-2 text-gray-700">학생</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="form-checkbox filter-type" value="스펠">
-                                        <span class="ml-2 text-gray-700">스펠</span>
-                                    </label>
-                                </div>
-                            </div>
 
-                            <!-- 학원 (드롭다운) -->
-                            <div>
-                                <label for="filter-school" class="block text-sm font-medium text-gray-700">학원</label>
-                                <select id="filter-school" class="form-select w-full mt-1">
-                                    <option value="">전체 학원</option>
-                                    <option value="아비도스">아비도스</option>
-                                    <option value="게헨나">게헨나</option>
-                                    <option value="트리니티">트리니티</option>
-                                    <option value="밀레니엄">밀레니엄</option>
-                                    <option value="기타">기타 학원</option>
-                                </select>
-                            </div>
-                            
-                            <!-- 동아리 (드롭다운) -->
-                            <div>
-                                <label for="filter-club" class="block text-sm font-medium text-gray-700">동아리</label>
-                                <select id="filter-club" class="form-select w-full mt-1">
-                                    <option value="">전체 동아리</option>
-                                    <option value="대책위원회">대책위원회</option>
-                                    <option value="흥신소68">흥신소68</option>
-                                    <option value="정의실현부">정의실현부</option>
-                                    <option value="C&C">C&C</option>
-                                    <option value="급식부">급식부</option>
-                                    <option value="기타">기타 동아리</option>
-                                    <option value="없음">동아리 없음 (스펠)</option>
-                                </select>
-                            </div>
-
-                            <!-- 코스트 (최소/최대) -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">코스트</label>
-                                <div class="flex items-center space-x-2 mt-1">
-                                    <input type="number" id="filter-cost-min" min="0" placeholder="최소" class="form-input w-full text-center">
-                                    <span>~</span>
-                                    <input type="number" id="filter-cost-max" min="0" placeholder="최대" class="form-input w-full text-center">
-                                </div>
-                            </div>
-
-                            <button type="reset" id="filter-reset" class="w-full mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
-                                필터 초기화
-                            </button>
-                        </form>
+            <!-- 1. 좌측 배너형 필터 패널 -->
+            <aside class="filter-panel">
+                <h3 class="filter-title">카드 필터</h3>
+                <form id="card-filter-form" class="space-y-5">
+                    <!-- 검색 -->
+                    <div>
+                        <label for="filter-search" class="filter-label">검색</label>
+                        <input type="search" id="filter-search" placeholder="카드 이름..." class="form-input w-full mt-1">
                     </div>
-                </aside>
 
-                <!-- 2. 전체 카드 목록 (우측) -->
-                <div class="w-full md:w-3/4 lg:w-4/5">
-                    <div id="card-list-count" class="mb-4 text-gray-600">
-                        총 0장의 카드를 찾았습니다.
+                    <!-- 카드 타입 (체크 리스트) -->
+                    <div>
+                        <span class="filter-label">카드 타입</span>
+                        <div class="mt-2 space-y-1">
+                            <label class="flex items-center filter-check">
+                                <input type="checkbox" class="form-checkbox filter-type" value="학생">
+                                <span class="ml-2">학생</span>
+                            </label>
+                            <label class="flex items-center filter-check">
+                                <input type="checkbox" class="form-checkbox filter-type" value="비학생">
+                                <span class="ml-2">비학생</span>
+                            </label>
+                            <label class="flex items-center filter-check">
+                                <input type="checkbox" class="form-checkbox filter-type" value="장소">
+                                <span class="ml-2">장소</span>
+                            </label>
+                            <label class="flex items-center filter-check">
+                                <input type="checkbox" class="form-checkbox filter-type" value="이벤트">
+                                <span class="ml-2">이벤트</span>
+                            </label>
+                        </div>
                     </div>
-                    <div id="card-list-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                        <!-- 카드 아이템이 여기에 동적으로 삽입됩니다. -->
+
+                    <!-- 학원 (드롭다운, 카드 데이터에서 자동 생성 - script.js) -->
+                    <div>
+                        <label for="filter-school" class="filter-label">학원</label>
+                        <select id="filter-school" class="form-select w-full mt-1">
+                            <option value="">전체 학원</option>
+                        </select>
                     </div>
+
+                    <!-- 동아리 (드롭다운, 선택한 학원 소속만 표시 - script.js) -->
+                    <div>
+                        <label for="filter-club" class="filter-label">동아리</label>
+                        <select id="filter-club" class="form-select w-full mt-1">
+                            <option value="">전체 동아리</option>
+                        </select>
+                    </div>
+
+                    <!-- 코스트 (최소/최대) -->
+                    <div>
+                        <span class="filter-label">코스트</span>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="number" id="filter-cost-min" min="0" placeholder="최소" class="form-input w-full text-center">
+                            <span>~</span>
+                            <input type="number" id="filter-cost-max" min="0" placeholder="최대" class="form-input w-full text-center">
+                        </div>
+                    </div>
+
+                    <button type="reset" id="filter-reset" class="filter-reset-btn">
+                        필터 초기화
+                    </button>
+                </form>
+            </aside>
+
+            <!-- 2. 전체 카드 목록 (우측) -->
+            <div class="cards-content">
+                <div id="card-list-count" class="mb-4 text-gray-600">
+                    총 0장의 카드를 찾았습니다.
                 </div>
-
+                <div id="card-list-grid" class="card-grid">
+                    <!-- 카드 아이템이 여기에 동적으로 삽입됩니다. -->
+                </div>
             </div>
+
         </section>
 
     </main>
+
+    <!-- === 카드 확대 보기 (외곽 클릭 시 닫힘) === -->
+    <div id="card-lightbox" class="card-lightbox hidden" aria-hidden="true">
+        <div class="card-lightbox-backdrop" id="card-lightbox-backdrop"></div>
+        <img id="card-lightbox-img" src="" alt="카드 확대 이미지">
+    </div>
+
+    <!-- === 게임 소개 모달 (배경 딤 + 좌 미디어 / 우 설명) === -->
+    <div id="feature-modal" class="feature-modal hidden" aria-hidden="true">
+        <div class="feature-modal-backdrop" id="feature-modal-backdrop"></div>
+        <!-- 사각형 바깥(딤 배경)을 클릭하면 닫힙니다 -->
+        <div class="feature-modal-box" role="dialog" aria-modal="true">
+            <div class="feature-modal-media" id="feature-modal-media">
+                <!-- GIF / 동영상 자리 (script.js에서 채움, 없으면 준비 중 표시) -->
+            </div>
+            <div class="feature-modal-body">
+                <h3 id="feature-modal-title"></h3>
+                <p id="feature-modal-tagline"></p>
+                <div id="feature-modal-desc" class="feature-modal-desc"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- 외부 JavaScript 파일 연결 -->
     <script src="script.js"></script>

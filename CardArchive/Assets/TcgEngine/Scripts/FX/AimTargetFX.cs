@@ -15,6 +15,20 @@ namespace TcgEngine.FX
         public GameObject target_fx;
         public GameObject text_fx;
 
+        //Pushed each frame by TargetingManager: the usable require-target card being dragged, or null.
+        private HandCard play_targeting_card;
+
+        void Awake()
+        {
+            //Register with the manager so it drives this FX (static setter -> Awake-order independent).
+            TargetingManager.SetAimFX(this);
+        }
+
+        public void SetPlayTargetingCard(HandCard card)
+        {
+            play_targeting_card = card;
+        }
+
         void Start()
         {
 
@@ -56,36 +70,34 @@ namespace TcgEngine.FX
                 }
             }
 
-            HandCard hcard = HandCard.GetDrag();
+            //Targeting state is computed by TargetingManager and pushed into play_targeting_card,
+            //so the crosshair/text show/hide together with the aim line and only for a usable card.
+            HandCard hcard = play_targeting_card;
             if (hcard != null)
             {
                 Card caster = hcard.GetCard();
+                AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
 
-                if (caster.CardData.IsRequireTarget())
+                if (!string.IsNullOrWhiteSpace(ability.selector_desc))
                 {
-                    AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
+                    text_visible = true;
+                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                    tmpro_text.text = ability.selector_desc;
+                }
 
-                    if (!string.IsNullOrWhiteSpace(ability.selector_desc))
+                if (bslot != null)
+                {
+                    Card target = game_data.GetSlotCard(bslot.GetSlot());
+                    Player player = bslot.GetPlayer();
+
+                    if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
                     {
-                        text_visible = true;
-                        TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
-                        tmpro_text.text = ability.selector_desc;
+                        visible = true;
                     }
-
-                    if (bslot != null)
-                    {
-                        Card target = game_data.GetSlotCard(bslot.GetSlot());
-                        Player player = bslot.GetPlayer();
-
-                        if (ability.CanTarget(game_data, caster, bslot.GetSlot()))
-                        {
-                            visible = true;
-                        }
-                        if (ability.CanTarget(game_data, caster, target))
-                            visible = true;
-                        if (ability.CanTarget(game_data, caster, player))
-                            visible = true;
-                    }
+                    if (ability.CanTarget(game_data, caster, target))
+                        visible = true;
+                    if (ability.CanTarget(game_data, caster, player))
+                        visible = true;
                 }
             }
             

@@ -20,21 +20,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 86c331d287f4fac4ba4508d8fea64c7c, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  target: 10
-  conditions_target: []
+  criteria_target: 10
+  conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
+  condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects:
-  - {fileID: 11400000, guid: 74ef7c2996a74284ba70e2ab98c7cf1a, type: 2}
+  - {fileID: 11400000, guid: f2098905c26a4ffc9d6073118442b7b3, type: 2}
   status: []
   value: 1
   duration: 0
-  chain_abilities:
-  - {fileID: 11400000, guid: 7c7be21dec241cb419af45e9c1793d0f, type: 2}
+  can_cancel: 0
+  chain_abilities: []
   mana_cost: 0
   exhaust: 0
+  show_card_fx: 1
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 0}
@@ -43,3 +45,4 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  selector_desc: 

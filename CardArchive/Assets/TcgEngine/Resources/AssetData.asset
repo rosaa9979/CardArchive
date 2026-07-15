@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   card_destroy_fx: {fileID: 150204448029249, guid: 899a445106b612047b4d4ed24e9ea1c1,
     type: 3}
-  card_dissolve_fx: {fileID: 6200875724081254983, guid: 890bec07a5160ca429fa124bca851f08,
+  card_dissolve_fx: {fileID: 5963909517979060337, guid: a0f0937fd42312f4aace79e1bd18fe74,
     type: 3}
   card_attack_fx: {fileID: 2395263885615999105, guid: 603b4ffa4837de849a8250dabbd724fc,
     type: 3}
@@ -24,7 +24,8 @@ MonoBehaviour:
     type: 3}
   card_damage_fx: {fileID: 6612423673777650383, guid: 57b51606b8f1873478e7c7e479617d93,
     type: 3}
-  card_exhausted_fx: {fileID: 0}
+  card_exhausted_fx: {fileID: 3917126954908027284, guid: b5009d9c6f502b14195e1381b1a2ac00,
+    type: 3}
   player_damage_fx: {fileID: 6612423673777650383, guid: 57b51606b8f1873478e7c7e479617d93,
     type: 3}
   damage_fx: {fileID: 487660224621930042, guid: d96d11f9cc5454a42bc0b5ed454e3320,

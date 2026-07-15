@@ -31,6 +31,7 @@ MonoBehaviour:
   chain_abilities: []
   mana_cost: 0
   exhaust: 0
+  show_card_fx: 1
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
   target_fx: {fileID: 4574152529085066528, guid: 0a338e869785e474db7ea79bc0f3b554,

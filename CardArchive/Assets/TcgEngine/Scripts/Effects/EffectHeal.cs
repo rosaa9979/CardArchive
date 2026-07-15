@@ -27,6 +27,15 @@ namespace TcgEngine
             logic.HealCard(target, heal);
         }
 
+        //PlayTarget on a board tile dispatches as a Slot; heal the unit standing on it
+        //(mirrors EffectDamage/EffectDestroy). Without this, targeted heals silently do nothing.
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            Card slot_card = logic.GameData.GetSlotCard(target);
+            if (slot_card != null)
+                DoEffect(logic, ability, caster, slot_card);
+        }
+
         private int GetHeal(Game data, Card caster, int value)
         {
             if (heal_type == EffectValueType.Attack)
