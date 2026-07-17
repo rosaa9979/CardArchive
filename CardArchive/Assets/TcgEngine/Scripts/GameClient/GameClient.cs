@@ -36,13 +36,13 @@ namespace TcgEngine.Client
         public UnityAction<int> onMulligan;
 
         public UnityAction<Card, Slot> onCardPlayed;
-        public UnityAction<Card> onCardDissolved;
+        public UnityAction<Card, int> onCardDissolved; //Card, owner player_id
         public UnityAction<Card, Slot> onCardMoved;
         public UnityAction<Slot> onCardSummoned;
         public UnityAction<Card> onCardTransformed;
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<int> onCardDraw;
-        public UnityAction<int> onExhaustDamage; //player_id
+        public UnityAction<int, int> onExhaustDamage; //player_id, damage
         public UnityAction<int> onValueRolled;
         public UnityAction<Card, EffectStatType> onCardStatChange;
 
@@ -545,10 +545,7 @@ namespace TcgEngine.Client
         {
             MsgDissolveCard msg = sdata.Get<MsgDissolveCard>();
             Card card = game_data.GetCard(msg.card_uid);
-            int player_id = msg.player_id;
-
-            if (player_id == 2 || GetPlayerID() == player_id)
-                onCardDissolved?.Invoke(card);
+            onCardDissolved?.Invoke(card, msg.player_id);
         }
 
         private void OnCardDraw(SerializedData sdata)
@@ -559,8 +556,8 @@ namespace TcgEngine.Client
 
         private void OnExhaustDamage(SerializedData sdata)
         {
-            MsgInt msg = sdata.Get<MsgInt>();
-            onExhaustDamage?.Invoke(msg.value);
+            MsgPlayerValue msg = sdata.Get<MsgPlayerValue>();
+            onExhaustDamage?.Invoke(msg.player_id, msg.value);
         }
 
         private void OnValueRolled(SerializedData sdata)

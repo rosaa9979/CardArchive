@@ -19,6 +19,7 @@ namespace TcgEngine
         public GameObject card_exhausted_fx;
         public GameObject player_damage_fx;
         public GameObject player_exhausted_fx;
+        public GameObject player_exhausted_other_fx;
         public GameObject damage_fx;
         public GameObject play_card_fx;
         public GameObject play_card_other_fx;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
 using TcgEngine.UI;
+using TMPro;
 
 namespace TcgEngine.FX
 {
@@ -79,28 +80,43 @@ namespace TcgEngine.FX
             
         }
 
-        void OnExhaustDamage(int player_id)
+        void OnExhaustDamage(int player_id, int damage)
         {
             bool opponent = player_id != GameClient.Get().GetPlayerID();
-            BoardSlotPlayer bslot = BoardSlotPlayer.Get(opponent);
-            if (bslot != null)
-            {
-                FXTool.DoFX(AssetData.Get().player_exhausted_fx, bslot.transform.position);
-                AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
-            }
+
+            //Self/Enemy 프리팹 모두 원점 기준으로 디자인되어 있으므로 (0,0)에 스폰
+            GameObject prefab = opponent ? AssetData.Get().player_exhausted_other_fx : AssetData.Get().player_exhausted_fx;
+            GameObject fx = FXTool.DoFX(prefab, Vector3.zero, FXLayer.OverHand);
+
+            TMP_Text text = fx != null ? fx.GetComponentInChildren<TMP_Text>(true) : null;
+            if (text != null)
+                text.text = string.Format("기적의 대가로,\n{0}의 피해를 입습니다", damage);
+
+            AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
         }
 
-        void OnDissolveCard(Card card)
+        void OnDissolveCard(Card card, int owner_player_id)
         {
-            if (card != null)
-            {
-                GameObject prefab = AssetData.Get().card_dissolve_fx;
-                GameObject obj = FXTool.DoFX(prefab, Vector3.zero, 2.0f);
-                CardUI ui = obj.GetComponentInChildren<CardUI>();
+            if (card == null)
+                return;
 
-                CardData icard = CardData.Get(card.card_id);
-                ui.SetCard(icard, card.VariantData);
-            }
+            //스크린 UI 연출이므로 게임 캔버스 아래에 스폰 (루트가 stretch라 화면 전체에 맞춰짐)
+            GameUI game_ui = GameUI.Get();
+            if (game_ui == null || game_ui.game_canvas == null)
+                return;
+
+            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand, 2.0f);
+            if (obj == null)
+                return;
+
+            //재생 전에 카드 정보 주입, 연출은 프리팹의 Self/Enemy 애니메이션이 담당
+            CardUI ui = obj.GetComponentInChildren<CardUI>(true);
+            if (ui != null)
+                ui.SetCard(CardData.Get(card.card_id), card.VariantData);
+
+            FXSetting setting = obj.GetComponentInChildren<FXSetting>(true);
+            if (setting != null)
+                setting.PlayOwnerState(owner_player_id);
         }
 
         private void OnAbility(AbilityData iability, Card caster)

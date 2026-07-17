@@ -807,8 +807,9 @@ namespace TcgEngine.Server
 
         protected virtual void OnExhaustDamage(Player player)
         {
-            MsgInt mdata = new MsgInt();
-            mdata.value = player.player_id;
+            MsgPlayerValue mdata = new MsgPlayerValue();
+            mdata.player_id = player.player_id;
+            mdata.value = player.exhaust_damage; //이번에 입은 탈진 피해량
             SendToAll(GameAction.ExhaustDamage, mdata, NetworkDelivery.Reliable);
         }
 
