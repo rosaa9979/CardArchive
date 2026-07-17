@@ -29717,6 +29717,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 492688635351641820}
+  - component: {fileID: -1317516766364399012}
   m_Layer: 0
   m_Name: FX_Exhaustion_Enemy
   m_TagString: Untagged
@@ -29740,6 +29741,20 @@ Transform:
   - {fileID: 6195152094993103148}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-1317516766364399012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8047740612985776303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f1b1fbe200e2864f906b32a88efcda0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotation_option: 0
+  animator: {fileID: 5722084323478224087}
 --- !u!1 &8408218643174038516
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,7 +42,7 @@ namespace TcgEngine.Client
         public UnityAction<Card> onCardTransformed;
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<int> onCardDraw;
-        public UnityAction<int> onExhaustDamage; //player_id
+        public UnityAction<int, int> onExhaustDamage; //player_id, damage
         public UnityAction<int> onValueRolled;
         public UnityAction<Card, EffectStatType> onCardStatChange;
 
@@ -556,8 +556,8 @@ namespace TcgEngine.Client
 
         private void OnExhaustDamage(SerializedData sdata)
         {
-            MsgInt msg = sdata.Get<MsgInt>();
-            onExhaustDamage?.Invoke(msg.value);
+            MsgPlayerValue msg = sdata.Get<MsgPlayerValue>();
+            onExhaustDamage?.Invoke(msg.player_id, msg.value);
         }
 
         private void OnValueRolled(SerializedData sdata)

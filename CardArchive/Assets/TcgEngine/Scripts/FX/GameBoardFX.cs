@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
 using TcgEngine.UI;
+using TMPro;
 
 namespace TcgEngine.FX
 {
@@ -79,15 +80,19 @@ namespace TcgEngine.FX
             
         }
 
-        void OnExhaustDamage(int player_id)
+        void OnExhaustDamage(int player_id, int damage)
         {
             bool opponent = player_id != GameClient.Get().GetPlayerID();
-            BoardSlotPlayer bslot = BoardSlotPlayer.Get(opponent);
-            if (bslot != null)
-            {
-                FXTool.DoFX(AssetData.Get().player_exhausted_fx, bslot.transform.position);
-                AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
-            }
+
+            //Self/Enemy 프리팹 모두 원점 기준으로 디자인되어 있으므로 (0,0)에 스폰
+            GameObject prefab = opponent ? AssetData.Get().player_exhausted_other_fx : AssetData.Get().player_exhausted_fx;
+            GameObject fx = FXTool.DoFX(prefab, Vector3.zero, FXLayer.OverHand);
+
+            TMP_Text text = fx != null ? fx.GetComponentInChildren<TMP_Text>(true) : null;
+            if (text != null)
+                text.text = string.Format("기적의 대가로,\n{0}의 피해를 입습니다", damage);
+
+            AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
         }
 
         void OnDissolveCard(Card card, int owner_player_id)
