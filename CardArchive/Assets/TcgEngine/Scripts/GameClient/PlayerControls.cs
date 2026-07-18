@@ -35,7 +35,7 @@ namespace TcgEngine.Client
                 return;
 
             //Right-click cancel (PC only, mobile uses the cancel button / release rules)
-            if (Input.GetMouseButtonDown(1))
+            if (!GameTool.IsMobile() && Input.GetMouseButtonDown(1))
             {
                 HandCard handcard = HandCard.GetDrag();
                 if (handcard != null)
@@ -53,7 +53,8 @@ namespace TcgEngine.Client
             if (Input.GetMouseButtonDown(0) && !press_active)
             {
                 bool blocked = GameUI.IsUIOpened() || GameUI.IsOverUILayer("UI")
-                    || HandCard.GetPressed() != null || HandCardArea.Get().IsDragging();
+                    || HandCard.GetPressed() != null || HandCard.GetDrag() != null
+                    || HandCardArea.Get().IsDragging();
                 if (!blocked)
                 {
                     press_active = true;

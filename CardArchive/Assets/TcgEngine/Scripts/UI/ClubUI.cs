@@ -104,6 +104,10 @@ namespace TcgEngine.UI
         //Hover (PC) and touch-down both enter here; touch release fires PointerExit/Up
         public void OnPointerEnter(PointerEventData eventData)
         {
+            //Mobile is touch-based: a pointer-enter only counts while the touch is held
+            if (GameTool.IsMobile() && !Input.GetMouseButton(0))
+                return;
+
             focus = true;
         }
 

@@ -52,8 +52,9 @@ namespace TcgEngine.Client
         private bool focus = false;
         private bool drag = false;
 
-        //Press tracking: the card that received the pointer-down owns the gesture
-        //(scrub/drag can move to another card, but pointer-up always fires on the owner)
+        //Press tracking: pointer-down on a card arms the drag; the drag only starts when
+        //the pointer crosses the hand line, and it drags the currently focused (previewed) card.
+        //PC focus comes from hover, mobile focus from touch — everything else is identical.
         private static HandCard pressed_card = null;
         private static bool press_consumed = false;
 
@@ -108,16 +109,9 @@ namespace TcgEngine.Client
                 focus_timer = -0.2f;
             }
 
-            //Hide the in-hand card only once the enlarged preview is actually visible
-            //(the preview waits GameConfig.Gesture.preview_delay before appearing)
-            bool preview_shown = HandCardPreviewUI.Get() != null && HandCardPreviewUI.Get().IsPreviewVisible();
-            canvas_group.alpha = (IsFocus() && preview_shown) ? 0.0f : 1.0f;
+            canvas_group.alpha = IsFocus() ? 0.0f : 1.0f;
             hand_canvas_group.alpha = 1;
             board_canvas_group.alpha = 0;
-
-            //Gesture owner drives scrubbing and the hold-to-drag transition
-            if (pressed_card == this)
-                UpdatePress();
 
             if (IsFocus())
             {
@@ -158,13 +152,24 @@ namespace TcgEngine.Client
             }
 
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
+
+            //Pressed and crossed the hand line: start dragging the focused (previewed) card
+            if (pressed_card == this && !press_consumed && GetDrag() == null
+                && mpos.y > GameConfig.Gesture.hand_drag_line)
+            {
+                HandCard target = GetFocusedRaw();
+                if (target == null)
+                    target = this;
+                target.StartDrag();
+            }
+
             if ((!GameClient.Get().IsYourTurn() || game_data.phase != GamePhase.Main) && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line)
             {
                 WarningText.ShowNotYourTurn();
                 HandCardArea.Get().SortCards();
                 drag = false;
                 focus = false;
-                press_consumed = true; //Don't re-enter drag until the pointer is released
+                press_consumed = true; //Don't restart the drag until the pointer is released
             }
 
             if (GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line && !player.CanPayMana(card))
@@ -173,7 +178,7 @@ namespace TcgEngine.Client
                 HandCardArea.Get().SortCards();
                 drag = false;
                 focus = false;
-                press_consumed = true; //Don't re-enter drag until the pointer is released
+                press_consumed = true; //Don't restart the drag until the pointer is released
             }
 
             card_transform.anchoredPosition = Vector2.Lerp(card_transform.anchoredPosition, target_position, Time.deltaTime * move_speed);
@@ -194,44 +199,6 @@ namespace TcgEngine.Client
             bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
             card_outline.SetActive(is_outline_enabled); 
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
-        }
-
-        //Runs on the card that received the pointer-down, while the pointer is held.
-        //Scrubs the preview between hand cards; crossing the hand line starts a drag
-        //with whichever card is under the pointer at that moment.
-        private void UpdatePress()
-        {
-            if (press_consumed || GetDrag() != null)
-                return;
-
-            Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
-            if (mpos.y > GameConfig.Gesture.hand_drag_line)
-            {
-                HandCard target = GetNearestAtPointer();
-                if (target == null)
-                    target = this;
-                ClearFocusAll();
-                target.StartDrag();
-            }
-            else
-            {
-                //No hand scrubbing while a selector is active (the hand is not interactable then)
-                Game game_data = GameClient.Get().GetGameData();
-                if (game_data.selector != SelectorType.None)
-                    return;
-
-                //Scrub: focus follows the pointer, empty space clears the preview
-                HandCard target = GetNearestAtPointer();
-                if (target != null && !target.focus)
-                {
-                    ClearFocusAll();
-                    target.focus = true;
-                }
-                else if (target == null)
-                {
-                    ClearFocusAll();
-                }
-            }
         }
 
         private Vector2 GetTargetPosition()
@@ -324,6 +291,11 @@ namespace TcgEngine.Client
             if (GameUI.Get().GetHideUI())
                 return;
 
+            //Mobile is touch-based: a pointer-enter only counts while the touch is held
+            //(covers editor-with-Android-target mouse hover and device stylus/mouse hover)
+            if (GameTool.IsMobile() && !Input.GetMouseButton(0))
+                return;
+
             focus = true;
         }
 
@@ -341,8 +313,8 @@ namespace TcgEngine.Client
             if (GameUI.Get().GetHideUI())
                 return;
 
-            //Press starts a hold-to-preview gesture; the drag only begins
-            //once the pointer crosses the hand line (see UpdatePress)
+            //Arm the drag; it only starts once the pointer crosses the hand line (see Update).
+            //On mobile the touch is the "hover", so it also focuses the card for the preview.
             pressed_card = this;
             press_consumed = false;
             focus = true;
@@ -350,8 +322,11 @@ namespace TcgEngine.Client
 
         public void OnMouseUpCard()
         {
-            pressed_card = null;
+            if (pressed_card == this)
+                pressed_card = null;
 
+            //Release while dragging: play or return to hand (the dragging card can differ
+            //from the pressed card, pointer-up always fires on the pressed one)
             HandCard drag_card = GetDrag();
             if (drag_card != null)
             {
@@ -359,8 +334,8 @@ namespace TcgEngine.Client
                 return;
             }
 
-            //Preview or tap release: never a game action.
-            //On PC the cursor is still hovering, so keep the hover focus alive.
+            //No drag: on mobile the touch (hover) ended, so close the preview.
+            //On PC the cursor still hovers the card, hover enter/exit keeps handling focus.
             if (GameTool.IsMobile())
             {
                 ClearFocusAll();
@@ -396,7 +371,6 @@ namespace TcgEngine.Client
         {
             pressed_card = null;
             press_consumed = true;
-            ClearFocusAll();
         }
 
         private static void ClearFocusAll()
@@ -405,30 +379,15 @@ namespace TcgEngine.Client
                 card.focus = false;
         }
 
-        //Hand card currently under the pointer, or null if the pointer is not over the hand fan
-        private static HandCard GetNearestAtPointer()
+        //Card currently holding the focus flag (raw, without IsFocus gating)
+        private static HandCard GetFocusedRaw()
         {
-            HandCardArea area = HandCardArea.Get();
-            float max_dist = area != null ? area.card_spacing : 100f;
-
-            HandCard nearest = null;
-            float min_dist = max_dist;
             foreach (HandCard card in card_list)
             {
-                if (card == null || card.destroyed || card.hand_transform == null)
-                    continue;
-
-                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(card.hand_transform, Input.mousePosition, Camera.main, out Vector2 lpos))
-                    continue;
-
-                float dist = Mathf.Abs(lpos.x - card.deck_position.x);
-                if (dist < min_dist)
-                {
-                    min_dist = dist;
-                    nearest = card;
-                }
+                if (card != null && !card.destroyed && card.focus)
+                    return card;
             }
-            return nearest;
+            return null;
         }
 
         public void TryPlayCard(Vector3 board_pos)

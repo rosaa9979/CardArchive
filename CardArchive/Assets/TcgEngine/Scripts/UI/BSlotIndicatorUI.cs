@@ -73,7 +73,9 @@ namespace TcgEngine.UI
             if (hcard != null)
                 return new BSlotIndicatorTypeDragCard();
 
-            if (current_slot != null)
+            //Mobile is touch-based: hover indication only counts while the touch is held
+            bool hover_valid = !GameTool.IsMobile() || Input.GetMouseButton(0);
+            if (current_slot != null && hover_valid)
             {
                 Card current_hovering_unit = game_data.GetSlotCard(current_slot.GetSlot());
 
