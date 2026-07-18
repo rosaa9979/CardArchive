@@ -20,7 +20,6 @@ namespace TcgEngine.UI
         [SerializeField] AronaSelection arona_selection;
         [SerializeField] UIPanel ui_panel;
         [SerializeField] CardUI card_ui;
-        public float hover_delay = 0.5f;
         private float preview_timer = 0.0f;
 
         [Header("Mana Curve")]
@@ -52,7 +51,7 @@ namespace TcgEngine.UI
             IconButton icon = IconButton.GetFocus("arona");
             CardData icon_data = icon != null ? CardData.Get(icon.value) : null;
 
-            float delay = icon_data != null ? hover_delay : 0.0f;
+            float delay = GameConfig.Gesture.preview_delay;
 
             bool should_show_preview = icon_data != null;
 

@@ -42,6 +42,16 @@ namespace TcgEngine.UI
         [Header("Default Setting")]
         public ConditionWideAreaRange default_wide_area_range;
 
+        private float show_timer = 0f;
+        private bool preview_visible = false;
+
+        private static HandCardPreviewUI instance;
+
+        void Awake()
+        {
+            instance = this;
+        }
+
         void Start()
         {
             // RectTransform 컴포넌트 가져오기
@@ -86,8 +96,16 @@ namespace TcgEngine.UI
             Game game_data = GameClient.Get().GetGameData();
             HandCard hcard = HandCard.GetFocus();
 
+            //Preview appears only after the shared hold/hover delay.
+            //While a press is still held (scrubbing), losing focus over a gap keeps the
+            //timer so moving back onto a card re-shows the preview instantly.
+            if (hcard != null)
+                show_timer += Time.deltaTime;
+            else if (HandCard.GetPressed() == null)
+                show_timer = 0f;
+
             bool visible = false;
-            if (hcard != null && HandCard.GetDrag() == null)
+            if (hcard != null && HandCard.GetDrag() == null && show_timer >= GameConfig.Gesture.preview_delay)
             {
                 visible = true;
 
@@ -179,10 +197,22 @@ namespace TcgEngine.UI
             
 
 
+            preview_visible = visible;
+
             if (visible)
                 ui_panel.Show(true);
             else
                 ui_panel.Hide(true);
+        }
+
+        public bool IsPreviewVisible()
+        {
+            return preview_visible;
+        }
+
+        public static HandCardPreviewUI Get()
+        {
+            return instance;
         }
         
         public void SetCard()

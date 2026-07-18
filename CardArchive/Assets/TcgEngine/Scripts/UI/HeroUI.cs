@@ -24,6 +24,12 @@ namespace TcgEngine.UI
 
         private bool focus = false;
 
+        //Press gesture: tap (short press released on the button) casts the power,
+        //holding shows the hero preview instead
+        private bool pressing = false;
+        private bool press_exited = false;
+        private float press_start_time = 0f;
+
         private static List<HeroUI> ui_list = new List<HeroUI>();
 
         private void Awake()
@@ -43,16 +49,20 @@ namespace TcgEngine.UI
             //    power_button.onClick.AddListener(OnClickPower);
 
             EventTrigger trigger = power_area.GetComponent<EventTrigger>();
-            EventTrigger.Entry click = new EventTrigger.Entry();
-            click.eventID = EventTriggerType.PointerDown;
-            click.callback.AddListener((eventData) => { OnClickPower(); });
+            EventTrigger.Entry down = new EventTrigger.Entry();
+            down.eventID = EventTriggerType.PointerDown;
+            down.callback.AddListener((eventData) => { OnPointerDownPower(); });
+            EventTrigger.Entry up = new EventTrigger.Entry();
+            up.eventID = EventTriggerType.PointerUp;
+            up.callback.AddListener((eventData) => { OnPointerUpPower(); });
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerEnter;
             entry.callback.AddListener((eventData) => { OnEnterMouse(); });
             EventTrigger.Entry exit = new EventTrigger.Entry();
             exit.eventID = EventTriggerType.PointerExit;
             exit.callback.AddListener((eventData) => { OnExitMouse(); });
-            trigger.triggers.Add(click);
+            trigger.triggers.Add(down);
+            trigger.triggers.Add(up);
             trigger.triggers.Add(entry);
             trigger.triggers.Add(exit);
         }
@@ -109,6 +119,30 @@ namespace TcgEngine.UI
             }
         }
 
+        private void OnPointerDownPower()
+        {
+            pressing = true;
+            press_exited = false;
+            press_start_time = Time.unscaledTime;
+            focus = true; //Preview appears after the shared delay (CardPreviewUI)
+        }
+
+        private void OnPointerUpPower()
+        {
+            if (!pressing)
+                return;
+
+            pressing = false;
+            float held = Time.unscaledTime - press_start_time;
+
+            //Short tap released on the button casts the power; a hold was a preview, so no action
+            if (!press_exited && held < GameConfig.Gesture.preview_delay)
+                OnClickPower();
+
+            if (GameTool.IsMobile())
+                focus = false; //No hover on touch: close the preview on release
+        }
+
         private void OnEnterMouse()
         {
             focus = true;
@@ -117,6 +151,8 @@ namespace TcgEngine.UI
         private void OnExitMouse()
         {
             focus = false;
+            if (pressing)
+                press_exited = true; //Slid off the button: releasing must not cast
         }
 
         private void OnDisable()

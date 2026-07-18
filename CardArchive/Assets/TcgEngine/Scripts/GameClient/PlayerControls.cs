@@ -17,6 +17,11 @@ namespace TcgEngine.Client
     {
         private BoardCard selected_card = null;
 
+        //Board press gesture: hold to preview (scrub), release to confirm
+        private bool press_active = false;
+        private bool press_long = false;
+        private float press_time = 0f;
+
         private static PlayerControls instance;
 
         void Awake()
@@ -29,6 +34,7 @@ namespace TcgEngine.Client
             if (!GameClient.Get().IsReady())
                 return;
 
+            //Right-click cancel (PC only, mobile uses the cancel button / release rules)
             if (Input.GetMouseButtonDown(1))
             {
                 HandCard handcard = HandCard.GetDrag();
@@ -38,23 +44,96 @@ namespace TcgEngine.Client
                     handcard.SetDrag(false);
                 }
 
+                HandCard.CancelPress();
+                CancelBoardPress();
                 UnselectAll();
             }
 
-            if (selected_card != null)
+            //Press starts on the board only (not over UI, not on a hand card)
+            if (Input.GetMouseButtonDown(0) && !press_active)
             {
-                if (Input.GetMouseButtonUp(0))
-                    ReleaseClick();
+                bool blocked = GameUI.IsUIOpened() || GameUI.IsOverUILayer("UI")
+                    || HandCard.GetPressed() != null || HandCardArea.Get().IsDragging();
+                if (!blocked)
+                {
+                    press_active = true;
+                    press_long = false;
+                    press_time = 0f;
+                    UpdateBoardFocus();
+                }
             }
 
-            Vector2 mouse_input = GameBoard.Get().RaycastMouseBoard();
-            BSlot player_slot = BSlot.GetNearest(mouse_input);
-            Player player = player_slot?.GetPlayer();
-            if (player != null)
+            if (press_active && Input.GetMouseButton(0))
             {
-                if (Input.GetMouseButtonDown(0))
-                    SelectPlayer(player);
+                press_time += Time.deltaTime;
+                if (press_time >= GameConfig.Gesture.preview_delay)
+                    press_long = true; //Preview gesture: release will not confirm anything
+
+                UpdateBoardFocus();
             }
+
+            if (press_active && Input.GetMouseButtonUp(0))
+            {
+                press_active = false;
+
+                if (!press_long)
+                    ConfirmRelease();
+
+                if (GameTool.IsMobile())
+                    BoardCard.UnfocusAll(); //No hover on touch: close the preview on release
+            }
+        }
+
+        //Focus (preview/status bar) follows the pointer while pressed; empty space clears it
+        private void UpdateBoardFocus()
+        {
+            Vector3 wpos = GameBoard.Get().RaycastMouseBoard();
+            BSlot bslot = BSlot.GetNearest(wpos);
+            Card slot_card = bslot?.GetSlotCard(wpos);
+            BoardCard bcard = slot_card != null ? BoardCard.Get(slot_card.uid) : null;
+
+            if (bcard != BoardCard.GetFocus())
+            {
+                BoardCard.UnfocusAll();
+                if (bcard != null)
+                    bcard.SetFocus();
+            }
+        }
+
+        //Tap released: confirm whatever is under the pointer at release
+        private void ConfirmRelease()
+        {
+            Vector3 wpos = GameBoard.Get().RaycastMouseBoard();
+            BSlot bslot = BSlot.GetNearest(wpos);
+            if (bslot == null)
+                return;
+
+            Card slot_card = bslot.GetSlotCard(wpos);
+            if (slot_card != null)
+            {
+                BoardCard bcard = BoardCard.Get(slot_card.uid);
+                if (bcard != null)
+                    SelectCard(bcard);
+            }
+            else if (bslot.GetPlayer() != null)
+            {
+                SelectPlayer(bslot.GetPlayer());
+            }
+            else if (bslot is BoardSlot board_slot)
+            {
+                SelectSlot(board_slot);
+            }
+        }
+
+        private void CancelBoardPress()
+        {
+            press_active = false;
+            press_long = false;
+        }
+
+        public bool IsPressActive()
+        {
+            return press_active;
         }
 
         public void SelectCard(BoardCard bcard)
@@ -105,38 +184,6 @@ namespace TcgEngine.Client
             }
         }
 
-
-        public void SelectCardRight(BoardCard card)
-        {
-            if (!Input.GetMouseButton(0))
-            {
-                //Nothing on right-click
-            }
-        }
-
-        private void ReleaseClick()
-        {
-            bool yourturn = GameClient.Get().IsYourTurn();
-
-            if (yourturn && selected_card != null)
-            {
-                Card card = selected_card.GetCard();
-                Vector3 wpos = GameBoard.Get().RaycastMouseBoard();
-                BSlot tslot = BSlot.GetNearest(wpos);
-                Card target = tslot?.GetSlotCard(wpos);
-                AbilityButton ability = AbilityButton.GetFocus(wpos, 1f);
-
-                if (ability != null && ability.IsVisible())
-                {
-                    if (!Tutorial.Get().CanDo(TutoEndTrigger.CastAbility, card))
-                        return;
-                        
-                    GameClient.Get().CastAbility(card, ability.GetAbility());
-                }
-            }
-
-            UnselectAll();
-        }
 
         public void UnselectAll()
         {

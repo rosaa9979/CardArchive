@@ -35,10 +35,8 @@ namespace TcgEngine
         private List<AbilityPhase> phase_stack = new List<AbilityPhase>();
         private Stack<AbilityPhase> insert_stack = new Stack<AbilityPhase>();
 
-        //Per-queue "gap before the next element" lives in GameplayData.timing (single source of truth).
-        //Replaces the old single per_effect_delay so combat micro-steps and ability chains can be paced independently.
-        //null only on the AI/skip_delay path, where delays are never applied (see GetNextQueueDelay).
-        private TimingData timing;
+        //Per-queue "gap before the next element" lives in GameConfig.Timing (single source of truth).
+        //The AI/skip_delay path never applies delays (see ResolveAll/SetDelay).
 
         //Death Phase hooks (Phase 2), set by GameLogic. death_step runs at every outermost
         //boundary — whenever an element and its whole depth-first subtree have finished
@@ -55,11 +53,10 @@ namespace TcgEngine
         private float resolve_delay = 0f;
         private bool skip_delay = false;
 
-        public ResolveQueue(Game data, bool skip, TimingData timing = null)
+        public ResolveQueue(Game data, bool skip)
         {
             game_data = data;
             skip_delay = skip;
-            this.timing = timing;
         }
 
         public void SetData(Game data)
@@ -381,18 +378,18 @@ namespace TcgEngine
         //ability -> secret -> attack -> callback).
         protected virtual float GetNextQueueDelay()
         {
-            if (timing == null)
+            if (skip_delay)
                 return 0f;
             if (CountAbilityElements() > 0)
-                return timing.ability;
+                return GameConfig.Timing.ability;
             if (HasPendingDeaths())
-                return timing.ability; //Death Phase is next; paced like an ability
+                return GameConfig.Timing.ability; //Death Phase is next; paced like an ability
             if (secret_queue.Count > 0)
-                return timing.secret;
+                return GameConfig.Timing.secret;
             if (attack_queue.Count > 0)
-                return timing.attack;
+                return GameConfig.Timing.attack;
             if (callback_queue.Count > 0)
-                return timing.callback;
+                return GameConfig.Timing.callback;
             return 0f;
         }
 

@@ -18,8 +18,6 @@ namespace TcgEngine.UI
         [Header("Display Setting")]
         public CanvasGroup canvas_group;
         public CardUI card_ui;
-        public float hover_delay = 0.0f;
-        public float hover_delay_mobile = 0.1f;
         public float display_duration;
         public float screen_width_ratio = 0.2f;
 

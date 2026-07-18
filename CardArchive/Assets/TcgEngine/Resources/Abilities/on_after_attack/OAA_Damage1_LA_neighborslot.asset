@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: OAA_Damage1_LA_neighborslot
   trigger: 32
-  conditions_trigger: []
+  conditions_trigger:
+  - {fileID: 11400000, guid: e8059ae2736090840a1753e474fb8b05, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 15
   conditions_criteria_target:

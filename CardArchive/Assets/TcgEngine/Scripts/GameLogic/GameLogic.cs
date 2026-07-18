@@ -80,8 +80,7 @@ namespace TcgEngine.Gameplay
         public GameLogic(Game game)
         {
             game_data = game;
-            TimingData timing = GameplayData.Get() != null ? GameplayData.Get().timing : null;
-            resolve_queue = new ResolveQueue(game, false, timing);
+            resolve_queue = new ResolveQueue(game, false);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths);
         }
 
@@ -225,7 +224,7 @@ namespace TcgEngine.Gameplay
                 resolve_queue.AddCallback(GoToMulligan);
             else
                 resolve_queue.AddCallback(StartFirstTurn);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.game_start);
+            resolve_queue.ResolveAll(GameConfig.Timing.game_start);
         }
 
         //Draws each player's starting hand (after OnGameStart effects), then adds the second player's coin
@@ -278,7 +277,7 @@ namespace TcgEngine.Gameplay
 
             //Delay lets the mulligan panel close before the first turn begins.
             resolve_queue.AddCallback(StartTurn);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.first_turn);
+            resolve_queue.ResolveAll(GameConfig.Timing.first_turn);
         }
 
         public virtual void StartTurn()
@@ -308,7 +307,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
             RefreshData();
             resolve_queue.AddCallback(BeforeMainPahse);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.turn_start);
+            resolve_queue.ResolveAll(GameConfig.Timing.turn_start);
         }
 
         public virtual void StartNextTurn()
@@ -359,7 +358,7 @@ namespace TcgEngine.Gameplay
             //Draw happens after start-of-turn abilities resolve (ability_queue drains before callbacks)
             resolve_queue.AddCallback(DrawForTurn);
             resolve_queue.AddCallback(StartMainPhase);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.pre_main_phase);
+            resolve_queue.ResolveAll(GameConfig.Timing.pre_main_phase);
         }
 
         //Turn draw, runs after start-of-turn effects have resolved
@@ -399,7 +398,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_phase_start);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_phase_start);
         }
 
         public virtual void AttackCheck()
@@ -437,7 +436,7 @@ namespace TcgEngine.Gameplay
 
             // 한 바퀴 종료
             resolve_queue.AddCallback(EndTurn);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_phase_end);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_phase_end);
         }
 
         public virtual void AttackSearch(Card attacker, bool skip_cost = false)
@@ -494,7 +493,7 @@ namespace TcgEngine.Gameplay
             //ExhaustBattle(attacker);
 
             resolve_queue.AddCallback(AttackCheck);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.between_attackers);
+            resolve_queue.ResolveAll(GameConfig.Timing.between_attackers);
         }
 
         public virtual Dictionary<int, List<Card>> GetAllTarget(Card attacker)
@@ -569,7 +568,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             resolve_queue.AddCallback(StartNextTurn);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.turn_end);
+            resolve_queue.ResolveAll(GameConfig.Timing.turn_end);
         }
 
         //End game with winner
@@ -856,7 +855,7 @@ namespace TcgEngine.Gameplay
                 RefreshData();
 
                 onCardPlayed?.Invoke(card, slot);
-                resolve_queue.ResolveAll(GameplayData.Get().timing.play_card);
+                resolve_queue.ResolveAll(GameConfig.Timing.play_card);
             }
         }
 
@@ -895,7 +894,7 @@ namespace TcgEngine.Gameplay
                 if (!skip_cost)
                     TriggerCardAbilityType(AbilityTrigger.OnMove, card);
 
-                resolve_queue.ResolveAll(GameplayData.Get().timing.move_card);
+                resolve_queue.ResolveAll(GameConfig.Timing.move_card);
             }
         }
 
@@ -935,7 +934,7 @@ namespace TcgEngine.Gameplay
                 if (!game_data.attack_complete_list.Contains(target) && !game_data.attack_evade_list.Contains(target))
                 {
                     resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
-                    resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
+                    resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
                     return;
                 }
             }
@@ -977,7 +976,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
         }
 
         protected virtual void ResolveAttack(Card attacker, Card target, bool skip_cost)
@@ -1012,7 +1011,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
         }
 
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
@@ -1054,7 +1053,7 @@ namespace TcgEngine.Gameplay
             }
 
             resolve_queue.AddAttack(attacker, target, ResolveDeath, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_hit);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_hit);
 
             if (!game_data.attack_evade_list.Contains(target))
                 onAttackHit?.Invoke(attacker, target);
@@ -1073,7 +1072,7 @@ namespace TcgEngine.Gameplay
             //DamageCard when hp dropped to 0, and the Death Creation Step (ProcessDeathStep) removes
             //the dying cards between attack micro-steps. This step only chains the multi-target attack.
             resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
 
             RefreshData();
         }
@@ -1105,7 +1104,7 @@ namespace TcgEngine.Gameplay
 
             //Resolve attack
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayer, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_player_step);
         }
 
         protected virtual void ResolveAttackPlayer(Card attacker, Player target, bool skip_cost)
@@ -1122,7 +1121,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackPlayerHit, skip_cost);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_player_step);
         }
 
         protected virtual void ResolveAttackPlayerHit(Card attacker, Player target, bool skip_cost)
@@ -1147,7 +1146,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
             CheckForWinner();
 
-            resolve_queue.ResolveAll(GameplayData.Get().timing.attack_player_step);
+            resolve_queue.ResolveAll(GameConfig.Timing.attack_player_step);
         }
 
         //Exhaust after battle
@@ -2304,7 +2303,7 @@ namespace TcgEngine.Gameplay
             }
 
             onAbilityEnd?.Invoke(iability, caster);
-            resolve_queue.ResolveAll(GameplayData.Get().timing.ability_resolve);
+            resolve_queue.ResolveAll(GameConfig.Timing.ability_resolve);
 
             //Repeat (Hearthstone/Defile pacing): the next iteration is deferred to the Death
             //Phase stable point after this iteration's consequences (deaths + death triggers
@@ -3024,7 +3023,7 @@ namespace TcgEngine.Gameplay
                     //Buffer covers the client-side mulligan->hand handoff animation
                     //before the mulligan panel closes and the first turn begins.
                     resolve_queue.AddCallback(StartFirstTurn);
-                    resolve_queue.ResolveAll(GameplayData.Get().timing.mulligan_to_turn);
+                    resolve_queue.ResolveAll(GameConfig.Timing.mulligan_to_turn);
                     //StartTurn();
                 }
             }

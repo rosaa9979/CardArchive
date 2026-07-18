@@ -54,6 +54,8 @@ namespace TcgEngine.Client
         private bool destroyed = false;
         private bool focus = false;
         private float timer = 0f;
+        private float focus_timer = 0f;
+        private bool status_shown = false;
         private float status_alpha_target = 0f;
 
         private Color32 font_color = new Color32(37, 44, 91, 255);
@@ -194,6 +196,26 @@ namespace TcgEngine.Client
                             index++;
                         }
                     }
+                }
+            }
+
+            //Status bar appears together with the enlarged preview, after the shared hold/hover delay
+            if (focus && !destroyed)
+            {
+                focus_timer += Time.deltaTime;
+                if (!status_shown && focus_timer >= GameConfig.Gesture.preview_delay)
+                {
+                    status_shown = true;
+                    ShowStatusBar();
+                }
+            }
+            else
+            {
+                focus_timer = 0f;
+                if (status_shown)
+                {
+                    status_shown = false;
+                    status_alpha_target = 0f;
                 }
             }
 
@@ -356,6 +378,7 @@ namespace TcgEngine.Client
             return equipment != null && equipment.IsFocus();
         }
 
+        //PC hover focus (mobile focus is driven by PlayerControls press/scrub)
         public void OnMouseEnter()
         {
             if (GameUI.IsUIOpened())
@@ -365,8 +388,6 @@ namespace TcgEngine.Client
                 return;
 
             focus = true;
-
-            ShowStatusBar();
         }
 
         public void OnMouseExit()
@@ -375,31 +396,13 @@ namespace TcgEngine.Client
             status_alpha_target = 0f;
         }
 
-        public void OnMouseDown()
+        //Press/scrub focus, set by PlayerControls while the pointer is held on this card
+        public void SetFocus()
         {
-            if (GameUI.IsOverUILayer("UI"))
+            if (GameUI.IsUIOpened())
                 return;
 
-            PlayerControls.Get().SelectCard(this);
-
-            if (GameTool.IsMobile())
-            {
-                focus = true;
-                ShowStatusBar();
-            }
-        }
-
-        public void OnMouseUp()
-        {
-
-        }
-
-        public void OnMouseOver()
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                PlayerControls.Get().SelectCardRight(this);
-            }
+            focus = true;
         }
 
         public string GetCardUID()

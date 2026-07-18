@@ -17,10 +17,6 @@ namespace TcgEngine.UI
         public UIPanel ui_panel;
         public CardUI card_ui;
         public Text desc;
-        public float hover_delay_ability = 0.0f;
-        public float hover_delay_board = 0.7f;
-        public float hover_delay_hand = 0.4f;
-        public float hover_delay_mobile = 0.1f;
 
         public RectTransform[] side_rows;
         public StatusLine[] status_lines;
@@ -57,9 +53,7 @@ namespace TcgEngine.UI
             HeroUI hero_ui = HeroUI.GetFocus();
             Card histcard = TurnHistoryLine.GetHoverCard();
 
-            float delay = hover_delay_board;
-            if (GameTool.IsMobile())
-                delay = hover_delay_mobile;
+            float delay = GameConfig.Gesture.preview_delay;
 
             Card pcard = bcard?.GetFocusCard();
             if (pcard == null)
@@ -67,14 +61,15 @@ namespace TcgEngine.UI
             if (pcard == null)
                 pcard = hero_ui?.GetCard();
 
+            //A held press must be able to show the preview (hold-to-preview);
+            //only an actual hand card drag blocks it
+            bool should_show_preview = !HandCardArea.Get().IsDragging() && !GameUI.IsUIOpened() && pcard != null;
 
-            bool hover_only = !Input.GetMouseButton(0) && !HandCardArea.Get().IsDragging();
-            bool should_show_preview = hover_only && !GameUI.IsUIOpened() && pcard != null;
-
-
+            //While a board press is held (scrubbing), keep the timer so moving over
+            //empty space and back onto a card re-shows the preview instantly
             if (should_show_preview)
                 preview_timer += Time.deltaTime;
-            else
+            else if (!controls.IsPressActive())
                 preview_timer = 0f;
 
             bool show_preview = should_show_preview && preview_timer >= delay;

@@ -173,15 +173,7 @@ namespace TcgEngine.Client
             return new Slot(new_x, new_y, new_p);
         }
 
-        //When clicking on the slot
-        public void OnMouseDown()
-        {
-            if (GameUI.IsOverUI())
-                return;
-
-            PlayerControls.Get().SelectSlot(this);
-            //GameClient.Get().SelectSlot(GetSlot());
-        }
+        //Slot selection is confirmed on release by PlayerControls (tap = confirm, hold = preview)
 
         public BoardSlotFX GetBoardSlotFX()
         {

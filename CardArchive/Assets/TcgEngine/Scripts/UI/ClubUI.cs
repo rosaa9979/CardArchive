@@ -22,6 +22,8 @@ namespace TcgEngine.UI
         private List<Card> reference_clubs;
         private Card club;
         private bool focus = false;
+        private float focus_timer = 0f;
+        private bool preview_shown = false;
 
         private static List<ClubUI> ui_list = new List<ClubUI>();
 
@@ -77,52 +79,60 @@ namespace TcgEngine.UI
             count_image.enabled = club != null ? true : false;
             count_text.enabled = club != null ? true : false;
             count_text.text = club != null ? game.GetClubCount(player, club.clubs[0].ClubData).ToString() : "0";
+
+            //Preview appears after the shared hold/hover delay (tap alone does nothing)
+            if (focus && club != null)
+            {
+                focus_timer += Time.deltaTime;
+                if (!preview_shown && focus_timer >= GameConfig.Gesture.preview_delay)
+                {
+                    preview_shown = true;
+                    ShowPreview();
+                }
+            }
+            else
+            {
+                focus_timer = 0f;
+                if (preview_shown)
+                {
+                    preview_shown = false;
+                    HidePreview();
+                }
+            }
         }
 
+        //Hover (PC) and touch-down both enter here; touch release fires PointerExit/Up
         public void OnPointerEnter(PointerEventData eventData)
         {
-            //데스크톱: 커서를 올리면 표시
-            if (GameTool.IsMobile())
-                return;
-
             focus = true;
-            ShowPreview();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            //데스크톱: 커서를 떼면 숨김
-            if (GameTool.IsMobile())
-                return;
-
             focus = false;
-            HidePreview();
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            //모바일: 터치하면 표시 (누르고 있는 동안 유지)
-            if (!GameTool.IsMobile())
-                return;
-
             focus = true;
-            ShowPreview();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            //모바일: 손을 떼면 숨김
-            if (!GameTool.IsMobile())
-                return;
-
-            focus = false;
-            HidePreview();
+            //No hover on touch: close the preview on release
+            if (GameTool.IsMobile())
+                focus = false;
         }
 
         private void OnDisable()
         {
             focus = false;
-            HidePreview();
+            focus_timer = 0f;
+            if (preview_shown)
+            {
+                preview_shown = false;
+                HidePreview();
+            }
         }
 
         private void ShowPreview()

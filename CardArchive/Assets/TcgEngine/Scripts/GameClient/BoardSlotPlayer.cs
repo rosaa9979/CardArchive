@@ -128,19 +128,7 @@ namespace TcgEngine.Client
             }
         }
 
-        public void OnMouseDown()
-        {
-            if (GameUI.IsUIOpened() || GameUI.IsOverUILayer("UI"))
-                return;
-
-            Debug.Log("Hello");
-            Game gdata = GameClient.Get().GetGameData();
-            int player_id = GameClient.Get().GetPlayerID();
-            if (gdata.selector == SelectorType.SelectTarget && player_id == gdata.selector_player_id)
-            {
-                GameClient.Get().SelectPlayer(GetPlayer());
-            }
-        }
+        //Player targeting is confirmed on release by PlayerControls (tap = confirm, hold = preview)
 
         public int GetPlayerID()
         {
