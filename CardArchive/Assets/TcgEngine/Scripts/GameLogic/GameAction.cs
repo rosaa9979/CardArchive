@@ -56,9 +56,11 @@ namespace TcgEngine
         public const ushort AttackStart = 2030;
         public const ushort AttackHit = 2031;
         public const ushort AttackEvade = 2032;
+        public const ushort CardDamaged = 2033; //Final applied damage on a card (after armor/shell)
         public const ushort AttackEnd = 2034;
         public const ushort AttackPlayerStart = 2035;
         public const ushort AttackPlayerEnd = 2036;
+        public const ushort PlayerDamaged = 2037; //Final applied damage on a player
 
         public const ushort AbilityTrigger = 2040;
         public const ushort AbilityTargetCard = 2042;

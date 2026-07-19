@@ -43,6 +43,7 @@ namespace TcgEngine.FX
             client.onCardMoved += OnMove;
             client.onAttackStart += OnAttack;
             client.onAttackHit += OnAttackHit;
+            client.onCardDamaged += OnCardDamaged;
             client.onAttackEvade += OnAttackEvade;
             client.onAttackPlayerStart += OnAttackPlayer;
             client.onAttackPlayerHit += OnAttackPlayerHit;
@@ -60,6 +61,7 @@ namespace TcgEngine.FX
             client.onCardMoved -= OnMove;
             client.onAttackStart -= OnAttack;
             client.onAttackHit -= OnAttackHit;
+            client.onCardDamaged -= OnCardDamaged;
             client.onAttackEvade -= OnAttackEvade;
             client.onAttackPlayerStart -= OnAttackPlayer;
             client.onAttackPlayerHit -= OnAttackPlayerHit;
@@ -288,11 +290,21 @@ namespace TcgEngine.FX
                                       : AssetData.Get().card_attack_hit_fx;
                         GameObject fx_result = FXTool.DoFX(fx, transform.position);
                         fx_result.transform.rotation = FXTool.GetFXRotation(fx_result, battacker.gameObject, btarget.gameObject);
-                        int value = battacker.GetCard().GetAttack();
-                        DamageFX(btarget.transform, value, 0.0f);
+                        //Damage number now comes from OnCardDamaged with the real applied value
                     });
                 }
             }
+        }
+
+        private void OnCardDamaged(Card attacker, Card target, int value)
+        {
+            Card card = bcard.GetCard();
+            if (target == null || card.uid != target.uid)
+                return;
+
+            //Real applied damage from the server (after armor/shell) — replaces the old
+            //guess based on the attacker's attack stat. Small delay to line up with the hit FX.
+            DamageFX(transform, value, 0.15f);
         }
 
         private void OnAttackEvade(Card attacker, Card target)
@@ -403,9 +415,7 @@ namespace TcgEngine.FX
                                       : AssetData.Get().card_attack_hit_fx;
                     GameObject hit_fx_result = FXTool.DoFX(hit_fx, zone.transform.position);
                     hit_fx_result.transform.rotation = FXTool.GetFXRotation(hit_fx_result, battacker.gameObject, zone.gameObject);
-
-                    int value = bcard.GetCard().GetAttack();
-                    DamageFX(zone.transform, value, 0.0f);
+                    //Damage number now comes from GameBoardFX.OnPlayerDamaged with the real applied value
                 });
 
                 zone.player_ui.DOShakePosition(1f, 5f, 10, 90);

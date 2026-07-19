@@ -56,6 +56,8 @@ namespace TcgEngine.Client
 
         public UnityAction<Card, Card> onAttackStart;   //Attacker, Defender
         public UnityAction<Card, Card> onAttackHit;
+        public UnityAction<Card, Card, int> onCardDamaged; //Attacker (null if none), Target, applied damage
+        public UnityAction<Card, Player, int> onPlayerDamaged; //Attacker, Target player, applied damage
         public UnityAction<Card, Card> onAttackEvade;
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
@@ -106,6 +108,8 @@ namespace TcgEngine.Client
 
             RegisterRefresh(GameAction.AttackStart, OnAttackStart);
             RegisterRefresh(GameAction.AttackHit, OnAttackHit);
+            RegisterRefresh(GameAction.CardDamaged, OnCardDamaged);
+            RegisterRefresh(GameAction.PlayerDamaged, OnPlayerDamaged);
             RegisterRefresh(GameAction.AttackEvade, OnAttackEvade);
             RegisterRefresh(GameAction.AttackEnd, OnAttackEnd);
             RegisterRefresh(GameAction.AttackPlayerStart, OnAttackPlayerStart);
@@ -587,6 +591,37 @@ namespace TcgEngine.Client
             Card attacker = game_data.GetCard(msg.attacker_uid);
             Card target = game_data.GetCard(msg.target_uid);
             onAttackHit?.Invoke(attacker, target);
+        }
+
+        private void OnCardDamaged(SerializedData sdata)
+        {
+            MsgAttack msg = sdata.Get<MsgAttack>();
+            Card attacker = game_data.GetCard(msg.attacker_uid);
+            Card target = game_data.GetCard(msg.target_uid);
+            if (target == null)
+                return;
+
+            //Display prediction: apply the damage to the local copy so hp text updates at hit
+            //time (BoardCard polls game_data every frame). Sent on the same sequenced channel
+            //as RefreshAll, so the next authoritative snapshot always arrives after this and
+            //replaces game_data wholesale, correcting any divergence. Deaths are never
+            //processed locally — card removal only happens on server events.
+            target.damage += msg.damage;
+            onCardDamaged?.Invoke(attacker, target, msg.damage);
+        }
+
+        private void OnPlayerDamaged(SerializedData sdata)
+        {
+            MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
+            Card attacker = game_data.GetCard(msg.attacker_uid);
+            Player target = game_data.GetPlayer(msg.target_id);
+            if (target == null)
+                return;
+
+            //Display prediction, same model as OnCardDamaged: the next RefreshAll snapshot
+            //(same sequenced channel) replaces game_data and corrects any divergence
+            target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
+            onPlayerDamaged?.Invoke(attacker, target, msg.damage);
         }
 
         private void OnAttackEvade(SerializedData sdata)

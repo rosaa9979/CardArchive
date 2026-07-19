@@ -102,24 +102,41 @@ namespace TcgEngine.AI
 
         private void Execute()
         {
-            //Create first node
-            first_node = CreateNode(null, null, ai_player_id, 0, 0);
-            first_node.hvalue = heuristic.CalculateHeuristic(original_data, first_node);
-            first_node.alpha = int.MinValue;
-            first_node.beta = int.MaxValue;
+            //running MUST end up false no matter how the search dies: AIPlayerMM waits on IsRunning()
+            //with no timeout, so an unhandled exception on this worker thread would stall the AI turn forever.
+            try
+            {
+                //Create first node
+                first_node = CreateNode(null, null, ai_player_id, 0, 0);
+                first_node.hvalue = heuristic.CalculateHeuristic(original_data, first_node);
+                first_node.alpha = int.MinValue;
+                first_node.beta = int.MaxValue;
 
-            Profiler.BeginSample("AI");
-            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                Profiler.BeginSample("AI");
+                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
 
-            //Calculate first node
-            CalculateNode(original_data, first_node);
+                //Calculate first node
+                CalculateNode(original_data, first_node);
 
-            Debug.Log("AI: Time " + watch.ElapsedMilliseconds + "ms Depth " + reached_depth + " Nodes " + nb_calculated);
-            Profiler.EndSample();
+                Debug.Log("AI: Time " + watch.ElapsedMilliseconds + "ms Depth " + reached_depth + " Nodes " + nb_calculated);
+                Profiler.EndSample();
 
-            //Save best move
-            best_move = first_node.best_child;
-            running = false;
+                //Save best move
+                best_move = first_node.best_child;
+            }
+            catch (ThreadAbortException)
+            {
+                //Stop() aborted the search (turn ended), not an error
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("AI: search failed, playing best move found so far\n" + e);
+                best_move = first_node != null ? first_node.best_child : null;
+            }
+            finally
+            {
+                running = false;
+            }
         }
 
         //Add list of all possible orders and search in all of them

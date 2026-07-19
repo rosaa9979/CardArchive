@@ -90,6 +90,8 @@ namespace TcgEngine.Server
             gameplay.onExhaustDamage += OnExhaustDamage;
             gameplay.onRollValue += OnValueRolled;
             gameplay.onCardStatChange += OnCardStatChange;
+            gameplay.onCardDamaged += OnCardDamaged;
+            gameplay.onPlayerDamaged += OnPlayerDamaged;
 
             gameplay.onAbilityStart += OnAbilityStart;
             gameplay.onAbilityTargetCard += OnAbilityTargetCard;
@@ -115,6 +117,8 @@ namespace TcgEngine.Server
             gameplay.onGameEnd -= OnGameEnd;
             gameplay.onTurnStart -= OnTurnStart;
             gameplay.onRefresh -= RefreshAll;
+            gameplay.onCardDamaged -= OnCardDamaged;
+            gameplay.onPlayerDamaged -= OnPlayerDamaged;
 
             gameplay.onCardPlayed -= OnCardPlayed;
             gameplay.onCardSummoned -= OnCardSummoned;
@@ -826,6 +830,27 @@ namespace TcgEngine.Server
             mdata.card_uid = target.uid;
             mdata.type = type;
             SendToAll(GameAction.CardStatChange, mdata, NetworkDelivery.Reliable);
+        }
+
+        protected virtual void OnCardDamaged(Card attacker, Card target, int value)
+        {
+            MsgAttack mdata = new MsgAttack();
+            mdata.attacker_uid = attacker != null ? attacker.uid : "";
+            mdata.target_uid = target.uid;
+            mdata.damage = value;
+            //Same sequenced channel as RefreshAll: the client applies this as a display
+            //prediction, so it must never be reordered against a state snapshot
+            SendToAll(GameAction.CardDamaged, mdata, NetworkDelivery.ReliableFragmentedSequenced);
+        }
+
+        protected virtual void OnPlayerDamaged(Card attacker, Player target, int value)
+        {
+            MsgAttackPlayer mdata = new MsgAttackPlayer();
+            mdata.attacker_uid = attacker != null ? attacker.uid : "";
+            mdata.target_id = target.player_id;
+            mdata.damage = value;
+            //Same sequenced channel as RefreshAll: applied as a display prediction on the client
+            SendToAll(GameAction.PlayerDamaged, mdata, NetworkDelivery.ReliableFragmentedSequenced);
         }
 
         protected virtual void OnAttackStart(Card attacker, Card target)

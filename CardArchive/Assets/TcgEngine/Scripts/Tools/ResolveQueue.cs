@@ -53,6 +53,9 @@ namespace TcgEngine
         private float resolve_delay = 0f;
         private bool skip_delay = false;
 
+        //Cap for the skip_delay (AI simulation) resolve loop; see ResolveAll
+        private const int skip_resolve_max = 10000;
+
         public ResolveQueue(Game data, bool skip)
         {
             game_data = data;
@@ -346,8 +349,20 @@ namespace TcgEngine
 
             if (skip_delay)
             {
+                //Last-resort guard (AI-only path): a resolve bug (e.g. a repeat re-queueing itself
+                //without changing state) must abort with a log instead of spinning this worker
+                //thread forever. A legitimate full-turn simulation stays well under the cap.
+                int iterations = 0;
                 while (CanResolve())
+                {
                     Resolve();
+                    if (++iterations >= skip_resolve_max)
+                    {
+                        Debug.LogError("ResolveQueue: aborted after " + skip_resolve_max + " iterations (resolve loop stuck, likely repeat/death-step cycle)");
+                        Clear();
+                        break;
+                    }
+                }
             }
             else if (CanResolve())
             {

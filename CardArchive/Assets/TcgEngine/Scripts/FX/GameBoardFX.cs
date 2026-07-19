@@ -23,6 +23,7 @@ namespace TcgEngine.FX
             client.onCardDraw += OnCardDraw;
             client.onCardDissolved += OnDissolveCard;
             client.onExhaustDamage += OnExhaustDamage;
+            client.onPlayerDamaged += OnPlayerDamaged;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -93,6 +94,25 @@ namespace TcgEngine.FX
                 text.text = string.Format("기적의 대가로,\n{0}의 피해를 입습니다", damage);
 
             AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
+        }
+
+        void OnPlayerDamaged(Card attacker, Player target, int value)
+        {
+            if (target == null)
+                return;
+
+            //Real applied damage from the server — anchored on the damaged player's zone so it
+            //works for any source (attack, ability), not only when the attacker is on board
+            bool opponent = target.player_id != GameClient.Get().GetPlayerID();
+            BoardSlotPlayer zone = BoardSlotPlayer.Get(opponent);
+            if (zone == null)
+                return;
+
+            TimeTool.WaitFor(0.15f, () =>
+            {
+                GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position);
+                fx.GetComponent<DamageFX>().SetValue(value);
+            });
         }
 
         void OnDissolveCard(Card card, int owner_player_id)

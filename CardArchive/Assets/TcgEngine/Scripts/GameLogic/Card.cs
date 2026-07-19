@@ -64,8 +64,22 @@ namespace TcgEngine
 
         public Card(string card_id, string uid, int player_id) { this.card_id = card_id; this.uid = uid; this.player_id = player_id; }
 
+        //Hearthstone rule: losing max HP (aura source gone, temp buff expired) never kills — the
+        //card keeps its current HP, only capped at the new max. ClearOngoing snapshots the max
+        //before UpdateOngoing recalculates the bonuses; ForgiveDamageOnHPMaxLoss then reduces
+        //damage by the max-HP loss so current HP is preserved. Lethal damage already taken is
+        //never forgiven (a card at 0 HP before the recalc stays at 0 and still dies).
+        [System.NonSerialized] private int hpmax_snapshot;
+
         public virtual void Refresh() { exhausted = false; }
-        public virtual void ClearOngoing() { ongoing_status.Clear(); ongoing_traits.Clear(); ClearOngoingAbility(); attack_ongoing = 0; hp_ongoing = 0; mana_ongoing = 0; }
+        public virtual void ClearOngoing() { hpmax_snapshot = GetHPMax(); ongoing_status.Clear(); ongoing_traits.Clear(); ClearOngoingAbility(); attack_ongoing = 0; hp_ongoing = 0; mana_ongoing = 0; }
+
+        public virtual void ForgiveDamageOnHPMaxLoss()
+        {
+            int loss = hpmax_snapshot - GetHPMax();
+            if (loss > 0 && damage > 0)
+                damage = Mathf.Max(damage - loss, 0);
+        }
 
         public virtual void Clear()
         {

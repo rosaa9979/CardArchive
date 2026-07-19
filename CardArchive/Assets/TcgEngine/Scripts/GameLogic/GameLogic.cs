@@ -44,6 +44,8 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Card> onAttackHit;
         public UnityAction<Card, Card> onAttackEvade;
+        public UnityAction<Card, Card, int> onCardDamaged; //Attacker (null if none), Target, final applied damage (after armor)
+        public UnityAction<Card, Player, int> onPlayerDamaged; //Attacker, Target player, applied damage
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
         public UnityAction<Card, Player> onAttackPlayerHit;
@@ -1009,6 +1011,7 @@ namespace TcgEngine.Gameplay
             //    onAttackStart?.Invoke(target, attacker);
             //attacker.RemoveStatus(StatusType.Stealth);
             UpdateOngoing();
+            RefreshData(); //Sync recalculated stats so buffs show before the hit lands
 
             resolve_queue.AddAttack(attacker, target, ResolveAttackHit, skip_cost);
             resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
@@ -1062,7 +1065,9 @@ namespace TcgEngine.Gameplay
 
             onAttackEnd?.Invoke(attacker, target);
 
-            //RefreshData();
+            //Sync damage right when it is applied (the player-attack path already does this);
+            //without it the client only sees the new hp at ResolveDeath, one queue-delay later
+            RefreshData();
             //CheckForWinner();
         }
         
@@ -1379,6 +1384,7 @@ namespace TcgEngine.Gameplay
             //Damage player
             target.hp -= value;
             target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
+            onPlayerDamaged?.Invoke(attacker, target, value);
 
             //Lifesteal
             Player aplayer = game_data.GetPlayer(attacker.player_id);
@@ -1394,6 +1400,7 @@ namespace TcgEngine.Gameplay
             //Damage player
             target.hp -= value;
             target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
+            onPlayerDamaged?.Invoke(attacker, target, value);
 
             //Lifesteal
             Player aplayer = game_data.GetPlayer(attacker.player_id);
@@ -1471,6 +1478,7 @@ namespace TcgEngine.Gameplay
                 return; //Spell immunity
 
             target.damage += value;
+            onCardDamaged?.Invoke(null, target, value);
 
             //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
             if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
@@ -1505,6 +1513,7 @@ namespace TcgEngine.Gameplay
             int damage_max = Mathf.Min(value, target.GetHP());
             int extra = value - target.GetHP();
             target.damage += value;
+            onCardDamaged?.Invoke(attacker, target, value);
 
             //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
             if (value > 0 && target.GetHP() <= 0)
@@ -1560,6 +1569,7 @@ namespace TcgEngine.Gameplay
                 return; //Spell immunity
 
             target.damage += value;
+            onCardDamaged?.Invoke(null, target, value);
 
             //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
             if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
@@ -1601,6 +1611,7 @@ namespace TcgEngine.Gameplay
             int damage_max = Mathf.Min(value, target.GetHP());
             int extra = value - target.GetHP();
             target.damage += value;
+            onCardDamaged?.Invoke(attacker, target, value);
 
             //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
             if (value > 0 && target.GetHP() <= 0)
@@ -1898,9 +1909,10 @@ namespace TcgEngine.Gameplay
 
             resolve_queue.EndPhase();
 
-            //Recompute auras now that the dead are gone, so cards that only lived off a dead
-            //card's ongoing bonus are seen by HasPendingDeaths and die in the next wave even
-            //when this wave queued no triggers (stability loop)
+            //Recompute auras now that the dead are gone. Losing a dead card's HP bonus no longer
+            //kills (Hearthstone rule: damage is forgiven so current HP is kept, see
+            //ForgiveDamageOnHPMaxLoss) — but cards whose max HP itself drops to 0 without the
+            //aura still die in the next wave, so the stability loop remains (stability loop)
             UpdateOngoing();
 
             RefreshData();
@@ -2464,6 +2476,25 @@ namespace TcgEngine.Gameplay
                     foreach (CardStatus status in card.ongoing_status)
                         AddOngoingStatusBonus(card, status);
                 }
+            }
+
+            //Hearthstone rule: a card whose max HP went down in this recalc (aura source gone,
+            //temp buff expired) keeps its current HP, only capped at the new max — losing a HP
+            //bonus never kills. Runs before the 0-hp cleanup below so equip/attach cards that
+            //merely lost an aura are not discarded. Covers exactly the groups cleared above.
+            for (int p = 0; p < game_data.players.Length; p++)
+            {
+                Player player = game_data.players[p];
+                for (int c = 0; c < player.cards_board.Count; c++)
+                    player.cards_board[c].ForgiveDamageOnHPMaxLoss();
+                for (int c = 0; c < player.cards_equip.Count; c++)
+                    player.cards_equip[c].ForgiveDamageOnHPMaxLoss();
+                for (int c = 0; c < player.cards_attach.Count; c++)
+                    player.cards_attach[c].ForgiveDamageOnHPMaxLoss();
+                for (int c = 0; c < player.cards_hand.Count; c++)
+                    player.cards_hand[c].ForgiveDamageOnHPMaxLoss();
+                for (int c = 0; c < player.cards_club.Count; c++)
+                    player.cards_club[c].ForgiveDamageOnHPMaxLoss();
             }
 
             //Kill stuff with 0 hp
@@ -3087,6 +3118,10 @@ namespace TcgEngine.Gameplay
         public virtual void ClearResolve()
         {
             resolve_queue.Clear();
+            //pending_repeats lives on this GameLogic, not on Game data: the AI reuses one GameLogic
+            //across many cloned games, so entries stranded by an interrupted resolve (selector/game end)
+            //would fire on the next clone with cards from another game. Real matches never call this mid-game.
+            pending_repeats.Clear();
         }
 
         public virtual bool IsResolving()
