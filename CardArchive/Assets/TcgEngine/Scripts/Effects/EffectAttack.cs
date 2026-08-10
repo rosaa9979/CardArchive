@@ -31,8 +31,9 @@ namespace TcgEngine
 
             if (attack != null)
             {
+                //유발된 공격: 현재 Phase에 담겨 depth-first로 처리된다 (AttackTargetFromEffect)
                 if (data.CanAttackTarget(attack, target, true))
-                    logic.AttackTarget(attack, target, true);
+                    logic.AttackTargetFromEffect(attack, target, true);
             }
             */
         }

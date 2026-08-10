@@ -71,11 +71,23 @@ namespace TcgEngine.Gameplay
         private Queue<Card> attack_list = new Queue<Card>();
         private Slot additional_slot = new Slot(0, 0, -1);
 
+        //Volley death batching: while true, ProcessDeathStep does nothing, so cards killed by an attack
+        //stay on the board (mortally wounded) until the attack is fully done and are then removed
+        //together in a single death wave.
+        //INVARIANT: true exactly while a shot is in flight. Owned exclusively by AttackTargets, which
+        //clears it on entry and re-arms it only when it queues another shot — so it is a pure function
+        //of the volley loop's state and needs no per-exit cleanup.
+        //AttackSearch and ClearTurnData clear it too, as recovery for a chain abandoned between shots:
+        //ResolveAttack/AttackTarget can early-return (target bounced off the board, phase changed) and
+        //never re-enter AttackTargets, which would otherwise strand the flag on.
+        //See the AttackTargets and ProcessDeathStep comments for the full rationale.
+        private bool death_step_suspended = false;
+
         public GameLogic(bool is_ai)
         {
             //is_instant ignores all gameplay delays and process everything immediately, needed for AI prediction
             resolve_queue = new ResolveQueue(null, is_ai);
-            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths);
+            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
             is_ai_predict = is_ai;
         }
 
@@ -83,7 +95,7 @@ namespace TcgEngine.Gameplay
         {
             game_data = game;
             resolve_queue = new ResolveQueue(game, false);
-            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths);
+            resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
         }
 
         public virtual void SetData(Game game)
@@ -216,8 +228,11 @@ namespace TcgEngine.Gameplay
             //(club / hero / player_ability cards). The starting hand is drawn once these resolve.
             game_data.phase = GamePhase.GameStart;
             RefreshData();
+            //[EVENT PHASE] 양쪽 플레이어의 게임시작 트리거는 하나의 이벤트다.
+            resolve_queue.BeginPhase();
             foreach (Player player in game_data.players)
                 TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnGameStart);
+            resolve_queue.EndPhase();
 
             //Flow: OnGameStart effects -> draw starting hand -> mulligan -> first turn.
             //ability_queue drains before callbacks, so effects fully resolve before the draw runs.
@@ -350,8 +365,14 @@ namespace TcgEngine.Gameplay
             }
 
             //StartTurn Abilities
+            //[EVENT PHASE] 양쪽 플레이어의 턴시작 트리거는 **하나의 이벤트**다 → 한 Phase로 묶는다.
+            //위의 독약 피해는 별개 이벤트이고, 이 메서드는 Phase로 감싸이지 않는 턴 진행 콜백이라
+            //(ResolveQueue.Resolve의 callback 분기 주석 참조) 독약 → 사망 처리 → 턴시작 순으로
+            //자연히 갈린다.
+            resolve_queue.BeginPhase();
             foreach (Player p in game_data.players)
                 TriggerPlayerCardsAbilityType(p, AbilityTrigger.StartOfTurn);
+            resolve_queue.EndPhase();
 
             TriggerPlayerSecrets(player, AbilityTrigger.StartOfTurn);
 
@@ -452,6 +473,10 @@ namespace TcgEngine.Gameplay
             game_data.attack_list = candidate_target;
             game_data.attack_complete_list.Clear();
             game_data.attack_evade_list.Clear();
+            //Every volley starts with the Death Phase live. Recovery, not bookkeeping: if the previous
+            //volley's chain was abandoned mid-flight (a micro-step early-returned and never came back
+            //through AttackTargets) its hold is still on, and this is where it gets released.
+            death_step_suspended = false;
 
             if (attacker.HasClub(ClubData.Get("Trinity_Vigilante_Crew")))
             {
@@ -563,8 +588,11 @@ namespace TcgEngine.Gameplay
 
             //End of turn abilities — fire for every player's cards (like StartOfTurn).
             //Owner-only EndOfTurn effects must gate themselves with a Turn condition.
+            //[EVENT PHASE] 양쪽 플레이어의 턴종료 트리거는 하나의 이벤트다.
+            resolve_queue.BeginPhase();
             foreach (Player p in game_data.players)
                 TriggerPlayerCardsAbilityType(p, AbilityTrigger.EndOfTurn);
+            resolve_queue.EndPhase();
 
             onTurnEnd?.Invoke();
             RefreshData();
@@ -632,6 +660,7 @@ namespace TcgEngine.Gameplay
             game_data.selector = SelectorType.None;
             resolve_queue.Clear();
             pending_repeats.Clear();
+            death_step_suspended = false; //Queue was just wiped; never carry a volley's death hold across
             card_array.Clear();
             player_array.Clear();
             slot_array.Clear();
@@ -913,8 +942,35 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //---- Volley (multi-target attack) ----
+        //Fires ONE shot per invocation and re-enters itself through ResolveDeath, walking
+        //game_data.attack_list (built once per volley in AttackSearch) until nothing is left to shoot.
+        //A single-target weapon just runs this loop once; MassShooting fills attack_list with every
+        //enemy in range (WeaponData.SearchTarget) and so runs it N times.
+        //
+        //Micro-step chain of one shot:
+        //  AttackTargets -> AttackTarget (OnBeforeAttack/Defend) -> ResolveAttack (evade roll, FX)
+        //                -> ResolveAttackHit (damage, OnAfterAttack/Defend) -> ResolveDeath -> AttackTargets
+        //
+        //DEATH BATCHING — the whole volley is one logical phase (Hearthstone: the Death Creation Step
+        //runs after the outermost phase ends, never inside it). Each target still gets its own
+        //before -> damage -> after sequence, but every card the volley kills is removed together in a
+        //single death wave once the last shot is done. Previously each micro-step was an outermost
+        //element of the resolve queue, so ProcessDeathStep ran between every shot and target #1 was
+        //already gone before target #2 was even picked.
+        //
+        //There is NO single-target vs multi-target branch here, deliberately: N=1 is just N. The rule is
+        //simply "deaths are held while a shot is in flight", which for one target means its death lands
+        //after the attack fully finishes instead of interrupting it. ExhaustBattle is pure attacker-side
+        //bookkeeping (no triggers, doesn't read the board), so nothing observes that reordering.
+        //death_step_suspended is what holds the deaths back; see ProcessDeathStep.
         public virtual void AttackTargets(Card attacker, bool skip_cost = false)
         {
+            //Release the hold on every re-entry, then re-arm it below only if another shot goes out.
+            //Written this way so the flag is a pure function of "is a shot in flight" and NO exit path —
+            //including the early returns below — can leave the Death Phase disabled behind it.
+            death_step_suspended = false;
+
             //Attacks only happen automatically during the attack phase. Block any out-of-phase normal attack.
             //Ability-forced attacks (EffectAttack) pass skip_cost=true and are allowed at any time.
             if (game_data.phase != GamePhase.Attack && !skip_cost)
@@ -933,14 +989,34 @@ namespace TcgEngine.Gameplay
 
             foreach (Card target in targets)
             {
-                if (!game_data.attack_complete_list.Contains(target) && !game_data.attack_evade_list.Contains(target))
-                {
-                    resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
-                    resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
-                    return;
-                }
+                if (game_data.attack_complete_list.Contains(target) || game_data.attack_evade_list.Contains(target))
+                    continue; //Already hit, or already missed, earlier in this volley
+
+                //Overkill guard (Hearthstone rule: a mortally wounded character is not selected by later
+                //hits of a sequential multi-hit effect). Because deaths are suspended for the duration of
+                //the volley, a target killed by an earlier shot — or by a trigger, trample, deathtouch...
+                //— is still physically on the board. Without this check it would soak a shot and run
+                //OnBeforeDefend / OnAfterDefend, and counter-attack, while already dead.
+                //Deliberately only skipped, never added to attack_complete_list: a heal landing mid-volley
+                //un-kills it (dying cards are saveable right up to the death step) and a later pass will
+                //then shoot it after all.
+                if (IsDying(target))
+                    continue;
+
+                //A shot is going out: hold the deaths until we come back through here.
+                death_step_suspended = true;
+
+                resolve_queue.AddAttack(attacker, target, AttackTarget, skip_cost);
+                resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
+                return;
             }
 
+            //Nothing left to shoot, and the hold was already released at the top. Safe to fall through
+            //without queueing anything: the AttackCheck callback that AttackSearch queued is still
+            //waiting, so the resolve loop is alive and its next Resolve() hits the death gate first
+            //(ResolveQueue.Resolve) and runs the one ProcessDeathStep that removes everything this
+            //volley killed, simultaneously — still ahead of AttackCheck, so the next attacker and any
+            //Fury re-attack always search a board with the dead already cleared away.
             ExhaustBattle(attacker);
         }
 
@@ -977,7 +1053,15 @@ namespace TcgEngine.Gameplay
 
 
             //Resolve attack
-            resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
+            //어빌리티 효과가 유발한 공격(EffectAttack)만 현재 Phase에 담아 depth-first를 유지한다.
+            //플레이어가 건 공격과 볼리 마이크로스텝은 그 자체가 Phase라 base attack 큐로 간다.
+            //insert_stack이 아니라 명시적 플래그로 판별하는 이유: 공격 마이크로스텝도 이제
+            //스코프를 열기 때문에(ResolveQueue.Resolve의 attack 분기) insert_stack만 보면
+            //볼리의 다음 발이 현재 공격의 Phase 안으로 잘못 들어간다.
+            if (attack_triggered_by_effect)
+                resolve_queue.AddTriggeredAttack(attacker, target, ResolveAttack, skip_cost);
+            else
+                resolve_queue.AddAttack(attacker, target, ResolveAttack, skip_cost);
             resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
         }
 
@@ -1074,8 +1158,10 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveDeath(Card attacker, Card target, bool skip_cost)
         {
             //Phase 2: lethal combat damage no longer kills here. Kill attribution was recorded in
-            //DamageCard when hp dropped to 0, and the Death Creation Step (ProcessDeathStep) removes
-            //the dying cards between attack micro-steps. This step only chains the multi-target attack.
+            //DamageCard when hp dropped to 0, and the Death Creation Step (ProcessDeathStep) does the
+            //actual removal. Despite the name this step only chains back into the volley loop: the deaths
+            //it used to line up are now deferred to the end of the whole attack (death_step_suspended,
+            //see AttackTargets), so `target` is still on the board here even when this shot killed it.
             resolve_queue.AddAttack(attacker, AttackTargets, skip_cost);
             resolve_queue.ResolveAll(GameConfig.Timing.attack_step);
 
@@ -1161,6 +1247,18 @@ namespace TcgEngine.Gameplay
             game_data.cards_attacked.Add(attacker.uid);
             bool attack_again = attacker.HasStatus(StatusType.Fury) && !attacked_before;
             attacker.exhausted = !attack_again;
+        }
+
+        //어빌리티 효과(EffectAttack)가 유발한 공격임을 표시. AttackTarget이 공격 요소를
+        //현재 Phase에 담을지(유발) base 큐에 담을지(플레이어 공격/볼리) 가르는 데 쓴다.
+        private bool attack_triggered_by_effect = false;
+
+        /// <summary>어빌리티 효과가 유발한 공격. EffectAttack 전용 진입점.</summary>
+        public virtual void AttackTargetFromEffect(Card attacker, Card target, bool skip_cost = true)
+        {
+            attack_triggered_by_effect = true;
+            try { AttackTarget(attacker, target, skip_cost); }
+            finally { attack_triggered_by_effect = false; }
         }
 
         //Redirect attack to a new target
@@ -1791,6 +1889,8 @@ namespace TcgEngine.Gameplay
         //every outermost boundary — whenever an element and its whole depth-first subtree have
         //finished (phase stack empty), before the next waiting element (Hearthstone rule). It also
         //runs between attack micro-steps and before callbacks.
+        //The one exception is an attack in flight, which suspends the step so all of that attack's kills
+        //are batched into one wave at the end (death_step_suspended, see AttackTargets).
         //See docs/resolve-queue-hearthstone-redesign.md (Phase 2)
 
         private List<Card> dying_batch = new List<Card>();
@@ -1818,6 +1918,14 @@ namespace TcgEngine.Gameplay
             return card.dying || card.GetHP() <= 0;
         }
 
+        //True while an attack in flight is holding its deaths back (see AttackTargets). Exposed to
+        //ResolveQueue for PACING only — it must not affect whether the resolve loop keeps running,
+        //which is why HasPendingDeaths below stays truthful about the 0-hp cards on the board.
+        protected virtual bool IsDeathStepSuspended()
+        {
+            return death_step_suspended;
+        }
+
         //Quick check used by ResolveQueue.CanResolve to keep the resolve loop alive while a death
         //step is still pending (e.g. the last resolved element left a 0-hp card behind)
         protected virtual bool HasPendingDeaths()
@@ -1835,6 +1943,13 @@ namespace TcgEngine.Gameplay
                     if (IsDying(card))
                         return true;
                 }
+                //player_ability도 일반 효과와 동일하게 죽음 페이즈를 탄다 (2026-08 결정).
+                //장비/부착 카드는 여전히 UpdateOngoing의 즉시 제거 경로다.
+                foreach (Card card in player.player_ability)
+                {
+                    if (IsDying(card))
+                        return true;
+                }
             }
             return false;
         }
@@ -1848,6 +1963,15 @@ namespace TcgEngine.Gameplay
             if (game_data == null || game_data.state == GameState.GameEnded)
                 return false;
 
+            //A shot is in flight: hold every death until the attack finishes, so its kills are removed in
+            //one wave instead of one-by-one between shots (see AttackTargets).
+            //Suppressed HERE rather than in HasPendingDeaths on purpose — HasPendingDeaths also feeds
+            //ResolveQueue.CanResolve, and lying to it would let the resolve loop go idle while 0-hp cards
+            //are still on the board. Returning false just makes the gate fall through to the next queued
+            //element, and the volley always has one queued (its next micro-step, or AttackCheck).
+            if (death_step_suspended)
+                return false;
+
             UpdateOngoing(); //Refresh auras first so hp reflects lost/gained ongoing bonuses
 
             //Collect dying cards, ordered by order of play (first played dies/triggers first)
@@ -1855,6 +1979,13 @@ namespace TcgEngine.Gameplay
             foreach (Player player in game_data.players)
             {
                 foreach (Card card in player.cards_board)
+                {
+                    if (IsDying(card))
+                        dying_batch.Add(card);
+                }
+                //player_ability는 일반 효과와 동일 취급 (2026-08 결정) — 즉시 제거가 아니라
+                //죽음 페이즈에서 동시 제거되고 OnDeath/OnDeathOther를 정상적으로 발동한다.
+                foreach (Card card in player.player_ability)
                 {
                     if (IsDying(card))
                         dying_batch.Add(card);
@@ -1874,9 +2005,10 @@ namespace TcgEngine.Gameplay
 
             dying_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
 
-            //Death triggers open their own phase: they resolve depth-first, before anything
-            //that was already waiting (attack micro-steps, callbacks, ...)
-            resolve_queue.BeginPhase();
+            //Death triggers open their own phase. BeginImmediatePhase = "현재 Sequence의 다음
+            //Phase" — 대기 중인 다른 최상위 Phase(예: 같은 카드 플레이의 OnPlayOther)보다 **먼저**
+            //온다. 하스스톤도 Death Creation Step 직후 Death Phase가 바로 이어진다.
+            resolve_queue.BeginImmediatePhase();
 
             //Remove all at once, without triggers (simultaneous deaths)
             foreach (Card card in dying_batch)
@@ -1919,10 +2051,15 @@ namespace TcgEngine.Gameplay
             return true;
         }
 
-        //Evaluates deferred repeat iterations at the Death Phase stable point. A failed repeat
-        //condition ends that repeat chain. Iterations are enqueued into a NEW phase so they
-        //resolve before anything waiting in the base queue ("repeats before the waiting batch"),
-        //and each iteration's own Death Phase runs before the next one (Defile pacing).
+        //반복 회차를 죽음 페이즈의 **안정 시점**(이번 회차의 죽음 + 죽메 연쇄 완결)에 판정한다.
+        //= 하스스톤 모독(Defile) 페이싱. 회차 조건이 "정리가 끝난 보드"를 보므로 "이번 회차로
+        //죽었는가" 류 조건을 쓸 수 있고, 죽메가 소환한 토큰이 다음 회차에 참여한다.
+        //
+        //회차는 BeginImmediatePhase로 "현재 Sequence의 다음 Phase"가 되어, 대기 중인 다른 최상위
+        //Phase보다 먼저 온다. 다만 **같은 이벤트 묶음 안의 형제**보다는 뒤다 — 묶음이 다 비어야
+        //죽음 페이즈가 돌기 때문(Rule 3)이고, 물리적으로 앞설 수 없다. 개편 전 문서에 있던
+        //"반복분은 대기 배치보다 앞" 규칙은 이 범위로 축소되었다.
+        //
         //Returns true if any next iteration was queued.
         protected virtual bool ProcessPendingRepeats()
         {
@@ -1930,12 +2067,19 @@ namespace TcgEngine.Gameplay
                 return false;
 
             bool any = false;
-            resolve_queue.BeginPhase();
+            resolve_queue.BeginImmediatePhase();
             //Reverse order: entries added later come from deeper elements of the finished
             //subtree; depth-first wants their repeat chains to complete before an outer one's.
             for (int i = pending_repeats.Count - 1; i >= 0; i--)
             {
                 PendingRepeat pending = pending_repeats[i];
+
+                //[요그사론 규칙] 하스스톤 Rule 6: "Subsequent Phases of a Sequence will not run if
+                //a subject is required but is no longer in play." 시전자가 회차 도중 필드를 떠났으면
+                //(자기 광역에 자멸하는 경우 등) 남은 회차는 발동하지 않는다.
+                if (pending.caster.CardData.IsBoardCard() && !game_data.IsOnBoard(pending.caster))
+                    continue;
+
                 if (pending.ability.AreOngoingRepeatConditionsMet(game_data, pending.max_repeat, pending.next_repeat))
                 {
                     RepeatTriggerCardAbility(pending.ability, pending.caster, pending.triggerer, pending.max_repeat, pending.next_repeat);
@@ -1962,8 +2106,13 @@ namespace TcgEngine.Gameplay
 
         //--- Abilities --
 
+        //[EVENT PHASE] 하나의 이벤트에 반응하는 트리거들은 반드시 한 Phase 안에 묶여야 한다.
+        //하스스톤 Rule 3: 묶음 안에서는 죽음 처리가 절대 끼어들지 않는다 (칼 곡예사 2장 규칙 —
+        //"All Knife Juggler effects are handled before any of their deaths are detected").
+        //묶지 않으면 각 트리거가 자기 최상위 Phase가 되어 사이사이 사망 웨이브가 돈다.
         public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Card triggerer = null)
         {
+            resolve_queue.BeginPhase();
             foreach (AbilityData iability in caster.GetAbilities())
             {
                 if (iability && iability.trigger == type)
@@ -1975,10 +2124,13 @@ namespace TcgEngine.Gameplay
             Card equipped = game_data.GetEquipCard(caster.equipped_uid);
             if(equipped != null)
                 TriggerCardAbilityType(type, equipped, triggerer);
+            resolve_queue.EndPhase();
         }
 
+        //[EVENT PHASE] Card-triggerer 버전과 동일 (위 주석 참조)
         public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Player triggerer)
         {
+            resolve_queue.BeginPhase();
             foreach (AbilityData iability in caster.GetAbilities())
             {
                 if (iability && iability.trigger == type)
@@ -1990,8 +2142,9 @@ namespace TcgEngine.Gameplay
             Card equipped = game_data.GetEquipCard(caster.equipped_uid);
             if (equipped != null)
                 TriggerCardAbilityType(type, equipped, triggerer);
+            resolve_queue.EndPhase();
         }
-        
+
         //Reused buffer for ordering simultaneous trigger batches. Safe to share: TriggerCardAbilityType
         //only enqueues abilities, it never resolves during the iteration below.
         private List<Card> trigger_batch = new List<Card>();
@@ -2012,8 +2165,11 @@ namespace TcgEngine.Gameplay
             }
             trigger_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
 
+            //[EVENT PHASE] 이 배치 전체가 하나의 이벤트다 — 카드 사이에 사망 처리가 끼면 안 된다.
+            resolve_queue.BeginPhase();
             foreach (Card card in trigger_batch)
                 TriggerCardAbilityType(type, card, triggerer);
+            resolve_queue.EndPhase();
         }
 
         public virtual void TriggerPlayerCardsAbilityType(Player player, AbilityTrigger type)
@@ -2037,8 +2193,11 @@ namespace TcgEngine.Gameplay
 
             trigger_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
 
+            //[EVENT PHASE] 위와 동일 — 턴시작/턴종료/드로우 배치가 한 묶음으로 유지된다.
+            resolve_queue.BeginPhase();
             foreach (Card card in trigger_batch)
                 TriggerCardAbilityType(type, card, card);
+            resolve_queue.EndPhase();
         }
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, bool is_chain = false)
@@ -2522,14 +2681,10 @@ namespace TcgEngine.Gameplay
                     if(bearer == null)
                         DiscardCard(card);
                 }
-                for (int i = player.player_ability.Count - 1; i >= 0; i--)
-                {
-                    Card card = player.player_ability[i];
-                    if (card.GetHP() <= 0)
-                    {
-                        DiscardCard(card);
-                    }
-                }
+                //player_ability는 2026-08 결정으로 **일반 효과와 동일 취급**한다: 여기서 즉시
+                //제거하지 않고 보드 카드처럼 빈사 상태로 남았다가 Death Creation Step에서
+                //동시 제거되고 OnDeath/OnDeathOther를 정상 발동한다 (ProcessDeathStep 수집 참조).
+                //장비/부착 카드는 미사용 타입이라 기존 즉시 제거 경로를 유지한다.
             }
 
             //Clear cards
@@ -3004,11 +3159,21 @@ namespace TcgEngine.Gameplay
             if (game_data.selector != SelectorType.None)
             {
                 AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
-                if (iability.trigger == AbilityTrigger.OnPlay)
+                if (iability != null && iability.trigger == AbilityTrigger.OnPlay)
                     CancelPlayCard();
+
+                //취소 = 소환도 어빌리티도 없던 일로 한다. 중단돼 있던 Phase 스코프를 버리지 않으면
+                //다음에 호출되는 아무 BeginPhase()가 그 스코프를 물려받아, 무관한 이벤트의 트리거가
+                //취소된 어빌리티의 자식으로 들어간다 (최상위 Phase가 못 되어 사이의 사망 처리가 밀린다).
+                resolve_queue.DiscardSuspendedScope();
+
                 //End selection
                 game_data.selector = SelectorType.None;
                 RefreshData();
+
+                //selector가 풀렸으니 남아 있던 시퀀스를 이어서 굴린다. (취소 전에는 CanResolve가
+                //selector 때문에 false라 큐가 멈춰 있었다.)
+                resolve_queue.ResolveAll();
             }
         }
 

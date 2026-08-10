@@ -28,7 +28,12 @@ namespace TcgEngine
 
         public void Dispose(T elem)
         {
-            in_use.Remove(elem);
+            //Guard against double dispose: pushing the same object twice would hand it out to two
+            //different Create() callers at once. (Only catches "already free" — a stale reference that
+            //disposes a *recycled* object still looks legitimate here, so owners must not keep dangling
+            //references; see ResolveQueue.DisposePhase.)
+            if (!in_use.Remove(elem))
+                return;
             available.Push(elem);
         }
 

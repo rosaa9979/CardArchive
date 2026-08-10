@@ -27,9 +27,9 @@ MonoBehaviour:
   card_exhausted_fx: {fileID: 0}
   player_damage_fx: {fileID: 6612423673777650383, guid: 57b51606b8f1873478e7c7e479617d93,
     type: 3}
-  player_exhausted_fx: {fileID: 6254842031772441354, guid: a0f0937fd42312f4aace79e1bd18fe74,
+  player_exhausted_fx: {fileID: 3917126954908027284, guid: b5009d9c6f502b14195e1381b1a2ac00,
     type: 3}
-  player_exhausted_other_fx: {fileID: 365926630298534130, guid: 61e4291a2b8eb4841b6c3bb5958453c2,
+  player_exhausted_other_fx: {fileID: 8047740612985776303, guid: 57706dd8cb7a91f44bcbe139266140f5,
     type: 3}
   damage_fx: {fileID: 487660224621930042, guid: d96d11f9cc5454a42bc0b5ed454e3320,
     type: 3}
