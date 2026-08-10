@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Nonomi_Fire
   title: "\uB178\uB178\uBBF8, \uCD1D\uC744 \uC3F4"
-  art_full: {fileID: 0}
+  art_full: {fileID: 21300000, guid: 1cfc94d56d392b34a91c3e6a9a5a1dc9, type: 3}
   art_board: {fileID: 0}
   type: 20
   mana: 2
@@ -28,6 +28,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d753d81200fc2704b87c7c428459dfc6, type: 2}
   text: "\uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C \uD53C\uD574\uB97C 1 \uC90D\uB2C8\uB2E4."
   desc: 
+  card_desc: 
+  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

@@ -362,16 +362,24 @@ namespace TcgEngine
             return targets.Contains(target); //Card is still in array after filtering
         }
 
+        //EffectStepDebug.LogEffect는 [Conditional("UNITY_EDITOR")]라 빌드에서는 호출 자체가 사라지고,
+        //에디터에서도 치트가 꺼져 있으면 static bool 하나만 읽고 즉시 반환한다.
         public void DoEffects(GameLogic logic, Card caster)
         {
             foreach(EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster);
                 effect?.DoEffect(logic, this, caster);
+            }
         }
 
         public void DoEffects(GameLogic logic, Card caster, Card target)
         {
             foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+            }
             foreach(StatusData stat in status)
                 target.AddStatus(stat, value, duration);
         }
@@ -379,7 +387,10 @@ namespace TcgEngine
         public void DoEffects(GameLogic logic, Card caster, List<Card> target)
         {
             foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+            }
             foreach (Card targ in target)
             {
                 foreach(StatusData stat in status)
@@ -390,7 +401,10 @@ namespace TcgEngine
         public void DoEffects(GameLogic logic, Card caster, Player target)
         {
             foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+            }
             foreach (StatusData stat in status)
                 target.AddStatus(stat, value, duration);
         }
@@ -400,7 +414,10 @@ namespace TcgEngine
             Game game_data = logic.GetGameData();
             Card slot_card = game_data.GetSlotCard(target);
             foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+            }
             if (slot_card != null)
             {
                 foreach (StatusData stat in status)
@@ -412,7 +429,10 @@ namespace TcgEngine
         public void DoEffects(GameLogic logic, Card caster, CardData target)
         {
             foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+            }
         }
 
         public void DoOngoingEffects(GameLogic logic, Card caster, Card target)

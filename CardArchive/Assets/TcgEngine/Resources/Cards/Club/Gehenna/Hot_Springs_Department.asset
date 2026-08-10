@@ -30,8 +30,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d059a7cfcb1112442b7aec6f02193f97, type: 2}
   text: "\uC628\uCC9C\uAC1C\uBC1C\uBD80\uC6D0\uC774 \uC7A5\uC18C\uB97C \uACF5\uACA9\uD558\uBA74,
     \uD30C\uAD34 \uD6C4 \uC628\uCC9C\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
-  desc: "\uD544\uB4DC\uC5D0 \uC628\uCC9C\uAC1C\uBC1C\uBD80\uC6D0\uC774 \uC788\uB2E4\uBA74,
-    \uC7A5\uC18C \uC720\uB2DB\uC744 \uACF5\uACA9 \uC2DC \uD30C\uAD34\uD569\uB2C8\uB2E4."
+  desc: 
   card_desc: 
   desc_values: []
   spawn_fx: {fileID: 0}

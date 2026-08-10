@@ -111,13 +111,12 @@ namespace TcgEngine.UI
                 imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
             }
 
-            //Card (runtime) description: prefer card_desc, fall back to desc when empty.
+            //Card (runtime) face text: prefer text_format, fall back to text when empty.
             //Resolved with the live card's current stats/status; runs every frame via BoardCard.Update.
             if (card_text != null)
             {
                 CardData cd = card.CardData;
-                string template = !string.IsNullOrEmpty(cd.card_desc) ? cd.card_desc : cd.desc;
-                string d = FormatDesc(template, cd, card);
+                string d = FormatText(cd, card);
                 if (!string.IsNullOrEmpty(d))
                     card_text.text = d;
             }
@@ -126,16 +125,21 @@ namespace TcgEngine.UI
                 stat.SetCard(card);
         }
 
-        //Format a desc template: substitutes {0},{1},... with resolved desc_values.
+        //Resolve the card face text: text_format takes priority, text is the fallback.
+        //text_format substitutes {0},{1},... with resolved text_values.
         //card may be null (static/CardData context) — values then resolve from base/definition.
-        private string FormatDesc(string template, CardData card_data, Card card)
+        private string FormatText(CardData card_data, Card card)
         {
-            if (string.IsNullOrEmpty(template) || card_data.desc_values == null || card_data.desc_values.Length == 0)
+            if (string.IsNullOrEmpty(card_data.text_format))
+                return card_data.text;
+
+            string template = card_data.text_format;
+            if (card_data.text_values == null || card_data.text_values.Length == 0)
                 return template;
 
-            object[] args = new object[card_data.desc_values.Length];
-            for (int i = 0; i < card_data.desc_values.Length; i++)
-                args[i] = card_data.desc_values[i] != null ? card_data.desc_values[i].Resolve(card, card_data) : "";
+            object[] args = new object[card_data.text_values.Length];
+            for (int i = 0; i < card_data.text_values.Length; i++)
+                args[i] = card_data.text_values[i] != null ? card_data.text_values[i].Resolve(card, card_data) : "";
 
             try
             {
@@ -172,12 +176,10 @@ namespace TcgEngine.UI
                 card_image.sprite = card.GetFullArt(variant);
             if (card_title != null)
                 card_title.text = card.GetTitle().ToUpper();
-            //CardData (static/collection) description: card data desc only, resolved with no runtime card
+            //CardData (static/collection) face text: same text_format/text priority as the runtime path,
+            //resolved with no runtime card so values fall back to the card definition.
             if (card_text != null)
-            {
-                string d = FormatDesc(card.desc, card, null);
-                card_text.text = !string.IsNullOrEmpty(d) ? d : card.GetText();
-            }
+                card_text.text = FormatText(card, null);
 
             if (attack_background != null)
                 attack_background.enabled = card.IsCitizen();

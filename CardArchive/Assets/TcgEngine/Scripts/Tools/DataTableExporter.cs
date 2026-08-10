@@ -1707,7 +1707,7 @@ namespace TcgEngine.Tools
         {
             "id", "title", "type", "mana", "attack", "hp",
             "clubs", "weapon", "traits", "stats", "abilities",
-            "text", "desc",
+            "text", "text_format", "text_values", "desc",
             "deckbuilding", "cost", "packs",
             "art_full", "art_board",
             "spawn_fx", "death_fx", "attack_fx", "damage_fx", "idle_fx",
@@ -1730,6 +1730,8 @@ namespace TcgEngine.Tools
                 { "stats", JoinTraitStats(c.stats) },
                 { "abilities", JoinRefs(c.abilities) },
                 { "text", c.text },
+                { "text_format", c.text_format },
+                { "text_values", JoinRefs(c.text_values) },
                 { "desc", c.desc },
                 { "deckbuilding", c.deckbuilding },
                 { "cost", c.cost },

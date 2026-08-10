@@ -104,6 +104,12 @@ namespace TcgEngine
         {
             game_data = data;
             skip_delay = skip;
+#if UNITY_EDITOR
+            //EDITOR-ONLY 치트(EffectStepDebug) 훅. 실게임 큐만 등록한다 — AI 예측용 큐(skip_delay=true)를
+            //등록하면 워커 스레드의 minimax가 스텝 대기에 걸려버린다.
+            if (!skip)
+                EffectStepDebug.Register(this);
+#endif
         }
 
         public void SetData(Game data)
@@ -685,9 +691,13 @@ namespace TcgEngine
             }
             else if (CanResolve())
             {
+                //EDITOR-ONLY 치트 훅. 빌드에서는 [Conditional] 덕분에 이 두 줄이 통째로 사라지고,
+                //에디터에서도 치트가 꺼져 있으면 bool 하나 읽고 즉시 반환한다.
+                EffectStepDebug.BeginStep(this);
                 Resolve();
-                bool hasMore = HasAnyElement() || secret_queue.Count > 0 || attack_queue.Count > 0 || callback_queue.Count > 0 || HasPendingDeaths();
-                if (hasMore)
+                EffectStepDebug.EndStep(this);
+
+                if (HasPendingWork())
                     SetDelay(GetNextQueueDelay());
             }
 
@@ -738,6 +748,13 @@ namespace TcgEngine
             return 0f;
         }
 
+        //"처리할 것이 남아 있는가". CanResolve의 마지막 절이자 ResolveAll의 hasMore 판정.
+        //(에디터 치트의 일시정지 판정도 이걸 공유한다.)
+        protected bool HasPendingWork()
+        {
+            return attack_queue.Count > 0 || HasAnyElement() || secret_queue.Count > 0 || callback_queue.Count > 0 || HasPendingDeaths();
+        }
+
         public virtual bool CanResolve()
         {
             if (resolve_delay > 0f)
@@ -746,13 +763,152 @@ namespace TcgEngine
                 return false; //Cant execute anymore when game is ended
             if (game_data.selector != SelectorType.None)
                 return false; //Waiting for player input, in the middle of resolve loop
-            return attack_queue.Count > 0 || HasAnyElement() || secret_queue.Count > 0 || callback_queue.Count > 0 || HasPendingDeaths();
+#if UNITY_EDITOR
+            if (IsStepPaused())
+                return false; //EDITOR-ONLY 치트: 스텝 버튼을 누를 때까지 다음 항목을 처리하지 않는다
+#endif
+            return HasPendingWork();
         }
 
         public virtual bool IsResolving()
         {
+#if UNITY_EDITOR
+            //치트로 멈춰 있는 동안에는 "처리 중"으로 보고한다. 이 한 줄로 GameServer의 턴 타이머,
+            //대기 액션 처리, 플레이어 입력, AIPlayer의 행동이 전부 함께 멈춘다 — 멈춘 사이에 다른
+            //행동이 끼어들어 큐 순서가 오염되는 것을 막기 위해서다.
+            if (IsStepHolding())
+                return true;
+#endif
             return is_resolving || resolve_delay > 0f;
         }
+
+#if UNITY_EDITOR
+        // ======================= EDITOR-ONLY 치트 (EffectStepDebug) =======================
+        // 전부 #if UNITY_EDITOR 안에 있고, 치트가 꺼져 있으면 IsPausing이 static bool 하나만 읽고
+        // false를 돌려주므로 정상 동작 경로에는 실질적인 개입이 없다.
+
+        //이 큐가 스텝 대기 상태인가. AI 예측 큐(skip_delay=true)는 절대 걸리지 않는다.
+        private bool IsStepPaused()
+        {
+            return !skip_delay && EffectStepDebug.IsPausing(this);
+        }
+
+        //IsResolving을 true로 붙잡아야 하는 상태인가.
+        //selector/mulligan 대기와 게임 종료는 **제외**해야 한다: 그 상태에서 IsResolving을 true로
+        //만들면 GameServer가 플레이어의 선택/멀리건 입력까지 거부해 교착에 빠진다.
+        private bool IsStepHolding()
+        {
+            if (!IsStepPaused())
+                return false;
+            if (game_data == null || game_data.state == GameState.GameEnded)
+                return false;
+            if (game_data.selector != SelectorType.None || game_data.phase == GamePhase.Mulligan)
+                return false;
+            return HasPendingWork();
+        }
+
+        //대기 중인 delay를 걷어내고 큐를 한 번 굴린다. 스텝 버튼과 치트 해제가 쓴다.
+        //(스텝 대기 중인 큐는 resolve_delay가 0인 채로 잠들어 있어서 Update가 깨우지 못한다.)
+        public void EditorResolveKick()
+        {
+            resolve_delay = 0f;
+            ResolveAll();
+        }
+
+        public bool EditorHasPendingWork()
+        {
+            return HasPendingWork();
+        }
+
+        public bool EditorIsWaitingSelector()
+        {
+            return game_data != null && game_data.selector != SelectorType.None;
+        }
+
+        /// <summary>
+        /// 지금 대기 중인 항목들을 **처리될 순서(추정)**로 문자열화한다. 읽기 전용 — 큐를 건드리지 않는다.
+        /// Resolve()의 우선순위를 그대로 흉내낸다: 최상위 Phase(FIFO) → (첫 Phase가 끝나는 지점의)
+        /// 사망 처리 → secret → 공격 마이크로스텝 → 턴 진행 콜백.
+        /// 항목 하나가 처리되면서 새 이벤트가 튀어나오므로 어디까지나 "현재 스냅샷"이다.
+        /// </summary>
+        public void EditorCollectPending(EffectStepDebug.PendingList output)
+        {
+            if (output == null)
+                return;
+
+            for (int i = 0; i < phase_queue.Count; i++)
+            {
+                if (output.IsFull)
+                    return;
+                EditorCollectPhase(phase_queue[i], output, 0);
+
+                //첫 최상위 Phase가 소진되는 지점이 Death Creation Step 경계다.
+                if (i == 0 && IsDeathStepDue())
+                    output.Add("사망", "Death Creation Step", null, 0);
+            }
+
+            if (phase_queue.Count == 0 && IsDeathStepDue())
+                output.Add("사망", "Death Creation Step", null, 0);
+
+            foreach (SecretQueueElement e in secret_queue)
+            {
+                if (output.IsFull) return;
+                output.Add("비밀", EffectStepDebug.DescribeCard(e.secret), EffectStepDebug.DescribeCard(e.triggerer), 0);
+            }
+            foreach (AttackQueueElement e in attack_queue)
+            {
+                if (output.IsFull) return;
+                output.Add("공격", EditorDescribeAttack(e), null,0);
+            }
+            if (callback_queue.Count > 0)
+                output.Add("진행", "턴 진행 콜백 x" + callback_queue.Count, null, 0);
+        }
+
+        void EditorCollectPhase(AbilityPhase p, EffectStepDebug.PendingList output, int depth)
+        {
+            if (p == null || depth > max_phase_depth || output.IsFull)
+                return;
+
+            //FindNextPhase와 같은 순서: chain → 자식(생성 순) → 자기 trigger → 유발 공격
+            foreach (AbilityQueueElement e in p.chains)
+            {
+                if (output.IsFull) return;
+                EditorAddAbility(output, "연쇄", e, depth);
+            }
+            for (int i = 0; i < p.children.Count; i++)
+                EditorCollectPhase(p.children[i], output, depth + 1);
+            foreach (AbilityQueueElement e in p.triggers)
+            {
+                if (output.IsFull) return;
+                EditorAddAbility(output, "유발", e, depth);
+            }
+            foreach (AttackQueueElement e in p.attacks)
+            {
+                if (output.IsFull) return;
+                output.Add("유발공격", EditorDescribeAttack(e), null,depth);
+            }
+        }
+
+        void EditorAddAbility(EffectStepDebug.PendingList output, string tag, AbilityQueueElement e, int depth)
+        {
+            string title = EffectStepDebug.DescribeAbility(e.ability);
+            if (e.max_repeat > 1)
+                title += " (" + (e.current_repeat + 1) + "/" + e.max_repeat + "회)";
+            output.Add(tag, title, EffectStepDebug.DescribeCard(e.caster), depth);
+        }
+
+        string EditorDescribeAttack(AttackQueueElement e)
+        {
+            string atk = EffectStepDebug.DescribeCard(e.attacker);
+            if (e.ptarget != null)
+                return atk + " → 플레이어 " + e.ptarget.player_id;
+            if (e.target != null)
+                return atk + " → " + EffectStepDebug.DescribeCard(e.target);
+            if (e.atarget.IsValid())
+                return atk + " → " + EffectStepDebug.DescribeSlot(e.atarget);
+            return atk;
+        }
+#endif
 
         public virtual void Clear()
         {

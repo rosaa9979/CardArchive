@@ -16,7 +16,6 @@ namespace TcgEngine.UI
     {
         public UIPanel ui_panel;
         public CardUI card_ui;
-        public Text desc;
 
         public RectTransform[] side_rows;
         public StatusLine[] status_lines;
@@ -86,16 +85,7 @@ namespace TcgEngine.UI
                     side_rows[i].anchoredPosition = final_pos[i];
                 }
 
-                CardData icard = pcard.CardData;
-                //card_ui.SetCard(icard, pcard.VariantData);
                 card_ui.SetCard(pcard);
-
-                //string cdesc = icard.GetDesc();
-                //string adesc = icard.GetAbilitiesDesc();
-                //if (!string.IsNullOrWhiteSpace(cdesc))
-                //    this.desc.text = cdesc + "\n\n" + adesc;
-                //else
-                //    this.desc.text = adesc;
 
                 //Abilities
                 int index = 0;

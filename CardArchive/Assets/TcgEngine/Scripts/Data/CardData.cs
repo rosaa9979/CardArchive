@@ -64,14 +64,14 @@ namespace TcgEngine
 
         [Header("Card Text")]
         [TextArea(3, 5)]
-        public string text;
+        public string text;                   //Card face text (fallback when text_format is empty)
+        [TextArea(3, 5)]
+        public string text_format;            //Card face text, preferred; supports {0}, {1}, ... placeholders
+        public DescValueData[] text_values;   //Resolved into text_format's placeholders, in order
 
         [Header("Description")]
         [TextArea(5, 10)]
-        public string desc;                   //Card data desc (fallback when card_desc is empty)
-        [TextArea(5, 10)]
-        public string card_desc;              //Card desc (preferred; supports {0}, {1}, ... placeholders)
-        public DescValueData[] desc_values;   //Resolved into the shown desc's placeholders, in order
+        public string desc;                   //Flavor / long description, shown only in CardZoomPanel
 
         [Header("FX")]
         public GameObject spawn_fx;

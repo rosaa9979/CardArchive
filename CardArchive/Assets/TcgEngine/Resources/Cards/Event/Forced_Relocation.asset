@@ -28,11 +28,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4c843450c0ba4761bd6bb2b2e93dec50, type: 2}
   text: "\uC801 \uC720\uB2DB \uD558\uB098\uB97C \uC9C0\uC815\uD574 \uC8FC\uC704 \uD55C
     \uCE78\uC73C\uB85C \uC774\uB3D9\uC2DC\uD0B5\uB2C8\uB2E4."
-  desc: "\uC801 \uC720\uB2DB \uD558\uB098\uB97C \uC9C0\uC815\uD574 \uC8FC\uC704 \uD55C
-    \uCE78\uC73C\uB85C \uC774\uB3D9\uC2DC\uD0B5\uB2C8\uB2E4."
-  card_desc: "\uC801 \uC720\uB2DB \uD558\uB098\uB97C \uC9C0\uC815\uD574 \uC8FC\uC704
-    \uD55C \uCE78\uC73C\uB85C \uC774\uB3D9\uC2DC\uD0B5\uB2C8\uB2E4."
-  desc_values: []
+  text_format: 
+  text_values: []
+  desc: 
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}
