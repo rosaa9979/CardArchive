@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: spell_heal_ally_target
+  m_Name: spell_heal_target
   m_EditorClassIdentifier: 
   id: spell_heal_ally_target
   trigger: 10
@@ -20,7 +20,6 @@ MonoBehaviour:
   conditions_criteria_target:
   - {fileID: 11400000, guid: 3a456c387ec153a4f92cecfee83b08af, type: 2}
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
-  - {fileID: 11400000, guid: 707ab85bffdfd2643a7375e15b2fa634, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
@@ -29,7 +28,7 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: 5e489970bbb948c409125b3ab22f2aac, type: 2}
   status: []
-  value: 3
+  value: 5
   duration: 0
   can_cancel: 0
   chain_abilities: []

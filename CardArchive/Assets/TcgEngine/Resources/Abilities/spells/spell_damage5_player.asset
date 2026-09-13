@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
-  m_Name: move_add_attack1
+  m_Name: spell_damage5_player
   m_EditorClassIdentifier: 
-  id: move_add_attack1
-  trigger: 47
+  id: spell_damage5_player
+  trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 25
+  criteria_target: 5
   conditions_criteria_target: []
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
-  effects: []
-  status:
-  - {fileID: 11400000, guid: e7c01ab4617b9ab428b88fc9c435c6c4, type: 2}
-  value: 1
-  duration: 1
+  effects:
+  - {fileID: 11400000, guid: f714a00f5a0c516489bf1b4f2ae0d31b, type: 2}
+  status: []
+  value: 5
+  duration: 0
   can_cancel: 0
   chain_abilities: []
   mana_cost: 0
@@ -39,7 +39,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: "\uAE30\uB3D9 \uC804\uC220"
-  desc: "\uC774\uB3D9\uD560 \uB54C\uB9C8\uB2E4 \uC774\uBC88 \uD134 \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
-    1 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  title: 
+  desc: 
   selector_desc: 

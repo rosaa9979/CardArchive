@@ -23,6 +23,16 @@ namespace TcgEngine
     public enum SelectorType { None = 0, SelectTarget = 10 }
     public enum AbilityTrigger { None = 0, OnPlay = 10, StartOfTurn = 20, OnDeath = 30, OnDeathOther = 31 }
 
+    //ResolveAll의 에디터 치트 훅. [Conditional("UNITY_EDITOR")]라 이 프로젝트에서는 호출 지점이
+    //컴파일러에 의해 통째로 사라진다 — 타입만 있으면 된다.
+    public static class EffectStepDebug
+    {
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        public static void BeginStep(ResolveQueue q) { }
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        public static void EndStep(ResolveQueue q) { }
+    }
+
     public static class GameConfig
     {
         public static class Timing
