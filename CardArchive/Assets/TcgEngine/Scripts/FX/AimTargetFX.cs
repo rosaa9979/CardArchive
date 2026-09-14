@@ -36,6 +36,12 @@ namespace TcgEngine.FX
 
         void Update()
         {
+            if (TcgEngine.Replay.ReplaySession.Active)
+            {
+                target_fx.SetActive(false);
+                text_fx.SetActive(false);
+                return;
+            }
             if (!GameClient.Get().IsReady())
                 return;
 

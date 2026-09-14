@@ -25,6 +25,7 @@ namespace TcgEngine.Client
 
         void OnGameEnd(int winner)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             int player_id = GameClient.Get().GetPlayerID();
             if (winner != player_id)
                 return;

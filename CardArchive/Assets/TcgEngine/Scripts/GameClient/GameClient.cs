@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -129,6 +129,15 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.ServerMessage, OnServerMsg);
             RegisterRefresh(GameAction.RefreshAll, OnRefreshAll);
 
+            if (TcgEngine.Replay.ReplaySession.Active)
+            {
+                player_id = TcgEngine.Replay.ReplaySession.PlayerId;
+                observe_player_id = player_id;
+                observe_mode = true;
+                game_data = TcgEngine.Replay.ReplayStateCodec.Restore(TcgEngine.Replay.ReplaySession.Record.initialState);
+                gameObject.AddComponent<TcgEngine.Replay.ReplayDirector>();
+                return;
+            }
             TcgNetwork.Get().onConnect += OnConnectedServer;
             TcgNetwork.Get().Messaging.ListenMsg("refresh", OnReceiveRefresh);
 
@@ -144,6 +153,7 @@ namespace TcgEngine.Client
 
         protected virtual void Update()
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             bool is_starting = game_data == null || game_data.state == GameState.Connecting;
             bool is_client = !game_settings.IsHost();
             bool is_connecting = TcgNetwork.Get().IsConnecting();
@@ -261,6 +271,7 @@ namespace TcgEngine.Client
 
         public virtual void Disconnect()
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             TcgNetwork.Get().Disconnect();
         }
 
@@ -404,12 +415,14 @@ namespace TcgEngine.Client
 
         public void SetObserverMode(int player_id)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             observe_mode = true;
             observe_player_id = player_id;
         }
 
         public void SetObserverMode(string username)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             observe_player_id = 0; //Default value of observe_user not found
 
             Game data = GetGameData();
@@ -424,6 +437,7 @@ namespace TcgEngine.Client
 
         public void SendAction<T>(ushort type, T data, NetworkDelivery delivery = NetworkDelivery.Reliable) where T : INetworkSerializable
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
             writer.WriteNetworkSerializable(data);
@@ -433,6 +447,7 @@ namespace TcgEngine.Client
 
         public void SendAction(ushort type, int data)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
             writer.WriteValueSafe(data);
@@ -442,6 +457,7 @@ namespace TcgEngine.Client
 
         public void SendAction(ushort type)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
             Messaging.Send("action", ServerID, writer, NetworkDelivery.Reliable);
@@ -606,7 +622,7 @@ namespace TcgEngine.Client
             //as RefreshAll, so the next authoritative snapshot always arrives after this and
             //replaces game_data wholesale, correcting any divergence. Deaths are never
             //processed locally — card removal only happens on server events.
-            target.damage += msg.damage;
+            if (!TcgEngine.Replay.ReplaySession.Active) target.damage += msg.damage;
             onCardDamaged?.Invoke(attacker, target, msg.damage);
         }
 
@@ -620,7 +636,7 @@ namespace TcgEngine.Client
 
             //Display prediction, same model as OnCardDamaged: the next RefreshAll snapshot
             //(same sequenced channel) replaces game_data and corrects any divergence
-            target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
+            if (!TcgEngine.Replay.ReplaySession.Active) target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
             onPlayerDamaged?.Invoke(attacker, target, msg.damage);
         }
 
@@ -743,9 +759,31 @@ namespace TcgEngine.Client
 
         //--------------------------
 
+        public void ApplyReplayState(Game state)
+        {
+            if (!TcgEngine.Replay.ReplaySession.Active) throw new System.InvalidOperationException();
+            game_data = state;
+            onRefreshAll?.Invoke();
+        }
+
+        public void ApplyReplayEvent(byte[] packet)
+        {
+            if (!TcgEngine.Replay.ReplaySession.Active) throw new System.InvalidOperationException();
+            using (var reader = new FastBufferReader(packet, Unity.Collections.Allocator.Temp))
+            {
+                reader.ReadValueSafe(out ushort type);
+                // These messages contain session actions or full network serialization and
+                // are never part of the replay format. Do not deserialize them from files.
+                if (type == GameAction.Connected || type == GameAction.RefreshAll || type == GameAction.PlayerReady
+                    || type == GameAction.ChatMessage || type == GameAction.ServerMessage) return;
+                if (!registered_commands.TryGetValue(type, out var command)) throw new System.IO.InvalidDataException("Unknown replay event");
+                command.callback.Invoke(new SerializedData(reader));
+            }
+        }
+
         public virtual bool IsReady()
         {
-            return game_data != null && TcgNetwork.Get().IsConnected();
+            return game_data != null && (TcgEngine.Replay.ReplaySession.Active || TcgNetwork.Get().IsConnected());
         }
 
         public Player GetPlayer()

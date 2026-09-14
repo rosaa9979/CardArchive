@@ -3,6 +3,8 @@ require('dotenv').config();
 
 module.exports = {
   version: "1.09",
+  replay_limit_per_user: 10,
+  replay_local_tool_bypass: process.env.REPLAY_LOCAL_TOOL_BYPASS === 'true',
 
   port: 80,
   port_https: 443,

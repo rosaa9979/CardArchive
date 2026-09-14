@@ -45,6 +45,8 @@ app.use(function (req, res, next) {
     }
 });
 
+require('./replays/replays.routes').route(app);
+
 //Parse JSON body
 app.use(express.json({ limit: "100kb" }));
 

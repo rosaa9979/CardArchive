@@ -23,6 +23,7 @@ namespace TcgEngine.Client
 
         void Start()
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             if (GameClient.game_settings.game_type == GameType.Tutorial)
             {
                 TutorialData tutorial = GameClient.game_settings.GetTutorialData();
@@ -365,7 +366,7 @@ namespace TcgEngine.Client
 
         public bool IsTuto()
         {
-            return is_tuto;
+            return !TcgEngine.Replay.ReplaySession.Active && is_tuto;
         }
 
         public TutoEndTrigger GetEndTrigger()

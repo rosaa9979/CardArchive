@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -43,6 +43,18 @@ namespace TcgEngine
         //Do not use Task.Delay since its broken on some platform (like WebGl), use this instead
         public static async Task Delay(int miliseconds)
         {
+            if (TcgEngine.Replay.ReplaySession.Active)
+            {
+                int generation = TcgEngine.Replay.ReplaySession.Generation;
+                float until = Time.time + miliseconds / 1000f;
+                while (Time.time < until)
+                {
+                    if (generation != TcgEngine.Replay.ReplaySession.Generation) return;
+                    await Task.Yield();
+                }
+                if (generation != TcgEngine.Replay.ReplaySession.Generation) return;
+                return;
+            }
 #if UNITY_WEBGL
             //WebGL Task.Delay is broken
             float seconds = miliseconds / 1000f;

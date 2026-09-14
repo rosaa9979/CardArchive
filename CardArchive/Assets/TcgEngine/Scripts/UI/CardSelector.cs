@@ -1,4 +1,5 @@
-﻿using System.Collections;
+using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -136,7 +137,9 @@ namespace TcgEngine.UI
         public override void Show(AbilityData iability, Card caster)
         {
             Game data = GameClient.Get().GetGameData();
-            this.card_list = iability.GetCardTargets(data, caster);
+            this.card_list = data.selector_card_uids != null
+                ? data.selector_card_uids.Select(uid => data.GetCard(uid)).Where(c => c != null).ToList()
+                : iability.GetCardTargets(data, caster);
             this.iability = iability;
             this.current_card = null;
             title.text = iability.title;
@@ -170,7 +173,9 @@ namespace TcgEngine.UI
                 {
                     Card selected_card = selector_card.GetCard();
                     Card caster = data.GetCard(data.selector_caster_uid);
-                    if (selected_card != null && iability.AreCriteriaTargetConditionsMet(data, caster, selected_card))
+                    if (selected_card != null && (data.selector_card_uids != null
+                        ? data.selector_card_uids.Contains(selected_card.uid)
+                        : iability.AreCriteriaTargetConditionsMet(data, caster, selected_card)))
                     {
                         current_card = selector_card;
                         await AfterSelectAsync();
@@ -198,6 +203,16 @@ namespace TcgEngine.UI
             
             // 모든 애니메이션 완료 대기
             await Task.WhenAll(animTasks);
+        }
+
+        // Presentation only: never validates/re-executes an ability or sends a command.
+        public async Task PresentReplayChoice(string uid)
+        {
+            if (!TcgEngine.Replay.ReplaySession.Active) return;
+            current_card = selector_list.Find(c => c.GetCard().uid == uid);
+            if (current_card == null) return;
+            await AfterSelectAsync();
+            if (this != null) Hide();
         }
 
         public void OnClickCard(CardSelectorCard selector_card)

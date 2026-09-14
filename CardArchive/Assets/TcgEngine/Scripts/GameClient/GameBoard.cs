@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -81,7 +81,7 @@ namespace TcgEngine.Client
             }
 
             //--- End Game ----
-            if (!game_ended && data.state == GameState.GameEnded)
+            if (!TcgEngine.Replay.ReplaySession.Active && !game_ended && data.state == GameState.GameEnded)
             {
                 game_ended = true;
                 EndGame();

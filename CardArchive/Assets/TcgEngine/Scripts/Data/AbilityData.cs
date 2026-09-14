@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Gameplay;
@@ -370,6 +370,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster);
                 effect?.DoEffect(logic, this, caster);
+                logic.ReplayBoundary();
             }
         }
 
@@ -379,6 +380,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+                logic.ReplayBoundary();
             }
             foreach(StatusData stat in status)
                 target.AddStatus(stat, value, duration);
@@ -390,6 +392,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+                logic.ReplayBoundary();
             }
             foreach (Card targ in target)
             {
@@ -404,6 +407,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+                logic.ReplayBoundary();
             }
             foreach (StatusData stat in status)
                 target.AddStatus(stat, value, duration);
@@ -417,6 +421,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+                logic.ReplayBoundary();
             }
             if (slot_card != null)
             {
@@ -432,6 +437,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target);
+                logic.ReplayBoundary();
             }
         }
 

@@ -87,10 +87,12 @@ namespace TcgEngine.UI
                     removed_card_index.Enqueue(cards.IndexOf(card));
                     card.DoHide(GetCardPos(card));
                     await TimeTool.Delay(150);
+                if (this == null) return;
                 }
             }
 
             await TimeTool.Delay(1000);
+                if (this == null) return;
 
             foreach (Card new_card in player.cards_hand)
             {
@@ -114,6 +116,7 @@ namespace TcgEngine.UI
                     mcard.DoShow(GetCardPos(mcard));
 
                     await TimeTool.Delay(150);
+                if (this == null) return;
                 }
             }
 
@@ -156,6 +159,7 @@ namespace TcgEngine.UI
 
             //Wait a beat before the cards leave the mulligan panel
             await TimeTool.Delay(handoff_wait_ms);
+                if (this == null) return;
 
             //Bonus card was never part of the mulligan UI: make room by compressing the existing
             //cards, then spawn it into the opened slot so it flies to hand together with the rest.
@@ -171,6 +175,7 @@ namespace TcgEngine.UI
                     cards[i].DoMove(GetCardPos(cards[i]), handoff_room_ms / 1000f);
                 }
                 await TimeTool.Delay(handoff_room_ms);
+                if (this == null) return;
 
                 GameObject mulligan_card = Instantiate(mulligan_template, content.transform);
                 mulligan_card.SetActive(true);
@@ -182,10 +187,12 @@ namespace TcgEngine.UI
                 mcard.DoShow(GetCardPos(mcard));
 
                 await TimeTool.Delay(handoff_bonus_ms);
+                if (this == null) return;
             }
 
             //Hold a beat with everything in place before the cards leave for the hand
             await TimeTool.Delay(handoff_move_delay_ms);
+                if (this == null) return;
 
             //Swap each mulligan card for the real hand card at the same position/size,
             //then let HandCard.Update() carry it into its hand slot. Revealing here (rather than
@@ -251,6 +258,7 @@ namespace TcgEngine.UI
                 card.DoShow(GetCardPos(card));
 
                 await TimeTool.Delay(50);
+                if (this == null) return;
             }
         }
 

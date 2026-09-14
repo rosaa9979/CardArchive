@@ -30,6 +30,8 @@ namespace TcgEngine
 
     public class ResolveQueue
     {
+        public Action onResolved;
+        private int clear_version;
         private Pool<AbilityQueueElement> ability_elem_pool = new Pool<AbilityQueueElement>();
         private Pool<SecretQueueElement> secret_elem_pool = new Pool<SecretQueueElement>();
         private Pool<AttackQueueElement> attack_elem_pool = new Pool<AttackQueueElement>();
@@ -436,6 +438,12 @@ namespace TcgEngine
 
         public virtual void Resolve()
         {
+            try { ResolveStep(); }
+            finally { onResolved?.Invoke(); }
+        }
+
+        private void ResolveStep()
+        {
             //① 현재 최상위 Phase가 소진됐으면 놓아준다. 이 순간이 곧 하스스톤의 outermost Phase
             //   종료 = Death Creation Step 경계다.
             if (current_top != null && !current_top.active && FindNextPhase(current_top) == null)
@@ -503,7 +511,9 @@ namespace TcgEngine
                 AbilityPhase scope = NewTopPhase(true);
                 scope.active = true;
                 insert_stack.Push(scope);
+                int version = clear_version;
                 InvokeAttack(elem);
+                if (version != clear_version) return; // EndGame cleared/recycled this scope.
                 insert_stack.Pop();
                 scope.active = false;
 
@@ -531,9 +541,9 @@ namespace TcgEngine
             AbilityPhase scope = NewChildPhase(owner, true);
             scope.active = true;
             insert_stack.Push(scope);
-
+            int version = clear_version;
             elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer, elem.max_repeat, elem.current_repeat);
-
+            if (version != clear_version) return;
             insert_stack.Pop();
             scope.active = false;
 
@@ -553,7 +563,9 @@ namespace TcgEngine
             AbilityPhase scope = NewChildPhase(owner, true);
             scope.active = true;
             insert_stack.Push(scope);
+            int version = clear_version;
             InvokeAttack(elem);
+            if (version != clear_version) return;
             insert_stack.Pop();
             scope.active = false;
             if (!scope.HasAnything)
@@ -912,6 +924,7 @@ namespace TcgEngine
 
         public virtual void Clear()
         {
+            clear_version++;
             attack_elem_pool.DisposeAll();
             ability_elem_pool.DisposeAll();
             secret_elem_pool.DisposeAll();

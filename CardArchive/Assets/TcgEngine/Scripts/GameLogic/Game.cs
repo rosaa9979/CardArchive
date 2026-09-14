@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TcgEngine.Client;
@@ -33,6 +33,7 @@ namespace TcgEngine
         //Selector
         public SelectorType selector = SelectorType.None;
         public int selector_player_id = 0;
+        public string[] selector_card_uids; // Authoritative candidate order; never reroll a displayed selector.
         public string selector_ability_id;
         public string selector_caster_uid;
         public string selector_triggerer_uid;
@@ -792,6 +793,7 @@ namespace TcgEngine
             for (int i = 0; i < source.players.Length; i++)
                 Player.Clone(source.players[i], dest.players[i]);
 
+            dest.selector_card_uids = source.selector_card_uids == null ? null : (string[])source.selector_card_uids.Clone();
             dest.selector = source.selector;
             dest.selector_player_id = source.selector_player_id;
             dest.selector_caster_uid = source.selector_caster_uid;

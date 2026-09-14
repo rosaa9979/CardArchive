@@ -61,6 +61,7 @@ namespace TcgEngine.Client
             for (int i = 0; i < nb_cards; i++)
             {
                 HandCardBack card = cards[i];
+                if (TcgEngine.Replay.ReplaySession.Active && !card.enabled) continue;
                 RectTransform crect = card.GetRect();
                 float half = nb_cards / 2f;
                 Vector3 tpos = new Vector3((i - half) * card_spacing, (i - half) * (i - half) * card_offset_y);
@@ -69,6 +70,8 @@ namespace TcgEngine.Client
                 card.transform.localRotation = Quaternion.Slerp(card.transform.localRotation, Quaternion.Euler(0f, 0f, tangle), 4f * Time.deltaTime);
             }
         }
+
+        public HandCardBack GetLastVisualCard() => cards.Count > 0 ? cards[cards.Count - 1] : null;
 
         public static OpponentHand Get()
         {

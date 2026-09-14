@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TcgEngine.Client;
@@ -54,6 +54,17 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Card> onSecretResolve;    //Secret, Triggerer
 
         public UnityAction onRefresh;
+        public System.Action<Game> onReplaySetup;
+        public System.Action<string> onReplayRandom;
+        public void ReplayBoundary() { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); }
+        public System.Action<Game> onReplayBoundary;
+        public System.Action<TcgEngine.Replay.ReplayInteraction> onReplayInteraction;
+        private string replay_pending_play;
+        private void RecordInteraction(string kind, int player, string card = null, Slot? slot = null, string target = null, int choice = -1, string[] cards = null)
+        {
+            if (!is_ai_predict) onReplayInteraction?.Invoke(new TcgEngine.Replay.ReplayInteraction {
+                kind = kind, player = player, card = card, slot = slot ?? Slot.None, target = target, choice = choice, cards = cards });
+        }
 
         private Game game_data;
 
@@ -88,14 +99,18 @@ namespace TcgEngine.Gameplay
             //is_instant ignores all gameplay delays and process everything immediately, needed for AI prediction
             resolve_queue = new ResolveQueue(null, is_ai);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
+            resolve_queue.onResolved = () => { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); };
             is_ai_predict = is_ai;
         }
 
         public GameLogic(Game game)
         {
             game_data = game;
+            random = new TcgEngine.Replay.ReplayRandom(value => onReplayRandom?.Invoke(value));
+            game.SetRandom(random);
             resolve_queue = new ResolveQueue(game, false);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
+            resolve_queue.onResolved = () => { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); };
         }
 
         public virtual void SetData(Game game)
@@ -219,6 +234,9 @@ namespace TcgEngine.Gameplay
                 foreach (Card card in player.player_ability)
                     AssignPlayOrder(card);
             }
+
+            //Settings are final; record before game-start effects and initial draws.
+            onReplaySetup?.Invoke(game_data);
 
             //Start state
             RefreshData();
@@ -781,6 +799,8 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetPlayer(card.player_id);
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
+                replay_pending_play = card.uid;
+                RecordInteraction("play", card.player_id, card.uid, slot);
                 game_data.selector_caster_slot = slot;
                 if (card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget))
                 {
@@ -816,6 +836,10 @@ namespace TcgEngine.Gameplay
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
                 Player player = game_data.GetPlayer(card.player_id);
+
+                if (!skip_cost && replay_pending_play != card.uid)
+                    RecordInteraction("play", card.player_id, card.uid, slot);
+                replay_pending_play = null;
 
                 //Entering play: assign order of play (drives simultaneous trigger ordering)
                 AssignPlayOrder(card);
@@ -903,6 +927,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanMoveCard(card, slot, skip_cost))
             {
+                if (!skip_cost) RecordInteraction("move", card.player_id, card.uid, slot);
                 card.slot = slot;
 
                 //Moving doesn't really have any effect in demo so can be done indefinitely
@@ -933,6 +958,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.CanCastAbility(card, iability))
             {
+                RecordInteraction("ability", card.player_id, card.uid);
                 Player player = game_data.GetPlayer(card.player_id);
                 if (!is_ai_predict && iability.criteria_target != AbilityTarget.SelectTarget)
                     player.AddHistory(GameAction.CastAbility, card, iability);
@@ -1301,6 +1327,7 @@ namespace TcgEngine.Gameplay
                 cards[i] = cards[randomIndex];
                 cards[randomIndex] = temp;
             }
+            ReplayBoundary();
         }
 
         public virtual void DrawCard(Player player, int nb = 1)
@@ -1328,6 +1355,7 @@ namespace TcgEngine.Gameplay
                 {
                     DamagePlayer_Exhaust(player); // 덱 없음 → 데미지
                 }
+                ReplayBoundary();
             }
 
             onCardDrawn?.Invoke(nb);
@@ -2409,6 +2437,7 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Player target)
         {
             iability.DoEffects(this, caster, target);
+            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetPlayer?.Invoke(iability, caster, target);
         }
@@ -2416,6 +2445,7 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target)
         {
             iability.DoEffects(this, caster, target);
+            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetCard?.Invoke(iability, caster, target);
 
@@ -2426,11 +2456,13 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target)
         {
             iability.DoEffects(this, caster, target);
+            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target)
         {
             iability.DoEffects(this, caster, target);
+            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetSlot?.Invoke(iability, caster, target);
 
@@ -2440,6 +2472,7 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target)
         {
             iability.DoEffects(this, caster, target);
+            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
         }
 
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster, Card trigger_card, int max_repeat, int current_repeat)
@@ -3004,6 +3037,7 @@ namespace TcgEngine.Gameplay
                 if (!is_ai_predict)
                     player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
+                RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_card_uid = target.uid;
 
@@ -3022,9 +3056,12 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectorCard)
             {
-                if (!ability.IsCardSelectionValid(game_data, caster, target, card_array))
+                if (game_data.selector_card_uids != null
+                    ? !game_data.selector_card_uids.Contains(target.uid)
+                    : !ability.IsCardSelectionValid(game_data, caster, target, card_array))
                     return; //Supports conditions and filters
 
+                RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_card_uid = target.uid;
 
@@ -3057,6 +3094,7 @@ namespace TcgEngine.Gameplay
                 if (!is_ai_predict)
                     player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
+                RecordInteraction("player", game_data.selector_player_id, game_data.selector_caster_uid, choice: target.player_id);
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_player = target;
 
@@ -3098,6 +3136,7 @@ namespace TcgEngine.Gameplay
                 if (!is_ai_predict)
                     player.AddHistory(GameAction.CastAbility, caster, ability, target);
 
+                RecordInteraction("slot", game_data.selector_player_id, game_data.selector_caster_uid, slot: target);
                 game_data.selector = SelectorType.None;
                 game_data.selector_target_slot = target;
 
@@ -3143,6 +3182,7 @@ namespace TcgEngine.Gameplay
                     AbilityData achoice = ability.chain_abilities[choice];
                     if (achoice != null && game_data.CanSelectAbility(caster, achoice))
                     {
+                        RecordInteraction("choice", game_data.selector_player_id, game_data.selector_caster_uid, choice: choice);
                         game_data.selector = SelectorType.None;
                         resolve_queue.BeginPhase();
                         AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
@@ -3158,6 +3198,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.selector != SelectorType.None)
             {
+                RecordInteraction("cancel", game_data.selector_player_id, game_data.selector_caster_uid);
                 AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
                 if (iability != null && iability.trigger == AbilityTrigger.OnPlay)
                     CancelPlayCard();
@@ -3179,6 +3220,7 @@ namespace TcgEngine.Gameplay
 
         public void CancelPlayCard()
         {
+            replay_pending_play = null;
             Card card = game_data.GetCard(game_data.selector_caster_uid);
             if (card != null)
             {
@@ -3194,6 +3236,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.phase == GamePhase.Mulligan && !player.ready)
             {
+                RecordInteraction("mulligan", player.player_id, cards: cards);
                 //Replace each mulliganed card with a freshly drawn one AT THE SAME hand index, so the new
                 //card occupies the slot of the card it replaced (the hand keeps its order/positions).
                 for (int i = 0; i < player.cards_hand.Count; i++)
@@ -3241,6 +3284,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void GoToSelectorCard(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
         {
+            game_data.selector_card_uids = iability.GetCardTargets(game_data, caster).Select(c => c.uid).ToArray();
             game_data.selector = SelectorType.SelectorCard;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;

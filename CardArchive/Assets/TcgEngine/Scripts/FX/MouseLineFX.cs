@@ -41,6 +41,12 @@ namespace TcgEngine.FX
 
         void Update()
         {
+            if (TcgEngine.Replay.ReplaySession.Active)
+            {
+                dot_template.SetActive(false);
+                foreach (var dot in dot_list) dot.SetActive(false);
+                return;
+            }
             
             if (!GameClient.Get().IsReady())
                 return;

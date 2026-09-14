@@ -24,6 +24,8 @@ const userSchema = new Schema({
   xp: {type: Number, default: 0},
   elo: {type: Number, default: 1000},
 
+  replay_match_ids: [{ type: String }],
+
   matches: {type: Number, default: 0},
   victories: {type: Number, default: 0},
   defeats: {type: Number, default: 0},

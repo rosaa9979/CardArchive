@@ -38,6 +38,7 @@ namespace TcgEngine
             D23(); D24(); D25(); D26(); D27(); D28(); D29();
             Console.WriteLine("\n--- E. selector ---");
             E30();
+            ReplayTermination();
 
             Console.WriteLine($"\n===== 구조 검증 PASS {pass} / FAIL {fail} =====");
             if (fail > 0) Console.WriteLine("실패: " + string.Join(", ", failures));
@@ -48,6 +49,22 @@ namespace TcgEngine
 
             Console.WriteLine($"\n########## 총계: FAIL {fail + cov_fail + atk_fail} ##########");
             Environment.ExitCode = (fail + cov_fail + atk_fail) > 0 ? 1 : 0;
+        }
+
+        static void ReplayTermination()
+        {
+            var s = new Sim();
+            var a = s.AddCard(0, "A", 10);
+            var b = s.AddCard(1, "B", 10);
+            int boundaries = 0;
+            s.rq.onResolved = () => boundaries++;
+            s.rq.AddAttack(a, b, (attacker, defender, skip) => s.rq.Clear());
+            s.rq.ResolveAll();
+            Check("Replay: lethal attack can clear active queue", "False", s.rq.CanResolve().ToString());
+            s.TriggerCardAbilityType(a, Ab("End", (x, c, r) => x.rq.Clear()));
+            s.rq.ResolveAll();
+            Check("Replay: terminal ability can clear active queue", "False", s.rq.CanResolve().ToString());
+            Check("Replay: final boundary survives queue clear", "True", (boundaries >= 2).ToString());
         }
 
         // ==================== A. 이벤트 묶음 / 형제 순서 ====================

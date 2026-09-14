@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -110,7 +110,7 @@ namespace TcgEngine.UI
             turn_timer.enabled = data.turn_timer < 999f;
 
             //Simulate timer
-            if (data.state == GameState.Play && data.turn_timer > 0f)
+            if (!TcgEngine.Replay.ReplaySession.Active && data.state == GameState.Play && data.turn_timer > 0f)
                 data.turn_timer -= Time.deltaTime;
 
             //Timer warning

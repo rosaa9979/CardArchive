@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
@@ -31,6 +31,7 @@ namespace TcgEngine.Client
 
         void Update()
         {
+            if (TcgEngine.Replay.ReplaySession.Active) return;
             if (!GameClient.Get().IsReady())
                 return;
 

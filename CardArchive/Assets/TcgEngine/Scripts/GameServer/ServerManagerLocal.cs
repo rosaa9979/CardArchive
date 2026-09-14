@@ -20,7 +20,7 @@ namespace TcgEngine.Server
 
         protected virtual void Start()
         {
-            if (GameClient.game_settings.IsHost())
+            if (!TcgEngine.Replay.ReplaySession.Active && GameClient.game_settings.IsHost())
             {
                 StartServer(); //Start local server if not playing online
             }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using TcgEngine.AI;
 using TcgEngine.Client;
 using TcgEngine.Gameplay;
@@ -24,6 +24,7 @@ namespace TcgEngine.Server
 
         private Game game_data;
         private GameLogic gameplay;
+        private readonly TcgEngine.Replay.ReplayRecorder replay = new TcgEngine.Replay.ReplayRecorder();
         private float expiration = 0f;
         private float win_expiration = 0f;
         private bool is_dedicated_server = false;
@@ -52,6 +53,10 @@ namespace TcgEngine.Server
             is_dedicated_server = online;
             game_data = new Game(uid, nb_players);
             gameplay = new GameLogic(game_data);
+            gameplay.onReplaySetup += replay.Begin;
+            gameplay.onReplayRandom += replay.Random;
+            gameplay.onReplayBoundary += replay.Capture;
+            gameplay.onReplayInteraction += interaction => replay.Interaction(game_data, interaction);
 
             //Commands
             RegisterAction(GameAction.PlayerSettings, ReceivePlayerSettings);
@@ -197,6 +202,8 @@ namespace TcgEngine.Server
             {
                 ai.Update();
             }
+            if (HasGameEnded() && !replay.Finished)
+                TcgEngine.Replay.ReplayStorage.Save(replay.Finish(game_data), is_dedicated_server && Authenticator.Get().IsApi());
         }
 
         protected virtual void StartGame()
@@ -455,6 +462,7 @@ namespace TcgEngine.Server
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerTurn(player))
             {
+                replay.Interaction(game_data, new TcgEngine.Replay.ReplayInteraction { kind = "endTurn", player = player.player_id, slot = Slot.None });
                 gameplay.NextStep();
             }
         }
@@ -731,7 +739,7 @@ namespace TcgEngine.Server
             if (is_dedicated_server && Authenticator.Get().IsApi())
             {
                 //End Match and give rewards
-                ApiClient.Get().EndMatch(game_data, winner.player_id);
+                ApiClient.Get().EndMatch(game_data, winner != null ? winner.player_id : -1);
             }
         }
 
@@ -990,6 +998,7 @@ namespace TcgEngine.Server
 
         public virtual void RefreshAll()
         {
+            replay.Capture(game_data);
             MsgRefreshAll mdata = new MsgRefreshAll();
             mdata.game_data = GetGameData();
             SendToAll(GameAction.RefreshAll, mdata, NetworkDelivery.ReliableFragmentedSequenced);
@@ -999,6 +1008,7 @@ namespace TcgEngine.Server
         {
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(tag);
+            replay.Event(game_data, writer.ToArray());
             foreach (ClientData iclient in connected_clients)
             {
                 if (iclient != null)
@@ -1014,6 +1024,7 @@ namespace TcgEngine.Server
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(tag);
             writer.WriteNetworkSerializable(data);
+            if (tag != GameAction.RefreshAll) replay.Event(game_data, writer.ToArray());
             foreach (ClientData iclient in connected_clients)
             {
                 if (iclient != null)
