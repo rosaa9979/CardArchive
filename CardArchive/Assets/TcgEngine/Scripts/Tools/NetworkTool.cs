@@ -17,6 +17,9 @@ namespace TcgEngine
 
     public class NetworkTool
     {
+        // Existing clients use BinaryFormatter on the wire. Replacing it requires a
+        // coordinated protocol migration; do not silently change the packet format.
+#pragma warning disable UAC0023
         //Serialize a [System.Serializable] into bytes
         public static byte[] Serialize<T>(T obj) where T : class
         {
@@ -55,6 +58,8 @@ namespace TcgEngine
                 return null;
             }
         }
+
+#pragma warning restore UAC0023
 
         //Serialize a INetworkSerializable to bytes
         public static byte[] NetSerialize<T>(T obj, int size = 128) where T : INetworkSerializable, new()

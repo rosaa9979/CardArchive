@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace EPOOutline
 {
@@ -78,9 +79,9 @@ namespace EPOOutline
 
                 var fillParametersPosition = position;
                 fillParametersPosition.height = EditorGUIUtility.singleLineHeight;
-                for (var index = 0; index < ShaderUtil.GetPropertyCount(currentShaderReference); index++)
+                for (var index = 0; index < currentShaderReference.GetPropertyCount(); index++)
                 {
-                    var propertyName = ShaderUtil.GetPropertyName(currentShaderReference, index);
+                    var propertyName = currentShaderReference.GetPropertyName(index);
                     if (!propertyName.StartsWith("_Public"))
                         continue;
 
@@ -96,21 +97,21 @@ namespace EPOOutline
 
                         var tempMaterial = new Material(currentShaderReference);
 
-                        switch (ShaderUtil.GetPropertyType(currentShaderReference, index))
+                        switch (currentShaderReference.GetPropertyType(index))
                         {
-                            case ShaderUtil.ShaderPropertyType.Color:
+                            case ShaderPropertyType.Color:
                                 currentProperty.FindPropertyRelative("ColorValue").colorValue = tempMaterial.GetColor(propertyName);
                                 break;
-                            case ShaderUtil.ShaderPropertyType.Vector:
+                            case ShaderPropertyType.Vector:
                                 currentProperty.FindPropertyRelative("VectorValue").vector4Value = tempMaterial.GetVector(propertyName);
                                 break;
-                            case ShaderUtil.ShaderPropertyType.Float:
+                            case ShaderPropertyType.Float:
                                 currentProperty.FindPropertyRelative("FloatValue").floatValue = tempMaterial.GetFloat(propertyName);
                                 break;
-                            case ShaderUtil.ShaderPropertyType.Range:
+                            case ShaderPropertyType.Range:
                                 currentProperty.FindPropertyRelative("FloatValue").floatValue = tempMaterial.GetFloat(propertyName);
                                 break;
-                            case ShaderUtil.ShaderPropertyType.TexEnv:
+                            case ShaderPropertyType.Texture:
                                 currentProperty.FindPropertyRelative("TextureValue").objectReferenceValue = tempMaterial.GetTexture(propertyName);
                                 break;
                         }
@@ -123,33 +124,33 @@ namespace EPOOutline
                     if (currentProperty == null)
                         continue;
 
-                    var content = new GUIContent(ShaderUtil.GetPropertyDescription(currentShaderReference, index));
+                    var content = new GUIContent(currentShaderReference.GetPropertyDescription(index));
 
-                    switch (ShaderUtil.GetPropertyType(currentShaderReference, index))
+                    switch (currentShaderReference.GetPropertyType(index))
                     {
-                        case ShaderUtil.ShaderPropertyType.Color:
+                        case ShaderPropertyType.Color:
                             var colorProperty = currentProperty.FindPropertyRelative("ColorValue");
                             colorProperty.colorValue = EditorGUI.ColorField(fillParametersPosition, content, colorProperty.colorValue, true, true, true);
                             break;
-                        case ShaderUtil.ShaderPropertyType.Vector:
+                        case ShaderPropertyType.Vector:
                             var vectorProperty = currentProperty.FindPropertyRelative("VectorValue");
                             vectorProperty.vector4Value = EditorGUI.Vector4Field(fillParametersPosition, content, vectorProperty.vector4Value);
                             break;
-                        case ShaderUtil.ShaderPropertyType.Float:
+                        case ShaderPropertyType.Float:
                             EditorGUI.PropertyField(fillParametersPosition, currentProperty.FindPropertyRelative("FloatValue"), content);
                             break;
-                        case ShaderUtil.ShaderPropertyType.Range:
+                        case ShaderPropertyType.Range:
                             var floatProperty = currentProperty.FindPropertyRelative("FloatValue");
                             floatProperty.floatValue = EditorGUI.Slider(fillParametersPosition, content, floatProperty.floatValue, 
-                                ShaderUtil.GetRangeLimits(currentShaderReference, index, 1), 
-                                ShaderUtil.GetRangeLimits(currentShaderReference, index, 2));
+                                currentShaderReference.GetPropertyRangeLimits(index).x,
+                                currentShaderReference.GetPropertyRangeLimits(index).y);
                             break;
-                        case ShaderUtil.ShaderPropertyType.TexEnv:
+                        case ShaderPropertyType.Texture:
                             EditorGUI.PropertyField(fillParametersPosition, currentProperty.FindPropertyRelative("TextureValue"), content);
                             break;
                     }
 
-                    currentProperty.FindPropertyRelative("PropertyType").intValue = (int)ShaderUtil.GetPropertyType(currentShaderReference, index);
+                    currentProperty.FindPropertyRelative("PropertyType").intValue = (int)currentShaderReference.GetPropertyType(index);
                 }
             }
         }
@@ -165,9 +166,9 @@ namespace EPOOutline
             var additionalCount = 0;
             if (currentShaderReference != null)
             {
-                for (var index = 0; index < ShaderUtil.GetPropertyCount(currentShaderReference); index++)
+                for (var index = 0; index < currentShaderReference.GetPropertyCount(); index++)
                 {
-                    var propertyName = ShaderUtil.GetPropertyName(currentShaderReference, index);
+                    var propertyName = currentShaderReference.GetPropertyName(index);
                     if (!propertyName.StartsWith("_Public"))
                         continue;
 

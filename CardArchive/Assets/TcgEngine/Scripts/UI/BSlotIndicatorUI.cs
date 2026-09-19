@@ -7,7 +7,6 @@ using UnityEngine.UI;
 using Unity.VisualScripting;
 using System.Runtime.CompilerServices;
 using TcgEngine.FX;
-using UnityEngine.Rendering.UI;
 
 namespace TcgEngine.UI
 {
