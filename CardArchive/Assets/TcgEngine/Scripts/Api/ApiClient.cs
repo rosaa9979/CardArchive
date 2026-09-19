@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
@@ -444,7 +444,7 @@ namespace TcgEngine
         public static ApiClient Get()
         {
             if (instance == null)
-                instance = FindObjectOfType<ApiClient>();
+                instance = FindFirstObjectByType<ApiClient>();
             return instance;
         }
     }

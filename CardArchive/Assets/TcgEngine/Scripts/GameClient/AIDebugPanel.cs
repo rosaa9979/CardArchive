@@ -353,7 +353,7 @@ namespace TcgEngine.Client
 
             if (detail_text != null)
             {
-                detail_text.enableWordWrapping = true;
+                detail_text.textWrappingMode = TextWrappingModes.Normal;
                 detail_text.overflowMode = TextOverflowModes.Overflow; //Show all lines; height follows the text
                 detail_text.text = string.IsNullOrEmpty(details) ? "(분해 정보 없음)" : details;
             }

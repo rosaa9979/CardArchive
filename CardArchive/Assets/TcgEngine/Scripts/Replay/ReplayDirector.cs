@@ -29,9 +29,9 @@ namespace TcgEngine.Replay
             client = GameClient.Get();
             presenter = gameObject.AddComponent<ReplayInteractionPresenter>();
             // Existing scene presentation stays intact, but no real input or debug views.
-            foreach (var input in FindObjectsOfType<EventSystem>()) input.enabled = false;
-            foreach (var control in FindObjectsOfType<PlayerControls>()) control.enabled = false;
-            foreach (var behaviour in FindObjectsOfType<MonoBehaviour>())
+            foreach (var input in FindObjectsByType<EventSystem>(FindObjectsSortMode.InstanceID)) input.enabled = false;
+            foreach (var control in FindObjectsByType<PlayerControls>(FindObjectsSortMode.InstanceID)) control.enabled = false;
+            foreach (var behaviour in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.InstanceID))
                 if (behaviour.GetType().Name == "AIDebugPanel" || behaviour.GetType().Name == "EffectStepPanel")
                     behaviour.gameObject.SetActive(false);
             state = ReplayStateCodec.Copy(ReplaySession.Record.initialState);

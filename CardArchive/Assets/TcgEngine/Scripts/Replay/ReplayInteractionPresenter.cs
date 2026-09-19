@@ -100,7 +100,7 @@ namespace TcgEngine.Replay
             if (!own && action.kind != "play" && action.kind != "move") yield break;
             if (action.kind == "mulligan")
             {
-                foreach (var card in FindObjectsOfType<CardMulligan>())
+                foreach (var card in FindObjectsByType<CardMulligan>(FindObjectsSortMode.InstanceID))
                 {
                     bool selected = action.cards != null && action.cards.Contains(card.GetCard().uid);
                     card.SetSelected(selected);
@@ -138,7 +138,7 @@ namespace TcgEngine.Replay
             }
             if (action.kind == "card")
             {
-                var card = FindObjectsOfType<CardSelectorCard>().FirstOrDefault(c => c.GetCard().uid == action.target);
+                var card = FindObjectsByType<CardSelectorCard>(FindObjectsSortMode.InstanceID).FirstOrDefault(c => c.GetCard().uid == action.target);
                 var board = BoardCard.Get(action.target);
                 var targetHand = HandCard.Get(action.target);
                 target = card != null ? card.transform : board != null ? board.transform : targetHand != null ? targetHand.transform : null;

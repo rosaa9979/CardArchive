@@ -2,7 +2,8 @@
     "name": "EPODemo",
     "rootNamespace": "",
     "references": [
-        "EPO"
+        "EPO",
+        "EPOUtilities"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -131,7 +131,7 @@ namespace TcgEngine
         //If this function return compile error (because URP isnt installed and you dont want it, you can simply comment the code and return false
         public static bool IsURP()
         {
-            if (GraphicsSettings.renderPipelineAsset is UniversalRenderPipelineAsset)
+            if (GraphicsSettings.defaultRenderPipeline is UniversalRenderPipelineAsset)
                 return true;
             return false;
         }

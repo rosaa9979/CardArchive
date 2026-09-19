@@ -110,7 +110,7 @@ namespace TcgEngine.UI
             if (resolutions.Count > 0)
             {
                 Resolution resolu = resolutions[reso_value];
-                string reso_tag = resolu.width + "x" + resolu.height + " " + Screen.currentResolution.refreshRate + "Hz";
+                string reso_tag = resolu.width + "x" + resolu.height + " " + Screen.currentResolution.refreshRateRatio.value.ToString("0.##") + "Hz";
                 resolution_txt.text = reso_tag;
             }
         }

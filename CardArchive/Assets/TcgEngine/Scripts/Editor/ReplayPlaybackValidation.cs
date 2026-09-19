@@ -58,7 +58,7 @@ public static class ReplayPlaybackValidation
     {
         if (!SessionState.GetBool(Flag, false) || !EditorApplication.isPlaying || leaving || started == 0) return;
         if (EditorApplication.timeSinceStartup - started > 240) { Finish(false, "Playback timeout"); return; }
-        var director = UnityEngine.Object.FindObjectOfType<ReplayDirector>();
+        var director = UnityEngine.Object.FindFirstObjectByType<ReplayDirector>();
         if (director == null || director == previous) return;
         director.SetSpeed(4);
         if (TcgNetwork.Get() != null && TcgNetwork.Get().IsActive()) { Finish(false, "Replay started networking"); return; }
@@ -76,7 +76,7 @@ public static class ReplayPlaybackValidation
             { Finish(false, "Drag is not using a real scene card"); return; }
             if (hand != null && (hand.enabled || !hand.IsDrag() || visual.parent != HandCardArea.Get().card_area))
             { Finish(false, "Real hand drag lost its input lock or canvas parent"); return; }
-            foreach (var aim in UnityEngine.Object.FindObjectsOfType<TcgEngine.FX.AimTargetFX>())
+            foreach (var aim in UnityEngine.Object.FindObjectsByType<TcgEngine.FX.AimTargetFX>(FindObjectsSortMode.InstanceID))
                 if (aim.target_fx.activeSelf || aim.text_fx.activeSelf)
                 { Finish(false, "Replay targeting cursor is visible"); return; }
         }
