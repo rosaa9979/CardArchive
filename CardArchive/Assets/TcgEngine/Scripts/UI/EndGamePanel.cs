@@ -127,6 +127,11 @@ namespace TcgEngine.UI
 
         private async void RefreshRewards()
         {
+            if (TcgEngine.Replay.ReplaySession.Active)
+            {
+                reward_loaded = true;
+                return;
+            }
             //Online rewards
             if (GameClient.game_settings.IsOnline())
             {

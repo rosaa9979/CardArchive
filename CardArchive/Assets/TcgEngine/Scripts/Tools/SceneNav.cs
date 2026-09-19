@@ -10,11 +10,13 @@ namespace TcgEngine
     {
         public static void RestartLevel()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            GoTo(SceneManager.GetActiveScene().name);
         }
 
         public static void GoTo(string scene)
         {
+            // Runtime callbacks must not navigate the editor after Play Mode has ended.
+            if (!Application.isPlaying) return;
             SceneManager.LoadScene(scene);
         }
 

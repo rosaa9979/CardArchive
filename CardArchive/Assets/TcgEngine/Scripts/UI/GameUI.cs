@@ -217,6 +217,8 @@ namespace TcgEngine.UI
             yield return new WaitForSeconds(1f);
 
             GameClient.Get().Disconnect();
+            if (TcgEngine.Replay.ReplaySession.Active)
+                TcgEngine.Replay.ReplaySession.Clear();
             SceneNav.GoTo(scene);
         }
 

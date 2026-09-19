@@ -29,10 +29,13 @@ namespace TcgEngine.Replay
         }
         public static void Exit()
         {
-            Record = null;
-            Generation++;
-            Time.timeScale = 1;
+            Clear();
             Load(ToolPath);
+        }
+        public static void Clear()
+        {
+            Reset();
+            Time.timeScale = 1;
         }
         static void Load(string path)
         {

@@ -118,6 +118,7 @@ namespace TcgEngine.UI
         private async void RefreshLogin()
         {
             bool success = await Authenticator.Get().RefreshLogin();
+            if (!Application.isPlaying || this == null || !isActiveAndEnabled) return;
             if (success)
             {
                 SceneNav.GoTo("Menu");
@@ -135,6 +136,7 @@ namespace TcgEngine.UI
             error_msg.text = "";
 
             bool success = await Authenticator.Get().Login(user, password);
+            if (!Application.isPlaying || this == null || !isActiveAndEnabled) return;
             if (success)
             {
                 PlayerPrefs.SetString("tcg_last_user", login_user.text);
@@ -157,6 +159,7 @@ namespace TcgEngine.UI
             //email_text = !String.IsNullOrWhiteSpace(email) ? email : "example@your-domain.com";
 
             bool success = await Authenticator.Get().Register(email_text, register_username.text, register_password.text);
+            if (!Application.isPlaying || this == null || !isActiveAndEnabled) return;
             if (success)
             {
                 login_user.text = register_username.text;

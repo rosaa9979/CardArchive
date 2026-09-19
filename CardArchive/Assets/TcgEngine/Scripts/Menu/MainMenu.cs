@@ -72,6 +72,8 @@ namespace TcgEngine.UI
         private async void RefreshLogin()
         {
             bool success = await Authenticator.Get().RefreshLogin();
+            // The request can finish after leaving this menu or stopping Play Mode.
+            if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
             if (success)
                 AfterLogin();
             else
@@ -100,6 +102,7 @@ namespace TcgEngine.UI
         public async void RefreshUserData()
         {
             UserData user = await Authenticator.Get().LoadUserData();
+            if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
             if (user != null)
             {
                 username_txt.text = user.username;

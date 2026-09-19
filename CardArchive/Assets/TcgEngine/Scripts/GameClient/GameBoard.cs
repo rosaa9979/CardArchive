@@ -135,7 +135,7 @@ namespace TcgEngine.Client
                 Instantiate(AssetData.Get().win_fx, Vector3.zero, Quaternion.identity);
             else if (tied && AssetData.Get().tied_fx != null)
                 Instantiate(AssetData.Get().tied_fx, Vector3.zero, Quaternion.identity);
-            else if (tied && AssetData.Get().lose_fx != null)
+            else if (!tied && AssetData.Get().lose_fx != null)
                 Instantiate(AssetData.Get().lose_fx, Vector3.zero, Quaternion.identity);
 
             if (win)
