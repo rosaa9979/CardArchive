@@ -203,11 +203,18 @@ namespace TcgEngine
             return new Slot(0, 0, -1);
         }
 
+        //Card occupying the slot, including a board card placed on its slot while its OnPlay target is selected (cards_board_temp).
+        //A spell waiting there only keeps its slot as a play target, like after PlayCard.
         public Card GetSlotCard(Slot slot)
         {
             foreach (Card card in cards_board)
             {
                 if (card != null && card.slot == slot)
+                    return card;
+            }
+            foreach (Card card in cards_board_temp)
+            {
+                if (card != null && card.slot == slot && card.CardData.IsBoardCard())
                     return card;
             }
             return null;
@@ -668,6 +675,7 @@ namespace TcgEngine
             Card.CloneListRef(dest.cards_all, source.cards_discard, dest.cards_discard);
             Card.CloneListRef(dest.cards_all, source.cards_secret, dest.cards_secret);
             Card.CloneListRef(dest.cards_all, source.cards_temp, dest.cards_temp);
+            Card.CloneListRef(dest.cards_all, source.cards_board_temp, dest.cards_board_temp);
             Card.CloneListRef(dest.cards_all, source.player_ability, dest.player_ability);
 
             CardStatus.CloneList(source.status, dest.status);

@@ -20,6 +20,12 @@ namespace TcgEngine
         public int damage = 0;
         public int play_order = 0; //Order the card entered play (game_data.play_order_counter); 0 = never entered play
 
+        //Target chosen while this card is played, for its OnPlay SelectTarget ability (AbilityData.IsPlaySelectTarget).
+        //Only one kind is set at a time; cleared when the card starts a new play.
+        public string play_target_uid = null;
+        public int play_target_player = -1;
+        public Slot play_target_slot = Slot.None;
+
         //Death phase (Phase 2): destroy effects mark the card dying instead of removing it immediately.
         //It stays on board (keeps its slot, keeps reacting to triggers) until the Death Creation Step
         //removes it. Healing cannot save a dying card; damage deaths (GetHP()<=0) are re-checked at the step.
@@ -520,14 +526,44 @@ namespace TcgEngine
             return false;
         }
 
-        public bool HasAbility(AbilityTrigger trigger, AbilityTarget target)
+        public AbilityData GetAbility(AbilityTrigger trigger, AbilityTarget target)
         {
             foreach (AbilityData iability in GetAbilities())
             {
                 if (iability.trigger == trigger && iability.criteria_target == target)
-                    return true;
+                    return iability;
             }
-            return false;
+            return null;
+        }
+
+        public bool HasAbility(AbilityTrigger trigger, AbilityTarget target)
+        {
+            return GetAbility(trigger, target) != null;
+        }
+
+        public void SetPlayTarget(Card target)
+        {
+            ClearPlayTarget();
+            play_target_uid = target.uid;
+        }
+
+        public void SetPlayTarget(Player target)
+        {
+            ClearPlayTarget();
+            play_target_player = target.player_id;
+        }
+
+        public void SetPlayTarget(Slot target)
+        {
+            ClearPlayTarget();
+            play_target_slot = target;
+        }
+
+        public void ClearPlayTarget()
+        {
+            play_target_uid = null;
+            play_target_player = -1;
+            play_target_slot = Slot.None;
         }
 
         public bool HasActiveAbility(Game data, AbilityTrigger trigger)
@@ -685,6 +721,9 @@ namespace TcgEngine
             dest.exhausted = source.exhausted;
             dest.damage = source.damage;
             dest.play_order = source.play_order;
+            dest.play_target_uid = source.play_target_uid;
+            dest.play_target_player = source.play_target_player;
+            dest.play_target_slot = source.play_target_slot;
             dest.dying = source.dying;
             dest.death_source_uid = source.death_source_uid;
             dest.death_source_counter = source.death_source_counter;

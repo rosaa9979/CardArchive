@@ -95,7 +95,7 @@ namespace TcgEngine.AI
                         {
                             if (card.CardData == current_action.action_card)
                             {
-                                gameplay.PlayCard(card, action_slot);
+                                gameplay.SelectPlayTarget(card, action_slot);
                                 break;
                             }
                         }
@@ -178,7 +178,7 @@ namespace TcgEngine.AI
                     slot = player.GetRandomOccupiedSlot(rand);
 
                 if (random != null)
-                    gameplay.PlayCard(random, slot);
+                    gameplay.SelectPlayTarget(random, slot);
             }
         }
 

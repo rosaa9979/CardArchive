@@ -235,6 +235,9 @@ namespace TcgEngine.UI
 
         public void OnClickCancel()
         {
+            if (!GameClient.Get().GetGameData().CanCancelSelector())
+                return;
+
             GameClient.Get().CancelSelection();
             Hide();
         }

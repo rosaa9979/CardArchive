@@ -40,12 +40,7 @@ namespace TcgEngine
         public int selector_max_repeat;
         public int selector_current_repeat;
 
-        //Sellector Target
-        public string selector_target_card_uid;
-        public Slot selector_target_slot;
-        public Player selector_target_player;
-        public Slot selector_caster_slot;
-        public int selector_hand_index;
+        public int selector_hand_index; //Hand position of a card waiting on its slot for its OnPlay target (restored on cancel)
 
         //Other reference values
         public string last_played;
@@ -62,8 +57,6 @@ namespace TcgEngine
         public Slot last_destroyed_slot;
         public string last_summoned;
         public Slot last_summoned_slot;
-        public string last_summoned_temp;
-        public Slot last_summoned_temp_slot;
         public string ability_triggerer;
         public int rolled_value;
         public int play_order_counter; //Increments each time a card enters play; source of Card.play_order
@@ -131,6 +124,17 @@ namespace TcgEngine
                 && state == GameState.Play && selector != SelectorType.None;
         }
 
+        //Only a target selection can be cancelled by its player, and only if its ability allows it.
+        //Card and choice selectors come after the card is played and must be answered.
+        public virtual bool CanCancelSelector()
+        {
+            if (selector != SelectorType.SelectTarget)
+                return false;
+
+            AbilityData ability = AbilityData.Get(selector_ability_id);
+            return ability != null && ability.can_cancel;
+        }
+
         public virtual bool IsPlayerMulliganTurn(Player player)
         {
             return phase == GamePhase.Mulligan;
@@ -156,9 +160,10 @@ namespace TcgEngine
 
             if (card.CardData.IsBoardCard())
             {
-                if (!slot.IsValid() || IsCardOnSlot(slot))
+                Card slot_card = GetSlotCard(slot);
+                if (!slot.IsValid() || (slot_card != null && slot_card.uid != card.uid))
                 {
-                    return false;   //Slot already occupied
+                    return false;   //Slot already occupied (a card waiting on its slot for its OnPlay target is played onto it)
                 }
 
 
@@ -653,14 +658,9 @@ namespace TcgEngine
         {
             foreach (Player player in players)
             {
-                foreach (Card card in player.cards_board)
-                {
-                    if (card != null && card.slot == slot)
-                    {
-                        return card;
-                    }
-
-                }
+                Card card = player.GetSlotCard(slot);
+                if (card != null)
+                    return card;
             }
             return null;
         }
@@ -798,6 +798,10 @@ namespace TcgEngine
             dest.selector_player_id = source.selector_player_id;
             dest.selector_caster_uid = source.selector_caster_uid;
             dest.selector_ability_id = source.selector_ability_id;
+            dest.selector_triggerer_uid = source.selector_triggerer_uid;
+            dest.selector_max_repeat = source.selector_max_repeat;
+            dest.selector_current_repeat = source.selector_current_repeat;
+            dest.selector_hand_index = source.selector_hand_index;
 
             dest.last_destroyed = source.last_destroyed;
             dest.last_destroyed_slot = source.last_destroyed_slot;

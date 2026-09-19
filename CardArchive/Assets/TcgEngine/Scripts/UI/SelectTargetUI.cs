@@ -44,7 +44,9 @@ namespace TcgEngine.UI
         {
             if (!Tutorial.Get().CanDo(TutoEndTrigger.CancelAbility))
                 return;
-                
+            if (!GameClient.Get().GetGameData().CanCancelSelector())
+                return;
+
             GameClient.Get().CancelSelection();
         }
 

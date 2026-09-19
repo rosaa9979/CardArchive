@@ -24,9 +24,7 @@ namespace TcgEngine
             if (type == ConditionLastType.LastPlayed)
                 return CompareBool(data.last_played == target.uid, oper);
 
-            if (type == ConditionLastType.LastTargeted)
-                return CompareBool(data.GetSlotCard(data.last_targeted_slot).uid == target.uid, oper);
-
+            //Other types check the card's slot against the last slot (range 0 = that card's own slot)
             return IsTargetConditionMet(data, ability, caster, target.slot);
         }
 
@@ -48,17 +46,10 @@ namespace TcgEngine
 
             if (type == ConditionLastType.LastSummoned)
             {
-                if (ability.trigger == AbilityTrigger.OnPlay && ability.criteria_target == AbilityTarget.SelectTarget)
-                {
-                    if (data.last_summoned_temp_slot.GetNeighborSlot(range).Contains(target))
-                        result = true;
-                }
-
-                else
-                {
-                    if (data.last_summoned_slot.GetNeighborSlot(range).Contains(target))
-                        result = true;
-                }       
+                //OnPlay targets are selected before the card is summoned: the played card (caster, already on its slot) is the summon
+                Slot summoned_slot = ability.IsPlaySelectTarget() ? caster.slot : data.last_summoned_slot;
+                if (summoned_slot.GetNeighborSlot(range).Contains(target))
+                    result = true;
             }
 
 

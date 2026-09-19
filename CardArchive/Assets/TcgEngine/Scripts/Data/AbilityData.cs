@@ -502,9 +502,9 @@ namespace TcgEngine
                     candidate_targets.Add(caster);
             }
 
-            if (criteria_target == AbilityTarget.SelectTarget)
+            if (IsPlaySelectTarget())
             {
-                Card selected_card = data.GetCard(data.selector_target_card_uid);
+                Card selected_card = data.GetCard(caster.play_target_uid);
                 if (selected_card != null && AreCriteriaTargetConditionsMet(data, caster, selected_card))
                     candidate_targets.Add(selected_card);
             }
@@ -656,9 +656,9 @@ namespace TcgEngine
             {
                 targets.AddRange(data.players);
             }
-            else if (criteria_target == AbilityTarget.SelectTarget && data.selector_target_player != null)
+            else if (IsPlaySelectTarget() && data.GetPlayer(caster.play_target_player) != null)
             {
-                targets.Add(data.selector_target_player);
+                targets.Add(data.GetPlayer(caster.play_target_player));
             }
 
             //Filter targets
@@ -706,9 +706,9 @@ namespace TcgEngine
                 candiidate_targets.Add(caster.slot);
             }
 
-            if (criteria_target == AbilityTarget.SelectTarget)
+            if (IsPlaySelectTarget())
             {
-                Slot slot = data.selector_target_slot;
+                Slot slot = caster.play_target_slot;
 
                 if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
                     candiidate_targets.Add(slot);
@@ -912,6 +912,12 @@ namespace TcgEngine
         public bool IsSelector()
         {
             return criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.CardSelector || criteria_target == AbilityTarget.ChoiceSelector;
+        }
+
+        //Target selected while the card is being played (GameLogic.SelectPlayTarget), stored on the caster until this OnPlay resolves
+        public bool IsPlaySelectTarget()
+        {
+            return trigger == AbilityTrigger.OnPlay && criteria_target == AbilityTarget.SelectTarget;
         }
 
         public static AbilityData Get(string id)

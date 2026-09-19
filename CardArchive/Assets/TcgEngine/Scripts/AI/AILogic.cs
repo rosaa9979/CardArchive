@@ -514,8 +514,8 @@ namespace TcgEngine.AI
                 }
             }
 
-            //Add option to cancel, if no valid options
-            if (actions.Count == 0)
+            //Add option to cancel, if no valid options and the selection can be cancelled
+            if (actions.Count == 0 && data.CanCancelSelector())
             {
                 AIAction caction = CreateAction(GameAction.CancelSelect, caster);
                 actions.Add(caction);
@@ -549,7 +549,7 @@ namespace TcgEngine.AI
             if (action.type == GameAction.PlayCard)
             {
                 Card card = player.GetHandCard(action.card_uid);
-                game_logic.PlayCard(card, action.slot);
+                game_logic.SelectPlayTarget(card, action.slot);
             }
 
             if (action.type == GameAction.Move)

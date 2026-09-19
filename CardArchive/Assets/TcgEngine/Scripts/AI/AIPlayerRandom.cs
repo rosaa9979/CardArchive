@@ -176,7 +176,7 @@ namespace TcgEngine.AI
                     slot = player.GetRandomOccupiedSlot(rand);
 
                 if (random != null)
-                    gameplay.PlayCard(random, slot);
+                    gameplay.SelectPlayTarget(random, slot);
             }
         }
 

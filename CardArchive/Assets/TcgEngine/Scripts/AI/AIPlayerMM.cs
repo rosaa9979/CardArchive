@@ -141,7 +141,7 @@ namespace TcgEngine.AI
             Card card = game_data.GetCard(card_uid);
             if (card != null)
             {
-                gameplay.PlayCard(card, slot);
+                gameplay.SelectPlayTarget(card, slot);
             }
         }
 

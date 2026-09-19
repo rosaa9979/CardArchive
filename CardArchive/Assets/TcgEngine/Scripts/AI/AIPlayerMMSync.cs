@@ -74,7 +74,7 @@ namespace TcgEngine.AI
             {
                 Card card = game_data.GetCard(action.card_uid);
                 if (card != null)
-                    gameplay.PlayCard(card, action.slot);
+                    gameplay.SelectPlayTarget(card, action.slot);
                 return false;
             }
 

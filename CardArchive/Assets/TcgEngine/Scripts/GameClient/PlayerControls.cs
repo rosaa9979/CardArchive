@@ -194,15 +194,8 @@ namespace TcgEngine.Client
             Game gdata = GameClient.Get().GetGameData();
             HandCard handcard = HandCard.GetDrag();
 
-            if (gdata.selector == SelectorType.SelectTarget)
-            {
-                AbilityData iability = AbilityData.Get(gdata.selector_ability_id);
-
-                if (iability != null && iability.can_cancel)
-                {
-                    GameClient.Get().CancelSelection();
-                }
-            }
+            if (gdata.CanCancelSelector())
+                GameClient.Get().CancelSelection();
         }
 
         public BoardCard GetSelected()

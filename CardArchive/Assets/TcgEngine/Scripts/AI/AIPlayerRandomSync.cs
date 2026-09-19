@@ -93,7 +93,7 @@ namespace TcgEngine.AI
             else if (card.CardData.IsEquipment())
                 slot = player.GetRandomOccupiedSlot(rand);
 
-            gameplay.PlayCard(card, slot);
+            gameplay.SelectPlayTarget(card, slot);
         }
 
         private void SelectRandomCard()

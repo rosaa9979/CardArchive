@@ -432,7 +432,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Main)
                 return;
 
-            game_data.selector = SelectorType.None;
+            ClearSelector();
             game_data.phase = GamePhase.Attack;
             game_data.attack_index = 0; //Start a fresh single-pass over the attack order
             onAttackPhase?.Invoke();
@@ -592,7 +592,7 @@ namespace TcgEngine.Gameplay
             if (game_data.phase != GamePhase.Attack)
                 return;
 
-            game_data.selector = SelectorType.None;
+            ClearSelector();
             game_data.phase = GamePhase.EndTurn;
 
             //Reduce status effects with duration
@@ -626,7 +626,7 @@ namespace TcgEngine.Gameplay
             {
                 game_data.state = GameState.GameEnded;
                 game_data.phase = GamePhase.None;
-                game_data.selector = SelectorType.None;
+                ClearSelector();
                 game_data.current_player = winner; //Winner player
                 resolve_queue.Clear();
                 Player player = game_data.GetPlayer(winner);
@@ -641,7 +641,8 @@ namespace TcgEngine.Gameplay
             if (game_data.state == GameState.GameEnded)
                 return;
 
-            CancelSelection();
+            //Turn time up or turn ended: a pending selection is answered by the timeout rules, not cancelled
+            ResolveSelectorOnTimeout();
 
             //Add to resolve queue in case its still resolving
             resolve_queue.AddCallback(StartAttackPhase);
@@ -675,7 +676,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ClearTurnData()
         {
-            game_data.selector = SelectorType.None;
+            ClearSelector();
             resolve_queue.Clear();
             pending_repeats.Clear();
             death_step_suspended = false; //Queue was just wiped; never carry a volley's death hold across
@@ -796,38 +797,35 @@ namespace TcgEngine.Gameplay
         //---- Gameplay Actions --------------
         public virtual void SelectPlayTarget(Card card, Slot slot, bool skip_cost = false)
         {
-            Player player = game_data.GetPlayer(card.player_id);
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
                 replay_pending_play = card.uid;
                 RecordInteraction("play", card.player_id, card.uid, slot);
-                game_data.selector_caster_slot = slot;
-                if (card.HasAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget))
+
+                AbilityData iability = card.GetAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget);
+                if (iability != null)
                 {
-                    AbilityData iability = card.GetAbility(AbilityTrigger.OnPlay);
+                    //Put the card on its slot (cards_board_temp) BEFORE checking targets, so target conditions
+                    //see the board as it will be once the card is played. The card itself is the pending play.
+                    Player player = game_data.GetPlayer(card.player_id);
+                    game_data.selector_hand_index = player.cards_hand.IndexOf(card);
+                    player.RemoveCardFromAllGroups(card);
+                    player.cards_board_temp.Add(card);
+                    card.slot = slot;
 
-                    if (iability != null)
+                    //A new play never reuses the target chosen by a previous play of this card
+                    card.ClearPlayTarget();
+                    game_data.last_selected = "";
+                    game_data.last_selected_slot = new Slot(0, 0, -1);
+
+                    if (iability.HasValidSelectTarget(game_data, card))
                     {
-                        if (iability.HasValidSelectTarget(game_data, card))
-                        {
-                            game_data.selector_hand_index = player.cards_hand.IndexOf(card);
-                            player.RemoveCardFromAllGroups(card);
-                            player.cards_board_temp.Add(card);
-                            card.slot = slot;
-
-                            game_data.last_summoned_temp = card.uid;
-                            game_data.last_summoned_temp_slot = slot;
-
-                            game_data.last_selected = "";
-                            game_data.last_selected_slot = new Slot(0, 0, -1);
-
-                            GoToSelectTarget(iability, card, card, 1, 1);
-                            return;
-                        }
+                        GoToSelectTarget(iability, card, card, 1, 1);
+                        return; //SelectCard/SelectPlayer/SelectSlot plays it from its slot
                     }
                 }
 
-                PlayCard(card, slot, skip_cost);
+                PlayCard(card, slot, skip_cost); //No target to select: played right away (from hand or its slot)
             }
         }
         
@@ -2331,7 +2329,8 @@ namespace TcgEngine.Gameplay
             if (!iability.HasValidSelectTarget(game_data, caster))
                 return false;
 
-            if (iability.trigger != AbilityTrigger.OnPlay && iability.criteria_target == AbilityTarget.SelectTarget)
+            //A play-time target was already chosen in SelectPlayTarget and is read from the caster
+            if (iability.criteria_target == AbilityTarget.SelectTarget && !iability.IsPlaySelectTarget())
             {
                 //Wait for target
                 GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
@@ -3039,10 +3038,12 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
-                game_data.selector_target_card_uid = target.uid;
 
-                if (ability.trigger == AbilityTrigger.OnPlay)
-                    PlayCard(caster, game_data.selector_caster_slot);
+                if (ability.IsPlaySelectTarget())
+                {
+                    caster.SetPlayTarget(target);
+                    PlayCard(caster, caster.slot);
+                }
                 else
                 {
                     //Phase: effects applied outside Resolve(), so open the depth-first scope manually
@@ -3063,7 +3064,6 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
-                game_data.selector_target_card_uid = target.uid;
 
                 resolve_queue.BeginPhase();
                 ResolveEffectTarget(ability, caster, target);
@@ -3096,10 +3096,12 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("player", game_data.selector_player_id, game_data.selector_caster_uid, choice: target.player_id);
                 game_data.selector = SelectorType.None;
-                game_data.selector_target_player = target;
 
-                if (ability.trigger == AbilityTrigger.OnPlay)
-                    PlayCard(caster, game_data.selector_caster_slot);
+                if (ability.IsPlaySelectTarget())
+                {
+                    caster.SetPlayTarget(target);
+                    PlayCard(caster, caster.slot);
+                }
                 else
                 {
                     resolve_queue.BeginPhase();
@@ -3138,10 +3140,12 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("slot", game_data.selector_player_id, game_data.selector_caster_uid, slot: target);
                 game_data.selector = SelectorType.None;
-                game_data.selector_target_slot = target;
 
-                if (ability.trigger == AbilityTrigger.OnPlay)
-                    PlayCard(caster, game_data.selector_caster_slot);
+                if (ability.IsPlaySelectTarget())
+                {
+                    caster.SetPlayTarget(target);
+                    PlayCard(caster, caster.slot);
+                }
                 else
                 {
                     List<Slot> targets = Slot.GetAll();
@@ -3194,22 +3198,13 @@ namespace TcgEngine.Gameplay
             }
         }
 
+        //Player cancel: only allowed by Game.CanCancelSelector (target selection with can_cancel)
         public virtual void CancelSelection()
         {
-            if (game_data.selector != SelectorType.None)
+            if (game_data.CanCancelSelector())
             {
                 RecordInteraction("cancel", game_data.selector_player_id, game_data.selector_caster_uid);
-                AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
-                if (iability != null && iability.trigger == AbilityTrigger.OnPlay)
-                    CancelPlayCard();
-
-                //취소 = 소환도 어빌리티도 없던 일로 한다. 중단돼 있던 Phase 스코프를 버리지 않으면
-                //다음에 호출되는 아무 BeginPhase()가 그 스코프를 물려받아, 무관한 이벤트의 트리거가
-                //취소된 어빌리티의 자식으로 들어간다 (최상위 Phase가 못 되어 사이의 사망 처리가 밀린다).
-                resolve_queue.DiscardSuspendedScope();
-
-                //End selection
-                game_data.selector = SelectorType.None;
+                ClearSelector();
                 RefreshData();
 
                 //selector가 풀렸으니 남아 있던 시퀀스를 이어서 굴린다. (취소 전에는 CanResolve가
@@ -3218,18 +3213,104 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        public void CancelPlayCard()
+        //Ends the current selection without a result: player cancel, attack phase, end of turn, end of game.
+        //취소 = 소환도 어빌리티도 없던 일로 한다.
+        protected virtual void ClearSelector()
         {
-            replay_pending_play = null;
-            Card card = game_data.GetCard(game_data.selector_caster_uid);
-            if (card != null)
-            {
-                Player player = game_data.GetPlayer(card.player_id);
+            if (game_data.selector == SelectorType.None)
+                return;
 
-                player.RemoveCardFromAllGroups(card);
-                player.AddCard(player.cards_hand, card, game_data.selector_hand_index);
-                //card.Clear();
+            //A card waiting on its slot for its OnPlay target was never played: back to its hand position
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            Player player = caster != null ? game_data.GetPlayer(caster.player_id) : null;
+            if (player != null && player.cards_board_temp.Contains(caster))
+            {
+                replay_pending_play = null;
+                player.RemoveCardFromAllGroups(caster);
+                player.AddCard(player.cards_hand, caster, game_data.selector_hand_index);
             }
+
+            //중단돼 있던 Phase 스코프를 버리지 않으면 다음에 호출되는 아무 BeginPhase()가 그 스코프를 물려받아,
+            //무관한 이벤트의 트리거가 취소된 어빌리티의 자식으로 들어간다 (최상위 Phase가 못 되어 사이의 사망 처리가 밀린다).
+            resolve_queue.DiscardSuspendedScope();
+
+            game_data.selector = SelectorType.None;
+        }
+
+        //Turn time is up (or the turn is ended) with a selection still pending: answer it without the player.
+        //  Target of a card being played: cancellable -> back to hand, otherwise played without a target
+        //  Card selector / choice selector: a random valid option is picked (like Hearthstone Discover)
+        //  Any other target selection: ended without a target
+        protected virtual void ResolveSelectorOnTimeout()
+        {
+            if (game_data.selector == SelectorType.None)
+                return;
+
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+            if (caster == null || ability == null)
+            {
+                ClearSelector();
+                return;
+            }
+
+            if (game_data.selector == SelectorType.SelectTarget)
+            {
+                Player player = game_data.GetPlayer(caster.player_id);
+                if (player.cards_board_temp.Contains(caster) && !ability.can_cancel)
+                {
+                    game_data.selector = SelectorType.None;
+                    PlayCard(caster, caster.slot); //No play target was set: its OnPlay resolves without one
+                }
+                else
+                {
+                    ClearSelector();
+                }
+                return;
+            }
+
+            if (game_data.selector == SelectorType.SelectorCard)
+            {
+                List<Card> candidates = new List<Card>();
+                if (game_data.selector_card_uids != null)
+                {
+                    foreach (string uid in game_data.selector_card_uids)
+                    {
+                        Card candidate = game_data.GetCard(uid);
+                        if (candidate != null)
+                            candidates.Add(candidate);
+                    }
+                }
+                else
+                {
+                    candidates.AddRange(ability.GetCardTargets(game_data, caster, card_array));
+                }
+
+                if (candidates.Count > 0)
+                    SelectCard(candidates[random.Next(candidates.Count)]);
+                else
+                    ClearSelector();
+                return;
+            }
+
+            if (game_data.selector == SelectorType.SelectorChoice)
+            {
+                List<int> choices = new List<int>();
+                for (int i = 0; i < ability.chain_abilities.Length; i++)
+                {
+                    AbilityData choice = ability.chain_abilities[i];
+                    if (choice != null && game_data.CanSelectAbility(caster, choice))
+                        choices.Add(i);
+                }
+
+                if (choices.Count > 0)
+                    SelectChoice(choices[random.Next(choices.Count)]);
+                else
+                    ClearSelector();
+                return;
+            }
+
+            ClearSelector();
         }
 
         public virtual void Mulligan(Player player, string[] cards)
@@ -3323,6 +3404,7 @@ namespace TcgEngine.Gameplay
         {
             onRefresh?.Invoke();
         }
+
 
         public virtual void ClearResolve()
         {
