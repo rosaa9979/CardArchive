@@ -444,7 +444,7 @@ namespace TcgEngine
         public static ApiClient Get()
         {
             if (instance == null)
-                instance = FindFirstObjectByType<ApiClient>();
+                instance = FindAnyObjectByType<ApiClient>();
             return instance;
         }
     }

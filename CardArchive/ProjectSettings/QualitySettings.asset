@@ -6,7 +6,7 @@ QualitySettings:
   serializedVersion: 5
   m_CurrentQuality: 3
   m_QualitySettings:
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Low
     pixelLightCount: 0
     shadows: 0
@@ -34,6 +34,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 0.4
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -47,8 +48,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 3a8e2a8b443d34345a24cb7a7bbec5b7,
-      type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 3a8e2a8b443d34345a24cb7a7bbec5b7, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -59,7 +59,7 @@ QualitySettings:
     terrainFadeLength: 5
     terrainMaxTrees: 50
     excludedTargetPlatforms: []
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Medium
     pixelLightCount: 1
     shadows: 0
@@ -87,6 +87,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 0.7
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -100,8 +101,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: fe2682b190372a344b7d5fcc0f35bbe5,
-      type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: fe2682b190372a344b7d5fcc0f35bbe5, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -112,7 +112,7 @@ QualitySettings:
     terrainFadeLength: 5
     terrainMaxTrees: 50
     excludedTargetPlatforms: []
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: High
     pixelLightCount: 2
     shadows: 0
@@ -140,6 +140,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 1
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -153,8 +154,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 8ba666eec6a849b41a54017d3352f6ca,
-      type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 8ba666eec6a849b41a54017d3352f6ca, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -165,7 +165,7 @@ QualitySettings:
     terrainFadeLength: 5
     terrainMaxTrees: 50
     excludedTargetPlatforms: []
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Ultra
     pixelLightCount: 4
     shadows: 0
@@ -193,6 +193,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 2
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -206,8 +207,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 5f8ee937ff327464c9a694cc60473aa7,
-      type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 5f8ee937ff327464c9a694cc60473aa7, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -223,6 +223,7 @@ QualitySettings:
     Android: 1
     Nintendo 3DS: 3
     Nintendo Switch: 3
+    Nintendo Switch 2: 3
     PS4: 3
     PSM: 3
     PSP2: 1

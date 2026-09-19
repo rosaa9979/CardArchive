@@ -35,6 +35,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -73,3 +74,7 @@ crashlytics-build.properties
 
 # Local API dependency cache
 .pnpm-store/
+
+# Per-machine AI permissions and editor analysis preferences
+/.claude/settings.local.json
+/ProjectSettings/ProjectAuditorSettings.asset

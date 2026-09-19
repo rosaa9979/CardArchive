@@ -69,8 +69,12 @@ namespace TcgEngine
 
 
         //Other reference arrays 
+        // Network/replay state uses its own serializer, not Unity's scene serializer.
+        // NonSerialized would also remove these fields from network snapshots.
+#pragma warning disable UAC1009
         public HashSet<string> ability_played = new HashSet<string>();
         public HashSet<string> cards_attacked = new HashSet<string>();
+#pragma warning restore UAC1009
 
         public Game() { }
         

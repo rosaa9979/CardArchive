@@ -1,0 +1,8 @@
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/044.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/045.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/046.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/047.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/048.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/049.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/050.mp4'
+file 'C:/Works/CardArchive/CardArchive/Library/VideoAnalysis/full_draft_v9/render/051.mp4'

@@ -35,7 +35,10 @@ namespace TcgEngine
         public int total_heal = 0;
         public int exhaust_damage = 0;
 
+        // Serialized by the network/replay codecs; not a Unity scene field.
+#pragma warning disable UAC1015
         public Dictionary<string, Card> cards_all = new Dictionary<string, Card>(); //Dictionnary for quick access to any card by UID
+#pragma warning restore UAC1015
         public Card hero = null;
         public List<Card> cards_club = new List<Card>();
 

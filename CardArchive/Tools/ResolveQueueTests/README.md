@@ -92,5 +92,5 @@ dotnet run --project Tools/ResolveQueueTests
 
 ## 배경
 
-설계 근거·하스스톤 규칙 인용·개편 이력은 `docs/resolve-queue-hearthstone-redesign.md`
+설계 근거·하스스톤 규칙 인용·개편 이력은 [AI 작업 기록](../../../AIWork/resolve-queue-hearthstone-redesign.md)
 (특히 「Phase 3」 절)에 있다.

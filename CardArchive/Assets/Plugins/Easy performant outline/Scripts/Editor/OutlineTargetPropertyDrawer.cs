@@ -1,5 +1,6 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 namespace EPOOutline
@@ -51,21 +52,21 @@ namespace EPOOutline
                     var material = materials[materialSubMeshIndex % materials.Length];
                     if (material != null)
                     {
-                        var propertiesCount = ShaderUtil.GetPropertyCount(material.shader);
+                        var propertiesCount = material.shader.GetPropertyCount();
                         for (var index = 0; index < propertiesCount; index++)
                         {
-                            var propertyType = ShaderUtil.GetPropertyType(material.shader, index);
-                            if (propertyType != ShaderUtil.ShaderPropertyType.TexEnv)
+                            var propertyType = material.shader.GetPropertyType(index);
+                            if (propertyType != ShaderPropertyType.Texture)
                                 continue;
 
-                            var propertyName = ShaderUtil.GetPropertyName(material.shader, index);
+                            var propertyName = material.shader.GetPropertyName(index);
                             var equals = propertyName == textureNameProperty.stringValue;
                             if (equals)
-                                referenceName = ShaderUtil.GetPropertyDescription(material.shader, index) + " '" +
+                                referenceName = material.shader.GetPropertyDescription(index) + " '" +
                                                 propertyName + "'";
 
                             menu.AddItem(
-                                new GUIContent(ShaderUtil.GetPropertyDescription(material.shader, index) + " '" +
+                                new GUIContent(material.shader.GetPropertyDescription(index) + " '" +
                                                propertyName + "'"), equals && usingCutout, () =>
                                 {
                                     textureNameProperty.stringValue = propertyName;

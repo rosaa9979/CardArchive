@@ -18,7 +18,9 @@ namespace EPOOutline
     {
         private class SRPOutline : ScriptableRenderPass, IDisposable
         {
+#if !UNITY_6000_6_OR_NEWER
             private static FieldInfo nameId = typeof(RenderTargetIdentifier).GetField("m_NameID", BindingFlags.NonPublic | BindingFlags.Instance);
+#endif
 
             private static List<Outlinable> temporaryOutlinables = new List<Outlinable>();
 
@@ -30,7 +32,9 @@ namespace EPOOutline
             private OutlineParameters GraphParameters = new OutlineParameters(null);
     #endif
 
+#if !UNITY_6000_6_OR_NEWER
             private OutlineParameters Parameters = new OutlineParameters(new BasicCommandBufferWrapper(null));
+#endif
 
             private List<Outliner> outliners = new List<Outliner>();
 
@@ -118,6 +122,8 @@ namespace EPOOutline
             }
     #endif
 
+    // Unity 6.6 removed the compatibility-mode targets and Execute callback.
+    #if !UNITY_6000_6_OR_NEWER
     #pragma warning disable
             private bool IsDepthTextureAvailable(ScriptableRenderer renderer)
             {
@@ -147,6 +153,7 @@ namespace EPOOutline
     #endif
             }
     #pragma warning restore
+    #endif
 
             private void Setup(OutlineParameters parameters)
             {
@@ -175,6 +182,7 @@ namespace EPOOutline
                 }
             }
             
+    #if !UNITY_6000_6_OR_NEWER
     #pragma warning disable
             public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
             {
@@ -220,9 +228,12 @@ namespace EPOOutline
                     context.ExecuteCommandBuffer(wrapper.UnderlyingBuffer);
             }
     #pragma warning restore
+    #endif
             public void Dispose()
             {
+#if !UNITY_6000_6_OR_NEWER
                 Parameters?.Dispose();
+#endif
                 
 #if UNITY_6000_0_OR_NEWER
                 GraphParameters?.Dispose();

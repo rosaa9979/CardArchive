@@ -13,6 +13,9 @@ namespace TcgEngine
     [System.Serializable]
     public class SaveTool
     {
+        // Preserve existing .user files until a versioned save migration is available.
+        // Scope this Unity analyzer exception to the legacy read/write methods only.
+#pragma warning disable UAC0023
         //Load any file to a class, make sure the class is marked with [System.Serializable]
         public static T LoadFile<T>(string filename) where T : class
         {
@@ -50,6 +53,8 @@ namespace TcgEngine
                 catch (System.Exception e) { Debug.Log("Error Saving Data " + e); if (file != null) file.Close(); }
             }
         }
+
+#pragma warning restore UAC0023
 
         public static void DeleteFile(string filename)
         {

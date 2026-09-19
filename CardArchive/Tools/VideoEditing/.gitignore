@@ -1,0 +1,10 @@
+# Keep generated movies, source footage and intermediate renders local.
+*.mp4
+*.mov
+*.mxf
+*.wav
+*.mp3
+**/media/
+**/render/
+**/Adobe Premiere Pro Auto-Save/
+**/tools/deps/
