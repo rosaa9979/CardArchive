@@ -20,4 +20,4 @@ AI는 기본 정지이고 턴 타이머도 정지한다. AI의 초기 멀리건�
 
 기존 Game 씬을 기반으로 같은 클라이언트와 프리팹을 사용한다. 씬 레이아웃 변경 시 함께 반영해야 한다. 에디터 전용이며 일반 빌드에 치트 API나 패널이 포함되지 않는다. 원격 서버나 계정 덱 조회 없이 기존 오프라인 통신 경로를 사용하고, 게임 설정 에셋은 변경하지 않는다. 일반 배포 Build Settings에 이 씬을 추가하지 않았다.
 
-검증: Unity 컴파일러로 런타임·에디터 코드를 컴파일했다. **Tools → Card Archive → Validate Effect Test Insertion**은 양쪽 소유자·손패/필드·공유 참조·트리거와 비용 미발생·점유 슬롯 및 단계 제한을 검증한다. 결과는 `Library/EffectTestValidation/result.txt`에 기록된다. 이번 작업에서는 실행 중인 Unity 세션을 변경하지 않았으며 실제 씬 실행과 해당 검증 메뉴 실행은 아직 수행하지 않았다.
+검증: Unity 컴파일러로 런타임·에디터 코드를 컴파일했다. **Tools → Card Archive → Validate Effect Test Insertion**은 양쪽 소유자·손패/필드·공유 참조·트리거와 비용 미발생·점유 슬롯 및 단계 제한을 검증한다. 결과는 `Library/EffectTestValidation/result.txt`에 기록된다. 2026-09-20 Unity 6000.6.2f1 배치 검증을 실행해 통과했다(종료 코드 0). 독립 실행에 필요한 WeaponData 초기화 누락도 수정했다. 실제 테스트 씬의 수동 UI 조작은 별도 확인 대상이다.

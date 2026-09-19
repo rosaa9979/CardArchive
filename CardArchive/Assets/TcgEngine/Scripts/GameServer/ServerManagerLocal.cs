@@ -36,6 +36,9 @@ namespace TcgEngine.Server
 
             client_list[network.ServerID] = new ClientData(network.ServerID); //Add yourself
             server = new GameServer(GameClient.game_settings.game_uid, GameClient.game_settings.nb_players, false);
+#if UNITY_EDITOR
+            server.DebugEffectTestMode = TcgEngine.EffectTestPanel.Active;
+#endif
         }
 
         protected virtual void OnDestroy()
@@ -131,6 +134,9 @@ namespace TcgEngine.Server
         }
 
         public ulong ServerID { get { return TcgNetwork.Get().ServerID; } }
+#if UNITY_EDITOR
+        public GameServer DebugServer => server;
+#endif
         public NetworkMessaging Messaging { get { return TcgNetwork.Get().Messaging; } }
     }
 }

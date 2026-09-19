@@ -32,6 +32,23 @@ namespace TcgEngine.Server
         private List<ClientData> players = new List<ClientData>();            //Exclude observers, stays in array when disconnected, only players can send commands
         private List<ClientData> connected_clients = new List<ClientData>();  //Include obervers, removed from array when disconnected, all clients receive refreshes
         private List<AIPlayer> ai_list = new List<AIPlayer>();                //List of all AI players
+#if UNITY_EDITOR
+        public bool DebugEffectTestMode { get; set; }
+        public bool DebugPauseAI { get; set; } = true;
+        public bool DebugFreezeTimer { get; set; } = true;
+        public bool DebugCanEdit => DebugEffectTestMode && !is_dedicated_server
+            && game_data.state == GameState.Play && game_data.phase == GamePhase.Main
+            && game_data.selector == SelectorType.None && !gameplay.IsResolving() && queued_actions.Count == 0;
+        public Card DebugAddCard(CardData data, int owner, bool onBoard, Slot slot)
+        {
+            if (!DebugCanEdit) throw new System.InvalidOperationException("Wait for an idle main phase.");
+            return gameplay.DebugInsertCard(data, owner, onBoard, slot);
+        }
+        public void DebugNextStep()
+        {
+            if (DebugCanEdit) gameplay.NextStep();
+        }
+#endif
         private Queue<QueuedGameAction> queued_actions = new Queue<QueuedGameAction>(); //List of action waiting to be processed
         
         private Dictionary<ushort, CommandEvent> registered_commands = new Dictionary<ushort, CommandEvent>();
@@ -168,6 +185,9 @@ namespace TcgEngine.Server
                 EndExpiredGame();
 
             //Timer during game
+#if UNITY_EDITOR
+            if (DebugEffectTestMode && DebugFreezeTimer) game_data.turn_timer = 100000f;
+#endif
             if (game_data.state == GameState.Play && !gameplay.IsResolving())
             {
                 game_data.turn_timer -= Time.deltaTime;
@@ -200,6 +220,9 @@ namespace TcgEngine.Server
             //Update AI
             foreach (AIPlayer ai in ai_list)
             {
+#if UNITY_EDITOR
+                if (DebugEffectTestMode && DebugPauseAI && game_data.phase != GamePhase.Mulligan) continue;
+#endif
                 ai.Update();
             }
             if (HasGameEnded() && !replay.Finished)
@@ -507,6 +530,16 @@ namespace TcgEngine.Server
                     }
                 }
 
+#if UNITY_EDITOR
+                if (DebugEffectTestMode)
+                {
+                    DeckData testDeck = DeckData.Get(deck.tid);
+                    if (testDeck == null) testDeck = GameplayData.Get().test_deck;
+                    gameplay.SetPlayerDeck(player, testDeck);
+                    SendPlayerReady(player);
+                    return;
+                }
+#endif
                 UserData user = Authenticator.Get().UserData; //Offline game, get local user
 
                 if(Authenticator.Get().IsApi())

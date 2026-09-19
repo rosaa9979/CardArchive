@@ -35,7 +35,7 @@ AI와 함께 작성한 분석, 설계, 마이그레이션 및 영상 작업 Mark
 - [Trigger와 Ongoing](trigger-vs-ongoing.md)
 - [조건·효과 파라미터](ConditionEffectParameters.md)
 - [조건 데이터 테이블](condition-family-datatable-schema.md)
-- [효과 테스트 씬 작업 기록](effect-test-scene.md) (관련 코드 작업은 별도 미커밋 상태)
+- [효과 테스트 씬 작업 기록](effect-test-scene.md)
 
 ## 보관 원칙
 

@@ -3405,6 +3405,32 @@ namespace TcgEngine.Gameplay
             onRefresh?.Invoke();
         }
 
+#if UNITY_EDITOR
+        // Setup-only insertion: no play/summon/draw events, costs, or triggered effects.
+        public Card DebugInsertCard(CardData data, int owner, bool onBoard, Slot slot)
+        {
+            if (game_data.state != GameState.Play || game_data.phase != GamePhase.Main
+                || game_data.selector != SelectorType.None || IsResolving())
+                throw new InvalidOperationException("Wait for an idle main phase before adding cards.");
+            if (data == null || owner < 0 || owner >= game_data.players.Length)
+                throw new ArgumentException("Select a valid card and owner.");
+            if (onBoard && (!data.IsBoardCard() || !Slot.GetAll().Contains(slot) || game_data.IsCardOnSlot(slot)))
+                throw new ArgumentException("Select a board card and an empty board slot.");
+            Player player = game_data.GetPlayer(owner);
+            Card card = Card.Create(data, VariantData.GetDefault(), player);
+            if (onBoard)
+            {
+                card.slot = slot;
+                AssignPlayOrder(card);
+                player.cards_board.Add(card);
+            }
+            else player.cards_hand.Add(card);
+            // Do not call UpdateOngoing here: it also executes effects and discards cards.
+            // Normal gameplay will reconcile continuous effects on its next calculation.
+            RefreshData();
+            return card;
+        }
+#endif
 
         public virtual void ClearResolve()
         {
