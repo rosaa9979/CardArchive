@@ -1137,7 +1137,8 @@ namespace TcgEngine.Gameplay
 
                 DamageCard(attacker, target, datt1);
 
-                if (attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate))
+                if (attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate)
+                    && !target.CardData.IsPlace())
                     DamageCard(target, attacker, datt2, false, true);
 
                 //Save attack and exhaust

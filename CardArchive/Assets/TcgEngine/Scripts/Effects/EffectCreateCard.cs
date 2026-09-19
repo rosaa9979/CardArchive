@@ -26,6 +26,15 @@ namespace TcgEngine
             if (create_opponent)
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);
 
+            // Older create abilities use value 0 for a single card.
+            int count = Mathf.Max(1, ability.value);
+            for (int i = 0; i < count; i++)
+                CreateCard(logic, caster, player);
+        }
+
+        private void CreateCard(GameLogic logic, Card caster, Player player)
+        {
+            // Roll independently for each copy, just as separate activations did.
             CardData selected_card = GetRandomCardData(logic.GetRandom());
             Card card = Card.Create(selected_card, caster.VariantData, player);
             //logic.GameData.last_summoned = card.uid;

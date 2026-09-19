@@ -11,11 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ce5f81e5cc37f547af6923758602c8c, type: 3}
   m_Name: OP_draw_random_student_deck
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: OP_draw_random_student_deck
   trigger: 10
   conditions_trigger: []
-  condition_repeat: {fileID: 11400000, guid: eeae8455cccc12c499f855003e3ad69a, type: 2}
+  condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 12
   conditions_criteria_target:
   - {fileID: 11400000, guid: 99c12d98b2b59f04a8441a9bc9bf5816, type: 2}
@@ -43,6 +43,7 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title:
-  desc: "자신의 덱에서 무작위 학생 1명을 뽑습니다."
-  selector_desc:
+  title: 
+  desc: "\uC790\uC2E0\uC758 \uB371\uC5D0\uC11C \uBB34\uC791\uC704 \uD559\uC0DD 1\uBA85\uC744
+    \uBF51\uC2B5\uB2C8\uB2E4."
+  selector_desc: 
