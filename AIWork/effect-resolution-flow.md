@@ -5,7 +5,7 @@
 카드 효과가 **어떤 순서로 발동하고 언제 죽음이 처리되는지**를 그림과 예시로 정리한 문서다.
 전투(공격 순서·타겟 지정)는 [`combat-flow.md`](combat-flow.md)에 있다.
 설계 배경·하스스톤 규칙 인용·개편 이력은 [`resolve-queue-hearthstone-redesign.md`](resolve-queue-hearthstone-redesign.md)에 있고,
-회귀 검증은 [`../Tools/ResolveQueueTests`](../Tools/ResolveQueueTests)에 있다 (`dotnet run`, 58종).
+회귀 검증은 [`../Tools/ResolveQueueTests`](../CardArchive/Tools/ResolveQueueTests)에 있다 (`dotnet run`, 58종).
 
 ---
 

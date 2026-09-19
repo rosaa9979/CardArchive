@@ -1,4 +1,4 @@
-﻿# Condition / Effect Data 파라미터 정리
+# Condition / Effect Data 파라미터 정리
 
 테이블 설계 참고용. 프로젝트 내 `ConditionData` / `EffectData` 를 상속한 모든 ScriptableObject 클래스의 직렬화 필드(=인스펙터 노출 파라미터)를 클래스별로 분리해서 정리했다.
 

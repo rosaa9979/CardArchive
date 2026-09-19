@@ -5,7 +5,7 @@
 한 번의 전투 페이즈에서 **어느 유닛이 어떤 순서로**, **무엇을 대상으로** 공격하는지를
 예시 필드로 정리한 문서다.
 효과 발동 순서와 사망 처리 타이밍은 [`effect-resolution-flow.md`](effect-resolution-flow.md)에 있고,
-회귀 검증은 [`../Tools/ResolveQueueTests`](../Tools/ResolveQueueTests)의 전투 12종에 있다.
+회귀 검증은 [`../Tools/ResolveQueueTests`](../CardArchive/Tools/ResolveQueueTests)의 전투 12종에 있다.
 
 ---
 
