@@ -42,7 +42,7 @@ namespace TcgEngine
         {
             QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1); //Set Max Quality level
 
-            texture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+            texture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
             export_texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
             texture.filterMode = FilterMode.Point;
             export_texture.filterMode = FilterMode.Point;

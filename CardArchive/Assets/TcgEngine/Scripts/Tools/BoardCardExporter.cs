@@ -38,6 +38,12 @@ namespace TcgEngine
 
         void Start()
         {
+            InitializeCapture();
+            GenerateAll();
+        }
+
+        private void InitializeCapture()
+        {
             if (variant == null)
                 variant = VariantData.GetDefault();
 
@@ -60,14 +66,9 @@ namespace TcgEngine
                 board_card.status_group.alpha = 0f;
             if (board_card.equipment != null)
                 board_card.equipment.Hide();
-            foreach (AbilityButton button in board_card.buttons)
-                button.Hide();
+            foreach (AbilityButton button in board_card.GetComponentsInChildren<AbilityButton>(true))
+                button.gameObject.SetActive(false);
 
-            GenerateAll();
-        }
-
-        private async void GenerateAll()
-        {
             QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1); //Set Max Quality level
 
             texture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
@@ -76,7 +77,21 @@ namespace TcgEngine
             export_texture.filterMode = FilterMode.Point;
             render_cam.targetTexture = texture;
             render_cam.orthographicSize = capture_height / 2f;
+        }
 
+        // Also callable by editor batch jobs without entering a gameplay scene.
+        public void ExportSingle(CardData card, bool enemy)
+        {
+            if (texture == null)
+                InitializeCapture();
+            GenerateCard(card, enemy);
+            Canvas.ForceUpdateCanvases();
+            render_cam.Render();
+            ExportCard(card, enemy);
+        }
+
+        private async void GenerateAll()
+        {
             List<CardData> cards = CardData.GetAll();
             for (int i = 0; i < cards.Count; i++)
             {
@@ -84,9 +99,12 @@ namespace TcgEngine
                 if (card.deckbuilding && card.IsBoardCard())
                 {
                     ShowText("Exporting: " + card.id);
-                    GenerateCard(card);
+                    GenerateCard(card, false);
                     await TimeTool.Delay(1);
-                    ExportCard(card);
+                    ExportCard(card, false);
+                    GenerateCard(card, true);
+                    await TimeTool.Delay(1);
+                    ExportCard(card, true);
                     await TimeTool.Delay(2);
                 }
             }
@@ -96,15 +114,15 @@ namespace TcgEngine
             ShowText("Completed!");
         }
 
-        private void GenerateCard(CardData card)
+        private void GenerateCard(CardData card, bool enemy)
         {
             card_ui.SetCard(card, variant);
 
             //Match the in-game board look, BoardCard.Update applies these while playing
-            card_ui.frame_image.sprite = board_card.ally_frame;
+            card_ui.frame_image.sprite = enemy ? board_card.enemy_frame : board_card.ally_frame;
             card_ui.frame_image.color = Color.white;
-            card_ui.attack_background.sprite = board_card.ally_attack_bg;
-            card_ui.hp_background.sprite = board_card.ally_hp_bg;
+            card_ui.attack_background.sprite = enemy ? board_card.enemy_attack_bg : board_card.ally_attack_bg;
+            card_ui.hp_background.sprite = enemy ? board_card.enemy_hp_bg : board_card.ally_hp_bg;
             card_ui.attack.color = font_color;
             card_ui.hp.color = font_color;
 
@@ -113,16 +131,18 @@ namespace TcgEngine
             render_cam.Render();
         }
 
-        private void ExportCard(CardData card)
+        private void ExportCard(CardData card, bool enemy)
         {
+            RenderTexture previous = RenderTexture.active;
             RenderTexture.active = texture;
             export_texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
             byte[] bytes = export_texture.EncodeToPNG();
             export_path = Application.dataPath + "/TcgEngine/Resources/BoardCardImages";
-            Directory.CreateDirectory(export_path);
+            string folder = enemy ? Path.Combine(export_path, "Enemy") : export_path;
+            Directory.CreateDirectory(folder);
             string file = card.id + ".png";
-            File.WriteAllBytes(export_path + "/" + file, bytes);
-            RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(folder, file), bytes);
+            RenderTexture.active = previous;
         }
 
         private void ShowText(string txt)
