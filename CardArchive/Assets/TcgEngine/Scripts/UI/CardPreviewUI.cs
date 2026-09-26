@@ -93,7 +93,7 @@ namespace TcgEngine.UI
                 {
                     if (index < status_lines.Length)
                     {
-                        if (ability.condition_wide_range != default_wide_area_range)
+                        if (ability.condition_wide_range != null && ability.condition_wide_range != default_wide_area_range)
                         //Dont display default ability (GetAbilitiesDesc does that already)
                         //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
                         {

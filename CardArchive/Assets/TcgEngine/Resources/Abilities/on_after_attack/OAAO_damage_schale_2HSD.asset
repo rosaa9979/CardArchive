@@ -20,8 +20,7 @@ MonoBehaviour:
   target: 5
   conditions_target:
   - {fileID: 11400000, guid: b044d41bb4d6c0b469542eafe8d5f047, type: 2}
-  condition_wide_range: {fileID: 11400000, guid: 37a8933943c5494468e1c7976337fdaf,
-    type: 2}
+  condition_wide_range: {fileID: 0}
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
   effects:
