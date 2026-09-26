@@ -29,17 +29,18 @@ Project: C:/Users/rlafu/Downloads/PPJ/GAME/CardArchive/CardArchive.
 - Nonomi_Fire and Nonomi_Fire_Tutorial reference spell_damage1_all_enemy.
 - The ability already selects enemy board units and deals 1 damage.
 - board_fx now references Prefabs/FX/Nonomi/NonomiBarrageFX.prefab.
-- New NonomiBarrageFX is bounded visual-only fan fire, using 3 Particle Systems and an additive shader.
-- Editor preview: Tools > Card Archive > FX > Nonomi Barrage Preview.
-- See docs/nonomi-barrage.md for tuning, validation and generated serialization changes.
+- NonomiBarrageFX.prefab plays NonomiBarrageSheet.png through Unity's native Texture Sheet Animation.
+- One particle, 48 frames, 0.8 seconds; its standard URP material is embedded in the prefab.
+- No Nonomi runtime script, custom shader, editor preview or disposable validation script remains.
+- Use the built-in particle preview in Prefab Mode. See docs/nonomi-barrage.md.
 
-## Tooling and validation
+## Historical tooling and validation (original procedural effect)
 - Unity CLI at C:/Users/rlafu/AppData/Local/Unity/bin/unity.exe.
 - Pipeline 0.7.0-exp.1 installed with explicit approval; CardArchive serves port 7800 in this session.
 - Always pass --project-path explicitly: another running editor contains the NOVA city project.
   Default mcp__unity tools previously selected NOVA, not CardArchive.
 - Confirmed CLI capabilities: status, console, scene listing, eval/run_script, compilation and play control.
-- New code compiled; 21 focused Play Mode/isolated-game checks passed, including 3 burst cleanup.
+- The original procedural version passed 21 focused checks before its replacement with a baked sheet.
 - Existing missing-script warning in CardData.Load predates this work; no new errors observed.
 - Full Player build and network match validation remain unverified.
 
