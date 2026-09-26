@@ -1127,6 +1127,11 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveAttackHit(Card attacker, Card target, bool skip_cost)
         {
+            //Recheck live positions and range after before-attack effects, immediately before damage.
+            if (!attacker.slot.GetNeighborSlot(attacker.GetRange()).Contains(target.slot)
+                && !game_data.attack_evade_list.Contains(target))
+                game_data.attack_evade_list.Add(target);
+
             //Count attack damage
             if (!game_data.attack_evade_list.Contains(target))
             {
@@ -1134,10 +1139,11 @@ namespace TcgEngine.Gameplay
 
                 int datt1 = attacker.GetAttack();
                 int datt2 = target.GetAttack();
+                bool in_counter_range = attacker.slot.GetNeighborSlot(1).Contains(target.slot);
 
                 DamageCard(attacker, target, datt1);
 
-                if (attacker.GetWeaponType() == WeaponType.FRONT && !attacker.HasStatus(StatusType.Intimidate)
+                if (in_counter_range && !attacker.HasStatus(StatusType.Intimidate)
                     && !target.CardData.IsPlace())
                     DamageCard(target, attacker, datt2, false, true);
 
