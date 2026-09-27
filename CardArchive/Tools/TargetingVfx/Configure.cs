@@ -45,7 +45,7 @@ public static class ConfigureTargetingVfx
             renderer.sprite = sprite;
             renderer.color = Color.white;
             renderer.sortingLayerName = "Default";
-            renderer.sortingOrder = -9;
+            renderer.sortingOrder = -8;
             fx.snap_duration = 0.14f;
             fx.snap_start_scale = 1.16f;
             fx.tile_frame_scale = 1.03f;
@@ -64,7 +64,7 @@ public static class ConfigureTargetingVfx
         {
             var renderer = root.GetComponent<AimTargetFX>().target_fx.GetComponent<SpriteRenderer>();
             renderer.sortingLayerName = "Default";
-            renderer.sortingOrder = -9;
+            renderer.sortingOrder = -8;
             PrefabUtility.SaveAsPrefabAsset(root, path);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
@@ -98,7 +98,7 @@ public static class ConfigureTargetingVfx
             Vector3 snapped;
             Check(fx.TryGetSnapPosition(out snapped) && snapped == slot.transform.position, "Line endpoint");
             var tileRenderer = slot.GetComponent<SpriteRenderer>();
-            Check(marker.sortingLayerID == tileRenderer.sortingLayerID && marker.sortingOrder == tileRenderer.sortingOrder + 1, "Frame above tile, below card");
+            Check(marker.sortingLayerID == tileRenderer.sortingLayerID && marker.sortingOrder == tileRenderer.sortingOrder + 2, "Frame above hatching, below card");
             var cardPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/TcgEngine/Prefabs/Gameplay/BoardCard.prefab");
             Check(marker.sortingOrder < cardPrefab.GetComponent<BoardCard>().card_sprite.sortingOrder, "Card art occludes frame");
             tileRenderer.sortingLayerName = "UI";

@@ -190,7 +190,7 @@ namespace TcgEngine.FX
             if (target_renderer != null && snapped_tile_renderer != null)
             {
                 target_renderer.sortingLayerID = snapped_tile_renderer.sortingLayerID;
-                target_renderer.sortingOrder = snapped_tile_renderer.sortingOrder + 1;
+                target_renderer.sortingOrder = snapped_tile_renderer.sortingOrder + 2;
             }
             else if (target_renderer != null)
             {

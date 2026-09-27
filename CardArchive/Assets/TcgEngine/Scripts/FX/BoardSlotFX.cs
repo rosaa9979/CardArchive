@@ -15,11 +15,18 @@ namespace TcgEngine.FX
     {
         private BoardSlot bslot;
         private Animator bslot_animator;
+        private bool range_selected;
+        private bool use_range_hatching;
 
         void Awake()
         {
             bslot = GetComponent<BoardSlot>();
             bslot_animator = GetComponent<Animator>();
+            var overlay = bslot.overlay_renderer;
+            use_range_hatching = overlay != null && overlay.sharedMaterial != null
+                && overlay.sharedMaterial.shader.name == "TcgEngine/RangeHatching";
+            if (use_range_hatching)
+                overlay.enabled = false;
         }
 
         void Start()
@@ -43,6 +50,23 @@ namespace TcgEngine.FX
         void Update()
         {
 
+        }
+
+        void LateUpdate()
+        {
+            if (!use_range_hatching)
+                return;
+
+            // Apply once after all ResetIndicator/SetAnimParameter calls this frame.
+            // The legacy Animator still drives Overlay color; this shader ignores it.
+            bslot.overlay_renderer.enabled = range_selected && !TcgEngine.Replay.ReplaySession.Active;
+        }
+
+        void OnDisable()
+        {
+            range_selected = false;
+            if (use_range_hatching && bslot != null && bslot.overlay_renderer != null)
+                bslot.overlay_renderer.enabled = false;
         }
 
         private void OnAbilityStart(AbilityData iability, Card caster)
@@ -86,6 +110,7 @@ namespace TcgEngine.FX
 
         public void SetAnimParameter(bool is_selected)
         {
+            range_selected = is_selected;
             bslot_animator.SetBool("is_selected", is_selected);
         }
 
