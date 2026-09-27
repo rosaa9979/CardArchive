@@ -14,27 +14,27 @@ namespace TcgEngine
         [Header("Target owner is caster owner")]
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             bool same_owner = caster.player_id == target.player_id;
             return CompareBool(same_owner, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             bool same_owner = caster.player_id == target.player_id;
             return CompareBool(same_owner, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Card slot_card = data.GetSlotCard(target);
             if (slot_card != null)
-                return IsTargetConditionMet(data, ability, caster, slot_card);
+                return IsTargetConditionMet(data, ability, caster, slot_card, context: context);
             return false;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target, AbilityEventContext context = null)
         {
             bool same_owner = Slot.GetP(caster.player_id) == target.p;
 

@@ -14,17 +14,17 @@ namespace TcgEngine
         [Header("Slot Unit Is Empty")]
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareBool(false, oper); //Target is not empty slot
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return CompareBool(false, oper); //Target is not empty slot
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Card slot_card = data.GetSlotCard(target);
             return CompareBool(slot_card == null, oper);

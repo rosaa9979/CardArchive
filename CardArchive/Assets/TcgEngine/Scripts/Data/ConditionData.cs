@@ -10,37 +10,37 @@ namespace TcgEngine
 
     public class ConditionData : ScriptableObject
     {
-        public virtual bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public virtual bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             return true; //Override this, applies to any target, always checked
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return true; //Override this, condition targeting card
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return true; //Override this, condition targeting player
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             return true; //Override this, condition targeting slot
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target, AbilityEventContext context = null)
         {
             return true; //Override this, for effects that create new cards
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target, AbilityEventContext context = null)
         {
             return true; //Override this, for effects that create new cards
         }
 
-        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)
+        public virtual bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target, AbilityEventContext context = null)
         {
             return true; //Override this, for effects that create new cards
         }

@@ -15,12 +15,12 @@ namespace TcgEngine
         [Header("Slot Range")]
         public int range = 1;
         
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            return IsTargetConditionMet(data, ability, caster, target.slot);
+            return IsTargetConditionMet(data, ability, caster, target.slot, context: context);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         { 
             List<Slot> cslot_neighbor = caster.slot.GetNeighborSlot(range);
 

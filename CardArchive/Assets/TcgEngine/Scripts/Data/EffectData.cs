@@ -11,6 +11,37 @@ namespace TcgEngine
     
     public class EffectData : ScriptableObject
     {
+        // Explicit event context; legacy overrides remain the default behavior.
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster);
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, target);
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, List<Card> target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, target);
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, target);
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, target);
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, target);
+        }
+
         public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
             //Server side gameplay logic

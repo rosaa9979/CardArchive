@@ -21,22 +21,22 @@ namespace TcgEngine
         // method called in EVERY slot (trigger, criteria/target, wide-range), so keeping the single
         // roll here yields a consistent, correct probability everywhere; IsTriggerConditionMet is a
         // no-op (true).
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             return true;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return Roll(data);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return Roll(data);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             return Roll(data);
         }

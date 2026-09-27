@@ -14,12 +14,12 @@ namespace TcgEngine
         [Header("Card is Deckbuilding")]
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareBool(target.CardData.deckbuilding, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target, AbilityEventContext context = null)
         {
             return CompareBool(target.deckbuilding, oper);
         }

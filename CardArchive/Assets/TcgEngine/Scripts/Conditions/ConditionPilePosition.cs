@@ -20,7 +20,7 @@ namespace TcgEngine
         public int index = 0;                 //Used only when mode == Index
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             if (target == null)
                 return CompareBool(false, oper);

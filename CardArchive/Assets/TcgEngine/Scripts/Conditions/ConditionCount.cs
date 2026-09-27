@@ -34,7 +34,7 @@ namespace TcgEngine
         public List<TraitData> has_trait;
         public List<CardData> has_card;
 
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             int count = 0;
             if (target == ConditionPlayerType.Self || target == ConditionPlayerType.Both)

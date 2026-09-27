@@ -106,21 +106,21 @@ namespace TcgEngine
         }
 
         //Generic condition for the ability to trigger
-        public bool AreTriggerConditionsMet(Game data, Card caster)
+        public bool AreTriggerConditionsMet(Game data, Card caster, AbilityEventContext context = null)
         {
-            return AreTriggerConditionsMet(data, caster, caster); //Triggerer is the caster
+            return AreTriggerConditionsMet(data, caster, caster, context: context); //Triggerer is the caster
         }
 
         //Some abilities are caused by another card (PlayOther), otherwise most of the time the triggerer is the caster, check condition on triggerer
-        public bool AreTriggerConditionsMet(Game data, Card caster, Card trigger_card)
+        public bool AreTriggerConditionsMet(Game data, Card caster, Card trigger_card, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_trigger)
             {
                 if (cond != null)
                 {
-                    if (!cond.IsTriggerConditionMet(data, this, caster))
+                    if (!cond.IsTriggerConditionMet(data, this, caster, context: context))
                         return false;
-                    if (!cond.IsTargetConditionMet(data, this, caster, trigger_card))
+                    if (!cond.IsTargetConditionMet(data, this, caster, trigger_card, context: context))
                         return false;
                 }
             }
@@ -128,30 +128,30 @@ namespace TcgEngine
         }
 
         //Some abilities are caused by an action on a player (OnFight when attacking the player), check condition on that player
-        public bool AreTriggerConditionsMet(Game data, Card caster, Player trigger_player)
+        public bool AreTriggerConditionsMet(Game data, Card caster, Player trigger_player, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_trigger)
             {
                 if (cond != null)
                 {
-                    if (!cond.IsTriggerConditionMet(data, this, caster))
+                    if (!cond.IsTriggerConditionMet(data, this, caster, context: context))
                         return false;
-                    if (!cond.IsTargetConditionMet(data, this, caster, trigger_player))
+                    if (!cond.IsTargetConditionMet(data, this, caster, trigger_player, context: context))
                         return false;
                 }
             }
             return true;
         }
   
-        public bool AreRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times)
+        public bool AreRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times, AbilityEventContext context = null)
         {
-            if (condition_repeat != null && !condition_repeat.IsRepeatConditionMet(data, this, max_repeat_times, repeat_times))
+            if (condition_repeat != null && !condition_repeat.IsRepeatConditionMet(data, this, max_repeat_times, repeat_times, context: context))
                 return false;
 
             return true;
         }
 
-        public bool AreOngoingRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times)
+        public bool AreOngoingRepeatConditionsMet(Game data, int max_repeat_times, int repeat_times, AbilityEventContext context = null)
         {
             // No repeat condition set => behave like a single execution (run up to max, default 1).
             // Returning true unconditionally here caused abilities with a null condition_repeat to
@@ -159,13 +159,13 @@ namespace TcgEngine
             if (condition_repeat == null)
                 return repeat_times < max_repeat_times;
 
-            return condition_repeat.IsOngoingRepeatConditionMet(data, this, max_repeat_times, repeat_times);
+            return condition_repeat.IsOngoingRepeatConditionMet(data, this, max_repeat_times, repeat_times, context: context);
         }
 
-        public int GetMaxRepeatTimes(Game data, Card caster)
+        public int GetMaxRepeatTimes(Game data, Card caster, AbilityEventContext context = null)
         {
             if (condition_repeat != null)
-                return condition_repeat.GetMaxRepeatTimes(data, this, caster);
+                return condition_repeat.GetMaxRepeatTimes(data, this, caster, context: context);
 
             return 1;
         }
@@ -173,159 +173,159 @@ namespace TcgEngine
         
 
         //Check if the card target is valid
-        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Card target_card)
+        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Card target_card, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_criteria_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the player target is valid
-        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Player target_player)
+        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Player target_player, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_criteria_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the slot target is valid
-        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Slot target_slot)
+        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Slot target_slot, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_criteria_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the card data target is valid
-        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, CardData target_card)
+        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, CardData target_card, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_criteria_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card, context: context))
                     return false;
             }
             return true;
         }
 
-        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
+        public bool AreCriteriaTargetConditionsMet(Game data, Card caster, Slot selected, Slot target_slot, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in conditions_criteria_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the card target is valid
-        public bool AreTargetConditionsMet(Game data, Card caster, Card target_card)
+        public bool AreTargetConditionsMet(Game data, Card caster, Card target_card, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in condition_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the player target is valid
-        public bool AreTargetConditionsMet(Game data, Card caster, Player target_player)
+        public bool AreTargetConditionsMet(Game data, Card caster, Player target_player, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in condition_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_player, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the slot target is valid
-        public bool AreTargetConditionsMet(Game data, Card caster, Slot target_slot)
+        public bool AreTargetConditionsMet(Game data, Card caster, Slot target_slot, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in condition_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_slot, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the card data target is valid
-        public bool AreTargetConditionsMet(Game data, Card caster, CardData target_card)
+        public bool AreTargetConditionsMet(Game data, Card caster, CardData target_card, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in condition_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, target_card, context: context))
                     return false;
             }
             return true;
         }
 
-        public bool AreTargetConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
+        public bool AreTargetConditionsMet(Game data, Card caster, Slot selected, Slot target_slot, AbilityEventContext context = null)
         {
             foreach (ConditionData cond in condition_target)
             {
-                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot))
+                if (cond != null && !cond.IsTargetConditionMet(data, this, caster, selected, target_slot, context: context))
                     return false;
             }
             return true;
         }
 
         //Check if the card target is valid
-        public bool AreWideRangeConditionsMet(Game data, Card caster, Card target_card)
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Card target_card, AbilityEventContext context = null)
         {
-            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card))
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card, context: context))
                 return false;
 
             return true;
         }
 
         //Check if the player target is valid
-        public bool AreWideRangeConditionsMet(Game data, Card caster, Player target_player)
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Player target_player, AbilityEventContext context = null)
         {
-            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_player))
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_player, context: context))
                 return false;
                     
             return true;
         }
 
         //Check if the slot target is valid
-        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot target_slot)
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot target_slot, AbilityEventContext context = null)
         {
-            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_slot))
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_slot, context: context))
                 return false;
                     
             return true;
         }
 
         //Check if the card data target is valid
-        public bool AreWideRangeConditionsMet(Game data, Card caster, CardData target_card)
+        public bool AreWideRangeConditionsMet(Game data, Card caster, CardData target_card, AbilityEventContext context = null)
         {
-            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card))
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, target_card, context: context))
                 return false;
                     
             return true;
         }
 
-        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot selected, Slot target_slot)
+        public bool AreWideRangeConditionsMet(Game data, Card caster, Slot selected, Slot target_slot, AbilityEventContext context = null)
         {
-            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, selected, target_slot))
+            if (condition_wide_range != null && !condition_wide_range.IsTargetConditionMet(data, this, caster, selected, target_slot, context: context))
                 return false;
                     
             return true;
         }
 
         //CanTarget is similar to AreTargetConditionsMet but only applies to targets on the board, with extra board-only conditions
-        public bool CanTarget(Game data, Card caster, Card target)
+        public bool CanTarget(Game data, Card caster, Card target, AbilityEventContext context = null)
         {
             if (caster == null || target == null)
                 return false;
@@ -336,62 +336,62 @@ namespace TcgEngine
             if (target.HasStatus(StatusType.SpellImmunity))
                 return false; //Spell immunity
 
-            bool condition_match = AreCriteriaTargetConditionsMet(data, caster, target);
+            bool condition_match = AreCriteriaTargetConditionsMet(data, caster, target, context: context);
             return condition_match;
         }
 
         //Can target check additional restrictions and is usually for SelectTarget or PlayTarget abilities
-        public bool CanTarget(Game data, Card caster, Player target)
+        public bool CanTarget(Game data, Card caster, Player target, AbilityEventContext context = null)
         {
             if (caster == null || target == null)
                 return false;
 
-            bool condition_match = AreCriteriaTargetConditionsMet(data, caster, target);
+            bool condition_match = AreCriteriaTargetConditionsMet(data, caster, target, context: context);
             return condition_match;
         }
 
-        public bool CanTarget(Game data, Card caster, Slot target)
+        public bool CanTarget(Game data, Card caster, Slot target, AbilityEventContext context = null)
         {
-            return AreCriteriaTargetConditionsMet(data, caster, target); //No additional conditions for slots
+            return AreCriteriaTargetConditionsMet(data, caster, target, context: context); //No additional conditions for slots
         }
 
         //Check if destination array has the target after being filtered, used to support filters in CardSelector
-        public bool IsCardSelectionValid(Game data, Card caster, Card target, ListSwap<Card> card_array = null)
+        public bool IsCardSelectionValid(Game data, Card caster, Card target, ListSwap<Card> card_array = null, AbilityEventContext context = null)
         {
-            List<Card> targets = GetCardTargets(data, caster, card_array);
+            List<Card> targets = GetCardTargets(data, caster, card_array, context: context);
             return targets.Contains(target); //Card is still in array after filtering
         }
 
         //EffectStepDebug.LogEffect는 [Conditional("UNITY_EDITOR")]라 빌드에서는 호출 자체가 사라지고,
         //에디터에서도 치트가 꺼져 있으면 static bool 하나만 읽고 즉시 반환한다.
-        public void DoEffects(GameLogic logic, Card caster)
+        public void DoEffects(GameLogic logic, Card caster, AbilityEventContext context = null)
         {
             foreach(EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster);
-                effect?.DoEffect(logic, this, caster);
+                effect?.DoEffect(logic, this, caster, context: context);
                 logic.ReplayBoundary();
             }
         }
 
-        public void DoEffects(GameLogic logic, Card caster, Card target)
+        public void DoEffects(GameLogic logic, Card caster, Card target, AbilityEventContext context = null)
         {
             foreach (EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
-                effect?.DoEffect(logic, this, caster, target);
+                effect?.DoEffect(logic, this, caster, target, context: context);
                 logic.ReplayBoundary();
             }
             foreach(StatusData stat in status)
                 target.AddStatus(stat, value, duration);
         }
 
-        public void DoEffects(GameLogic logic, Card caster, List<Card> target)
+        public void DoEffects(GameLogic logic, Card caster, List<Card> target, AbilityEventContext context = null)
         {
             foreach (EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
-                effect?.DoEffect(logic, this, caster, target);
+                effect?.DoEffect(logic, this, caster, target, context: context);
                 logic.ReplayBoundary();
             }
             foreach (Card targ in target)
@@ -401,26 +401,26 @@ namespace TcgEngine
             }
         }
 
-        public void DoEffects(GameLogic logic, Card caster, Player target)
+        public void DoEffects(GameLogic logic, Card caster, Player target, AbilityEventContext context = null)
         {
             foreach (EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
-                effect?.DoEffect(logic, this, caster, target);
+                effect?.DoEffect(logic, this, caster, target, context: context);
                 logic.ReplayBoundary();
             }
             foreach (StatusData stat in status)
                 target.AddStatus(stat, value, duration);
         }
 
-        public void DoEffects(GameLogic logic, Card caster, Slot target)
+        public void DoEffects(GameLogic logic, Card caster, Slot target, AbilityEventContext context = null)
         {
             Game game_data = logic.GetGameData();
             Card slot_card = game_data.GetSlotCard(target);
             foreach (EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
-                effect?.DoEffect(logic, this, caster, target);
+                effect?.DoEffect(logic, this, caster, target, context: context);
                 logic.ReplayBoundary();
             }
             if (slot_card != null)
@@ -431,12 +431,12 @@ namespace TcgEngine
 
         }
 
-        public void DoEffects(GameLogic logic, Card caster, CardData target)
+        public void DoEffects(GameLogic logic, Card caster, CardData target, AbilityEventContext context = null)
         {
             foreach (EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
-                effect?.DoEffect(logic, this, caster, target);
+                effect?.DoEffect(logic, this, caster, target, context: context);
                 logic.ReplayBoundary();
             }
         }
@@ -479,17 +479,17 @@ namespace TcgEngine
             return false;
         }
 
-        private void AddValidCards(Game data, Card caster, List<Card> source, List<Card> targets)
+        private void AddValidCards(Game data, Card caster, List<Card> source, List<Card> targets, AbilityEventContext context = null)
         {
             foreach (Card card in source)
             {
-                if (AreCriteriaTargetConditionsMet(data, caster, card))
+                if (AreCriteriaTargetConditionsMet(data, caster, card, context: context))
                     targets.Add(card);
             }
         }
 
         //Return cards targets,  memory_array is used for optimization and avoid allocating new memory
-        public List<Card> GetCardTargets(Game data, Card caster, ListSwap<Card> memory_array = null)
+        public List<Card> GetCardTargets(Game data, Card caster, ListSwap<Card> memory_array = null, AbilityEventContext context = null)
         {
             if (memory_array == null)
                 memory_array = new ListSwap<Card>(); //Slow operation
@@ -498,14 +498,14 @@ namespace TcgEngine
 
             if (criteria_target == AbilityTarget.Self)
             {
-                if (AreCriteriaTargetConditionsMet(data, caster, caster))
+                if (AreCriteriaTargetConditionsMet(data, caster, caster, context: context))
                     candidate_targets.Add(caster);
             }
 
             if (IsPlaySelectTarget())
             {
                 Card selected_card = data.GetCard(caster.play_target_uid);
-                if (selected_card != null && AreCriteriaTargetConditionsMet(data, caster, selected_card))
+                if (selected_card != null && AreCriteriaTargetConditionsMet(data, caster, selected_card, context: context))
                     candidate_targets.Add(selected_card);
             }
 
@@ -515,7 +515,7 @@ namespace TcgEngine
                 {
                     foreach (Card card in player.cards_hand)
                     {
-                        if (AreCriteriaTargetConditionsMet(data, caster, card))
+                        if (AreCriteriaTargetConditionsMet(data, caster, card, context: context))
                             candidate_targets.Add(card);
                     }
                 }
@@ -527,7 +527,7 @@ namespace TcgEngine
                 {
                     foreach (Card card in player.cards_board)
                     {
-                        if (AreCriteriaTargetConditionsMet(data, caster, card))
+                        if (AreCriteriaTargetConditionsMet(data, caster, card, context: context))
                             candidate_targets.Add(card);
                     }
                 }
@@ -537,23 +537,23 @@ namespace TcgEngine
             {
                 foreach (Player player in data.players)
                 {
-                    AddValidCards(data, caster, player.cards_club, candidate_targets);
-                    AddValidCards(data, caster, player.cards_deck, candidate_targets);
-                    AddValidCards(data, caster, player.cards_discard, candidate_targets);
-                    AddValidCards(data, caster, player.cards_hand, candidate_targets);
-                    AddValidCards(data, caster, player.cards_secret, candidate_targets);
-                    AddValidCards(data, caster, player.cards_board, candidate_targets);
-                    AddValidCards(data, caster, player.cards_equip, candidate_targets);
-                    AddValidCards(data, caster, player.cards_attach, candidate_targets);
-                    AddValidCards(data, caster, player.cards_temp, candidate_targets);
-                    AddValidCards(data, caster, player.player_ability, candidate_targets);
+                    AddValidCards(data, caster, player.cards_club, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_deck, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_discard, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_hand, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_secret, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_board, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_equip, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_attach, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.cards_temp, candidate_targets, context: context);
+                    AddValidCards(data, caster, player.player_ability, candidate_targets, context: context);
                 }
             }
 
             if (criteria_target == AbilityTarget.AbilityTriggerer)
             {
                 Card target = data.GetCard(data.ability_triggerer);
-                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
+                if (target != null && AreCriteriaTargetConditionsMet(data, caster, target, context: context))
                     candidate_targets.Add(target);
             }
 
@@ -564,14 +564,14 @@ namespace TcgEngine
                     //Get bearer of the equipment
                     Player player = data.GetPlayer(caster.player_id);
                     Card target = player.GetBearerCard(caster);
-                    if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
+                    if (target != null && AreCriteriaTargetConditionsMet(data, caster, target, context: context))
                         candidate_targets.Add(target);
                 }
                 else if(caster.equipped_uid != null)
                 {
                     //Get equipped card
                     Card target = data.GetCard(caster.equipped_uid);
-                    if (target != null && AreCriteriaTargetConditionsMet(data, caster, target))
+                    if (target != null && AreCriteriaTargetConditionsMet(data, caster, target, context: context))
                         candidate_targets.Add(target);
                 }
             }
@@ -586,7 +586,7 @@ namespace TcgEngine
                 {
                     foreach (Slot s in all_slots)
                     {
-                        if (AreWideRangeConditionsMet(data, caster, candidate.slot, s) && data.GetSlotCard(s) != null)
+                        if (AreWideRangeConditionsMet(data, caster, candidate.slot, s, context: context) && data.GetSlotCard(s) != null)
                         {
                             final_candidate_target.Add(data.GetSlotCard(s));
                         }
@@ -605,7 +605,7 @@ namespace TcgEngine
             {
                 foreach (Card c in final_candidate_target)
                 {
-                    if (AreTargetConditionsMet(data, caster, c))
+                    if (AreTargetConditionsMet(data, caster, c, context: context))
                         targets.Add(c);
                 }
 
@@ -629,7 +629,7 @@ namespace TcgEngine
         }
 
         //Return player targets,  memory_array is used for optimization and avoid allocating new memory
-        public List<Player> GetPlayerTargets(Game data, Card caster, ListSwap<Player> memory_array = null)
+        public List<Player> GetPlayerTargets(Game data, Card caster, ListSwap<Player> memory_array = null, AbilityEventContext context = null)
         {
             if (memory_array == null)
                 memory_array = new ListSwap<Player>(); //Slow operation
@@ -679,19 +679,26 @@ namespace TcgEngine
         }
 
         //Return slot targets,  memory_array is used for optimization and avoid allocating new memory
-        public List<Slot> GetSlotTargets(Game data, Card caster, bool is_play_target = false, ListSwap<Slot> memory_array = null)
+        public List<Slot> GetSlotTargets(Game data, Card caster, bool is_play_target = false, ListSwap<Slot> memory_array = null, AbilityEventContext context = null)
         {
             if (memory_array == null)
                 memory_array = new ListSwap<Slot>(); //Slow operation
 
             List<Slot> candiidate_targets = new List<Slot>();
 
+            if (criteria_target == AbilityTarget.DeathSlot && context is DeathEventContext)
+            {
+                Slot slot = ((DeathEventContext)context).slot;
+                if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot, context: context))
+                    candiidate_targets.Add(slot);
+            }
+
             if (criteria_target == AbilityTarget.AllSlots)
             {
                 List<Slot> slots = Slot.GetAll();
                 foreach (Slot slot in slots)
                 {
-                    if (AreCriteriaTargetConditionsMet(data, caster, slot))
+                    if (AreCriteriaTargetConditionsMet(data, caster, slot, context: context))
                         candiidate_targets.Add(slot);
                 }
             }
@@ -710,7 +717,7 @@ namespace TcgEngine
             {
                 Slot slot = caster.play_target_slot;
 
-                if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot))
+                if (slot.IsValid() && AreCriteriaTargetConditionsMet(data, caster, slot, context: context))
                     candiidate_targets.Add(slot);
             }
 
@@ -718,7 +725,7 @@ namespace TcgEngine
             {
                 Slot slot = caster.slot;
 
-                if (AreCriteriaTargetConditionsMet(data, caster, slot))
+                if (AreCriteriaTargetConditionsMet(data, caster, slot, context: context))
                     candiidate_targets.Add(slot);
             }
 
@@ -733,7 +740,7 @@ namespace TcgEngine
                 {
                     foreach (Slot a in all_slots)
                     {
-                        if (AreWideRangeConditionsMet(data, caster, s, a))
+                        if (AreWideRangeConditionsMet(data, caster, s, a, context: context))
                         {
                             final_candidate_target.Add(a);
                         }
@@ -748,7 +755,7 @@ namespace TcgEngine
             {
                 foreach(Slot s in final_candidate_target)
                 {
-                    if (AreTargetConditionsMet(data, caster, s))
+                    if (AreTargetConditionsMet(data, caster, s, context: context))
                     {
                         targets.Add(s);
                     }
@@ -774,7 +781,7 @@ namespace TcgEngine
             return targets;
         }
 
-        public List<CardData> GetCardDataTargets(Game data, Card caster, ListSwap<CardData> memory_array = null)
+        public List<CardData> GetCardDataTargets(Game data, Card caster, ListSwap<CardData> memory_array = null, AbilityEventContext context = null)
         {
             if (memory_array == null)
                 memory_array = new ListSwap<CardData>(); //Slow operation
@@ -785,7 +792,7 @@ namespace TcgEngine
             {
                 foreach (CardData card in CardData.GetAll())
                 {
-                    if (AreCriteriaTargetConditionsMet(data, caster, card))
+                    if (AreCriteriaTargetConditionsMet(data, caster, card, context: context))
                         targets.Add(card);
                 }
             }
@@ -808,22 +815,22 @@ namespace TcgEngine
         }
 
         // Check if there is any valid target, if not, AI wont try to cast activated ability
-        public bool HasValidSelectTarget(Game game_data, Card caster)
+        public bool HasValidSelectTarget(Game game_data, Card caster, AbilityEventContext context = null)
         {
             if (criteria_target == AbilityTarget.SelectTarget)
             {
-                if (HasValidBoardCardTarget(game_data, caster))
+                if (HasValidBoardCardTarget(game_data, caster, context: context))
                     return true;
-                if (HasValidPlayerTarget(game_data, caster))
+                if (HasValidPlayerTarget(game_data, caster, context: context))
                     return true;
-                if (HasValidSlotTarget(game_data, caster))
+                if (HasValidSlotTarget(game_data, caster, context: context))
                     return true;
                 return false;
             }
 
             if (criteria_target == AbilityTarget.CardSelector)
             {
-                if (HasValidCardTarget(game_data, caster))
+                if (HasValidCardTarget(game_data, caster, context: context))
                     return true;
                 return false;
             }
@@ -832,7 +839,7 @@ namespace TcgEngine
             {
                 foreach (AbilityData choice in chain_abilities)
                 {
-                    if(choice.AreTriggerConditionsMet(game_data, caster))
+                    if(choice.AreTriggerConditionsMet(game_data, caster, context: context))
                         return true;
                 }
                 return false;
@@ -841,7 +848,7 @@ namespace TcgEngine
             return true; //Not selecting, valid
         }
 
-        public bool HasValidBoardCardTarget(Game game_data, Card caster)
+        public bool HasValidBoardCardTarget(Game game_data, Card caster, AbilityEventContext context = null)
         {
             for (int p = 0; p < game_data.players.Length; p++)
             {
@@ -849,61 +856,61 @@ namespace TcgEngine
                 for (int c = 0; c < player.cards_board.Count; c++)
                 {
                     Card card = player.cards_board[c];
-                    if (CanTarget(game_data, caster, card))
+                    if (CanTarget(game_data, caster, card, context: context))
                         return true;
                 }
             }
             return false;
         }
 
-        public bool HasValidCardTarget(Game game_data, Card caster)
+        public bool HasValidCardTarget(Game game_data, Card caster, AbilityEventContext context = null)
         {
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
-                bool v1 = HasValidCardTarget(game_data, caster, player.cards_club);
-                bool v2 = HasValidCardTarget(game_data, caster, player.cards_deck);
-                bool v3 = HasValidCardTarget(game_data, caster, player.cards_discard);
-                bool v4 = HasValidCardTarget(game_data, caster, player.cards_hand);
-                bool v5 = HasValidCardTarget(game_data, caster, player.cards_board);
-                bool v6 = HasValidCardTarget(game_data, caster, player.cards_equip);
-                bool v7 = HasValidCardTarget(game_data, caster, player.cards_attach);
-                bool v8 = HasValidCardTarget(game_data, caster, player.cards_secret);
-                bool v9 = HasValidCardTarget(game_data, caster, player.cards_temp);
-                bool v10 = HasValidCardTarget(game_data, caster, player.player_ability);
+                bool v1 = HasValidCardTarget(game_data, caster, player.cards_club, context: context);
+                bool v2 = HasValidCardTarget(game_data, caster, player.cards_deck, context: context);
+                bool v3 = HasValidCardTarget(game_data, caster, player.cards_discard, context: context);
+                bool v4 = HasValidCardTarget(game_data, caster, player.cards_hand, context: context);
+                bool v5 = HasValidCardTarget(game_data, caster, player.cards_board, context: context);
+                bool v6 = HasValidCardTarget(game_data, caster, player.cards_equip, context: context);
+                bool v7 = HasValidCardTarget(game_data, caster, player.cards_attach, context: context);
+                bool v8 = HasValidCardTarget(game_data, caster, player.cards_secret, context: context);
+                bool v9 = HasValidCardTarget(game_data, caster, player.cards_temp, context: context);
+                bool v10 = HasValidCardTarget(game_data, caster, player.player_ability, context: context);
                 if (v1 || v2 || v3 || v4 || v5 || v6 || v7 || v8 || v9 || v10)
                     return true;
             }
             return false;
         }
 
-        public bool HasValidCardTarget(Game game_data, Card caster, List<Card> list)
+        public bool HasValidCardTarget(Game game_data, Card caster, List<Card> list, AbilityEventContext context = null)
         {
             for (int c = 0; c < list.Count; c++)
             {
                 Card card = list[c];
-                if (AreCriteriaTargetConditionsMet(game_data, caster, card))
+                if (AreCriteriaTargetConditionsMet(game_data, caster, card, context: context))
                     return true;
             }
             return false;
         }
 
-        public bool HasValidPlayerTarget(Game game_data, Card caster)
+        public bool HasValidPlayerTarget(Game game_data, Card caster, AbilityEventContext context = null)
         {
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
-                if (CanTarget(game_data, caster, player))
+                if (CanTarget(game_data, caster, player, context: context))
                     return true;
             }
             return false;
         }
 
-        public bool HasValidSlotTarget(Game game_data, Card caster)
+        public bool HasValidSlotTarget(Game game_data, Card caster, AbilityEventContext context = null)
         {
             foreach (Slot slot in Slot.GetAll())
             {
-                if (CanTarget(game_data, caster, slot))
+                if (CanTarget(game_data, caster, slot, context: context))
                     return true;
             }
             return false;
@@ -997,6 +1004,7 @@ namespace TcgEngine
 
         PlayTarget = 20,        //The target selected at the same time the spell was played (spell only)    
         AbilityTriggerer = 25,   //The card that triggered the trap
+        DeathSlot = 26,         //The victim's slot captured by the current death event
         EquippedCard = 27,       //If equipment, the bearer, if citizen, the item equipped
         AttachedSlot = 28,
 

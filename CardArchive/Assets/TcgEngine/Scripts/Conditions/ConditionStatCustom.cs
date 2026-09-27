@@ -16,12 +16,12 @@ namespace TcgEngine
         public ConditionOperatorInt oper;
         public int value;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareInt(target.GetTraitValue(trait.id), oper, value);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return CompareInt(target.GetTraitValue(trait.id), oper, value);
         }

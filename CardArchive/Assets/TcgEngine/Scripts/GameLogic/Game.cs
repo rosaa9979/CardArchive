@@ -37,6 +37,7 @@ namespace TcgEngine
         public string selector_ability_id;
         public string selector_caster_uid;
         public string selector_triggerer_uid;
+        public AbilityEventContext selector_context; // Only the suspended selection owns this context.
         public int selector_max_repeat;
         public int selector_current_repeat;
 
@@ -430,7 +431,7 @@ namespace TcgEngine
             if (!player.CanPayAbility(card, ability))
                 return false; //Cant pay for ability
 
-            if (!ability.AreTriggerConditionsMet(this, card))
+            if (!ability.AreTriggerConditionsMet(this, card, context: selector_context))
                 return false; //Conditions not met
 
             return true;
@@ -803,6 +804,7 @@ namespace TcgEngine
             dest.selector_caster_uid = source.selector_caster_uid;
             dest.selector_ability_id = source.selector_ability_id;
             dest.selector_triggerer_uid = source.selector_triggerer_uid;
+            dest.selector_context = source.selector_context?.Clone();
             dest.selector_max_repeat = source.selector_max_repeat;
             dest.selector_current_repeat = source.selector_current_repeat;
             dest.selector_hand_index = source.selector_hand_index;

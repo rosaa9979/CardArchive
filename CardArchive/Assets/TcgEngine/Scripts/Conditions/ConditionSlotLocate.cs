@@ -16,12 +16,12 @@ namespace TcgEngine
         public bool Outside;
         public bool Neutral;
         
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            return IsTargetConditionMet(data, ability, caster, target.slot);
+            return IsTargetConditionMet(data, ability, caster, target.slot, context: context);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Player player = data.GetPlayer(caster.player_id);
             Player oplayer = data.GetOpponentPlayer(player.player_id);

@@ -19,25 +19,25 @@ namespace TcgEngine
 
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareBool(IsTrait(target), oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return false; //Not a card
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Card slot_card = data.GetSlotCard(target);
             if (slot_card != null)
-                return IsTargetConditionMet(data, ability, caster, slot_card);
+                return IsTargetConditionMet(data, ability, caster, slot_card, context: context);
             return false; //Not a card
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target, AbilityEventContext context = null)
         {
             /*
             bool is_type = target.type == has_type || has_type == CardType.None;

@@ -16,7 +16,7 @@ namespace TcgEngine
         public TraitData trait;        //Trait compared on both the club card and the caster
         public ConditionOperatorInt oper = ConditionOperatorInt.Equal;
 
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             if (club == null || trait == null)
                 return false;

@@ -138,7 +138,7 @@ namespace TcgEngine
 
         // ======================= 적재 (Enqueue) =======================
 
-        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, int max_repeat, int current_repeat, Action<AbilityData, Card, Card, int, int> callback, bool is_chain = false)
+        public virtual void AddAbility(AbilityData ability, Card caster, Card triggerer, int max_repeat, int current_repeat, Action<AbilityData, Card, Card, int, int, AbilityEventContext> callback, bool is_chain = false, AbilityEventContext context = null)
         {
             if (ability == null || caster == null)
                 return;
@@ -150,6 +150,7 @@ namespace TcgEngine
             elem.current_repeat = current_repeat;
             elem.ability = ability;
             elem.callback = callback;
+            elem.context = context;
 
             //열려 있는 Phase가 없으면 이 효과 하나만 담는 최상위 Phase를 만들어 큐 끝에 붙인다.
             //(GameLogic의 Trigger*AbilityType들이 이벤트 단위로 감싸므로 보통은 여기 오지 않는다.
@@ -395,7 +396,7 @@ namespace TcgEngine
             }
         }
 
-        public virtual void AddSecret(AbilityTrigger secret_trigger, Card secret, Card trigger, Action<AbilityTrigger, Card, Card> callback)
+        public virtual void AddSecret(AbilityTrigger secret_trigger, Card secret, Card trigger, Action<AbilityTrigger, Card, Card, AbilityEventContext> callback, AbilityEventContext context = null)
         {
             if (secret != null && trigger != null)
             {
@@ -404,6 +405,7 @@ namespace TcgEngine
                 elem.secret = secret;
                 elem.triggerer = trigger;
                 elem.callback = callback;
+                elem.context = context;
                 secret_queue.Enqueue(elem);
             }
         }
@@ -494,8 +496,10 @@ namespace TcgEngine
             if (secret_queue.Count > 0)
             {
                 SecretQueueElement elem = secret_queue.Dequeue();
+                AbilityEventContext context = elem.context;
+                elem.context = null;
                 secret_elem_pool.Dispose(elem);
-                elem.callback?.Invoke(elem.secret_trigger, elem.secret, elem.triggerer);
+                elem.callback?.Invoke(elem.secret_trigger, elem.secret, elem.triggerer, context);
             }
             else if (attack_queue.Count > 0)
             {
@@ -536,13 +540,15 @@ namespace TcgEngine
         //어빌리티 하나를 처리한다. 처리 중 유발되는 것들을 담을 스코프를 owner의 자식으로 연다.
         void ResolveAbilityElement(AbilityQueueElement elem, AbilityPhase owner)
         {
+            AbilityEventContext context = elem.context;
+            elem.context = null;
             ability_elem_pool.Dispose(elem);
 
             AbilityPhase scope = NewChildPhase(owner, true);
             scope.active = true;
             insert_stack.Push(scope);
             int version = clear_version;
-            elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer, elem.max_repeat, elem.current_repeat);
+            elem.callback?.Invoke(elem.ability, elem.caster, elem.triggerer, elem.max_repeat, elem.current_repeat, context);
             if (version != clear_version) return;
             insert_stack.Pop();
             scope.active = false;
@@ -926,6 +932,10 @@ namespace TcgEngine
         {
             clear_version++;
             attack_elem_pool.DisposeAll();
+            foreach (AbilityQueueElement elem in ability_elem_pool.GetAllActive())
+                elem.context = null;
+            foreach (SecretQueueElement elem in secret_elem_pool.GetAllActive())
+                elem.context = null;
             ability_elem_pool.DisposeAll();
             secret_elem_pool.DisposeAll();
             callback_elem_pool.DisposeAll();
@@ -990,12 +1000,13 @@ namespace TcgEngine
 
     public class AbilityQueueElement
     {
+        public AbilityEventContext context;
         public AbilityData ability;
         public Card caster;
         public Card triggerer;
         public int max_repeat;
         public int current_repeat;
-        public Action<AbilityData, Card, Card, int, int> callback;
+        public Action<AbilityData, Card, Card, int, int, AbilityEventContext> callback;
     }
 
     /// <summary>
@@ -1049,10 +1060,11 @@ namespace TcgEngine
 
     public class SecretQueueElement
     {
+        public AbilityEventContext context;
         public AbilityTrigger secret_trigger;
         public Card secret;
         public Card triggerer;
-        public Action<AbilityTrigger, Card, Card> callback;
+        public Action<AbilityTrigger, Card, Card, AbilityEventContext> callback;
     }
 
     public class CallbackQueueElement

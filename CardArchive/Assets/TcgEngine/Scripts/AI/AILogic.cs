@@ -460,7 +460,7 @@ namespace TcgEngine.AI
                 for (int p = 0; p < data.players.Length; p++)
                 {
                     Player tplayer = data.players[p];
-                    if (ability.CanTarget(data, caster, tplayer))
+                    if (ability.CanTarget(data, caster, tplayer, context: data.selector_context))
                     {
                         AIAction action = CreateAction(GameAction.SelectPlayer, caster);
                         action.target_player_id = tplayer.player_id;
@@ -470,13 +470,13 @@ namespace TcgEngine.AI
                     foreach (Slot slot in Slot.GetAll())
                     {
                         Card tcard = data.GetSlotCard(slot);
-                        if (tcard != null && ability.CanTarget(data, caster, tcard))
+                        if (tcard != null && ability.CanTarget(data, caster, tcard, context: data.selector_context))
                         {
                             AIAction action = CreateAction(GameAction.SelectCard, caster);
                             action.target_uid = tcard.uid;
                             actions.Add(action);
                         }
-                        else if (tcard == null && ability.CanTarget(data, caster, slot))
+                        else if (tcard == null && ability.CanTarget(data, caster, slot, context: data.selector_context))
                         {
                             AIAction action = CreateAction(GameAction.SelectSlot, caster);
                             action.slot = slot;
@@ -490,7 +490,7 @@ namespace TcgEngine.AI
             {
                 for (int p = 0; p < data.players.Length; p++)
                 {
-                    List<Card> cards = ability.GetCardTargets(data, caster, card_array);
+                    List<Card> cards = ability.GetCardTargets(data, caster, card_array, context: data.selector_context);
                     foreach (Card tcard in cards)
                     {
                         AIAction action = CreateAction(GameAction.SelectCard, caster);

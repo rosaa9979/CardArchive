@@ -10,6 +10,22 @@ namespace TcgEngine
 
     public class RepeatConditionData : ScriptableObject
     {
+        // Explicit event context; legacy overrides remain the default behavior.
+        public virtual int GetMaxRepeatTimes(Game data, AbilityData ability, Card caster, AbilityEventContext context)
+        {
+            return GetMaxRepeatTimes(data, ability, caster);
+        }
+
+        public virtual bool IsRepeatConditionMet(Game data, AbilityData ability, int max_repeat_times, int repeat_times, AbilityEventContext context)
+        {
+            return IsRepeatConditionMet(data, ability, max_repeat_times, repeat_times);
+        }
+
+        public virtual bool IsOngoingRepeatConditionMet(Game data, AbilityData ability, int max_repeat_times, int repeat_times, AbilityEventContext context)
+        {
+            return IsOngoingRepeatConditionMet(data, ability, max_repeat_times, repeat_times);
+        }
+
         public virtual int GetMaxRepeatTimes(Game data, AbilityData ability, Card caster)
         {
             return 1;

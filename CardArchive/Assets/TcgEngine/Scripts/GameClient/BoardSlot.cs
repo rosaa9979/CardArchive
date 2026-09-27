@@ -90,9 +90,9 @@ namespace TcgEngine.Client
                 {
                     Card caster = gdata.GetCard(gdata.selector_caster_uid);
                     AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
-                    if (ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot))
+                    if (ability != null && slot_card == null && ability.CanTarget(gdata, caster, slot, context: gdata.selector_context))
                         target_alpha = 1f; //Highlight when selecting a target and slot are valid
-                    if (ability != null && slot_card != null && ability.CanTarget(gdata, caster, slot_card))
+                    if (ability != null && slot_card != null && ability.CanTarget(gdata, caster, slot_card, context: gdata.selector_context))
                         target_alpha = 1f; //Highlight when selecting a target and cards are valid
                 }
 

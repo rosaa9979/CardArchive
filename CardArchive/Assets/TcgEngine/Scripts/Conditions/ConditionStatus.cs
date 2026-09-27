@@ -14,23 +14,23 @@ namespace TcgEngine
         public int value = 0;
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             bool hstatus = target.HasStatus(has_status) && target.GetStatusValue(has_status) >= value;
             return CompareBool(hstatus, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             bool hstatus = target.HasStatus(has_status) && target.GetStatusValue(has_status) >= value;
             return CompareBool(hstatus, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Card card = data.GetSlotCard(target);
             if (card != null)
-                return IsTargetConditionMet(data, ability, caster, card);
+                return IsTargetConditionMet(data, ability, caster, card, context: context);
             return false;
         }
     }

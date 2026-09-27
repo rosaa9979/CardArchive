@@ -107,7 +107,7 @@ namespace TcgEngine.AI
                 return;
             }
 
-            List<Card> list = ability.GetCardTargets(game_data, caster);
+            List<Card> list = ability.GetCardTargets(game_data, caster, context: game_data.selector_context);
             if (list != null && list.Count > 0)
                 gameplay.SelectCard(list[rand.Next(0, list.Count)]);
             else

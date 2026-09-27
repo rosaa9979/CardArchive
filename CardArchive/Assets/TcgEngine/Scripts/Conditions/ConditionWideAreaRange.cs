@@ -15,7 +15,7 @@ namespace TcgEngine
         public List<Direction> directions;
         public Sprite thumnail;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Player player = data.GetPlayer(caster.player_id);
             Slot selected = Slot.None;
@@ -35,7 +35,7 @@ namespace TcgEngine
             return wa_slot.Contains(target);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target, AbilityEventContext context = null)
         {
             Player player = data.GetPlayer(caster.player_id);
             List<Slot> wa_slot = new List<Slot>();

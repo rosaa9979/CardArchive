@@ -30,6 +30,7 @@ namespace TcgEngine
         //It stays on board (keeps its slot, keeps reacting to triggers) until the Death Creation Step
         //removes it. Healing cannot save a dying card; damage deaths (GetHP()<=0) are re-checked at the step.
         public bool dying = false;
+        public DeathCause death_cause = DeathCause.Unknown;
         public string death_source_uid = null;   //Kill attribution (kill_count / OnKill), finalized at the death step
         public bool death_source_counter = false; //Killed by a counter-attack: kill credited but no OnKill trigger
 
@@ -93,6 +94,7 @@ namespace TcgEngine
             SetCard(CardData, VariantData); //Reset to initial stats
             equipped_uid = null;
             dying = false; death_source_uid = null; death_source_counter = false;
+            death_cause = DeathCause.Unknown;
         }
 
         public virtual int GetAttack() { return Mathf.Max(attack + attack_ongoing, 0); }
@@ -574,11 +576,11 @@ namespace TcgEngine
             return false;
         }
 
-        public bool AreAbilityConditionsMet(AbilityTrigger ability_trigger, Game data, Card caster, Card triggerer)
+        public bool AreAbilityConditionsMet(AbilityTrigger ability_trigger, Game data, Card caster, Card triggerer, AbilityEventContext context = null)
         {
             foreach (AbilityData ability in GetAbilities())
             {
-                if (ability && ability.trigger == ability_trigger && ability.AreTriggerConditionsMet(data, caster, triggerer))
+                if (ability && ability.trigger == ability_trigger && ability.AreTriggerConditionsMet(data, caster, triggerer, context: context))
                     return true;
             }
             return false;
@@ -726,6 +728,7 @@ namespace TcgEngine
             dest.play_target_slot = source.play_target_slot;
             dest.dying = source.dying;
             dest.death_source_uid = source.death_source_uid;
+            dest.death_cause = source.death_cause;
             dest.death_source_counter = source.death_source_counter;
 
             dest.attack = source.attack;

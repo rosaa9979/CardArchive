@@ -19,16 +19,16 @@ namespace TcgEngine
 
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             if (type == ConditionLastType.LastPlayed)
                 return CompareBool(data.last_played == target.uid, oper);
 
             //Other types check the card's slot against the last slot (range 0 = that card's own slot)
-            return IsTargetConditionMet(data, ability, caster, target.slot);
+            return IsTargetConditionMet(data, ability, caster, target.slot, context: context);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             bool result = false;
             
@@ -59,7 +59,7 @@ namespace TcgEngine
             return CompareBool(result, oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return false;
         }

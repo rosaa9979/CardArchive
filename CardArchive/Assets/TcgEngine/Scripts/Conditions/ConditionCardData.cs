@@ -17,7 +17,7 @@ namespace TcgEngine
 
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             /*
             foreach(CardData card_type in card_types)
@@ -41,7 +41,7 @@ namespace TcgEngine
             return false;  // 조건을 만족하지 않는 경우
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target, AbilityEventContext context = null)
         {
             /*
             foreach(CardData card_type in card_types)
@@ -65,12 +65,12 @@ namespace TcgEngine
             return false;  // 조건을 만족하지 않는 경우
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return false; //Not a card
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             return false; //Not a card
         }

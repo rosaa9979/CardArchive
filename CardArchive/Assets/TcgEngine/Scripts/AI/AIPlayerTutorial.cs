@@ -193,7 +193,7 @@ namespace TcgEngine.AI
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
             if (player != null && ability != null && caster != null)
             {
-                List<Card> card_list = ability.GetCardTargets(game_data, caster);
+                List<Card> card_list = ability.GetCardTargets(game_data, caster, context: game_data.selector_context);
                 if (card_list.Count > 0)
                 {
                     Card card = card_list[rand.Next(0, card_list.Count)];

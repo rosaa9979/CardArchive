@@ -15,22 +15,22 @@ namespace TcgEngine
         public ConditionOperatorInt oper;
         public int value;
 
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             return CompareInt(data.rolled_value, oper, value);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             return CompareInt(data.rolled_value, oper, value);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareInt(data.rolled_value, oper, value);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             return CompareInt(data.rolled_value, oper, value);
         }

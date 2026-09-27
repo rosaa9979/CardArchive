@@ -20,12 +20,12 @@ namespace TcgEngine
         [Header("Operation")]
         public ConditionOperatorBool oper;
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             return CompareBool(data.CanPlaceCard(caster, target.slot), oper);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             if (last_type == ConditionLastType.LastSelected)
             {
@@ -56,7 +56,7 @@ namespace TcgEngine
             return CompareBool(data.CanPlaceCard(caster, target), oper);
         }
         
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target, AbilityEventContext context = null)
         {
             return CompareBool(data.CanPlaceCard(selected, target), oper);
         }

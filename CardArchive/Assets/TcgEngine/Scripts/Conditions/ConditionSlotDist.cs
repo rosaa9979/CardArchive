@@ -16,12 +16,12 @@ namespace TcgEngine
         public int distance = 1;
         public bool diagonals;
         
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            return IsTargetConditionMet(data, ability, caster, target.slot);
+            return IsTargetConditionMet(data, ability, caster, target.slot, context: context);
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             Slot cslot = caster.slot;
             if (diagonals)

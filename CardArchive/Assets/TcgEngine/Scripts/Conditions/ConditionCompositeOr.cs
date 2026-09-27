@@ -15,43 +15,43 @@ namespace TcgEngine
         [Header("True if ANY of these is met")]
         public ConditionData[] any;
 
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster)
+        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             if (any == null || any.Length == 0) return true;
             foreach (ConditionData c in any)
-                if (c != null && c.IsTriggerConditionMet(data, ability, caster)) return true;
+                if (c != null && c.IsTriggerConditionMet(data, ability, caster, context: context)) return true;
             return false;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             if (any == null || any.Length == 0) return true;
             foreach (ConditionData c in any)
-                if (c != null && c.IsTargetConditionMet(data, ability, caster, target)) return true;
+                if (c != null && c.IsTargetConditionMet(data, ability, caster, target, context: context)) return true;
             return false;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
             if (any == null || any.Length == 0) return true;
             foreach (ConditionData c in any)
-                if (c != null && c.IsTargetConditionMet(data, ability, caster, target)) return true;
+                if (c != null && c.IsTargetConditionMet(data, ability, caster, target, context: context)) return true;
             return false;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
             if (any == null || any.Length == 0) return true;
             foreach (ConditionData c in any)
-                if (c != null && c.IsTargetConditionMet(data, ability, caster, target)) return true;
+                if (c != null && c.IsTargetConditionMet(data, ability, caster, target, context: context)) return true;
             return false;
         }
 
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target)
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, CardData target, AbilityEventContext context = null)
         {
             if (any == null || any.Length == 0) return true;
             foreach (ConditionData c in any)
-                if (c != null && c.IsTargetConditionMet(data, ability, caster, target)) return true;
+                if (c != null && c.IsTargetConditionMet(data, ability, caster, target, context: context)) return true;
             return false;
         }
     }

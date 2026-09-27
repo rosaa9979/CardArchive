@@ -31,6 +31,9 @@ namespace TcgEngine.Replay
             var n = new ReplayNode { key = key, isNull = obj == null };
             if (obj == null) return n;
             Type t = obj.GetType();
+            // Explicit schema tags preserve polymorphic contexts without accepting runtime type names.
+            if (obj is AbilityEventContext)
+                n.value = t == typeof(DeathEventContext) ? "death" : throw new InvalidOperationException("Unregistered event context: " + t.Name);
             if (Scalar(t)) n.value = t.IsEnum ? Convert.ToInt64(obj).ToString(CultureInfo.InvariantCulture)
                 : obj is float f ? f.ToString("R", CultureInfo.InvariantCulture)
                 : obj is double d ? d.ToString("R", CultureInfo.InvariantCulture)
@@ -61,6 +64,8 @@ namespace TcgEngine.Replay
         static object Read(ReplayNode n, Type t, Dictionary<string, Card> cards)
         {
             if (n.isNull) return null;
+            if (t == typeof(AbilityEventContext))
+                t = n.value == "death" ? typeof(DeathEventContext) : throw new InvalidOperationException("Unknown event context tag: " + n.value);
             if (Scalar(t)) return Parse(n.value, t);
             if (t.IsArray)
             {

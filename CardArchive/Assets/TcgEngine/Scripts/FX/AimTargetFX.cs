@@ -69,7 +69,7 @@ namespace TcgEngine.FX
                     Card target = game_data.GetSlotCard(bslot.GetSlot());
                     Player player = bslot.GetPlayer();
 
-                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, bslot.GetSlot()))
+                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, bslot.GetSlot(), context: game_data.selector_context))
                     {
                         visible = true;
                     }

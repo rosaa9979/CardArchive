@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b0b15bc5e922cc4699980096765402d, type: 3}
+  m_Name: death_by_hot_springs_department_destroy
+  m_EditorClassIdentifier: Assembly-CSharp::TcgEngine.ConditionDeathEvent
+  causes: 04000000i
+  victim_conditions:
+  - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}
+  - {fileID: 11400000, guid: 0e7f6990383bb9847a7d232cf74dab83, type: 2}
+  killer_conditions:
+  - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
+  - {fileID: 11400000, guid: 856a2b8c0449e0346b1487d47928caf6, type: 2}

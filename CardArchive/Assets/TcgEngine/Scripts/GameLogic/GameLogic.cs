@@ -697,6 +697,7 @@ namespace TcgEngine.Gameplay
             game_data.last_summoned = null;
             game_data.last_summoned_slot = Slot.None;
             game_data.ability_triggerer = null;
+            game_data.selector_context = null;
             game_data.ability_played.Clear();
             game_data.cards_attacked.Clear();      
         }
@@ -1573,6 +1574,7 @@ namespace TcgEngine.Gameplay
             {
                 target.death_source_uid = null;
                 target.death_source_counter = false;
+                target.death_cause = DeathCause.Unknown;
             }
 
             Player p = game_data.GetPlayer(target.player_id);
@@ -1648,7 +1650,7 @@ namespace TcgEngine.Gameplay
 
             //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
             if (value > 0 && target.GetHP() <= 0)
-                SetDeathSource(attacker, target, counter_attack);
+                SetDeathSource(attacker, target, counter_attack, counter_attack ? DeathCause.CounterAttackDamage : (spell_damage ? DeathCause.AbilityDamage : DeathCause.AttackDamage));
 
             if (value > 0)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
@@ -1746,7 +1748,7 @@ namespace TcgEngine.Gameplay
 
             //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
             if (value > 0 && target.GetHP() <= 0)
-                SetDeathSource(attacker, target, false);
+                SetDeathSource(attacker, target, false, DeathCause.AbilityDamage);
 
             if (value > 0)
                 TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
@@ -1843,12 +1845,12 @@ namespace TcgEngine.Gameplay
                 return; //Cant be killed
 
             target.dying = true;
-            SetDeathSource(attacker, target, counter_attack);
+            SetDeathSource(attacker, target, counter_attack, DeathCause.DestroyEffect);
         }
 
         //Record which card gets kill credit (kill_count / OnKill) when the target dies at the
         //death step. First lethal source wins; cleared if the card is healed back above 0.
-        protected virtual void SetDeathSource(Card attacker, Card target, bool counter_attack)
+        protected virtual void SetDeathSource(Card attacker, Card target, bool counter_attack, DeathCause cause)
         {
             if (attacker == null || target == null)
                 return;
@@ -1858,6 +1860,7 @@ namespace TcgEngine.Gameplay
 
             target.death_source_uid = attacker.uid;
             target.death_source_counter = counter_attack;
+            target.death_cause = cause;
         }
 
         //Send card into discard. Immediate removal path (hand/deck discard, equipment, secrets,
@@ -1872,15 +1875,14 @@ namespace TcgEngine.Gameplay
                 return; //Already discarded
 
             bool was_on_board = game_data.IsOnBoard(card) || game_data.IsEquipped(card);
+            DeathEventContext death = was_on_board ? new DeathEventContext(card) : null;
 
             RemoveFromPlay(card);
 
             if (was_on_board)
             {
                 //Trigger on death abilities (immediate path; death-step deaths fire these in ProcessDeathStep)
-                TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
-                TriggerSecrets(AbilityTrigger.OnDeathOther, card);
+                TriggerDeathEvent(death);
             }
 
             onCardDiscarded?.Invoke(card);
@@ -1936,6 +1938,7 @@ namespace TcgEngine.Gameplay
             public AbilityData ability;
             public Card caster;
             public Card triggerer;
+            public AbilityEventContext context;
             public int max_repeat;
             public int next_repeat;
         }
@@ -2037,6 +2040,7 @@ namespace TcgEngine.Gameplay
             }
 
             dying_batch.Sort((a, b) => a.play_order.CompareTo(b.play_order));
+            List<DeathEventContext> deaths = dying_batch.Select(card => new DeathEventContext(card)).ToList();
 
             //Death triggers open their own phase. BeginImmediatePhase = "현재 Sequence의 다음
             //Phase" — 대기 중인 다른 최상위 Phase(예: 같은 카드 플레이의 OnPlayOther)보다 **먼저**
@@ -2050,27 +2054,12 @@ namespace TcgEngine.Gameplay
                 onCardDiscarded?.Invoke(card);
             }
 
-            //Finalize kill attribution (kill_count / OnKill), in death order
-            foreach (Card card in dying_batch)
-            {
-                Card killer = card.death_source_uid != null ? game_data.GetCard(card.death_source_uid) : null;
-                if (killer != null)
-                {
-                    if (killer.player_id != card.player_id)
-                        game_data.GetPlayer(killer.player_id).kill_count++;
+            //All victims have left play before any kill/death reactions are queued.
+            foreach (DeathEventContext death in deaths)
+                TriggerKillEvent(death);
 
-                    if (!card.death_source_counter)
-                        TriggerCardAbilityType(AbilityTrigger.OnKill, killer, card);
-                }
-            }
-
-            //OnDeath of the dead + OnDeathOther of survivors + secrets, in death order
-            foreach (Card card in dying_batch)
-            {
-                TriggerCardAbilityType(AbilityTrigger.OnDeath, card);
-                TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, card);
-                TriggerSecrets(AbilityTrigger.OnDeathOther, card);
-            }
+            foreach (DeathEventContext death in deaths)
+                TriggerDeathEvent(death);
 
             resolve_queue.EndPhase();
 
@@ -2113,15 +2102,37 @@ namespace TcgEngine.Gameplay
                 if (pending.caster.CardData.IsBoardCard() && !game_data.IsOnBoard(pending.caster))
                     continue;
 
-                if (pending.ability.AreOngoingRepeatConditionsMet(game_data, pending.max_repeat, pending.next_repeat))
+                if (pending.ability.AreOngoingRepeatConditionsMet(game_data, pending.max_repeat, pending.next_repeat, pending.context))
                 {
-                    RepeatTriggerCardAbility(pending.ability, pending.caster, pending.triggerer, pending.max_repeat, pending.next_repeat);
+                    RepeatTriggerCardAbility(pending.ability, pending.caster, pending.triggerer, pending.max_repeat, pending.next_repeat, false, pending.context);
                     any = true;
                 }
             }
             resolve_queue.EndPhase();
             pending_repeats.Clear();
             return any;
+        }
+
+        private void TriggerKillEvent(DeathEventContext death)
+        {
+            Card killer = game_data.GetCard(death.killer_uid);
+            Card victim = game_data.GetCard(death.victim_uid);
+            if (killer == null) return;
+            if (killer.player_id != victim.player_id)
+                game_data.GetPlayer(killer.player_id).kill_count++;
+            if (!death.counter_attack)
+            {
+                TriggerCardAbilityType(AbilityTrigger.OnKill, killer, victim, death);
+            }
+        }
+
+        private void TriggerDeathEvent(DeathEventContext death)
+        {
+            Card victim = game_data.GetCard(death.victim_uid);
+            // Keep legacy OnDeath self-triggering semantics; the killer lives only in context.
+            TriggerCardAbilityType(AbilityTrigger.OnDeath, victim, context: death);
+            TriggerOtherCardsAbilityType(AbilityTrigger.OnDeathOther, victim, death);
+            TriggerSecrets(AbilityTrigger.OnDeathOther, victim, death);
         }
 
         public int RollRandomValue(int dice)
@@ -2143,38 +2154,38 @@ namespace TcgEngine.Gameplay
         //하스스톤 Rule 3: 묶음 안에서는 죽음 처리가 절대 끼어들지 않는다 (칼 곡예사 2장 규칙 —
         //"All Knife Juggler effects are handled before any of their deaths are detected").
         //묶지 않으면 각 트리거가 자기 최상위 Phase가 되어 사이사이 사망 웨이브가 돈다.
-        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Card triggerer = null)
+        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Card triggerer = null, AbilityEventContext context = null)
         {
             resolve_queue.BeginPhase();
             foreach (AbilityData iability in caster.GetAbilities())
             {
                 if (iability && iability.trigger == type)
                 {
-                    TriggerCardAbility(iability, caster, triggerer);
+                    TriggerCardAbility(iability, caster, triggerer, false, context);
                 }
             }
 
             Card equipped = game_data.GetEquipCard(caster.equipped_uid);
             if(equipped != null)
-                TriggerCardAbilityType(type, equipped, triggerer);
+                TriggerCardAbilityType(type, equipped, triggerer, context);
             resolve_queue.EndPhase();
         }
 
         //[EVENT PHASE] Card-triggerer 버전과 동일 (위 주석 참조)
-        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Player triggerer)
+        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Player triggerer, AbilityEventContext context = null)
         {
             resolve_queue.BeginPhase();
             foreach (AbilityData iability in caster.GetAbilities())
             {
                 if (iability && iability.trigger == type)
                 {
-                    TriggerCardAbility(iability, caster, triggerer);
+                    TriggerCardAbility(iability, caster, triggerer, context);
                 }
             }
 
             Card equipped = game_data.GetEquipCard(caster.equipped_uid);
             if (equipped != null)
-                TriggerCardAbilityType(type, equipped, triggerer);
+                TriggerCardAbilityType(type, equipped, triggerer, context);
             resolve_queue.EndPhase();
         }
 
@@ -2182,7 +2193,7 @@ namespace TcgEngine.Gameplay
         //only enqueues abilities, it never resolves during the iteration below.
         private List<Card> trigger_batch = new List<Card>();
 
-        public virtual void TriggerOtherCardsAbilityType(AbilityTrigger type, Card triggerer)
+        public virtual void TriggerOtherCardsAbilityType(AbilityTrigger type, Card triggerer, AbilityEventContext context = null)
         {
             //Order of play: cards that entered the field first trigger first (not board slot order)
             trigger_batch.Clear();
@@ -2201,11 +2212,11 @@ namespace TcgEngine.Gameplay
             //[EVENT PHASE] 이 배치 전체가 하나의 이벤트다 — 카드 사이에 사망 처리가 끼면 안 된다.
             resolve_queue.BeginPhase();
             foreach (Card card in trigger_batch)
-                TriggerCardAbilityType(type, card, triggerer);
+                TriggerCardAbilityType(type, card, triggerer, context);
             resolve_queue.EndPhase();
         }
 
-        public virtual void TriggerPlayerCardsAbilityType(Player player, AbilityTrigger type)
+        public virtual void TriggerPlayerCardsAbilityType(Player player, AbilityTrigger type, AbilityEventContext context = null)
         {
             //Order of play: cards that entered the field first trigger first (not board slot order)
             trigger_batch.Clear();
@@ -2229,11 +2240,11 @@ namespace TcgEngine.Gameplay
             //[EVENT PHASE] 위와 동일 — 턴시작/턴종료/드로우 배치가 한 묶음으로 유지된다.
             resolve_queue.BeginPhase();
             foreach (Card card in trigger_batch)
-                TriggerCardAbilityType(type, card, card);
+                TriggerCardAbilityType(type, card, card, context);
             resolve_queue.EndPhase();
         }
 
-        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, bool is_chain = false)
+        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, bool is_chain = false, AbilityEventContext context = null)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
@@ -2246,17 +2257,17 @@ namespace TcgEngine.Gameplay
             // Repeat iterations skip both checks (repeat condition only, see ProcessPendingRepeats).
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant trigger
-            if (!iability.AreTriggerConditionsMet(game_data, caster, trigger_card))
+            if (!iability.AreTriggerConditionsMet(game_data, caster, trigger_card, context))
                 return;
 
             int current_repeat = 0;
-            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster, context);
 
-            if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat))
-                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain);
+            if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat, context))
+                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain, context);
         }
 
-        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0, bool is_chain = false)
+        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0, bool is_chain = false, AbilityEventContext context = null)
         {
             Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
 
@@ -2264,10 +2275,11 @@ namespace TcgEngine.Gameplay
             //trigger-condition check already passed); repeat iterations arrive through
             //ProcessPendingRepeats (repeat condition only, trigger conditions never re-checked).
             //Silence and trigger conditions are re-verified at resolve time (ResolveCardAbility).
-            resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat, ResolveCardAbility, is_chain);
+            resolve_queue.AddAbility(iability, caster, trigger_card, max_repeat, current_repeat,
+                ResolveCardAbility, is_chain, context);
         }
 
-        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Player triggerer)
+        public virtual void TriggerCardAbility(AbilityData iability, Card caster, Player triggerer, AbilityEventContext context = null)
         {
             // [DOUBLE-CHECK TRIGGER CONDITIONS] Enqueue-time check against the Player triggerer.
             // This is the only point where player-triggerer conditions can be evaluated: the Player
@@ -2275,24 +2287,24 @@ namespace TcgEngine.Gameplay
             // resolve-time re-check in ResolveCardAbility uses the caster as the trigger target.
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant trigger
-            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer, context))
                 return;
 
             int current_repeat = 0;
-            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster);
+            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster, context);
 
-            RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat);
+            RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat, context: context);
         }
 
-        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Player triggerer, int max_repeat = 0, int current_repeat = 0)
+        public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Player triggerer, int max_repeat = 0, int current_repeat = 0, AbilityEventContext context = null)
         {
             //Raw enqueue (see the Card-triggerer overload above). Enqueue-time checks happen in
             //TriggerCardAbility; resolve-time re-check happens in ResolveCardAbility.
-            resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility);
+            resolve_queue.AddAbility(iability, caster, caster, max_repeat, current_repeat, ResolveCardAbility, context: context);
         }
 
         //Resolve a card ability, may stop to ask for target
-        protected virtual void ResolveCardAbility(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
+        protected virtual void ResolveCardAbility(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             if (!caster.CanDoAbilities())
                 return; //Silenced card cant cast
@@ -2305,7 +2317,7 @@ namespace TcgEngine.Gameplay
             // fired, its repeats are governed only by the repeat condition (evaluated at the death
             // phase stable point, see ProcessPendingRepeats), even if the first iteration's effects
             // made the trigger condition false. See docs/resolve-queue-hearthstone-redesign.md
-            if (current_repeat == 0 && !iability.AreTriggerConditionsMet(game_data, caster, triggerer))
+            if (current_repeat == 0 && !iability.AreTriggerConditionsMet(game_data, caster, triggerer, context: context))
                 return;
 
             if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
@@ -2315,49 +2327,49 @@ namespace TcgEngine.Gameplay
 
             onAbilityStart?.Invoke(iability, caster);
             game_data.ability_triggerer = triggerer.uid;
-            bool is_selector = ResolveCardAbilitySelector(iability, caster, triggerer, max_repeat, current_repeat);
+            bool is_selector = ResolveCardAbilitySelector(iability, caster, triggerer, max_repeat, current_repeat, context: context);
             if (is_selector)
                 return; //Wait for player to select
 
-            ResolveCardAbilityPlayTarget(iability, caster);
-            ResolveCardAbilityPlayers(iability, caster);
-            ResolveCardAbilityCards(iability, caster);
-            ResolveCardAbilitySlots(iability, caster);
-            ResolveCardAbilityCardData(iability, caster);
-            ResolveCardAbilityNoTarget(iability, caster);
-            AfterAbilityResolved(iability, caster, triggerer, max_repeat, current_repeat);
+            ResolveCardAbilityPlayTarget(iability, caster, context: context);
+            ResolveCardAbilityPlayers(iability, caster, context: context);
+            ResolveCardAbilityCards(iability, caster, context: context);
+            ResolveCardAbilitySlots(iability, caster, context: context);
+            ResolveCardAbilityCardData(iability, caster, context: context);
+            ResolveCardAbilityNoTarget(iability, caster, context: context);
+            AfterAbilityResolved(iability, caster, triggerer, max_repeat, current_repeat, context: context);
         }
 
-        protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
+        protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             game_data.last_selected = "";
             game_data.last_selected_slot = new Slot(0, 0, -1);
 
-            if (!iability.HasValidSelectTarget(game_data, caster))
+            if (!iability.HasValidSelectTarget(game_data, caster, context: context))
                 return false;
 
             //A play-time target was already chosen in SelectPlayTarget and is read from the caster
             if (iability.criteria_target == AbilityTarget.SelectTarget && !iability.IsPlaySelectTarget())
             {
                 //Wait for target
-                GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat);
+                GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat, context: context);
                 return true;
             }
 
             if (iability.criteria_target == AbilityTarget.CardSelector)
             {
-                GoToSelectorCard(iability, caster, triggerer, max_repeat, current_repeat);
+                GoToSelectorCard(iability, caster, triggerer, max_repeat, current_repeat, context: context);
                 return true;
             }
             else if (iability.criteria_target == AbilityTarget.ChoiceSelector)
             {
-                GoToSelectorChoice(iability, caster, triggerer, max_repeat, current_repeat);
+                GoToSelectorChoice(iability, caster, triggerer, max_repeat, current_repeat, context: context);
                 return true;
             }
             return false;
         }
 
-        protected virtual void ResolveCardAbilityPlayTarget(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilityPlayTarget(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             if (iability.criteria_target == AbilityTarget.PlayTarget)
             {
@@ -2366,91 +2378,91 @@ namespace TcgEngine.Gameplay
                 if (slot.IsPlayerSlot())
                 {
                     Player tplayer = game_data.GetPlayer(slot.p);
-                    if (iability.CanTarget(game_data, caster, tplayer))
-                        ResolveEffectTarget(iability, caster, tplayer);
+                    if (iability.CanTarget(game_data, caster, tplayer, context: context))
+                        ResolveEffectTarget(iability, caster, tplayer, context: context);
                 }
 
                 else
                 {
-                    if (iability.CanTarget(game_data, caster, slot))
+                    if (iability.CanTarget(game_data, caster, slot, context: context))
                     {
-                        List<Slot> target_slots = iability.GetSlotTargets(game_data, caster, true);
+                        List<Slot> target_slots = iability.GetSlotTargets(game_data, caster, true, context: context);
 
                         foreach (Slot target_slot in target_slots)
-                            ResolveEffectTarget(iability, caster, target_slot);
+                            ResolveEffectTarget(iability, caster, target_slot, context: context);
                     }
                 }
             }
         }
 
-        protected virtual void ResolveCardAbilityPlayers(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilityPlayers(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             //Get Player Targets based on conditions
-            List<Player> targets = iability.GetPlayerTargets(game_data, caster, player_array);
+            List<Player> targets = iability.GetPlayerTargets(game_data, caster, player_array, context: context);
 
             //Resolve effects
             foreach (Player target in targets)
             {
-                ResolveEffectTarget(iability, caster, target);
+                ResolveEffectTarget(iability, caster, target, context: context);
             }
         }
 
-        protected virtual void ResolveCardAbilityCards(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilityCards(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             //Get Cards Targets based on conditions
-            List<Card> targets = iability.GetCardTargets(game_data, caster, card_array);
+            List<Card> targets = iability.GetCardTargets(game_data, caster, card_array, context: context);
 
-            //ResolveEffectTarget(iability, caster, targets);
+            //ResolveEffectTarget(iability, caster, targets, context: context);
             
             //Resolve effects
             foreach (Card target in targets)
             {
-                ResolveEffectTarget(iability, caster, target);
+                ResolveEffectTarget(iability, caster, target, context: context);
             }
             
         }
 
-        protected virtual void ResolveCardAbilitySlots(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilitySlots(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             //Get Slot Targets based on conditions
-            List<Slot> targets = iability.GetSlotTargets(game_data, caster, false, slot_array);
+            List<Slot> targets = iability.GetSlotTargets(game_data, caster, false, slot_array, context: context);
 
             //Resolve effects
             foreach (Slot target in targets)
             {
-                ResolveEffectTarget(iability, caster, target);
+                ResolveEffectTarget(iability, caster, target, context: context);
             }
         }
 
-        protected virtual void ResolveCardAbilityCardData(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilityCardData(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             //Get Cards Targets based on conditions
-            List<CardData> targets = iability.GetCardDataTargets(game_data, caster, card_data_array);
+            List<CardData> targets = iability.GetCardDataTargets(game_data, caster, card_data_array, context: context);
 
             //Resolve effects
             foreach (CardData target in targets)
             {
-                ResolveEffectTarget(iability, caster, target);
+                ResolveEffectTarget(iability, caster, target, context: context);
             }
         }
 
-        protected virtual void ResolveCardAbilityNoTarget(AbilityData iability, Card caster)
+        protected virtual void ResolveCardAbilityNoTarget(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             if (iability.criteria_target == AbilityTarget.None)
-                iability.DoEffects(this, caster);
+                iability.DoEffects(this, caster, context: context);
         }
 
-        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Player target)
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Player target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target);
+            iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetPlayer?.Invoke(iability, caster, target);
         }
 
-        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target)
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target);
+            iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetCard?.Invoke(iability, caster, target);
@@ -2459,15 +2471,15 @@ namespace TcgEngine.Gameplay
             game_data.last_targeted_slot = target.slot;
         }
 
-        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target)
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target);
+            iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
         }
 
-        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target)
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target);
+            iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetSlot?.Invoke(iability, caster, target);
@@ -2475,13 +2487,13 @@ namespace TcgEngine.Gameplay
             game_data.last_targeted_slot = target;
         }
 
-        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target)
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target);
+            iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
         }
 
-        protected virtual void AfterAbilityResolved(AbilityData iability, Card caster, Card trigger_card, int max_repeat, int current_repeat)
+        protected virtual void AfterAbilityResolved(AbilityData iability, Card caster, Card trigger_card, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             Player player = game_data.GetPlayer(caster.player_id);
 
@@ -2506,7 +2518,7 @@ namespace TcgEngine.Gameplay
                 {
                     if (chain_ability != null)
                     {
-                        TriggerCardAbility(chain_ability, caster, null, true);
+                        TriggerCardAbility(chain_ability, caster, caster, true, context);
                         //TriggerCardAbility(iability, caster);
                     }
                 }
@@ -2527,6 +2539,7 @@ namespace TcgEngine.Gameplay
                     ability = iability,
                     caster = caster,
                     triggerer = trigger_card,
+                    context = context,
                     max_repeat = max_repeat,
                     next_repeat = current_repeat + 1,
                 });
@@ -2967,7 +2980,7 @@ namespace TcgEngine.Gameplay
             return false;
         }
 
-        public virtual bool TriggerSecrets(AbilityTrigger secret_trigger, Card trigger_card)
+        public virtual bool TriggerSecrets(AbilityTrigger secret_trigger, Card trigger_card, AbilityEventContext context = null)
         {
             if (trigger_card != null && trigger_card.HasStatus(StatusType.SpellImmunity))
                 return false; //Spell Immunity, triggerer is the one that trigger the trap, target is the one attacked, so usually the player who played the trap, so we dont check the target
@@ -2984,9 +2997,9 @@ namespace TcgEngine.Gameplay
                         if (icard.type == CardType.Secret && !card.exhausted)
                         {
                             Card trigger = trigger_card != null ? trigger_card : card;
-                            if (card.AreAbilityConditionsMet(secret_trigger, game_data, card, trigger))
+                            if (card.AreAbilityConditionsMet(secret_trigger, game_data, card, trigger, context))
                             {
-                                resolve_queue.AddSecret(secret_trigger, card, trigger, ResolveSecret);
+                                resolve_queue.AddSecret(secret_trigger, card, trigger, ResolveSecret, context);
                                 resolve_queue.SetDelay(0.5f);
                                 card.exhausted = true;
 
@@ -3002,7 +3015,7 @@ namespace TcgEngine.Gameplay
             return false;
         }
 
-        protected virtual void ResolveSecret(AbilityTrigger secret_trigger, Card secret_card, Card trigger)
+        protected virtual void ResolveSecret(AbilityTrigger secret_trigger, Card secret_card, Card trigger, AbilityEventContext context = null)
         {
             CardData icard = secret_card.CardData;
             Player player = game_data.GetPlayer(secret_card.player_id);
@@ -3012,7 +3025,7 @@ namespace TcgEngine.Gameplay
                 if(!is_ai_predict)
                     tplayer.AddHistory(GameAction.SecretTriggered, secret_card, trigger);
 
-                TriggerCardAbilityType(secret_trigger, secret_card, trigger);
+                TriggerCardAbilityType(secret_trigger, secret_card, trigger, context);
                 DiscardCard(secret_card);
 
                 if (onSecretResolve != null)
@@ -3024,6 +3037,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectCard(Card target)
         {
+            AbilityEventContext context = game_data.selector_context;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -3036,7 +3050,7 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (!ability.CanTarget(game_data, caster, target))
+                if (!ability.CanTarget(game_data, caster, target, context: context))
                     return; //Can't target that target
 
                 Player player = game_data.GetPlayer(caster.player_id);
@@ -3045,6 +3059,7 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
+                game_data.selector_context = null;
 
                 if (ability.IsPlaySelectTarget())
                 {
@@ -3055,8 +3070,8 @@ namespace TcgEngine.Gameplay
                 {
                     //Phase: effects applied outside Resolve(), so open the depth-first scope manually
                     resolve_queue.BeginPhase();
-                    ResolveEffectTarget(ability, caster, target);
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    ResolveEffectTarget(ability, caster, target, context: context);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }
@@ -3066,15 +3081,16 @@ namespace TcgEngine.Gameplay
             {
                 if (game_data.selector_card_uids != null
                     ? !game_data.selector_card_uids.Contains(target.uid)
-                    : !ability.IsCardSelectionValid(game_data, caster, target, card_array))
+                    : !ability.IsCardSelectionValid(game_data, caster, target, card_array, context: context))
                     return; //Supports conditions and filters
 
                 RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
                 game_data.selector = SelectorType.None;
+                game_data.selector_context = null;
 
                 resolve_queue.BeginPhase();
-                ResolveEffectTarget(ability, caster, target);
-                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                ResolveEffectTarget(ability, caster, target, context: context);
+                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
                 resolve_queue.EndPhase();
                 resolve_queue.ResolveAll();
             }
@@ -3082,6 +3098,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectPlayer(Player target)
         {
+            AbilityEventContext context = game_data.selector_context;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -3094,7 +3111,7 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (!ability.CanTarget(game_data, caster, target))
+                if (!ability.CanTarget(game_data, caster, target, context: context))
                     return; //Can't target that target
 
                 Player player = game_data.GetPlayer(caster.player_id);
@@ -3103,6 +3120,7 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("player", game_data.selector_player_id, game_data.selector_caster_uid, choice: target.player_id);
                 game_data.selector = SelectorType.None;
+                game_data.selector_context = null;
 
                 if (ability.IsPlaySelectTarget())
                 {
@@ -3112,8 +3130,8 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     resolve_queue.BeginPhase();
-                    ResolveEffectTarget(ability, caster, target);
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    ResolveEffectTarget(ability, caster, target, context: context);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }
@@ -3122,6 +3140,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectSlot(Slot target)
         {
+            AbilityEventContext context = game_data.selector_context;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -3137,7 +3156,7 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectTarget)
             {
-                if (!ability.CanTarget(game_data, caster, target))
+                if (!ability.CanTarget(game_data, caster, target, context: context))
                     return; //Conditions not met
 
 
@@ -3147,6 +3166,7 @@ namespace TcgEngine.Gameplay
 
                 RecordInteraction("slot", game_data.selector_player_id, game_data.selector_caster_uid, slot: target);
                 game_data.selector = SelectorType.None;
+                game_data.selector_context = null;
 
                 if (ability.IsPlaySelectTarget())
                 {
@@ -3160,14 +3180,14 @@ namespace TcgEngine.Gameplay
                     resolve_queue.BeginPhase();
                     foreach (Slot targ in targets)
                     {
-                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ))
+                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ, context: context))
                             continue;
 
-                        if (ability.AreTargetConditionsMet(game_data, caster, targ))
-                        ResolveEffectTarget(ability, caster, targ);
+                        if (ability.AreTargetConditionsMet(game_data, caster, targ, context: context))
+                        ResolveEffectTarget(ability, caster, targ, context: context);
                     }
 
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
+                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }
@@ -3176,6 +3196,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void SelectChoice(int choice)
         {
+            AbilityEventContext context = game_data.selector_context;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -3195,9 +3216,10 @@ namespace TcgEngine.Gameplay
                     {
                         RecordInteraction("choice", game_data.selector_player_id, game_data.selector_caster_uid, choice: choice);
                         game_data.selector = SelectorType.None;
+                        game_data.selector_context = null;
                         resolve_queue.BeginPhase();
-                        AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat);
-                        ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data, caster), 0);
+                        AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
+                        ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data, caster, context), 0, context);
                         resolve_queue.EndPhase();
                         resolve_queue.ResolveAll();
                     }
@@ -3242,6 +3264,7 @@ namespace TcgEngine.Gameplay
             resolve_queue.DiscardSuspendedScope();
 
             game_data.selector = SelectorType.None;
+            game_data.selector_context = null;
         }
 
         //Turn time is up (or the turn is ended) with a selection still pending: answer it without the player.
@@ -3250,6 +3273,7 @@ namespace TcgEngine.Gameplay
         //  Any other target selection: ended without a target
         protected virtual void ResolveSelectorOnTimeout()
         {
+            AbilityEventContext context = game_data.selector_context;
             if (game_data.selector == SelectorType.None)
                 return;
 
@@ -3267,6 +3291,7 @@ namespace TcgEngine.Gameplay
                 if (player.cards_board_temp.Contains(caster) && !ability.can_cancel)
                 {
                     game_data.selector = SelectorType.None;
+                    game_data.selector_context = null;
                     PlayCard(caster, caster.slot); //No play target was set: its OnPlay resolves without one
                 }
                 else
@@ -3290,7 +3315,7 @@ namespace TcgEngine.Gameplay
                 }
                 else
                 {
-                    candidates.AddRange(ability.GetCardTargets(game_data, caster, card_array));
+                    candidates.AddRange(ability.GetCardTargets(game_data, caster, card_array, context: context));
                 }
 
                 if (candidates.Count > 0)
@@ -3358,38 +3383,41 @@ namespace TcgEngine.Gameplay
 
         //-----Trigger Selector-----
 
-        protected virtual void GoToSelectTarget(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
+        protected virtual void GoToSelectTarget(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             game_data.selector = SelectorType.SelectTarget;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
             game_data.selector_caster_uid = caster.uid;
             game_data.selector_triggerer_uid = triggerer.uid;
+            game_data.selector_context = context;
             game_data.selector_max_repeat = max_repeat;
             game_data.selector_current_repeat = current_repeat;
             RefreshData();
         }
 
-        protected virtual void GoToSelectorCard(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
+        protected virtual void GoToSelectorCard(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
-            game_data.selector_card_uids = iability.GetCardTargets(game_data, caster).Select(c => c.uid).ToArray();
+            game_data.selector_card_uids = iability.GetCardTargets(game_data, caster, context: context).Select(c => c.uid).ToArray();
             game_data.selector = SelectorType.SelectorCard;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
             game_data.selector_caster_uid = caster.uid;
             game_data.selector_triggerer_uid = triggerer.uid;
+            game_data.selector_context = context;
             game_data.selector_max_repeat = max_repeat;
             game_data.selector_current_repeat = current_repeat;
             RefreshData();
         }
 
-        protected virtual void GoToSelectorChoice(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat)
+        protected virtual void GoToSelectorChoice(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             game_data.selector = SelectorType.SelectorChoice;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
             game_data.selector_caster_uid = caster.uid;
             game_data.selector_triggerer_uid = triggerer.uid;
+            game_data.selector_context = context;
             game_data.selector_max_repeat = max_repeat;
             game_data.selector_current_repeat = current_repeat;
             RefreshData();
