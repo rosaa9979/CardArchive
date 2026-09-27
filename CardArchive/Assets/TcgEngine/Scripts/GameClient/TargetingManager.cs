@@ -29,6 +29,11 @@ namespace TcgEngine.Client
         public static void SetAimFX(AimTargetFX fx) { aim_fx = fx; }
         public static void SetLineFX(MouseLineFX fx) { line_fx = fx; }
 
+        public static Vector3 GetAimPosition(Vector3 cursor)
+        {
+            return aim_fx != null && aim_fx.TryGetSnapPosition(out Vector3 position) ? position : cursor;
+        }
+
         void Update()
         {
             if (!GameClient.Get().IsReady())

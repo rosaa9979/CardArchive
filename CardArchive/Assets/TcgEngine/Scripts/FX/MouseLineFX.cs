@@ -39,7 +39,7 @@ namespace TcgEngine.FX
             dot_template.SetActive(false);
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (TcgEngine.Replay.ReplaySession.Active)
             {
@@ -102,7 +102,7 @@ namespace TcgEngine.FX
 
             if (visible)
             {
-                Vector3 dest = GameBoard.Get().RaycastMouseBoard();
+                Vector3 dest = TargetingManager.GetAimPosition(GameBoard.Get().RaycastMouseBoard());
                 Vector3 dir = (dest - source).normalized;
                 float dist = (dest - source).magnitude;
 
