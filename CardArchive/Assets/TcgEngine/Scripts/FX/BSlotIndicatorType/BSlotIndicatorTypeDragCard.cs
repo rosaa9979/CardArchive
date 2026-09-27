@@ -52,7 +52,7 @@ namespace TcgEngine.FX
                             if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot()) && ability.AreTargetConditionsMet(game_data, card, board_slot.GetSlot()))
                             {
                                 BoardSlotFX fx = board_slot.GetBoardSlotFX();
-                                fx.SetAnimParameter(true);
+                                fx.SetRangeTarget(current_bslot, card.uid, ability.id);
                             }
                         }
                     }

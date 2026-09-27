@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RangeHatching
-  m_Shader: {fileID: 4800000, guid: 90a2b8bccb606c444b158d66b3729dc2, type: 3}
+  m_Name: TargetLineBodyFill
+  m_Shader: {fileID: 4800000, guid: 10c2d4abdc1a2a84aa358b0480c5a5e0, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -22,14 +22,15 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: c99e1e37807a3f04aa62351cfcd0ce1b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DashSize: 1
-    - _Reveal: 1
+    - _Cutoff: 0.5
     m_Colors:
     - _InkColor: {r: 0.98, g: 0.98, b: 0.96, a: 1}
-    - _OutlineColor: {r: 0.1, g: 0.16, b: 0.25, a: 1}
-    - _ShapeSize: {r: 9.25, g: 10.92, b: 0.2, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

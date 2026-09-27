@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RangeHatching
-  m_Shader: {fileID: 4800000, guid: 90a2b8bccb606c444b158d66b3729dc2, type: 3}
+  m_Name: TargetLabelBackground
+  m_Shader: {fileID: 4800000, guid: 77f7ac01f7e6b574d8e6a2bdaea20b90, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -25,11 +25,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _DashSize: 1
-    - _Reveal: 1
+    - _Feather: 0.4
     m_Colors:
-    - _InkColor: {r: 0.98, g: 0.98, b: 0.96, a: 1}
-    - _OutlineColor: {r: 0.1, g: 0.16, b: 0.25, a: 1}
-    - _ShapeSize: {r: 9.25, g: 10.92, b: 0.2, a: 0}
+    - _InkColor: {r: 0.1, g: 0.16, b: 0.25, a: 1}
+    - _PanelSize: {r: 4, g: 1.4, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

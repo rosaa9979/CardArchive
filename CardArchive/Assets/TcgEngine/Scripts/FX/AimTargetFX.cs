@@ -15,6 +15,13 @@ namespace TcgEngine.FX
     {
         public GameObject target_fx;
         public GameObject text_fx;
+        public SpriteRenderer text_background;
+        [Min(0f)] public float text_line_gap = 0.25f;
+        public Vector2 text_padding = new Vector2(0.4f, 0.25f);
+        public Vector2 text_panel_size = new Vector2(4f, 1.4f);
+        private TextMeshPro description_text;
+        private MaterialPropertyBlock label_properties;
+
 
         [Header("Target snap")]
         [Min(0.01f)] public float snap_duration = 0.14f;
@@ -76,7 +83,7 @@ namespace TcgEngine.FX
                 if (!string.IsNullOrWhiteSpace(ability.selector_desc))
                 {
                     text_visible = true;
-                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>(true);
                     tmpro_text.text = ability.selector_desc;
                 }
 
@@ -104,7 +111,7 @@ namespace TcgEngine.FX
                 if (!string.IsNullOrWhiteSpace(ability.selector_desc))
                 {
                     text_visible = true;
-                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>();
+                    TextMeshPro tmpro_text = text_fx.GetComponentInChildren<TextMeshPro>(true);
                     tmpro_text.text = ability.selector_desc;
                 }
 
@@ -134,7 +141,29 @@ namespace TcgEngine.FX
             UpdateTargetVisual(bslot, visible, dest, Time.unscaledDeltaTime);
         }
 
-        // Only the marker snaps; the description remains attached to the cursor.
+        // Called by the line after its endpoints update, so the label follows
+        // the unsnapped cursor line without a frame of lag.
+        public void PositionLineLabel(Vector3 source, Vector3 destination)
+        {
+            if (text_fx == null || !text_fx.activeSelf || text_background == null) return;
+            if (description_text == null) description_text = text_fx.GetComponentInChildren<TextMeshPro>(true);
+            if (description_text == null) return;
+            Vector2 panel = new Vector2(Mathf.Max(0.1f, text_panel_size.x), Mathf.Max(0.1f, text_panel_size.y));
+            description_text.rectTransform.sizeDelta = new Vector2(
+                Mathf.Max(0.1f, panel.x - text_padding.x * 2f), Mathf.Max(0.1f, panel.y - text_padding.y * 2f));
+            text_background.size = panel;
+            if (label_properties == null) label_properties = new MaterialPropertyBlock();
+            text_background.GetPropertyBlock(label_properties);
+            label_properties.SetVector("_PanelSize", new Vector4(panel.x, panel.y, 0, 0));
+            text_background.SetPropertyBlock(label_properties);
+            Camera camera = Camera.main;
+            Vector3 right = camera != null ? camera.transform.right : Vector3.right;
+            text_fx.transform.rotation = camera != null ? camera.transform.rotation : Quaternion.identity;
+            float halfWidth = panel.x * Mathf.Abs(text_fx.transform.lossyScale.x) * 0.5f;
+            text_fx.transform.position = (source + destination) * 0.5f - right * (halfWidth + text_line_gap);
+        }
+
+        // Only the marker snaps; the description follows the line midpoint.
         private void UpdateTargetVisual(BSlot slot, bool visible, Vector3 cursor, float deltaTime)
         {
             if (!visuals_initialized)

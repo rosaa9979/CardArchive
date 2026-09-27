@@ -29,6 +29,16 @@ namespace TcgEngine.Client
         public static void SetAimFX(AimTargetFX fx) { aim_fx = fx; }
         public static void SetLineFX(MouseLineFX fx) { line_fx = fx; }
 
+        public static void PositionLineLabel(Vector3 source, Vector3 destination)
+        {
+            if (aim_fx != null) aim_fx.PositionLineLabel(source, destination);
+        }
+
+        public static void HideLineLabel()
+        {
+            if (aim_fx != null && aim_fx.text_fx != null) aim_fx.text_fx.SetActive(false);
+        }
+
         public static Vector3 GetAimPosition(Vector3 cursor)
         {
             return aim_fx != null && aim_fx.TryGetSnapPosition(out Vector3 position) ? position : cursor;

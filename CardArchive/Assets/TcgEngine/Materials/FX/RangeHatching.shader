@@ -5,7 +5,8 @@ Shader "TcgEngine/RangeHatching"
         _InkColor ("Ink", Color) = (0.98, 0.98, 0.96, 1)
         _OutlineColor ("Outline", Color) = (0.10, 0.16, 0.25, 1)
         _ShapeSize ("Sprite local dimensions", Vector) = (9.25, 10.92, 0, 0)
-        _FlowSpeed ("Flow speed", Range(0, 0.1)) = 0.018
+        _Reveal ("Slide reveal", Range(0, 1)) = 1
+        _DashSize ("Dash length pulse", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -24,7 +25,8 @@ Shader "TcgEngine/RangeHatching"
                 half4 _InkColor;
                 half4 _OutlineColor;
                 float4 _ShapeSize;
-                float _FlowSpeed;
+                float _Reveal;
+                float _DashSize;
             CBUFFER_END
             struct Attributes { float3 positionOS : POSITION; };
             struct Varyings { float4 positionCS : SV_POSITION; float2 local : TEXCOORD0; };
@@ -42,13 +44,20 @@ Shader "TcgEngine/RangeHatching"
                 clip(0.5 - abs(p.x));
                 clip(0.5 - abs(p.y) - 0.5 * abs(p.x));
                 float2 diagonal = float2(p.x + p.y, p.x - p.y) * 0.70710678;
-                diagonal.x += _Time.y * _FlowSpeed;
+                // Two halves travel along the hatch direction from opposite sides.
+                // Restrict each to its original half so repeating UVs cannot wrap
+                // new strokes into view while the pattern is outside the hexagon.
+                float side = diagonal.x < 0 ? -1 : 1;
+                diagonal.x -= side * (1 - saturate(_Reveal)) * 0.65;
+                clip(side * diagonal.x);
+                clip(_DashSize - 0.001);
                 float2 pitch = float2(0.26, 0.20);
                 float2 cell = (frac(diagonal / pitch + 0.5) - 0.5) * pitch;
-                float distanceToDash = length(float2(max(abs(cell.x) - 0.055, 0), cell.y));
-                clip(0.018 - distanceToDash);
+                float distanceToDash = length(float2(max(abs(cell.x) - 0.055 * _DashSize, 0), cell.y));
+                float radius = 0.018 * saturate(_DashSize * 3);
+                clip(radius - distanceToDash);
                 // Opaque ink and outline: the tile never tints the drawn strokes.
-                half3 color = distanceToDash < 0.009 ? _InkColor.rgb : _OutlineColor.rgb;
+                half3 color = distanceToDash < radius * 0.5 ? _InkColor.rgb : _OutlineColor.rgb;
                 return half4(color, 1);
             }
             ENDHLSL

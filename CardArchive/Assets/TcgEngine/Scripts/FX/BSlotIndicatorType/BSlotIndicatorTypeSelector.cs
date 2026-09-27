@@ -12,6 +12,13 @@ namespace TcgEngine.FX
         {
             ResetAllFX(game_data);
 
+            // Preview belongs to the selecting client, not whoever is hovering
+            // while a remote player's selector is active.
+            GameClient client = GameClient.Get();
+            if (client == null || client.IsObserveMode() || game_data.selector != SelectorType.SelectTarget
+                || !game_data.IsPlayerSelectorTurn(game_data.GetPlayer(client.GetPlayerID())))
+                return;
+
             // On-play/activated/chained selectors must preview the ability that is
             // actually awaiting a target, not the caster's PlayTarget spell ability.
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
@@ -29,7 +36,7 @@ namespace TcgEngine.FX
                 Slot candidate = board_slot.GetSlot();
                 if (ability.AreWideRangeConditionsMet(game_data, caster, selected, candidate, context: game_data.selector_context)
                     && ability.AreTargetConditionsMet(game_data, caster, candidate, context: game_data.selector_context))
-                    board_slot.GetBoardSlotFX().SetAnimParameter(true);
+                    board_slot.GetBoardSlotFX().SetRangeTarget(current_bslot, caster.uid, ability.id);
             }
         }
 
