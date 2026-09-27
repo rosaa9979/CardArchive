@@ -34,9 +34,10 @@ namespace TcgEngine.FX
             slot_fx.SetSortingLayer(layer_id);
         }
 
-        public void ResetAllFX()
+        public void ResetAllFX(Game game_data = null)
         {
-            Game game_data = GameClient.Get().GetGameData();
+            if (game_data == null)
+                game_data = GameClient.Get().GetGameData();
 
             foreach (BoardSlot board_slot in BoardSlot.GetAll())
             {

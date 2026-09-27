@@ -10,31 +10,26 @@ namespace TcgEngine.FX
     {
         public override void Execute(Game game_data, BSlot current_bslot)
         {
-            ResetAllFX();
+            ResetAllFX(game_data);
 
-            Card card = game_data.GetCard(game_data.selector_caster_uid);
-            AbilityData iability = AbilityData.Get(game_data.selector_ability_id);
+            // On-play/activated/chained selectors must preview the ability that is
+            // actually awaiting a target, not the caster's PlayTarget spell ability.
+            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (current_bslot == null || caster == null || ability == null
+                || ability.criteria_target != AbilityTarget.SelectTarget)
+                return;
 
-            if (iability != null)
+            Slot selected = current_bslot.GetSlot();
+            if (!ability.CanTarget(game_data, caster, selected, context: game_data.selector_context))
+                return;
+
+            foreach (BoardSlot board_slot in BoardSlot.GetAll())
             {
-                Card caster = game_data.GetCard(game_data.selector_caster_uid);
-
-                if (current_bslot != null)
-                {
-                   AbilityData ability = card.GetAbility(AbilityTarget.PlayTarget);
-
-                    if (ability != null && ability.CanTarget(game_data, card, current_bslot.GetSlot(), context: game_data.selector_context))
-                    {
-                        foreach (BoardSlot board_slot in BoardSlot.GetAll())
-                        {
-                            if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot(), context: game_data.selector_context) && ability.AreTargetConditionsMet(game_data, card, board_slot.GetSlot(), context: game_data.selector_context))
-                            {
-                                BoardSlotFX fx = board_slot.GetBoardSlotFX();
-                                fx.SetAnimParameter(true);
-                            }
-                        }
-                    }
-                }
+                Slot candidate = board_slot.GetSlot();
+                if (ability.AreWideRangeConditionsMet(game_data, caster, selected, candidate, context: game_data.selector_context)
+                    && ability.AreTargetConditionsMet(game_data, caster, candidate, context: game_data.selector_context))
+                    board_slot.GetBoardSlotFX().SetAnimParameter(true);
             }
         }
 
