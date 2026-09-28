@@ -36,7 +36,7 @@ Shader "VFX/UI"
 	{
 		PackageRequirements
 		{
-			"com.unity.render-pipelines.universal": "[14.0,15.0]"
+			"com.unity.render-pipelines.universal": "[14.0,17.6]"
 		}
 
 		

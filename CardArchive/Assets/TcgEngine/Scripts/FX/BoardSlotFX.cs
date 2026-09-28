@@ -31,7 +31,6 @@ namespace TcgEngine.FX
         private float exit_reveal;
         private MaterialPropertyBlock range_properties;
         private static readonly int RevealId = Shader.PropertyToID("_Reveal");
-        private static readonly int DashSizeId = Shader.PropertyToID("_DashSize");
 
         void Awake()
         {
@@ -126,7 +125,6 @@ namespace TcgEngine.FX
                 range_properties = new MaterialPropertyBlock();
             bslot.overlay_renderer.GetPropertyBlock(range_properties);
             range_properties.SetFloat(RevealId, range_reveal);
-            range_properties.SetFloat(DashSizeId, 1f);
             bslot.overlay_renderer.SetPropertyBlock(range_properties);
         }
 

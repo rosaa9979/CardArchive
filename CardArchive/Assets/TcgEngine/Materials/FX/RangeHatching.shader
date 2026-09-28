@@ -6,7 +6,8 @@ Shader "TcgEngine/RangeHatching"
         _OutlineColor ("Outline", Color) = (0.10, 0.16, 0.25, 1)
         _ShapeSize ("Sprite local dimensions", Vector) = (9.25, 10.92, 0, 0)
         _Reveal ("Slide reveal", Range(0, 1)) = 1
-        _DashSize ("Dash length pulse", Range(0, 1)) = 1
+        _StripeSpacing ("Stripe spacing", Float) = 0.25
+        _StripeWidth ("Stripe width", Float) = 0.038
     }
     SubShader
     {
@@ -26,7 +27,8 @@ Shader "TcgEngine/RangeHatching"
                 half4 _OutlineColor;
                 float4 _ShapeSize;
                 float _Reveal;
-                float _DashSize;
+                float _StripeSpacing;
+                float _StripeWidth;
             CBUFFER_END
             struct Attributes { float3 positionOS : POSITION; };
             struct Varyings { float4 positionCS : SV_POSITION; float2 local : TEXCOORD0; };
@@ -50,14 +52,13 @@ Shader "TcgEngine/RangeHatching"
                 float side = diagonal.x < 0 ? -1 : 1;
                 diagonal.x -= side * (1 - saturate(_Reveal)) * 0.65;
                 clip(side * diagonal.x);
-                clip(_DashSize - 0.001);
-                float2 pitch = float2(0.26, 0.20);
-                float2 cell = (frac(diagonal / pitch + 0.5) - 0.5) * pitch;
-                float distanceToDash = length(float2(max(abs(cell.x) - 0.055 * _DashSize, 0), cell.y));
-                float radius = 0.018 * saturate(_DashSize * 3);
-                clip(radius - distanceToDash);
-                // Opaque ink and outline: the tile never tints the drawn strokes.
-                half3 color = distanceToDash < radius * 0.5 ? _InkColor.rgb : _OutlineColor.rgb;
+                // Continuous diagonal stripes: no repeating short dash segments.
+                float pitch = max(_StripeSpacing, 0.01);
+                float distanceToStripe = abs(frac(diagonal.y / pitch + 0.5) - 0.5) * pitch;
+                float radius = max(_StripeWidth, 0.001) * 0.5;
+                clip(radius - distanceToStripe);
+                // Opaque ivory core with a thin navy edge stays legible on all teams.
+                half3 color = distanceToStripe < radius * 0.65 ? _InkColor.rgb : _OutlineColor.rgb;
                 return half4(color, 1);
             }
             ENDHLSL
