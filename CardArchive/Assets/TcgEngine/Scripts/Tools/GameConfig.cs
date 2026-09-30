@@ -40,7 +40,8 @@ namespace TcgEngine
             public const float callback = 0.1f;         //callback_queue: transition callbacks
 
             //--- Phase / turn transitions ---
-            public const float game_start = 1f;             //GameStart -> starting hands/mulligan
+            public const float coin_toss = 3f;              //Client presentation of the authoritative first player
+            public const float game_start = coin_toss + 1f; //Coin reveal, then game-start effects/hands/mulligan
             public const float first_turn = 1f;             //Mulligan/GameStart -> first StartTurn
             public const float mulligan_to_turn = 4f;       //Mulligan done -> first turn (client handoff buffer)
             public const float turn_start = 1.5f;           //StartTurn -> BeforeMainPhase

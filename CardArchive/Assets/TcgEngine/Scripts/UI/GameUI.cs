@@ -162,7 +162,7 @@ namespace TcgEngine.UI
 
         private void OnGameStart()
         {
-            
+            CoinTossUI.Show(this);
         }
 
         private void OnNewTurn(int player_id)

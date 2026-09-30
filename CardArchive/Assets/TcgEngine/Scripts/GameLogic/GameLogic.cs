@@ -239,13 +239,12 @@ namespace TcgEngine.Gameplay
             onReplaySetup?.Invoke(game_data);
 
             //Start state
+            game_data.phase = GamePhase.GameStart;
             RefreshData();
             onGameStart?.Invoke();
 
             //OnGameStart abilities fire BEFORE the draw and mulligan now (hand and board are still empty here).
             //(club / hero / player_ability cards). The starting hand is drawn once these resolve.
-            game_data.phase = GamePhase.GameStart;
-            RefreshData();
             //[EVENT PHASE] 양쪽 플레이어의 게임시작 트리거는 하나의 이벤트다.
             resolve_queue.BeginPhase();
             foreach (Player player in game_data.players)
