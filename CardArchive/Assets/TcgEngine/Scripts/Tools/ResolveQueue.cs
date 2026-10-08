@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -833,6 +833,13 @@ namespace TcgEngine
             ResolveAll();
         }
 
+        //If only the panel was disabled, the live server resumes next update. During teardown
+        //there is no next server update, so queued callbacks cannot spawn orphaned FX.
+        public void EditorResumeOnNextUpdate()
+        {
+            resolve_delay = 0.001f;
+        }
+
         public bool EditorHasPendingWork()
         {
             return HasPendingWork();
@@ -871,12 +878,12 @@ namespace TcgEngine
             foreach (SecretQueueElement e in secret_queue)
             {
                 if (output.IsFull) return;
-                output.Add("비밀", EffectStepDebug.DescribeCard(e.secret), EffectStepDebug.DescribeCard(e.triggerer), 0);
+                output.Add("비밀", EffectStepDebug.DescribeCard(e.secret), EffectStepDebug.DescribeCard(e.secret), 0, e.secret != null ? e.secret.player_id : -1);
             }
             foreach (AttackQueueElement e in attack_queue)
             {
                 if (output.IsFull) return;
-                output.Add("공격", EditorDescribeAttack(e), null,0);
+                output.Add("공격", EditorDescribeAttack(e), EffectStepDebug.DescribeCard(e.attacker), 0, e.attacker != null ? e.attacker.player_id : -1);
             }
             if (callback_queue.Count > 0)
                 output.Add("진행", "턴 진행 콜백 x" + callback_queue.Count, null, 0);
@@ -903,16 +910,16 @@ namespace TcgEngine
             foreach (AttackQueueElement e in p.attacks)
             {
                 if (output.IsFull) return;
-                output.Add("유발공격", EditorDescribeAttack(e), null,depth);
+                output.Add("유발공격", EditorDescribeAttack(e), EffectStepDebug.DescribeCard(e.attacker), depth, e.attacker != null ? e.attacker.player_id : -1);
             }
         }
 
         void EditorAddAbility(EffectStepDebug.PendingList output, string tag, AbilityQueueElement e, int depth)
         {
-            string title = EffectStepDebug.DescribeAbility(e.ability);
+            string title = EffectStepDebug.DescribeAbility(e.ability, e.caster);
             if (e.max_repeat > 1)
                 title += " (" + (e.current_repeat + 1) + "/" + e.max_repeat + "회)";
-            output.Add(tag, title, EffectStepDebug.DescribeCard(e.caster), depth);
+            output.Add(tag, title, EffectStepDebug.DescribeCard(e.caster), depth, e.caster != null ? e.caster.player_id : -1);
         }
 
         string EditorDescribeAttack(AttackQueueElement e)

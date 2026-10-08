@@ -93,6 +93,13 @@ namespace TcgEngine
                 bool freeze = GUILayout.Toggle(server.DebugFreezeTimer, "Freeze turn timer");
                 if (server.DebugFreezeTimer && !freeze) server.GetGameData().turn_timer = GameplayData.Get().turn_duration;
                 server.DebugFreezeTimer = freeze;
+                bool keepMana = GUILayout.Toggle(server.DebugKeepManaFull, "양쪽 마나 가득 유지");
+                if (keepMana != server.DebugKeepManaFull)
+                {
+                    server.DebugKeepManaFull = keepMana;
+                    if (keepMana) server.DebugRefillMana();
+                }
+                GUILayout.Label("시작 마나: 양쪽 10");
                 GUI.enabled = server.DebugCanEdit;
                 if (GUILayout.Button("End current main phase")) server.DebugNextStep();
                 GUI.enabled = true;

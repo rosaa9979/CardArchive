@@ -22,8 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7463bf87d3794e249b7610c9de9c5327, type: 2}
   - {fileID: 11400000, guid: 6e061e121d60faf46baaa057b72de421, type: 2}
   - {fileID: 11400000, guid: 695f1349c896c004e974798243210ddd, type: 2}
-  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
-    type: 2}
+  condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db, type: 2}
   condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
@@ -44,5 +43,5 @@ MonoBehaviour:
   target_audio: {fileID: 0}
   charge_target: 0
   title: 
-  desc: 
+  desc: "\uB0B4 \uD134\uC5D0 \uCE74\uB4DC\uB97C \uC0AC\uC6A9\uD558\uBA74, \uC544\uAD70 \uBCF4\uCDA9\uC218\uC5C5\uBD80 \uD559\uC0DD\uB4E4\uC758 \uACF5\uACA9\uB825\uC744 <value> \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
   selector_desc: 

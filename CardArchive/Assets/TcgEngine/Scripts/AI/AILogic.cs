@@ -177,9 +177,8 @@ namespace TcgEngine.AI
                 }
             }
 
-            //End Turn (dont add action if ai hasnt spent any mana)
-            bool is_full_mana = HasAction(action_list, GameAction.PlayCard) && player.mana >= player.mana_max;
-            bool can_end = !is_full_mana && data.selector == SelectorType.None;
+            //Include passing even at full mana: playable cards may not provide any benefit.
+            bool can_end = data.selector == SelectorType.None;
             if (action_list.Count == 0 || can_end)
             {
                 AIAction actiont = CreateAction(GameAction.EndTurn);

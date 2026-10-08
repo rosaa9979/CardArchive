@@ -7,7 +7,7 @@ namespace TcgEngine
     /// <summary>
     /// EDITOR-ONLY 치트. 효과 처리(ResolveQueue)를 한 항목씩 손으로 진행시키고, 지금 대기 중인
     /// 효과와 직전 스텝에서 실제로 실행된 EffectData를 들여다보기 위한 디버그 훅 모음이다.
-    /// AiDebugGame 씬의 EffectStepPanel이 이 클래스를 조작한다.
+    /// EffectTestGame 씬의 EffectStepPanel이 이 클래스를 조작한다.
     ///
     /// ── 정상 동작에 영향을 주지 않기 위한 규칙 ────────────────────────────────────
     ///  1) 상태 필드와 모든 메서드 본문이 #if UNITY_EDITOR 안에 있다. 빌드에서는 필드가 하나도
@@ -65,6 +65,7 @@ namespace TcgEngine
             public string tag;    //유발 / 연쇄 / 유발공격 / 사망 / 비밀 / 공격 / 진행
             public string title;  //어빌리티 이름, 스텝 이름 등
             public string source; //시전자 / 공격자 (없으면 null)
+            public int owner_id = -1; //Actual caster owner; -1 denotes a system step.
             public int depth;     //Phase 트리 깊이. 0 = 최상위 (들여쓰기용)
         }
 
@@ -85,7 +86,7 @@ namespace TcgEngine
                 count = 0;
             }
 
-            public void Add(string tag, string title, string source, int depth)
+            public void Add(string tag, string title, string source, int depth, int ownerId = -1)
             {
                 if (count >= max)
                     return;
@@ -103,6 +104,7 @@ namespace TcgEngine
                 e.title = title;
                 e.source = source;
                 e.depth = depth;
+                e.owner_id = ownerId;
                 count++;
             }
         }
@@ -161,7 +163,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, "(대상 없음)");
+            Append(ability, caster, "(대상 없음)");
 #endif
         }
 
@@ -170,7 +172,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, DescribeCard(target));
+            Append(ability, caster, DescribeCard(target));
 #endif
         }
 
@@ -179,7 +181,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, target != null ? "플레이어 " + target.player_id : "(없음)");
+            Append(ability, caster, target != null ? "플레이어 " + target.player_id : "(없음)");
 #endif
         }
 
@@ -188,7 +190,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, DescribeSlot(target));
+            Append(ability, caster, DescribeSlot(target));
 #endif
         }
 
@@ -197,7 +199,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, target != null ? target.GetTitle() : "(없음)");
+            Append(ability, caster, target != null ? target.GetTitle() : "(없음)");
 #endif
         }
 
@@ -206,7 +208,7 @@ namespace TcgEngine
         {
 #if UNITY_EDITOR
             if (!CanCapture(effect)) return;
-            Append(effect, target != null ? "카드 " + target.Count + "장" : "(없음)");
+            Append(ability, caster, target != null ? "카드 " + target.Count + "장" : "(없음)");
 #endif
         }
 
@@ -222,12 +224,9 @@ namespace TcgEngine
             return effect_log.Count < max_effect_log;
         }
 
-        private static void Append(EffectData effect, string target_desc)
+        private static void Append(AbilityData ability, Card caster, string target_desc)
         {
-            string line = effect.GetType().Name;
-            if (!string.IsNullOrEmpty(effect.name) && effect.name != line)
-                line += " (" + effect.name + ")";
-            effect_log.Add(line + "  →  " + target_desc);
+            effect_log.Add(DescribeAbility(ability, caster) + "  →  " + target_desc);
         }
 #endif
 
@@ -243,9 +242,10 @@ namespace TcgEngine
 
         public static bool IsEnabled { get { return enabled; } }
         public static bool HasQueue { get { return queue != null; } }
+        public static bool CanStep => enabled && queue != null && queue.EditorHasPendingWork() && !queue.EditorIsWaitingSelector();
         public static int StepCount { get { return step_count; } }
 
-        public static void SetEnabled(bool on)
+        public static void SetEnabled(bool on, bool deferResume = false)
         {
             if (enabled == on)
                 return;
@@ -257,7 +257,11 @@ namespace TcgEngine
                 effect_log.Clear();
                 //붙잡혀 있던 큐는 delay가 0인 채로 잠들어 있다. 명시적으로 다시 굴려줘야 한다.
                 if (queue != null)
-                    queue.EditorResolveKick();
+                {
+                    //Lifecycle callbacks must not resolve effects while scene objects are being destroyed.
+                    if (deferResume) queue.EditorResumeOnNextUpdate();
+                    else queue.EditorResolveKick();
+                }
             }
         }
 
@@ -318,12 +322,16 @@ namespace TcgEngine
             return string.IsNullOrEmpty(title) ? card.card_id : title;
         }
 
-        public static string DescribeAbility(AbilityData ability)
+        public static string DescribeAbility(AbilityData ability, Card caster = null)
         {
-            if (ability == null)
-                return "(없음)";
-            string title = ability.GetTitle();
-            return string.IsNullOrEmpty(title) ? ability.id : title;
+            if (ability == null || string.IsNullOrWhiteSpace(ability.desc))
+                return "능력 설명이 등록되지 않았습니다.";
+
+            //Use the same placeholders as AbilityData.GetDesc(CardData), with null-safe caster handling.
+            string name = caster != null && caster.CardData != null ? caster.CardData.GetTitle() : "발동 주체";
+            return ability.desc.Replace("<name>", name ?? "발동 주체")
+                .Replace("<value>", ability.value.ToString())
+                .Replace("<duration>", ability.duration.ToString());
         }
 #endif
     }

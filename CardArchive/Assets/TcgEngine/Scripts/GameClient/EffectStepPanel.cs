@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -39,6 +39,9 @@ namespace TcgEngine.Client
         public Button toggle_button;          //선택: 코드로 리스너를 붙여준다
         public Button next_button;            //선택: 코드로 리스너를 붙여준다
         public List<EffectStepItem> items = new List<EffectStepItem>(); //대기 목록 행들 (개수 = 표시 상한)
+        public EffectStepItem item_prefab;
+        public RectTransform items_root;
+        private const int max_pending = 256;
         public TMP_Text empty_text;           //선택: 대기 항목이 없을 때만 켜지는 안내 문구
         public TMP_Text effect_text;          //직전 스텝의 EffectData 목록
         public TMP_Text status_text;          //상태 한 줄
@@ -71,13 +74,15 @@ namespace TcgEngine.Client
 
         void OnDestroy()
         {
-            //패널이 사라지면 치트도 반드시 풀린다 — 멈춰 있던 큐를 다시 굴려준다.
-            EffectStepDebug.SetEnabled(false);
+            //Never run pending effects from a teardown callback.
+            EffectStepDebug.SetEnabled(false, deferResume: true);
+            if (toggle_button != null) toggle_button.onClick.RemoveListener(OnClickToggle);
+            if (next_button != null) next_button.onClick.RemoveListener(OnClickNext);
         }
 
         void OnDisable()
         {
-            EffectStepDebug.SetEnabled(false);
+            EffectStepDebug.SetEnabled(false, deferResume: true);
             SetToggleLabel();
         }
 
@@ -141,10 +146,10 @@ namespace TcgEngine.Client
                 return;
 
             if (status_text != null)
-                status_text.text = EffectStepDebug.GetStatusText();
+                status_text.text = EffectStepDebug.GetStatusText() + " · 처리 " + EffectStepDebug.StepCount + "단계";
 
             if (next_button != null)
-                next_button.interactable = EffectStepDebug.IsEnabled && EffectStepDebug.HasQueue;
+                next_button.interactable = EffectStepDebug.CanStep;
 
             RefreshItems();
 
@@ -176,14 +181,16 @@ namespace TcgEngine.Client
         //대기 목록 행 채우기. 1번 행이 "다음에 처리될 항목"이다.
         private void RefreshItems()
         {
-            if (items.Count == 0)
+            if (items.Count == 0 && (item_prefab == null || items_root == null))
                 return;
 
             int count = 0;
             if (EffectStepDebug.HasQueue)
             {
-                EffectStepDebug.PendingList pending = EffectStepDebug.GetPending(items.Count);
+                EffectStepDebug.PendingList pending = EffectStepDebug.GetPending(item_prefab != null ? max_pending : items.Count);
                 count = pending.Count;
+                while (items.Count < count && item_prefab != null && items_root != null)
+                    items.Add(Instantiate(item_prefab, items_root));
                 for (int i = 0; i < count; i++)
                 {
                     EffectStepItem item = items[i];

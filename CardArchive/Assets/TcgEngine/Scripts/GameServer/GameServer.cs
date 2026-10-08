@@ -36,6 +36,19 @@ namespace TcgEngine.Server
         public bool DebugEffectTestMode { get; set; }
         public bool DebugPauseAI { get; set; } = true;
         public bool DebugFreezeTimer { get; set; } = true;
+        public bool DebugKeepManaFull { get; set; }
+        public void DebugRefillMana()
+        {
+            if (!DebugEffectTestMode || is_dedicated_server || game_data.state != GameState.Play) return;
+            bool changed = false;
+            foreach (Player player in game_data.players)
+            {
+                if (player.mana >= player.mana_max) continue;
+                player.mana = player.mana_max;
+                changed = true;
+            }
+            if (changed) RefreshAll();
+        }
         public bool DebugCanEdit => DebugEffectTestMode && !is_dedicated_server
             && game_data.state == GameState.Play && game_data.phase == GamePhase.Main
             && game_data.selector == SelectorType.None && !gameplay.IsResolving() && queued_actions.Count == 0;
@@ -216,6 +229,9 @@ namespace TcgEngine.Server
 
             //Update game logic
             gameplay.Update(Time.deltaTime);
+#if UNITY_EDITOR
+            if (DebugKeepManaFull) DebugRefillMana();
+#endif
 
             //Update AI
             foreach (AIPlayer ai in ai_list)
@@ -251,6 +267,9 @@ namespace TcgEngine.Server
             }
 
             //Start Game
+#if UNITY_EDITOR
+            if (DebugEffectTestMode && !is_dedicated_server) gameplay.DebugStartingMana = 10;
+#endif
             gameplay.StartGame();
         }
 

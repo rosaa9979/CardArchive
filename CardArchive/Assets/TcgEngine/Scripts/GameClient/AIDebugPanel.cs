@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 using TcgEngine;
@@ -56,6 +58,28 @@ namespace TcgEngine.Client
 
         void Awake()
         {
+            StylePanel(canvas_group);
+            StylePanel(detail_group);
+            if (detail_text != null)
+            {
+                //This entire component is editor-only; reuse the project's existing Korean font.
+                TMP_FontAsset font = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                    "Assets/TcgEngine/Fonts/Pretendard-Bold SDF.asset");
+                if (font != null)
+                {
+                    detail_text.font = font;
+                    detail_text.fontSharedMaterial = font.material;
+                }
+                detail_text.fontStyle = FontStyles.Normal;
+                detail_text.enableAutoSizing = false;
+                detail_text.fontSize = 20f;
+                detail_text.color = new Color32(230, 237, 247, 255);
+                detail_text.alignment = TextAlignmentOptions.TopLeft;
+                detail_text.richText = true;
+                detail_text.lineSpacing = 5f;
+                detail_text.raycastTarget = false;
+                detail_text.margin = new Vector4(detail_padding, detail_padding, detail_padding, detail_padding);
+            }
             if (start_hidden)
                 SetGroupVisible(false);
             ClearItems();
@@ -263,6 +287,7 @@ namespace TcgEngine.Client
             nodes.Sort((a, b) => b.hvalue.CompareTo(a.hvalue)); //Descending by score
 
             int count = Mathf.Min(items.Count, nodes.Count);
+            SetStatus("AI 평가 · " + count + "/" + nodes.Count + "개 행동");
             for (int i = 0; i < count; i++)
             {
                 int slot = reverse_order ? (count - 1 - i) : i; //rank 1 still highest; just which row it lands in
@@ -273,7 +298,7 @@ namespace TcgEngine.Client
                 NodeState node = nodes[i];
                 //Compute the score breakdown now, while ai_logic is still alive (StopAndClear runs after this).
                 string details = ai_logic != null ? ai_logic.BuildScoreReport(node) : "";
-                item.SetData(i + 1, node.hvalue, DescribeAction(data, node.last_action), details, this);
+                item.SetData(i + 1, node.hvalue, DescribeAction(data, node.last_action), details, this, nodes[0].hvalue);
             }
         }
 
@@ -331,6 +356,7 @@ namespace TcgEngine.Client
 
         private void ClearItems()
         {
+            SetDetailVisible(false);
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i] != null)
@@ -354,8 +380,11 @@ namespace TcgEngine.Client
             if (detail_text != null)
             {
                 detail_text.textWrappingMode = TextWrappingModes.Normal;
-                detail_text.overflowMode = TextOverflowModes.Overflow; //Show all lines; height follows the text
-                detail_text.text = string.IsNullOrEmpty(details) ? "(분해 정보 없음)" : details;
+                detail_text.overflowMode = TextOverflowModes.Page;
+                detail_text.pageToDisplay = 1;
+                detail_text.text = (item != null ? item.Summary + "\n" : "")
+                    + "<size=80%><color=#9CAEC5>행 위에서 휠로 상세 페이지 이동 · 점수가 높을수록 유리</color></size>\n\n"
+                    + FormatReport(details);
             }
 
             //Height = preferred text height (wrapped at the box width) + padding, capped to the canvas height.
@@ -363,12 +392,15 @@ namespace TcgEngine.Client
             {
                 float pad = Mathf.Max(0f, detail_padding);
                 float box_w = Mathf.Max(10f, drt.rect.width);
-                float text_w = Mathf.Max(10f, box_w - pad * 2f);
-                float h = detail_text.GetPreferredValues(detail_text.text, text_w, 0f).y + pad * 2f;
+                //TMP subtracts its own margins from the supplied measurement width.
+                float h = detail_text.GetPreferredValues(detail_text.text, box_w, 0f).y + pad * 2f;
 
                 RectTransform canvas_rt = GetCanvasRect(drt);
                 if (canvas_rt != null)
-                    h = Mathf.Min(h, canvas_rt.rect.height - pad * 2f);
+                {
+                    float localScale = Mathf.Abs(drt.lossyScale.y / canvas_rt.lossyScale.y);
+                    h = Mathf.Min(h, (canvas_rt.rect.height - pad * 2f) / Mathf.Max(0.01f, localScale));
+                }
 
                 drt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
             }
@@ -384,6 +416,156 @@ namespace TcgEngine.Client
             ClampToCanvas(drt);
 
             SetDetailVisible(true);
+            if (detail_text != null)
+                detail_text.ForceMeshUpdate();
+        }
+
+        public void ScrollDetail(float delta)
+        {
+            if (detail_text == null || detail_group == null || detail_group.alpha == 0f || delta == 0f)
+                return;
+            detail_text.pageToDisplay = Mathf.Clamp(detail_text.pageToDisplay + (delta < 0f ? 1 : -1),
+                1, Mathf.Max(1, detail_text.textInfo.pageCount));
+        }
+
+        private void StylePanel(CanvasGroup group)
+        {
+            if (group == null)
+                return;
+            UnityEngine.UI.Image image = group.GetComponent<UnityEngine.UI.Image>();
+            if (image != null)
+                image.color = new Color32(16, 23, 36, 250);
+        }
+
+        public static string EscapeText(string text)
+        {
+            //Keep card names and literal comparisons from becoming TMP tags.
+            return (text ?? "").Replace("<", "<\u200B");
+        }
+
+        public static string ScoreText(int score)
+        {
+            string color = score > 0 ? "69E0CD" : score < 0 ? "FF9DAB" : "BBC8DA";
+            return "<color=#" + color + ">" + score.ToString("+#,0;-#,0;0") + "</color>";
+        }
+
+        private static string FormatReport(string report)
+        {
+            if (string.IsNullOrEmpty(report))
+                return "분해 정보 없음";
+
+            StringBuilder result = new StringBuilder();
+            bool clubsStarted = false;
+            int step = 0;
+            foreach (string raw in report.Split('\n'))
+            {
+                string line = raw.Trim();
+                if (line.Length == 0)
+                    continue;
+                if (line.StartsWith("■ 예측"))
+                {
+                    ReportHeading(result, "01  예측 행동", "양측이 최선의 수를 선택했을 때의 진행 순서");
+                    continue;
+                }
+                if (line.StartsWith("■ 리프"))
+                {
+                    ReportHeading(result, "02  기본 점수", "예측 경로 마지막 상태 · 수량 × 가중치 = 기여 점수");
+                    ReportColumns(result, "항목", "나", "상대", "차이 (나 − 상대)");
+                    continue;
+                }
+                Match path = Regex.Match(line, @"^(나|상대): (.*)$");
+                if (path.Success)
+                {
+                    result.Append("<color=#9CAEC5>").Append((++step).ToString("00"))
+                        .Append("</color>  ").Append(SideLabel(path.Groups[1].Value))
+                        .Append("  ").AppendLine(EscapeText(path.Groups[2].Value));
+                    continue;
+                }
+                Match split = Regex.Match(line, @"^(.+): 나 (.+) − 상대 (.+) = ([+-]?\d+)$");
+                if (split.Success)
+                {
+                    ReportColumns(result, EscapeText(split.Groups[1].Value),
+                        EscapeText(split.Groups[2].Value), EscapeText(split.Groups[3].Value),
+                        ReportNumber(split.Groups[4].Value));
+                    continue;
+                }
+                if (line.StartsWith("유닛 ("))
+                {
+                    ReportHeading(result, "03  유닛별 기여", line.Substring(3).TrimEnd(':'));
+                    continue;
+                }
+                Match unit = Regex.Match(line, @"^\[(나|상대)\] (.*): 공(-?\d+)→(-?\d+), 체(-?\d+)→(-?\d+)(?:, 상태→(-?\d+))? \(계 (-?\d+)\)$");
+                if (unit.Success)
+                {
+                    result.Append(SideLabel(unit.Groups[1].Value)).Append("  ")
+                        .AppendLine(EscapeText(unit.Groups[2].Value));
+                    ReportColumns(result, "<color=#9CAEC5>기여 점수</color>",
+                        "공격 " + unit.Groups[3].Value + " → " + unit.Groups[4].Value,
+                        "체력 " + unit.Groups[5].Value + " → " + unit.Groups[6].Value,
+                        "상태 " + (unit.Groups[7].Success ? unit.Groups[7].Value : "0"));
+                    result.Append("<color=#9CAEC5>기여 합계</color><pos=76%>")
+                        .AppendLine(ReportNumber(unit.Groups[8].Value));
+                    result.AppendLine();
+                    continue;
+                }
+                Match club = Regex.Match(line, @"^\[(나|상대)\] 클럽 (.*) \((.*)\) → (-?\d+)$");
+                if (club.Success)
+                {
+                    if (!clubsStarted)
+                    {
+                        ReportHeading(result, "04  클럽 시너지", "발동 조건과 해당 진영의 기여 점수");
+                        clubsStarted = true;
+                    }
+                    result.Append(SideLabel(club.Groups[1].Value)).Append("  ")
+                        .AppendLine(EscapeText(club.Groups[2].Value));
+                    result.Append("<color=#9CAEC5>").Append(EscapeText(club.Groups[3].Value))
+                        .Append("</color><pos=76%>").AppendLine(ReportNumber(club.Groups[4].Value));
+                    continue;
+                }
+                if (line.StartsWith("합계(hvalue): "))
+                {
+                    ReportHeading(result, "최종 평가", "예측 경로 마지막 상태의 평가값");
+                    result.Append("<size=120%>리프 평가 점수<pos=76%>")
+                        .Append(ReportNumber(line.Substring("합계(hvalue): ".Length))).AppendLine("</size>");
+                    continue;
+                }
+                Match subtotal = Regex.Match(line, @"^└ (.+) \(나 (-?\d+) − 상대 (-?\d+)\): ([+-]?\d+)$");
+                if (subtotal.Success)
+                {
+                    ReportColumns(result, EscapeText(subtotal.Groups[1].Value), subtotal.Groups[2].Value,
+                        subtotal.Groups[3].Value, ReportNumber(subtotal.Groups[4].Value));
+                    continue;
+                }
+                //Preserve terminal-state bonuses, random modifiers and any future report fields.
+                result.AppendLine(EscapeText(line));
+            }
+            return result.ToString();
+        }
+
+        private static void ReportHeading(StringBuilder result, string title, string caption)
+        {
+            if (result.Length > 0)
+                result.AppendLine();
+            result.Append("<color=#8FBAFF><size=110%>").Append(EscapeText(title)).AppendLine("</size></color>");
+            result.Append("<size=85%><color=#9CAEC5>").Append(EscapeText(caption)).AppendLine("</color></size>");
+        }
+
+        private static void ReportColumns(StringBuilder result, string label, string mine, string theirs, string net)
+        {
+            //Percentage positions align columns independently of Pretendard's variable glyph widths.
+            result.Append(label).Append("<pos=28%>").Append(mine)
+                .Append("<pos=52%>").Append(theirs).Append("<pos=76%>").AppendLine(net);
+        }
+
+        private static string SideLabel(string side)
+        {
+            return "<color=#" + (side == "나" ? "69E0CD" : "FFB68F") + ">[" + side + "]</color>";
+        }
+
+        private static string ReportNumber(string value)
+        {
+            int number;
+            return int.TryParse(value, out number) ? ScoreText(number) : EscapeText(value);
         }
 
         //Root canvas RectTransform that 'rt' lives under (used as the on-screen bounds).

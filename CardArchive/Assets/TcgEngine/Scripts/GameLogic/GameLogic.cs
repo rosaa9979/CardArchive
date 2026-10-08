@@ -14,6 +14,9 @@ namespace TcgEngine.Gameplay
 
     public class GameLogic
     {
+#if UNITY_EDITOR
+        public int DebugStartingMana { get; set; } = -1;
+#endif
         public UnityAction onGameStart;
         public UnityAction<Player> onGameEnd;          //Winner
 
@@ -196,6 +199,9 @@ namespace TcgEngine.Gameplay
                 player.hp_max = FirstNonNull(providers, prov => prov.GetStartHp(player)) ?? GameplayData.Get().hp_start;
                 player.hp = player.hp_max;
                 player.mana_max = FirstNonNull(providers, prov => prov.GetStartMana(player)) ?? GameplayData.Get().mana_start;
+#if UNITY_EDITOR
+                if (DebugStartingMana >= 0) player.mana_max = DebugStartingMana;
+#endif
                 player.mana = player.mana_max;
 
                 //Starting hand size — drawn later, after OnGameStart effects resolve
