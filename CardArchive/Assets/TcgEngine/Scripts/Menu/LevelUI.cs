@@ -2,13 +2,13 @@ using DG.Tweening;
 using TcgEngine.Client;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace TcgEngine.UI
 {
     /// <summary>
-    /// Single AdventurePanel entry. Renders any IGameTypeView (LevelData /
-    /// TutorialData / TotalAssaultData / ...) and launches the corresponding
-    /// match on click. Wrapper child is the animation target so LayoutGroup
+    /// Reusable menu entry. Displays supplied content and invokes the callback
+    /// assigned by its owner. IGameTypeView is an optional display adapter. Wrapper child is the animation target so LayoutGroup
     /// keeps controlling the root's slot position.
     /// </summary>
     public class LevelUI : MonoBehaviour
@@ -25,6 +25,9 @@ namespace TcgEngine.UI
         public GameObject completed;
 
         private IGameTypeView data;
+        private bool launching;
+        private bool lock_after_click;
+        private UnityAction click_callback;
         private Tweener move_tween;
         private Tweener fade_tween;
 
@@ -35,15 +38,49 @@ namespace TcgEngine.UI
                 btn.onClick.AddListener(OnClick);
         }
 
-        void OnDestroy()
+        void OnDisable()
         {
+            launching = false;
             KillTweens();
         }
 
-        public void SetData(IGameTypeView d)
+        void OnDestroy()
+        {
+            click_callback = null;
+            KillTweens();
+        }
+
+        // The owner decides what a click does; the entry never launches a game itself.
+        public void SetData(IGameTypeView d, UnityAction onClick, bool lockAfterClick = false)
         {
             data = d;
+            SetCallback(onClick, lockAfterClick);
             Refresh();
+        }
+
+        // For story chapters or other entries that do not implement IGameTypeView.
+        public void SetContent(string titleText, string description, Sprite image,
+            UnityAction onClick, bool lockAfterClick = false)
+        {
+            data = null;
+            SetCallback(onClick, lockAfterClick);
+            if (title != null) title.text = titleText ?? string.Empty;
+            if (subtitle != null) subtitle.text = description ?? string.Empty;
+            if (icon != null)
+            {
+                icon.sprite = image;
+                icon.enabled = image != null;
+            }
+            if (deck != null) deck.gameObject.SetActive(false);
+            if (completed != null) completed.SetActive(false);
+            gameObject.SetActive(true);
+        }
+
+        private void SetCallback(UnityAction onClick, bool lockAfterClick)
+        {
+            click_callback = onClick;
+            lock_after_click = lockAfterClick;
+            launching = false;
         }
 
         public void Refresh()
@@ -53,6 +90,9 @@ namespace TcgEngine.UI
 
             if (title != null)
                 title.text = data.GetTitle();
+
+            if (subtitle != null)
+                subtitle.text = data is TutorialData tutorial ? tutorial.description : string.Empty;
 
             if (icon != null)
             {
@@ -64,7 +104,9 @@ namespace TcgEngine.UI
             if (deck != null)
             {
                 DeckData d = data.GetDisplayDeck();
-                if (d != null)
+                bool show_deck = !(data is TutorialData) && d != null;
+                deck.gameObject.SetActive(show_deck);
+                if (show_deck && d != null)
                     deck.SetDeck(d);
             }
 
@@ -88,7 +130,11 @@ namespace TcgEngine.UI
                 wrapper.localPosition = pos;
             }
             if (wrapper_canvas != null)
+            {
                 wrapper_canvas.alpha = 0f;
+                wrapper_canvas.interactable = false;
+                wrapper_canvas.blocksRaycasts = false;
+            }
         }
 
         //Snaps wrapper to final state without animation (for off-viewport entries).
@@ -102,16 +148,25 @@ namespace TcgEngine.UI
                 wrapper.localPosition = pos;
             }
             if (wrapper_canvas != null)
+            {
                 wrapper_canvas.alpha = 1f;
+                wrapper_canvas.interactable = true;
+                wrapper_canvas.blocksRaycasts = true;
+            }
         }
 
         public void PlayIntro(float duration, float delay, Ease ease)
         {
             KillTweens();
             if (wrapper != null)
-                move_tween = wrapper.DOLocalMoveX(0f, duration).SetEase(ease).SetDelay(delay);
+                move_tween = wrapper.DOLocalMoveX(0f, duration).SetEase(ease).SetDelay(delay).SetUpdate(true);
             if (wrapper_canvas != null)
-                fade_tween = wrapper_canvas.DOFade(1f, duration).SetDelay(delay);
+                fade_tween = wrapper_canvas.DOFade(1f, duration).SetDelay(delay).SetUpdate(true)
+                    .OnComplete(() =>
+                    {
+                        wrapper_canvas.interactable = true;
+                        wrapper_canvas.blocksRaycasts = true;
+                    });
         }
 
         private void KillTweens()
@@ -131,10 +186,22 @@ namespace TcgEngine.UI
 
         public void OnClick()
         {
-            if (data == null)
+            Button button = GetComponent<Button>();
+            if (!isActiveAndEnabled || click_callback == null || launching
+                || (button != null && !button.IsInteractable())
+                || (wrapper_canvas != null && !wrapper_canvas.interactable))
                 return;
 
-            data.Launch();
+            launching = lock_after_click;
+            try
+            {
+                click_callback.Invoke();
+            }
+            catch
+            {
+                launching = false;
+                throw;
+            }
         }
     }
 }

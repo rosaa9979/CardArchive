@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76b4f868eeb58b24196d63ce85ec045a, type: 3}
+  m_Name: tutorial_advanced
+  m_EditorClassIdentifier: Assembly-CSharp::TcgEngine.TutorialData
+  id: Tutorial_Advance
+  order: 1
+  title: "\uD29C\uD1A0\uB9AC\uC5BC \uC2EC\uD654"
+  icon: {fileID: 0}
+  description: "\uBA40\uB9AC\uAC74\uACFC \uB2A5\uB825 \uC0AC\uC6A9\uC744 \uBC30\uC6CC\uBCF4\uC138\uC694."
+  scene: Game
+  player_deck: {fileID: 11400000, guid: 9522ef0a93534474f8314f7b32caad7f, type: 2}
+  ai_deck: {fileID: 11400000, guid: 2755453a86d2eb14c9a05f5587676b10, type: 2}
+  ai_level: 1
+  first_player: 10
+  mulligan: 1
+  tuto_prefab: {fileID: 871187647601492094, guid: 7a01e65c1d858cd41a0dd930db349e89, type: 3}
+  reward_xp: 0
+  reward_coins: 0
+  reward_packs: []
+  reward_cards: []
