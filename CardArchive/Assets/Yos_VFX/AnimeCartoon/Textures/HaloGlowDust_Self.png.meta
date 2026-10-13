@@ -1,0 +1,1832 @@
+fileFormatVersion: 2
+guid: 8a71d36bcb9f74d4291284f29b1f09c6
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5106839520917877151
+    second: HaloGlowDust_Self_0
+  - first:
+      213: -8262906289060334320
+    second: HaloGlowDust_Self_1
+  - first:
+      213: -7437692956833571475
+    second: HaloGlowDust_Self_2
+  - first:
+      213: 253707875081652579
+    second: HaloGlowDust_Self_3
+  - first:
+      213: -8641480529762452775
+    second: HaloGlowDust_Self_4
+  - first:
+      213: -5721196047017198350
+    second: HaloGlowDust_Self_5
+  - first:
+      213: -2699438113023613587
+    second: HaloGlowDust_Self_6
+  - first:
+      213: -2940141110342191329
+    second: HaloGlowDust_Self_7
+  - first:
+      213: -5299982558698224995
+    second: HaloGlowDust_Self_8
+  - first:
+      213: -2217718006829181160
+    second: HaloGlowDust_Self_9
+  - first:
+      213: -2485076781259966295
+    second: HaloGlowDust_Self_10
+  - first:
+      213: -9030976923345699470
+    second: HaloGlowDust_Self_11
+  - first:
+      213: -6056369866062870854
+    second: HaloGlowDust_Self_12
+  - first:
+      213: -7931380835324082527
+    second: HaloGlowDust_Self_13
+  - first:
+      213: 4092483951021220372
+    second: HaloGlowDust_Self_14
+  - first:
+      213: 6090032992528316989
+    second: HaloGlowDust_Self_15
+  - first:
+      213: 2148618481186352823
+    second: HaloGlowDust_Self_16
+  - first:
+      213: -6170516286116225391
+    second: HaloGlowDust_Self_17
+  - first:
+      213: 1349097249771087787
+    second: HaloGlowDust_Self_18
+  - first:
+      213: -8049558700031263399
+    second: HaloGlowDust_Self_19
+  - first:
+      213: 2518400139567728127
+    second: HaloGlowDust_Self_20
+  - first:
+      213: -4752893293776710972
+    second: HaloGlowDust_Self_21
+  - first:
+      213: -3935010747527209787
+    second: HaloGlowDust_Self_22
+  - first:
+      213: 5628294140561696110
+    second: HaloGlowDust_Self_23
+  - first:
+      213: 7970681118507521709
+    second: HaloGlowDust_Self_24
+  - first:
+      213: -5700012721177666182
+    second: HaloGlowDust_Self_25
+  - first:
+      213: 4603316907957413027
+    second: HaloGlowDust_Self_26
+  - first:
+      213: 3479610651945202622
+    second: HaloGlowDust_Self_27
+  - first:
+      213: -4864977709155588615
+    second: HaloGlowDust_Self_28
+  - first:
+      213: -807935153527678813
+    second: HaloGlowDust_Self_29
+  - first:
+      213: 8780291525746832944
+    second: HaloGlowDust_Self_30
+  - first:
+      213: 4187727449580562351
+    second: HaloGlowDust_Self_31
+  - first:
+      213: -38208609781033121
+    second: HaloGlowDust_Self_32
+  - first:
+      213: 119442463606793172
+    second: HaloGlowDust_Self_33
+  - first:
+      213: 6658292435151601662
+    second: HaloGlowDust_Self_34
+  - first:
+      213: -4383731165555076181
+    second: HaloGlowDust_Self_35
+  - first:
+      213: -2745877964319318747
+    second: HaloGlowDust_Self_36
+  - first:
+      213: -1774819025472750084
+    second: HaloGlowDust_Self_37
+  - first:
+      213: -4143160110258664039
+    second: HaloGlowDust_Self_38
+  - first:
+      213: 6751930932041451201
+    second: HaloGlowDust_Self_39
+  - first:
+      213: 8075474828438122793
+    second: HaloGlowDust_Self_40
+  - first:
+      213: -3997621704982588896
+    second: HaloGlowDust_Self_41
+  - first:
+      213: -4211811746538770163
+    second: HaloGlowDust_Self_42
+  - first:
+      213: -6102997387954932424
+    second: HaloGlowDust_Self_43
+  - first:
+      213: 4796010997487081577
+    second: HaloGlowDust_Self_44
+  - first:
+      213: -4805710854152334516
+    second: HaloGlowDust_Self_45
+  - first:
+      213: 5101626695121729709
+    second: HaloGlowDust_Self_46
+  - first:
+      213: 9010338168464237248
+    second: HaloGlowDust_Self_47
+  - first:
+      213: 5958374874998176699
+    second: HaloGlowDust_Self_48
+  - first:
+      213: -4925246858319617315
+    second: HaloGlowDust_Self_49
+  - first:
+      213: 1892342500484490655
+    second: HaloGlowDust_Self_50
+  - first:
+      213: -1006864119827638726
+    second: HaloGlowDust_Self_51
+  - first:
+      213: -6267451858357549897
+    second: HaloGlowDust_Self_52
+  - first:
+      213: 2854625743140051971
+    second: HaloGlowDust_Self_53
+  - first:
+      213: 4528884107550605092
+    second: HaloGlowDust_Self_54
+  - first:
+      213: -6119180849277954427
+    second: HaloGlowDust_Self_55
+  - first:
+      213: 8709363802052424241
+    second: HaloGlowDust_Self_56
+  - first:
+      213: -5435873294558509201
+    second: HaloGlowDust_Self_57
+  - first:
+      213: 2902096354919783258
+    second: HaloGlowDust_Self_58
+  - first:
+      213: 1880830987723743096
+    second: HaloGlowDust_Self_59
+  - first:
+      213: -5974637586729957912
+    second: HaloGlowDust_Self_60
+  - first:
+      213: 1235454219236127531
+    second: HaloGlowDust_Self_61
+  - first:
+      213: 3758339084379729736
+    second: HaloGlowDust_Self_62
+  - first:
+      213: 7096511263445218014
+    second: HaloGlowDust_Self_63
+  - first:
+      213: 105192054504329607
+    second: HaloGlowDust_Self_64
+  - first:
+      213: -4331877681912085114
+    second: HaloGlowDust_Self_65
+  - first:
+      213: 4599571126927059764
+    second: HaloGlowDust_Self_66
+  - first:
+      213: 992172866850653771
+    second: HaloGlowDust_Self_67
+  - first:
+      213: -2397845730498664463
+    second: HaloGlowDust_Self_68
+  - first:
+      213: 1640810032468455433
+    second: HaloGlowDust_Self_69
+  - first:
+      213: -1635118904570127971
+    second: HaloGlowDust_Self_70
+  - first:
+      213: -3343601944917944097
+    second: HaloGlowDust_Self_71
+  - first:
+      213: 1367638224106941928
+    second: HaloGlowDust_Self_72
+  - first:
+      213: -162139539660535685
+    second: HaloGlowDust_Self_73
+  - first:
+      213: -1588210065694659390
+    second: HaloGlowDust_Self_74
+  - first:
+      213: -5247210694198563030
+    second: HaloGlowDust_Self_75
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_10
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a8bd6d75db338dd0800000000000000
+      internalID: -2485076781259966295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_11
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27dba3d16568ba280800000000000000
+      internalID: -9030976923345699470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_12
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab641f0e1b373fba0800000000000000
+      internalID: -6056369866062870854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_13
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a6ca2c07231ee190800000000000000
+      internalID: -7931380835324082527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_14
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4126b95787c6bc830800000000000000
+      internalID: 4092483951021220372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_15
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3a3f068db4248450800000000000000
+      internalID: 6090032992528316989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bea3f0ff1d61dd10800000000000000
+      internalID: 2148618481186352823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_17
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19e974d612ced5aa0800000000000000
+      internalID: -6170516286116225391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_18
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba7ef040dc4f8b210800000000000000
+      internalID: 1349097249771087787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_19
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95d3bfdb2093a4090800000000000000
+      internalID: -8049558700031263399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_20
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff58a39759723f220800000000000000
+      internalID: 2518400139567728127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_21
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c25a113bb45a0eb0800000000000000
+      internalID: -4752893293776710972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_22
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ccdb4ed2980469c0800000000000000
+      internalID: -3935010747527209787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_23
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e65a79b63b7bb1e40800000000000000
+      internalID: 5628294140561696110
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da6dd8e2f3c8d9e60800000000000000
+      internalID: 7970681118507521709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_25
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7d5ffa41ac75e0b0800000000000000
+      internalID: -5700012721177666182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_26
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a4e95f965442ef30800000000000000
+      internalID: 4603316907957413027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_27
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb3fbd1c37f0a4030800000000000000
+      internalID: 3479610651945202622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_28
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f5669d9c802c7cb0800000000000000
+      internalID: -4864977709155588615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_29
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a89e6c2243a9c4f0800000000000000
+      internalID: -807935153527678813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_30
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03633886f9cd9d970800000000000000
+      internalID: 8780291525746832944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_31
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa7e6688debcd1a30800000000000000
+      internalID: 4187727449580562351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f57d3aac871487ff0800000000000000
+      internalID: -38208609781033121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_33
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d3616ea94858a100800000000000000
+      internalID: 119442463606793172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_34
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: effb1ef41b1076c50800000000000000
+      internalID: 6658292435151601662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_35
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba3d74e1bbbd923c0800000000000000
+      internalID: -4383731165555076181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_36
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d9c2c2a8ea4e9d0800000000000000
+      internalID: -2745877964319318747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_37
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfd771eef739e57e0800000000000000
+      internalID: -1774819025472750084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_38
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99dc674c4d98086c0800000000000000
+      internalID: -4143160110258664039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_39
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c68d40d86da3bd50800000000000000
+      internalID: 6751930932041451201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 921b9ad1299d11070800000000000000
+      internalID: 8075474828438122793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_41
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0221f185d389588c0800000000000000
+      internalID: -3997621704982588896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_42
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d013dba1883ac85c0800000000000000
+      internalID: -4211811746538770163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_43
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8353fc1f53ccd4ba0800000000000000
+      internalID: -6102997387954932424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_44
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9689514879ade8240800000000000000
+      internalID: 4796010997487081577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_45
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c43d20d907fae4db0800000000000000
+      internalID: -4805710854152334516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_46
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da8716b137e9cc640800000000000000
+      internalID: 5101626695121729709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_47
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c2647d43d62b0d70800000000000000
+      internalID: 9010338168464237248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbbf0e6416660b250800000000000000
+      internalID: 5958374874998176699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_49
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd220c2d31206abb0800000000000000
+      internalID: -4925246858319617315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_50
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f95a0c66a73f24a10800000000000000
+      internalID: 1892342500484490655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_51
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a365698ea66e602f0800000000000000
+      internalID: -1006864119827638726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_52
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b48cbfbdb98509a0800000000000000
+      internalID: -6267451858357549897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_53
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30c5c8a2dfaad9720800000000000000
+      internalID: 2854625743140051971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_54
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42f377bc914d9de30800000000000000
+      internalID: 4528884107550605092
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_55
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5861a6a307d441ba0800000000000000
+      internalID: -6119180849277954427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_56
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 132faf8db30edd870800000000000000
+      internalID: 8709363802052424241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_57
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f67cec10a06ef84b0800000000000000
+      internalID: -5435873294558509201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_58
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5b13f24241564820800000000000000
+      internalID: 2902096354919783258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_59
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87f12d971dd0a1a10800000000000000
+      internalID: 1880830987723743096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_60
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e5834515c2d51da0800000000000000
+      internalID: -5974637586729957912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_61
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b23b3d11117352110800000000000000
+      internalID: 1235454219236127531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_62
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84fabe51c7d482430800000000000000
+      internalID: 3758339084379729736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_63
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed2f53a256fdb7260800000000000000
+      internalID: 7096511263445218014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1956eac2e37dd744188e72bb74edff75
+      internalID: -493161591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_01
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b2a6a5f2d9fc1d4d905878d60c3ba8b
+      internalID: 1002503829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_02
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 05610f5d80b6658458bf9586205cb521
+      internalID: 2114727707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_03
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c0ad168f7fd17541a2b22db1492e2f8
+      internalID: -1301909225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_04
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d85d4698a581c964ea6ec800621b9602
+      internalID: 21700995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_05
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3377b457a9e672a4c979107f459ac37c
+      internalID: 417173093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_06
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 060081f497f56424798864194ed30e4f
+      internalID: 1164760142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_07
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 70b959ac019ee6c4b9d8626c9fa806ab
+      internalID: 315705277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be875c9c03963244480e1a073292b4f2
+      internalID: 822685768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Self_09
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2058250f8932abb4a875dcc6d14f06b4
+      internalID: -1074611251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: fe3e098a289f7cf43816d83dd85d5091
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      HaloGlowDust_Self_00: -493161591
+      HaloGlowDust_Self_01: 1002503829
+      HaloGlowDust_Self_02: 2114727707
+      HaloGlowDust_Self_03: -1301909225
+      HaloGlowDust_Self_04: 21700995
+      HaloGlowDust_Self_05: 417173093
+      HaloGlowDust_Self_06: 1164760142
+      HaloGlowDust_Self_07: 315705277
+      HaloGlowDust_Self_08: 822685768
+      HaloGlowDust_Self_09: -1074611251
+      HaloGlowDust_Self_10: -2485076781259966295
+      HaloGlowDust_Self_11: -9030976923345699470
+      HaloGlowDust_Self_12: -6056369866062870854
+      HaloGlowDust_Self_13: -7931380835324082527
+      HaloGlowDust_Self_14: 4092483951021220372
+      HaloGlowDust_Self_15: 6090032992528316989
+      HaloGlowDust_Self_16: 2148618481186352823
+      HaloGlowDust_Self_17: -6170516286116225391
+      HaloGlowDust_Self_18: 1349097249771087787
+      HaloGlowDust_Self_19: -8049558700031263399
+      HaloGlowDust_Self_20: 2518400139567728127
+      HaloGlowDust_Self_21: -4752893293776710972
+      HaloGlowDust_Self_22: -3935010747527209787
+      HaloGlowDust_Self_23: 5628294140561696110
+      HaloGlowDust_Self_24: 7970681118507521709
+      HaloGlowDust_Self_25: -5700012721177666182
+      HaloGlowDust_Self_26: 4603316907957413027
+      HaloGlowDust_Self_27: 3479610651945202622
+      HaloGlowDust_Self_28: -4864977709155588615
+      HaloGlowDust_Self_29: -807935153527678813
+      HaloGlowDust_Self_30: 8780291525746832944
+      HaloGlowDust_Self_31: 4187727449580562351
+      HaloGlowDust_Self_32: -38208609781033121
+      HaloGlowDust_Self_33: 119442463606793172
+      HaloGlowDust_Self_34: 6658292435151601662
+      HaloGlowDust_Self_35: -4383731165555076181
+      HaloGlowDust_Self_36: -2745877964319318747
+      HaloGlowDust_Self_37: -1774819025472750084
+      HaloGlowDust_Self_38: -4143160110258664039
+      HaloGlowDust_Self_39: 6751930932041451201
+      HaloGlowDust_Self_40: 8075474828438122793
+      HaloGlowDust_Self_41: -3997621704982588896
+      HaloGlowDust_Self_42: -4211811746538770163
+      HaloGlowDust_Self_43: -6102997387954932424
+      HaloGlowDust_Self_44: 4796010997487081577
+      HaloGlowDust_Self_45: -4805710854152334516
+      HaloGlowDust_Self_46: 5101626695121729709
+      HaloGlowDust_Self_47: 9010338168464237248
+      HaloGlowDust_Self_48: 5958374874998176699
+      HaloGlowDust_Self_49: -4925246858319617315
+      HaloGlowDust_Self_50: 1892342500484490655
+      HaloGlowDust_Self_51: -1006864119827638726
+      HaloGlowDust_Self_52: -6267451858357549897
+      HaloGlowDust_Self_53: 2854625743140051971
+      HaloGlowDust_Self_54: 4528884107550605092
+      HaloGlowDust_Self_55: -6119180849277954427
+      HaloGlowDust_Self_56: 8709363802052424241
+      HaloGlowDust_Self_57: -5435873294558509201
+      HaloGlowDust_Self_58: 2902096354919783258
+      HaloGlowDust_Self_59: 1880830987723743096
+      HaloGlowDust_Self_60: -5974637586729957912
+      HaloGlowDust_Self_61: 1235454219236127531
+      HaloGlowDust_Self_62: 3758339084379729736
+      HaloGlowDust_Self_63: 7096511263445218014
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

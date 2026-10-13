@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace TcgEngine.UI
 {
     /// <summary>
-    /// Four-tab adventure menu. Tabs (Tutorial / Adventure / Story / TotalAssault)
+    /// Tutorial entry menu. Tabs (Tutorial / Story / TotalAssault)
     /// are pre-placed; sub-entries are spawned dynamically into a horizontal
     /// ScrollRect when a tab is selected. Visible entries play a staggered
     /// slide+fade intro (DOTween); off-viewport entries snap to final state.
@@ -48,39 +48,83 @@ namespace TcgEngine.UI
         protected override void Start()
         {
             base.Start();
-
             if (tutorial_tab != null)
-                tutorial_tab.onClick.AddListener(() => SelectCategory(AdventureCategory.Tutorial));
+                tutorial_tab.onClick.AddListener(OnClickTutorial);
             if (adventure_tab != null)
-                adventure_tab.onClick.AddListener(() => SelectCategory(AdventureCategory.Adventure));
+                adventure_tab.gameObject.SetActive(false);
             if (story_tab != null)
-            {
-                story_tab.interactable = false; //StoryData not implemented yet
-                story_tab.onClick.AddListener(() => SelectCategory(AdventureCategory.Story));
-            }
+                story_tab.interactable = false;
             if (assault_tab != null)
-                assault_tab.onClick.AddListener(() => SelectCategory(AdventureCategory.TotalAssault));
+                assault_tab.interactable = false;
+        }
+
+        private void OnClickTutorial()
+        {
+            SelectCategory(AdventureCategory.Tutorial);
+        }
+
+        private void CancelIntro()
+        {
+            intro_token++;
+            if (unlock_call != null && unlock_call.IsActive())
+                unlock_call.Kill();
+            unlock_call = null;
+            foreach (LevelUI entry in active_entries)
+                if (entry != null)
+                    entry.SetFinalState();
+        }
+
+        private void OnDisable()
+        {
+            CancelIntro();
+        }
+
+        private void OnDestroy()
+        {
+            CancelIntro();
+            if (tutorial_tab != null)
+                tutorial_tab.onClick.RemoveListener(OnClickTutorial);
+            if (instance == this)
+                instance = null;
+        }
+
+        public override void Hide(bool instant = false)
+        {
+            CancelIntro();
+            canvas_group.interactable = false;
+            canvas_group.blocksRaycasts = false;
+            base.Hide(instant);
         }
 
         public override void Show(bool instant = false)
         {
             base.Show(instant);
+            canvas_group.interactable = true;
+            canvas_group.blocksRaycasts = true;
             SelectCategory(AdventureCategory.Tutorial);
         }
 
         public void SelectCategory(AdventureCategory cat)
         {
-            //Bump token so any in-flight unlock call from a previous run is ignored
-            intro_token++;
-            int this_token = intro_token;
+            //Only tutorial is available; disabled tabs cannot change the list.
+            if (cat != AdventureCategory.Tutorial)
+                return;
+            if (entry_prefab == null || content == null)
+            {
+                Debug.LogError("Tutorial entry UI is not configured.", this);
+                return;
+            }
 
-            //Cancel pending scroll-unlock from previous run
-            if (unlock_call != null && unlock_call.IsActive())
-                unlock_call.Kill();
+            CancelIntro();
+            int this_token = intro_token;
 
             //Lock scroll for the duration of the new intro
             if (scroll != null)
+            {
+                scroll.StopMovement();
                 scroll.horizontal = false;
+                scroll.horizontalNormalizedPosition = 0f;
+            }
 
             //Tear down previous entries (no pooling)
             for (int i = 0; i < active_entries.Count; i++)
@@ -103,7 +147,8 @@ namespace TcgEngine.UI
             for (int i = 0; i < views.Count; i++)
             {
                 LevelUI entry = Instantiate(entry_prefab, content);
-                entry.SetData(views[i]);
+                IGameTypeView view = views[i];
+                entry.SetData(view, view.Launch, lockAfterClick: true);
                 active_entries.Add(entry);
 
                 if (i < animated_count)
@@ -117,6 +162,10 @@ namespace TcgEngine.UI
                 }
             }
 
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            if (scroll != null)
+                scroll.horizontalNormalizedPosition = 0f;
+
             //Schedule scroll unlock when the last animated entry finishes
             float total_intro_time = animated_count > 0
                 ? (animated_count - 1) * intro_stagger + intro_duration
@@ -128,7 +177,7 @@ namespace TcgEngine.UI
                     return; //A newer SelectCategory invalidated us
                 if (scroll != null)
                     scroll.horizontal = true;
-            });
+            }).SetUpdate(true);
         }
 
         private List<IGameTypeView> GetEntries(AdventureCategory cat)

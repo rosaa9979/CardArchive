@@ -1,0 +1,1832 @@
+fileFormatVersion: 2
+guid: d09367836de809043bf9b0353245856a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2664565046623840807
+    second: HaloGlowDust_Enemy_0
+  - first:
+      213: 2263015043160316670
+    second: HaloGlowDust_Enemy_1
+  - first:
+      213: -2559935269156156466
+    second: HaloGlowDust_Enemy_2
+  - first:
+      213: 6833764233795351492
+    second: HaloGlowDust_Enemy_3
+  - first:
+      213: -8149863268772796154
+    second: HaloGlowDust_Enemy_4
+  - first:
+      213: 1298305372594292103
+    second: HaloGlowDust_Enemy_5
+  - first:
+      213: 5042352681531950814
+    second: HaloGlowDust_Enemy_6
+  - first:
+      213: -1872567572216193964
+    second: HaloGlowDust_Enemy_7
+  - first:
+      213: 7279216406944844196
+    second: HaloGlowDust_Enemy_8
+  - first:
+      213: -4124091968024481175
+    second: HaloGlowDust_Enemy_9
+  - first:
+      213: 8851515351596362975
+    second: HaloGlowDust_Enemy_10
+  - first:
+      213: -4976749553940309935
+    second: HaloGlowDust_Enemy_11
+  - first:
+      213: 7603880587770710245
+    second: HaloGlowDust_Enemy_12
+  - first:
+      213: -5412893671582661051
+    second: HaloGlowDust_Enemy_13
+  - first:
+      213: -1742053866893915852
+    second: HaloGlowDust_Enemy_14
+  - first:
+      213: 1509454599094358279
+    second: HaloGlowDust_Enemy_15
+  - first:
+      213: -6456058078970404855
+    second: HaloGlowDust_Enemy_16
+  - first:
+      213: -785091342696402039
+    second: HaloGlowDust_Enemy_17
+  - first:
+      213: -8036433632171486801
+    second: HaloGlowDust_Enemy_18
+  - first:
+      213: 7708032045188277606
+    second: HaloGlowDust_Enemy_19
+  - first:
+      213: -1114192400212032039
+    second: HaloGlowDust_Enemy_20
+  - first:
+      213: -6150238390550993243
+    second: HaloGlowDust_Enemy_21
+  - first:
+      213: 1216536474357840578
+    second: HaloGlowDust_Enemy_22
+  - first:
+      213: -6249452125350899607
+    second: HaloGlowDust_Enemy_23
+  - first:
+      213: 3354083402525267505
+    second: HaloGlowDust_Enemy_24
+  - first:
+      213: 2934525242745948078
+    second: HaloGlowDust_Enemy_25
+  - first:
+      213: 7050813231560188467
+    second: HaloGlowDust_Enemy_26
+  - first:
+      213: 5122205837652881169
+    second: HaloGlowDust_Enemy_27
+  - first:
+      213: 8029280683631279466
+    second: HaloGlowDust_Enemy_28
+  - first:
+      213: -6806526804816899245
+    second: HaloGlowDust_Enemy_29
+  - first:
+      213: 977373744369040158
+    second: HaloGlowDust_Enemy_30
+  - first:
+      213: 806317950079010521
+    second: HaloGlowDust_Enemy_31
+  - first:
+      213: -6161964144191521050
+    second: HaloGlowDust_Enemy_32
+  - first:
+      213: 2915873465884100971
+    second: HaloGlowDust_Enemy_33
+  - first:
+      213: 4405510603416075481
+    second: HaloGlowDust_Enemy_34
+  - first:
+      213: -7450774991396329081
+    second: HaloGlowDust_Enemy_35
+  - first:
+      213: -3576520883820355679
+    second: HaloGlowDust_Enemy_36
+  - first:
+      213: -1325883687589136536
+    second: HaloGlowDust_Enemy_37
+  - first:
+      213: 1758060476036876411
+    second: HaloGlowDust_Enemy_38
+  - first:
+      213: -4524363162275655147
+    second: HaloGlowDust_Enemy_39
+  - first:
+      213: 1020297651666548166
+    second: HaloGlowDust_Enemy_40
+  - first:
+      213: 4681417467904148711
+    second: HaloGlowDust_Enemy_41
+  - first:
+      213: 4821272350234899522
+    second: HaloGlowDust_Enemy_42
+  - first:
+      213: -423444425357938666
+    second: HaloGlowDust_Enemy_43
+  - first:
+      213: -9141684486247043412
+    second: HaloGlowDust_Enemy_44
+  - first:
+      213: 4065070553589375699
+    second: HaloGlowDust_Enemy_45
+  - first:
+      213: 3326176680144798
+    second: HaloGlowDust_Enemy_46
+  - first:
+      213: -4574979182285923879
+    second: HaloGlowDust_Enemy_47
+  - first:
+      213: -7959496394407123449
+    second: HaloGlowDust_Enemy_48
+  - first:
+      213: -6289606409016754658
+    second: HaloGlowDust_Enemy_49
+  - first:
+      213: -6490824598321808198
+    second: HaloGlowDust_Enemy_50
+  - first:
+      213: -7629066576398859071
+    second: HaloGlowDust_Enemy_51
+  - first:
+      213: -7927336802178542323
+    second: HaloGlowDust_Enemy_52
+  - first:
+      213: 7114646613495810089
+    second: HaloGlowDust_Enemy_53
+  - first:
+      213: -2103516853978820398
+    second: HaloGlowDust_Enemy_54
+  - first:
+      213: -8727230091112475592
+    second: HaloGlowDust_Enemy_55
+  - first:
+      213: 2476973693643149696
+    second: HaloGlowDust_Enemy_56
+  - first:
+      213: -6117779990628679547
+    second: HaloGlowDust_Enemy_57
+  - first:
+      213: -1554547155122364306
+    second: HaloGlowDust_Enemy_58
+  - first:
+      213: -7005586576342553649
+    second: HaloGlowDust_Enemy_59
+  - first:
+      213: 6239374169766568165
+    second: HaloGlowDust_Enemy_60
+  - first:
+      213: -7138720993764890690
+    second: HaloGlowDust_Enemy_61
+  - first:
+      213: 3477828160827496479
+    second: HaloGlowDust_Enemy_62
+  - first:
+      213: -3641406984570469658
+    second: HaloGlowDust_Enemy_63
+  - first:
+      213: 4874020634841297163
+    second: HaloGlowDust_Enemy_64
+  - first:
+      213: 1881047632977330287
+    second: HaloGlowDust_Enemy_65
+  - first:
+      213: 5047141860931762190
+    second: HaloGlowDust_Enemy_66
+  - first:
+      213: -2711515988565313829
+    second: HaloGlowDust_Enemy_67
+  - first:
+      213: 7135814397902967883
+    second: HaloGlowDust_Enemy_68
+  - first:
+      213: 7125657162401118659
+    second: HaloGlowDust_Enemy_69
+  - first:
+      213: 2673408977978167452
+    second: HaloGlowDust_Enemy_70
+  - first:
+      213: -876160344377345213
+    second: HaloGlowDust_Enemy_71
+  - first:
+      213: -4650954890252950650
+    second: HaloGlowDust_Enemy_72
+  - first:
+      213: 1208153713480856900
+    second: HaloGlowDust_Enemy_73
+  - first:
+      213: -685844777280035476
+    second: HaloGlowDust_Enemy_74
+  - first:
+      213: 8497111012556882100
+    second: HaloGlowDust_Enemy_75
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_10
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdc61df9056e6da70800000000000000
+      internalID: 8851515351596362975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_11
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 158dd4d06a80feab0800000000000000
+      internalID: -4976749553940309935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_12
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e8cf848b19668960800000000000000
+      internalID: 7603880587770710245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_13
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5460b5a62e981e4b0800000000000000
+      internalID: -5412893671582661051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_14
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4394134ec3bf2d7e0800000000000000
+      internalID: -1742053866893915852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_15
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 701599fd5f8a2f410800000000000000
+      internalID: 1509454599094358279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 900ada102697766a0800000000000000
+      internalID: -6456058078970404855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_17
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 983b85a559bca15f0800000000000000
+      internalID: -785091342696402039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_18
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa19a6db03ad87090800000000000000
+      internalID: -8036433632171486801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_19
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66566c26e4e68fa60800000000000000
+      internalID: 7708032045188277606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_20
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d50ced4ae79980f0800000000000000
+      internalID: -1114192400212032039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_21
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a6ec37e4c6f5aaa0800000000000000
+      internalID: -6150238390550993243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_22
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cab76a5a7102e010800000000000000
+      internalID: 1216536474357840578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_23
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 2560
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96056ab276c7549a0800000000000000
+      internalID: -6249452125350899607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1365d8a75191c8e20800000000000000
+      internalID: 3354083402525267505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_25
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea70a46192789b820800000000000000
+      internalID: 2934525242745948078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_26
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 332e4ccf64589d160800000000000000
+      internalID: 7050813231560188467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_27
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11f6bbb121bb51740800000000000000
+      internalID: 5122205837652881169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_28
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6d7fb5ad3cbd6f60800000000000000
+      internalID: 8029280683631279466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_29
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 353d6bcfeeb5a81a0800000000000000
+      internalID: -6806526804816899245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_30
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1bf8edfd34509d00800000000000000
+      internalID: 977373744369040158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_31
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 2048
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d60b7e47ed903b00800000000000000
+      internalID: 806317950079010521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ee35c2224e4c7aa0800000000000000
+      internalID: -6161964144191521050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_33
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b694200e773477820800000000000000
+      internalID: 2915873465884100971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_34
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dcf4da6d84832d30800000000000000
+      internalID: 4405510603416075481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_35
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78925780f97899890800000000000000
+      internalID: -7450774991396329081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_36
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1af1f149435ad5ec0800000000000000
+      internalID: -3576520883820355679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_37
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 867b3cb9fc3899de0800000000000000
+      internalID: -1325883687589136536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_38
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7805d730b2e56810800000000000000
+      internalID: 1758060476036876411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_39
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 1536
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51252bdccab3631c0800000000000000
+      internalID: -4524363162275655147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c5ffb4fe43d82e00800000000000000
+      internalID: 1020297651666548166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_41
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e44cb3426cb7f040800000000000000
+      internalID: 4681417467904148711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_42
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 244f92988a998e240800000000000000
+      internalID: 4821272350234899522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_43
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 610bb64e98f9f1af0800000000000000
+      internalID: -423444425357938666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_44
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caeab8cf466322180800000000000000
+      internalID: -9141684486247043412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_45
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d2689d71280a6830800000000000000
+      internalID: 4065070553589375699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_46
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9fea7bd321db0000800000000000000
+      internalID: 3326176680144798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_47
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 1024
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d95a094ca86280c0800000000000000
+      internalID: -4574979182285923879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7066c5453303a8190800000000000000
+      internalID: -7959496394407123449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_49
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1e39857b44d6b8a0800000000000000
+      internalID: -6289606409016754658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_50
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abc39adea65fbe5a0800000000000000
+      internalID: -6490824598321808198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_51
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c4c0f98e5c102690800000000000000
+      internalID: -7629066576398859071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_52
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d055443ed217cf190800000000000000
+      internalID: -7927336802178542323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_53
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9288ad3666d4cb260800000000000000
+      internalID: 7114646613495810089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_54
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d09b83f09ecec2e0800000000000000
+      internalID: -2103516853978820398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_55
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 512
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83414229876a2e680800000000000000
+      internalID: -8727230091112475592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_56
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0815697637aff5220800000000000000
+      internalID: 2476973693643149696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_57
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 580c59c0387491ba0800000000000000
+      internalID: -6117779990628679547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_58
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e60665849932d6ae0800000000000000
+      internalID: -1554547155122364306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_59
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcb6bd1402827ce90800000000000000
+      internalID: -7005586576342553649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_60
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e02fa1ffb5b69650800000000000000
+      internalID: 6239374169766568165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_61
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb72508241b2eec90800000000000000
+      internalID: -7138720993764890690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_62
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1819f3394ab34030800000000000000
+      internalID: 3477828160827496479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_63
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 0
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e20d0af3af177dc0800000000000000
+      internalID: -3641406984570469658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a967c937b9b5f844b9260205e32f5083
+      internalID: -659611160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_01
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bc92e71c8c7780b4a846ac6fd798c972
+      internalID: -789429536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_02
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 25a6613f1ee9ef849aa998abf234912d
+      internalID: -1138611711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_03
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 182ca89eae1d7234f9341362dc59ad03
+      internalID: 1349939609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_04
+      rect:
+        serializedVersion: 2
+        x: 2048
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6fe3929c394f24b4f907f75b8545adad
+      internalID: 1621233734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_05
+      rect:
+        serializedVersion: 2
+        x: 2560
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd3fd03215325d24aba4d8082614dc29
+      internalID: 1921639230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_06
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d35376934b010334a8ad655541177bd0
+      internalID: -1522536205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_07
+      rect:
+        serializedVersion: 2
+        x: 3584
+        y: 3584
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e54cbe026767a024cb79fbed523e8e31
+      internalID: 272090873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4cffc6da1dfbfb448beec037fe97bb71
+      internalID: -1979644566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HaloGlowDust_Enemy_09
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 3072
+        width: 512
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 28c33fb1a4fd4f64b8b63fe3f86864b3
+      internalID: 789580368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 743fc9b7e721aa74bbe4d4c20c549a99
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      HaloGlowDust_Enemy_00: -659611160
+      HaloGlowDust_Enemy_01: -789429536
+      HaloGlowDust_Enemy_02: -1138611711
+      HaloGlowDust_Enemy_03: 1349939609
+      HaloGlowDust_Enemy_04: 1621233734
+      HaloGlowDust_Enemy_05: 1921639230
+      HaloGlowDust_Enemy_06: -1522536205
+      HaloGlowDust_Enemy_07: 272090873
+      HaloGlowDust_Enemy_08: -1979644566
+      HaloGlowDust_Enemy_09: 789580368
+      HaloGlowDust_Enemy_10: 8851515351596362975
+      HaloGlowDust_Enemy_11: -4976749553940309935
+      HaloGlowDust_Enemy_12: 7603880587770710245
+      HaloGlowDust_Enemy_13: -5412893671582661051
+      HaloGlowDust_Enemy_14: -1742053866893915852
+      HaloGlowDust_Enemy_15: 1509454599094358279
+      HaloGlowDust_Enemy_16: -6456058078970404855
+      HaloGlowDust_Enemy_17: -785091342696402039
+      HaloGlowDust_Enemy_18: -8036433632171486801
+      HaloGlowDust_Enemy_19: 7708032045188277606
+      HaloGlowDust_Enemy_20: -1114192400212032039
+      HaloGlowDust_Enemy_21: -6150238390550993243
+      HaloGlowDust_Enemy_22: 1216536474357840578
+      HaloGlowDust_Enemy_23: -6249452125350899607
+      HaloGlowDust_Enemy_24: 3354083402525267505
+      HaloGlowDust_Enemy_25: 2934525242745948078
+      HaloGlowDust_Enemy_26: 7050813231560188467
+      HaloGlowDust_Enemy_27: 5122205837652881169
+      HaloGlowDust_Enemy_28: 8029280683631279466
+      HaloGlowDust_Enemy_29: -6806526804816899245
+      HaloGlowDust_Enemy_30: 977373744369040158
+      HaloGlowDust_Enemy_31: 806317950079010521
+      HaloGlowDust_Enemy_32: -6161964144191521050
+      HaloGlowDust_Enemy_33: 2915873465884100971
+      HaloGlowDust_Enemy_34: 4405510603416075481
+      HaloGlowDust_Enemy_35: -7450774991396329081
+      HaloGlowDust_Enemy_36: -3576520883820355679
+      HaloGlowDust_Enemy_37: -1325883687589136536
+      HaloGlowDust_Enemy_38: 1758060476036876411
+      HaloGlowDust_Enemy_39: -4524363162275655147
+      HaloGlowDust_Enemy_40: 1020297651666548166
+      HaloGlowDust_Enemy_41: 4681417467904148711
+      HaloGlowDust_Enemy_42: 4821272350234899522
+      HaloGlowDust_Enemy_43: -423444425357938666
+      HaloGlowDust_Enemy_44: -9141684486247043412
+      HaloGlowDust_Enemy_45: 4065070553589375699
+      HaloGlowDust_Enemy_46: 3326176680144798
+      HaloGlowDust_Enemy_47: -4574979182285923879
+      HaloGlowDust_Enemy_48: -7959496394407123449
+      HaloGlowDust_Enemy_49: -6289606409016754658
+      HaloGlowDust_Enemy_50: -6490824598321808198
+      HaloGlowDust_Enemy_51: -7629066576398859071
+      HaloGlowDust_Enemy_52: -7927336802178542323
+      HaloGlowDust_Enemy_53: 7114646613495810089
+      HaloGlowDust_Enemy_54: -2103516853978820398
+      HaloGlowDust_Enemy_55: -8727230091112475592
+      HaloGlowDust_Enemy_56: 2476973693643149696
+      HaloGlowDust_Enemy_57: -6117779990628679547
+      HaloGlowDust_Enemy_58: -1554547155122364306
+      HaloGlowDust_Enemy_59: -7005586576342553649
+      HaloGlowDust_Enemy_60: 6239374169766568165
+      HaloGlowDust_Enemy_61: -7138720993764890690
+      HaloGlowDust_Enemy_62: 3477828160827496479
+      HaloGlowDust_Enemy_63: -3641406984570469658
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
