@@ -31,6 +31,8 @@ namespace TcgEngine
     public class ResolveQueue
     {
         public Action onResolved;
+        public bool Immediate { get; set; }
+        public bool Suspended { get; set; }
         private int clear_version;
         private Pool<AbilityQueueElement> ability_elem_pool = new Pool<AbilityQueueElement>();
         private Pool<SecretQueueElement> secret_elem_pool = new Pool<SecretQueueElement>();
@@ -128,6 +130,7 @@ namespace TcgEngine
 
         public virtual void Update(float delta)
         {
+            if (Immediate) { ResolveAll(); return; }
             if (resolve_delay > 0f)
             {
                 resolve_delay -= delta;
@@ -690,7 +693,18 @@ namespace TcgEngine
 
             is_resolving = true;
 
-            if (skip_delay)
+            if (Immediate)
+            {
+                // Yield only to the host loop at the safety budget; never discard accepted work.
+                int budget = 10000;
+                while (budget-- > 0 && CanResolve())
+                {
+                    EffectStepDebug.BeginStep(this);
+                    Resolve();
+                    EffectStepDebug.EndStep(this);
+                }
+            }
+            else if (skip_delay)
             {
                 //Last-resort guard (AI-only path): a resolve bug (e.g. a repeat re-queueing itself
                 //without changing state) must abort with a log instead of spinning this worker
@@ -724,7 +738,7 @@ namespace TcgEngine
 
         public virtual void SetDelay(float delay)
         {
-            if (!skip_delay)
+            if (!skip_delay && !Immediate)
             {
                 resolve_delay = Mathf.Max(resolve_delay, delay);
             }
@@ -775,6 +789,7 @@ namespace TcgEngine
 
         public virtual bool CanResolve()
         {
+            if (Suspended) return false;
             if (resolve_delay > 0f)
                 return false;   //Is waiting delay
             if (game_data.state == GameState.GameEnded)
@@ -797,7 +812,8 @@ namespace TcgEngine
             if (IsStepHolding())
                 return true;
 #endif
-            return is_resolving || resolve_delay > 0f;
+            return Suspended || is_resolving || resolve_delay > 0f
+                || (Immediate && game_data.selector == SelectorType.None && game_data.state != GameState.GameEnded && HasPendingWork());
         }
 
 #if UNITY_EDITOR

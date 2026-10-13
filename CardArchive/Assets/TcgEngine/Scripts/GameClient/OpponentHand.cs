@@ -38,7 +38,7 @@ namespace TcgEngine.Client
             Game gdata = GameClient.Get().GetGameData();
             Player player = gdata.GetPlayer(GameClient.Get().GetOpponentPlayerID());
 
-            if (cards.Count < player.cards_hand.Count)
+            while (cards.Count < player.cards_hand.Count)
             {
                 GameObject new_card = Instantiate(card_prefab, card_area);
                 HandCardBack hand_card = new_card.GetComponent<HandCardBack>();
@@ -46,10 +46,13 @@ namespace TcgEngine.Client
                 hand_card.SetCardback(cbdata);
                 RectTransform card_rect = new_card.GetComponent<RectTransform>();
                 card_rect.anchoredPosition = new Vector2(0f, 100f);
+                Vector2 destination = CardPosition(cards.Count, player.cards_hand.Count);
+                PresentationClock.Track(() => hand_card == null || !hand_card.gameObject.activeInHierarchy
+                    || Vector2.Distance(card_rect.anchoredPosition, destination) < 1f);
                 cards.Add(hand_card);
             }
 
-            if (cards.Count > player.cards_hand.Count)
+            while (cards.Count > player.cards_hand.Count)
             {
                 HandCardBack card = cards[cards.Count - 1];
                 cards.RemoveAt(cards.Count - 1);
@@ -64,11 +67,17 @@ namespace TcgEngine.Client
                 if (TcgEngine.Replay.ReplaySession.Active && !card.enabled) continue;
                 RectTransform crect = card.GetRect();
                 float half = nb_cards / 2f;
-                Vector3 tpos = new Vector3((i - half) * card_spacing, (i - half) * (i - half) * card_offset_y);
+                Vector2 tpos = CardPosition(i, nb_cards);
                 float tangle = (i - half) * card_angle;
                 crect.anchoredPosition = Vector3.Lerp(crect.anchoredPosition, tpos, 4f * Time.deltaTime);
                 card.transform.localRotation = Quaternion.Slerp(card.transform.localRotation, Quaternion.Euler(0f, 0f, tangle), 4f * Time.deltaTime);
             }
+        }
+
+        private Vector2 CardPosition(int index, int count)
+        {
+            float offset = index - count / 2f;
+            return new Vector2(offset * card_spacing, offset * offset * card_offset_y);
         }
 
         public HandCardBack GetLastVisualCard() => cards.Count > 0 ? cards[cards.Count - 1] : null;

@@ -55,6 +55,7 @@ namespace TcgEngine.UI
 
         private async void OnMulligan(int player_id)
         {
+            using var presentation = PresentationClock.Operation();
             Player player = GameClient.Get().GetPlayer();
             Game game_data = GameClient.Get().GetGameData();
             string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
@@ -122,6 +123,7 @@ namespace TcgEngine.UI
 
             local_done = true;
             TryStartHandoff();
+
         }
 
         //Starts the handoff once BOTH players are ready and the local swap animation has finished.
@@ -147,6 +149,7 @@ namespace TcgEngine.UI
 
         private async void DoHandoff()
         {
+            using var presentation = PresentationClock.Operation();
             Player player = GameClient.Get().GetPlayer();
             string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
 
@@ -219,10 +222,12 @@ namespace TcgEngine.UI
             //Close the mulligan panel now so it disappears together with the cards leaving for the hand,
             //instead of lingering until the server's first-turn buffer elapses.
             Hide();
+
         }
 
         private async void RefreshMulligan()
         {
+            using var presentation = PresentationClock.Operation();
             Player player = GameClient.Get().GetPlayer();
             string bonus_id = GameplayData.Get().second_bonus != null ? GameplayData.Get().second_bonus.id : "";
 
@@ -260,6 +265,7 @@ namespace TcgEngine.UI
                 await TimeTool.Delay(50);
                 if (this == null) return;
             }
+
         }
 
         private Vector2 GetCardPos(CardMulligan card)
@@ -271,6 +277,7 @@ namespace TcgEngine.UI
 
         private void OnClickCard(CardMulligan card_ui)
         {
+            if (!GameClient.Get().IsInputOpen) return;
             if (!Tutorial.Get().CanDo(TutoEndTrigger.MulliganSelect, card_ui.GetCard()))
                 return;
             card_ui.SetSelected(!card_ui.IsSelected());
@@ -279,6 +286,7 @@ namespace TcgEngine.UI
 
         public void OnClickOK()
         {
+            if (!GameClient.Get().IsInputOpen) return;
             if (!Tutorial.Get().CanDo(TutoEndTrigger.MulliganConfirm))
                 return;
 

@@ -131,7 +131,7 @@ namespace TcgEngine.Client
                 Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
                 BSlot bslot = BSlot.GetNearest(mouse_pos);
 
-                if (bslot != null && game_data.CanPlayCard(GetCard(), bslot.GetSlot())
+                if (bslot != null && GameClient.Get().GetLatestGameData().CanPlayCard(GameClient.Get().GetLatestGameData().GetCard(card_uid), bslot.GetSlot())
                     && GetCard().CardData.IsBoardCard()
                     && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
                 {
@@ -196,7 +196,8 @@ namespace TcgEngine.Client
             hand_card_ui.SetCard(card);
             board_card_ui.SetCard(card);
             //card_glow.enabled = IsFocus() || IsDrag();
-            bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(GetCard());
+            bool is_outline_enabled = GameClient.Get().IsYourTurn() && !GameClient.Get().IsCardPending(card_uid) && GameClient.Get().GetLatestGameData().phase == GamePhase.Main
+                && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(card_uid));
             card_outline.SetActive(is_outline_enabled); 
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
         }
@@ -216,7 +217,7 @@ namespace TcgEngine.Client
                 Vector3 mouse_pos = GameBoard.Get().RaycastMouseBoard();
                 BSlot bslot = BSlot.GetNearest(mouse_pos);
 
-                if (bslot != null && game_data.CanPlayCard(card, bslot.GetSlot())
+                if (bslot != null && GameClient.Get().GetLatestGameData().CanPlayCard(GameClient.Get().GetLatestGameData().GetCard(card_uid), bslot.GetSlot())
                     && card.CardData.IsBoardCard()
                     && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
                 {
@@ -230,6 +231,8 @@ namespace TcgEngine.Client
 
         public void SetCard(Card card)
         {
+            PresentationClock.Track(() => this == null || !gameObject.activeInHierarchy || IsDrag() || IsFocus()
+                || Vector2.Distance(card_transform.anchoredPosition, deck_position) < 1f);
             this.card_uid = card.uid;
             hand_card_ui.SetCard(card);
             board_card_ui.SetCard(card);
@@ -346,6 +349,7 @@ namespace TcgEngine.Client
         //Begin dragging this card (pointer crossed the hand line while pressed)
         private void StartDrag()
         {
+            if (!GameClient.Get().IsYourTurn() || GameClient.Get().IsCardPending(card_uid)) return;
             focus = false;
             drag = true;
             PlayerControls.Get().UnselectAll();
@@ -400,9 +404,10 @@ namespace TcgEngine.Client
 
             BSlot bslot = BSlot.GetNearest(board_pos);
             int player_id = GameClient.Get().GetPlayerID();
-            Game gdata = GameClient.Get().GetGameData();
+            Game gdata = GameClient.Get().GetLatestGameData();
             Player player = gdata.GetPlayer(player_id);
-            Card card = GetCard();
+            Card card = gdata.GetCard(card_uid);
+            if (card == null || GameClient.Get().IsCardPending(card_uid)) return;
 
             Slot slot = Slot.None;
             if (bslot != null)
@@ -435,8 +440,8 @@ namespace TcgEngine.Client
         public void PlayCard(Slot slot)
         {
             GameClient.Get().PlayCard(GetCard(), slot);
-            HandCardArea.Get().DelayRefresh(GetCard());
-            Destroy(gameObject);
+            SetDrag(false);
+            SetFocus(false);
             if (GameTool.IsMobile())
                 BoardCard.UnfocusAll();
         }
@@ -480,6 +485,7 @@ namespace TcgEngine.Client
         // so the normal Update() lerp can then carry it into its hand slot (deck_position / start_scale).
         public void StartHandoffFrom(RectTransform source)
         {
+            PresentationClock.Track(() => this == null || Vector2.Distance(card_transform.anchoredPosition, deck_position) < 1f);
             if (source == null)
                 return;
 

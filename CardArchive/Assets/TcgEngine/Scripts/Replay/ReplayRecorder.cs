@@ -7,7 +7,7 @@ namespace TcgEngine.Replay
     public sealed class ReplayRecorder
     {
         public ReplayRecord Record { get; private set; }
-        ReplayNode previous;
+        ReplayState previous;
         public bool Finished { get; private set; }
         public bool Failed { get; private set; }
         public void Begin(Game game)

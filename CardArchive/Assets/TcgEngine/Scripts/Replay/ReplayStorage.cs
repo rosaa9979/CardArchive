@@ -37,8 +37,10 @@ namespace TcgEngine.Replay
                     output.Write(buffer, 0, n);
                 }
                 var record = JsonUtility.FromJson<ReplayRecord>(Encoding.UTF8.GetString(output.ToArray()));
-                if (record == null || record.formatVersion != 1 || record.initialState == null || record.events == null)
-                    throw new InvalidDataException("Unsupported replay format");
+                if (record == null || record.formatVersion != ReplayStateCodec.FormatVersion)
+                    throw new InvalidDataException("Unsupported replay format. This build requires flat-state replay version 2; legacy version 1 recordings are not converted automatically.");
+                if (record.initialState == null || record.initialState.formatVersion != ReplayStateCodec.FormatVersion || record.events == null)
+                    throw new InvalidDataException("Invalid replay state");
                 return record;
             }
         }

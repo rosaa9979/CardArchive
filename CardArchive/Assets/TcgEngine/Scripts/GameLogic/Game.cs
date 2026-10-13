@@ -32,6 +32,7 @@ namespace TcgEngine
 
         //Selector
         public SelectorType selector = SelectorType.None;
+        public long selector_version;
         public int selector_player_id = 0;
         public string[] selector_card_uids; // Authoritative candidate order; never reroll a displayed selector.
         public string selector_ability_id;
@@ -722,6 +723,15 @@ namespace TcgEngine
             return card != null && GetBoardCard(card.uid) != null;
         }
 
+        // Input eligibility uses the authoritative state, independently of presentation.
+        public bool CanInputTarget(Card card)
+        {
+            if (card == null || card.dying) return false;
+            if (IsOnBoard(card)) return card.GetHP() > 0;
+            if (IsEquipped(card)) return CanInputTarget(GetPlayer(card.player_id).GetBearerCard(card));
+            return false;
+        }
+
         public bool IsEquipped(Card card)
         {
             return card != null && GetEquipCard(card.uid) != null;
@@ -807,6 +817,7 @@ namespace TcgEngine
             dest.selector_context = source.selector_context?.Clone();
             dest.selector_max_repeat = source.selector_max_repeat;
             dest.selector_current_repeat = source.selector_current_repeat;
+            dest.selector_version = source.selector_version;
             dest.selector_hand_index = source.selector_hand_index;
 
             dest.last_destroyed = source.last_destroyed;

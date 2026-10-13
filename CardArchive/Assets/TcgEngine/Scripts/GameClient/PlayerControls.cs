@@ -140,9 +140,11 @@ namespace TcgEngine.Client
 
         public void SelectCard(BoardCard bcard)
         {
-            Game gdata = GameClient.Get().GetGameData();
-            Player player = GameClient.Get().GetPlayer();
-            Card card = bcard.GetFocusCard();
+            Game gdata = GameClient.Get().GetLatestGameData();
+            Player player = GameClient.Get().GetLatestGameData().GetPlayer(GameClient.Get().GetPlayerID());
+            Card visible = bcard.GetFocusCard();
+            if (visible == null || !GameClient.Get().CanUseBoardCard(visible.uid)) return;
+            Card card = gdata.GetCard(visible.uid);
 
             if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
             {
@@ -150,7 +152,7 @@ namespace TcgEngine.Client
                     return;
 
                 //Target selector, select this card
-                GameClient.Get().SelectSlot(card.slot);
+                GameClient.Get().SelectSlot(card.slot, card.uid);
             }
             else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
             {
@@ -161,8 +163,8 @@ namespace TcgEngine.Client
 
         public void SelectSlot(BoardSlot bslot)
         {
-            Game gdata = GameClient.Get().GetGameData();
-            Player player = GameClient.Get().GetPlayer();
+            Game gdata = GameClient.Get().GetLatestGameData();
+            Player player = GameClient.Get().GetLatestGameData().GetPlayer(GameClient.Get().GetPlayerID());
             Slot slot = bslot.GetSlot();
 
             if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
@@ -177,8 +179,8 @@ namespace TcgEngine.Client
 
         public void SelectPlayer(Player player)
         {
-            Game gdata = GameClient.Get().GetGameData();
-            Player client_player = GameClient.Get().GetPlayer();
+            Game gdata = GameClient.Get().GetLatestGameData();
+            Player client_player = GameClient.Get().GetLatestGameData().GetPlayer(GameClient.Get().GetPlayerID());
 
             if (gdata.IsPlayerSelectorTurn(client_player) && gdata.selector == SelectorType.SelectTarget)
             {
@@ -191,7 +193,7 @@ namespace TcgEngine.Client
         {
             selected_card = null;
 
-            Game gdata = GameClient.Get().GetGameData();
+            Game gdata = GameClient.Get().GetLatestGameData();
             HandCard handcard = HandCard.GetDrag();
 
             if (gdata.CanCancelSelector())

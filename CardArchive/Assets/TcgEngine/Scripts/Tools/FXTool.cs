@@ -27,7 +27,7 @@ namespace TcgEngine
         private static Dictionary<string, GameObject> unique_fx = new Dictionary<string, GameObject>();
 
         //Only one FX per key can be alive at a time, spawning a new one destroys the previous one
-        public static GameObject DoUniqueFX(string key, GameObject fx_prefab, Vector3 pos, float duration = 5f)
+        public static GameObject DoUniqueFX(string key, GameObject fx_prefab, Vector3 pos, float duration = -1f)
         {
             if (fx_prefab == null)
                 return null;
@@ -40,10 +40,12 @@ namespace TcgEngine
             return fx;
         }
 
-        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = 5f)
+        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = -1f)
         {
             if (fx_prefab != null)
             {
+                duration = duration < 0f ? GetDuration(fx_prefab) : duration;
+                PresentationClock.Hold(duration);
                 GameObject fx = Instantiate(fx_prefab, pos, GetFXRotation());
                 Destroy(fx, duration);
                 return fx;
@@ -51,7 +53,7 @@ namespace TcgEngine
             return null;
         }
 
-        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, FXLayer layer, float duration = 5f)
+        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, FXLayer layer, float duration = -1f)
         {
             GameObject fx = DoFX(fx_prefab, pos, duration);
             SetFXLayer(fx, layer);
@@ -59,10 +61,12 @@ namespace TcgEngine
         }
 
         //Spawn a screen UI FX under a canvas, worldPositionStays=false so the prefab's RectTransform (anchors/offsets) is preserved
-        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, float duration = 5f)
+        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, float duration = -1f)
         {
             if (fx_prefab != null && canvas_parent != null)
             {
+                duration = duration < 0f ? GetDuration(fx_prefab) : duration;
+                PresentationClock.Hold(duration);
                 GameObject fx = Instantiate(fx_prefab, canvas_parent, false);
 
                 //연출용 UI가 게임 입력을 가로채지 않게 클릭 통과 처리
@@ -78,7 +82,7 @@ namespace TcgEngine
             return null;
         }
 
-        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, FXLayer layer, float duration = 5f)
+        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, FXLayer layer, float duration = -1f)
         {
             GameObject fx = DoUIFX(fx_prefab, canvas_parent, duration);
             if (fx != null && layer != FXLayer.Default && fx.GetComponent<Canvas>() == null)
@@ -142,10 +146,32 @@ namespace TcgEngine
                 SnapFX snap = fx.AddComponent<SnapFX>();
                 snap.target = snap_target;
                 snap.offset = offset;
-                Destroy(fx, 5f);
+                float duration = GetDuration(fx_prefab);
+                PresentationClock.Hold(duration);
+                Destroy(fx, duration);
                 return fx;
             }
             return null;
+        }
+
+        public static float GetDuration(GameObject prefab)
+        {
+            if (prefab == null) return 0f;
+            FXSetting setting = prefab.GetComponentInChildren<FXSetting>(true);
+            if (setting != null && setting.presentation_duration > 0f) return setting.presentation_duration;
+            float duration = 0f;
+            foreach (Animator animator in prefab.GetComponentsInChildren<Animator>(true))
+                if (animator.runtimeAnimatorController != null)
+                    foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+                        duration = Mathf.Max(duration, clip.length / Mathf.Max(0.01f, Mathf.Abs(animator.speed)));
+            foreach (ParticleSystem particles in prefab.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = particles.main;
+                if (!main.loop)
+                    duration = Mathf.Max(duration, (main.startDelay.constantMax + main.duration + main.startLifetime.constantMax)
+                        / Mathf.Max(0.01f, main.simulationSpeed));
+            }
+            return duration > 0f ? duration : 5f;
         }
 
         private static Quaternion GetFXRotation()

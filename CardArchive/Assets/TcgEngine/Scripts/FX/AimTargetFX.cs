@@ -62,14 +62,14 @@ namespace TcgEngine.FX
 
         void Update()
         {
-            if (TcgEngine.Replay.ReplaySession.Active || !GameClient.Get().IsReady())
+            if (TcgEngine.Replay.ReplaySession.Active || !GameClient.Get().IsInputOpen)
             {
                 UpdateTargetVisual(null, false, Vector3.zero, 0f);
                 text_fx.SetActive(false);
                 return;
             }
 
-            Game game_data = GameClient.Get().GetGameData();
+            Game game_data = GameClient.Get().GetLatestGameData();
             Vector3 dest = GameBoard.Get().RaycastMouseBoard();
             BSlot bslot = BSlot.GetNearest(dest);
 
@@ -105,7 +105,7 @@ namespace TcgEngine.FX
             HandCard hcard = play_targeting_card;
             if (hcard != null)
             {
-                Card caster = hcard.GetCard();
+                Card caster = game_data.GetCard(hcard.GetCardUID());
                 AbilityData ability = caster.GetAbility(AbilityTarget.PlayTarget);
 
                 if (!string.IsNullOrWhiteSpace(ability.selector_desc))
@@ -131,6 +131,9 @@ namespace TcgEngine.FX
                 }
             }
             
+
+            Card visibleCard = bslot?.GetSlotCard(dest);
+            if (visibleCard != null && !GameClient.Get().CanUseBoardCard(visibleCard.uid)) visible = false;
 
             if (text_fx.activeSelf != text_visible)
                 text_fx.SetActive(text_visible);

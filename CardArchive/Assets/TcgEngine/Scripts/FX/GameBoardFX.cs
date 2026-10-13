@@ -33,14 +33,14 @@ namespace TcgEngine.FX
         {
             AudioTool.Get().PlaySFX("turn", AssetData.Get().new_turn_audio);
 
-            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, 1.0f);
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);
         }
 
         void OnAttackPhase(int player_id)
         {
-            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, 1.0f);
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);
         }
@@ -125,7 +125,7 @@ namespace TcgEngine.FX
             if (game_ui == null || game_ui.game_canvas == null)
                 return;
 
-            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand, 2.0f);
+            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand);
             if (obj == null)
                 return;
 

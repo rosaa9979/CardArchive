@@ -23,9 +23,9 @@ namespace TcgEngine.FX
         void LateUpdate()
         {
             GameClient client = GameClient.Get();
-            if (TcgEngine.Replay.ReplaySession.Active || client == null || !client.IsReady() || client.IsObserveMode())
+            if (TcgEngine.Replay.ReplaySession.Active || client == null || !client.IsInputOpen || client.IsObserveMode())
             { Hide(); return; }
-            Game data = client.GetGameData();
+            Game data = client.GetLatestGameData();
             bool visible = false;
             Vector3 source = Vector3.zero;
             if (play_targeting_card != null)

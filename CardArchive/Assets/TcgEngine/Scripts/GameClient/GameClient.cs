@@ -14,7 +14,7 @@ namespace TcgEngine.Client
     /// During the game, will send all actions performed by the player and receive game refreshes
     /// </summary>
 
-    public class GameClient : MonoBehaviour
+    public partial class GameClient : MonoBehaviour
     {
         //--- These settings are set in the menu scene and when the game start will be sent to server
 
@@ -88,6 +88,9 @@ namespace TcgEngine.Client
 
         protected virtual void Start()
         {
+            RegisterRefresh(GameAction.Presentation, OnPresentation);
+            RegisterRefresh(GameAction.PresentationGate, OnPresentationGate);
+            RegisterRefresh(GameAction.ActionResult, OnActionResult);
             RegisterRefresh(GameAction.Connected, OnConnectedToGame);
             RegisterRefresh(GameAction.PlayerReady, OnPlayerReady);
             RegisterRefresh(GameAction.GameStart, OnGameStart);
@@ -147,6 +150,7 @@ namespace TcgEngine.Client
 
         protected virtual void OnDestroy()
         {
+            PresentationClock.Reset();
             TcgNetwork.Get().onConnect -= OnConnectedServer;
             TcgNetwork.Get().Messaging.UnListenMsg("refresh");
         }
@@ -154,6 +158,7 @@ namespace TcgEngine.Client
         protected virtual void Update()
         {
             if (TcgEngine.Replay.ReplaySession.Active) return;
+            TryAcknowledgePresentation();
             bool is_starting = game_data == null || game_data.state == GameState.Connecting;
             bool is_client = !game_settings.IsHost();
             bool is_connecting = TcgNetwork.Get().IsConnecting();
@@ -320,9 +325,19 @@ namespace TcgEngine.Client
 
         public void PlayCard(Card card, Slot slot)
         {
-            MsgPlayCard mdata = new MsgPlayCard();
+            if (card == null || !IsInputOpen || pendingCards.Contains(card.uid)) return;
+            Card latest = GetLatestGameData().GetCard(card.uid);
+            if (!GetLatestGameData().CanPlayCard(latest, slot)) return;
+            MsgPlayRequest mdata = new MsgPlayRequest();
             mdata.card_uid = card.uid;
             mdata.slot = slot;
+            Card visibleTarget = game_data.GetSlotCard(slot);
+            if (card.CardData.IsRequireTarget() && visibleTarget != null)
+            {
+                if (!CanUseBoardCard(visibleTarget.uid)) return;
+                mdata.target_uid = visibleTarget.uid;
+            }
+            pendingCards.Add(card.uid);
             SendAction(GameAction.PlayCard, mdata);
         }
 
@@ -367,6 +382,9 @@ namespace TcgEngine.Client
 
         public void SelectCard(Card card)
         {
+            if (card == null) return;
+            if (game_data.IsOnBoard(card) && !CanUseBoardCard(card.uid)) return;
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
             MsgCard mdata = new MsgCard();
             mdata.card_uid = card.uid;
             SendAction(GameAction.SelectCard, mdata);
@@ -374,18 +392,22 @@ namespace TcgEngine.Client
 
         public void SelectPlayer(Player player)
         {
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
             MsgPlayer mdata = new MsgPlayer();
             mdata.player_id = player.player_id;
             SendAction(GameAction.SelectPlayer, mdata);
         }
 
-        public void SelectSlot(Slot slot)
+        public void SelectSlot(Slot slot, string targetUid = "")
         {
-            SendAction(GameAction.SelectSlot, slot);
+            if (!string.IsNullOrEmpty(targetUid) && !CanUseBoardCard(targetUid)) return;
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
+            SendAction(GameAction.SelectSlot, new MsgSelectSlotRequest { slot = slot, target_uid = targetUid });
         }
 
         public void SelectChoice(int c)
         {
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
             MsgInt choice = new MsgInt();
             choice.value = c;
             SendAction(GameAction.SelectChoice, choice);
@@ -400,6 +422,7 @@ namespace TcgEngine.Client
 
         public void CancelSelection()
         {
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
             SendAction(GameAction.CancelSelect);
         }
 
@@ -445,30 +468,36 @@ namespace TcgEngine.Client
 
         public void SendAction<T>(ushort type, T data, NetworkDelivery delivery = NetworkDelivery.Reliable) where T : INetworkSerializable
         {
-            if (TcgEngine.Replay.ReplaySession.Active) return;
+            if (TcgEngine.Replay.ReplaySession.Active || !CanSendAction(type)) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
+            writer.WriteValueSafe(inputEpoch);
+            writer.WriteValueSafe(GetLatestGameData()?.selector_version ?? 0L);
             writer.WriteNetworkSerializable(data);
-            Messaging.Send("action", ServerID, writer, delivery);
+            Messaging.Send("action", ServerID, writer, NetworkDelivery.ReliableFragmentedSequenced);
             writer.Dispose();
         }
 
         public void SendAction(ushort type, int data)
         {
-            if (TcgEngine.Replay.ReplaySession.Active) return;
+            if (TcgEngine.Replay.ReplaySession.Active || !CanSendAction(type)) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
+            writer.WriteValueSafe(inputEpoch);
+            writer.WriteValueSafe(GetLatestGameData()?.selector_version ?? 0L);
             writer.WriteValueSafe(data);
-            Messaging.Send("action", ServerID, writer, NetworkDelivery.Reliable);
+            Messaging.Send("action", ServerID, writer, NetworkDelivery.ReliableFragmentedSequenced);
             writer.Dispose();
         }
 
         public void SendAction(ushort type)
         {
-            if (TcgEngine.Replay.ReplaySession.Active) return;
+            if (TcgEngine.Replay.ReplaySession.Active || !CanSendAction(type)) return;
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(type);
-            Messaging.Send("action", ServerID, writer, NetworkDelivery.Reliable);
+            writer.WriteValueSafe(inputEpoch);
+            writer.WriteValueSafe(GetLatestGameData()?.selector_version ?? 0L);
+            Messaging.Send("action", ServerID, writer, NetworkDelivery.ReliableFragmentedSequenced);
             writer.Dispose();
         }
 
@@ -484,7 +513,7 @@ namespace TcgEngine.Client
         {
             MsgAfterConnected msg = sdata.Get<MsgAfterConnected>();
             player_id = msg.player_id;
-            game_data = msg.game_data;
+            if (!presentationReady) game_data = msg.game_data;
             observe_mode = player_id < 0; //Will usually return -1 if its an observer
 
             if (observe_mode)
@@ -493,6 +522,9 @@ namespace TcgEngine.Client
             if (onConnectGame != null)
                 onConnectGame.Invoke();
 
+            acknowledgedBarrier = -1;
+            pendingCards.Clear();
+            RequestPresentationSync();
             SendGameSettings();
         }
 
@@ -630,7 +662,7 @@ namespace TcgEngine.Client
             //as RefreshAll, so the next authoritative snapshot always arrives after this and
             //replaces game_data wholesale, correcting any divergence. Deaths are never
             //processed locally — card removal only happens on server events.
-            if (!TcgEngine.Replay.ReplaySession.Active) target.damage += msg.damage;
+            if (!TcgEngine.Replay.ReplaySession.Active && !playingPresentation) target.damage += msg.damage;
             onCardDamaged?.Invoke(attacker, target, msg.damage);
         }
 
@@ -644,7 +676,7 @@ namespace TcgEngine.Client
 
             //Display prediction, same model as OnCardDamaged: the next RefreshAll snapshot
             //(same sequenced channel) replaces game_data and corrects any divergence
-            if (!TcgEngine.Replay.ReplaySession.Active) target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
+            if (!TcgEngine.Replay.ReplaySession.Active && !playingPresentation) target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
             onPlayerDamaged?.Invoke(attacker, target, msg.damage);
         }
 
@@ -820,9 +852,9 @@ namespace TcgEngine.Client
 
         public virtual bool IsYourTurn()
         {
-            Game game_data = GetGameData();
-            Player player = GetPlayer();
-            return IsReady() && game_data.IsPlayerTurn(player);
+            Game latest = GetLatestGameData();
+            Player player = latest?.GetPlayer(GetPlayerID());
+            return IsInputOpen && (latest.phase == GamePhase.Main || latest.selector != SelectorType.None) && latest.IsPlayerTurn(player);
         }
 
         public bool IsObserveMode()

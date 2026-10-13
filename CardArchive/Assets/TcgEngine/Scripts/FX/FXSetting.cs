@@ -27,6 +27,8 @@ namespace TcgEngine.FX
         public FXRotationOption rotation_option;
 
         [Header("Animation")]
+        [Tooltip("Presentation duration in seconds; zero measures animation clips and particles.")]
+        [Min(0f)] public float presentation_duration;
         public Animator animator;   //자신/상대 스테이트 분기가 필요한 FX만 할당
 
         //이벤트 주인이 자신인지 판단하여 공용 스테이트 명 반환 (관전 모드는 관전 대상 기준)

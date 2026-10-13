@@ -27,6 +27,7 @@ namespace TcgEngine.UI
             }
             active = Instantiate(prefab, owner.transform, false);
             active.Play(data.first_player == client.GetPlayerID());
+            PresentationClock.Track(() => active == null);
         }
 
         public void Play(bool goesFirst)

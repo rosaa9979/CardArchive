@@ -280,6 +280,7 @@ namespace TcgEngine.Client
                 card_shadow.enabled = false;
 
                 //SetOrder(card_sprite.sortingOrder - 2);
+                PresentationClock.Hold(1.3f);
                 Destroy(gameObject, 1.3f);
 
                 TimeTool.WaitFor(0.8f, () =>

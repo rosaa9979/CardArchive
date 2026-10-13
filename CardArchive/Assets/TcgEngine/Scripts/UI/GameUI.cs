@@ -104,14 +104,13 @@ namespace TcgEngine.UI
 
             //Timer
             turn_count.text = "Turn " + data.turn_count.ToString();
-            turn_timer.enabled = data.turn_timer > 0f;
-            turn_timer.text = Mathf.RoundToInt(data.turn_timer).ToString();
+            float remaining = TcgEngine.Replay.ReplaySession.Active ? data.turn_timer : GameClient.Get().TurnTimeRemaining;
+            turn_timer.enabled = remaining > 0f;
+            turn_timer.text = Mathf.RoundToInt(remaining).ToString();
             turn_timer.color = new Color32(37, 44, 91, 255);
-            turn_timer.enabled = data.turn_timer < 999f;
+            turn_timer.enabled = remaining < 999f;
 
-            //Simulate timer
-            if (!TcgEngine.Replay.ReplaySession.Active && data.state == GameState.Play && data.turn_timer > 0f)
-                data.turn_timer -= Time.deltaTime;
+            //The clock follows the latest server state; presentation snapshots stay immutable.
 
             //Timer warning
             if (data.state == GameState.Play)

@@ -109,6 +109,7 @@ namespace TcgEngine.FX
 
             anim.Clear();
             anim.target = target;
+            TcgEngine.Client.PresentationClock.Track(() => anim == null || (anim.current == null && anim.sequence.Count == 0));
             return anim;
         }
     }

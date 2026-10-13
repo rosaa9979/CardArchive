@@ -3,17 +3,25 @@ using System.Collections.Generic;
 
 namespace TcgEngine.Replay
 {
-    [Serializable] public class ReplayNode
+    public enum ReplayEntityKind { Game, Player, Card }
+
+    // Normalized tables. Entity bodies use the bounded, versioned field schema in
+    // ReplayStateCodec; relationships are IDs, never nested entities.
+    [Serializable] public class ReplayState
     {
-        public string key;
-        public string value;
-        public bool isNull;
-        public List<ReplayNode> children = new List<ReplayNode>();
+        public int formatVersion = 2;
+        public List<ReplayEntity> entities = new List<ReplayEntity>();
+    }
+    [Serializable] public class ReplayEntity
+    {
+        public ReplayEntityKind kind;
+        public string id;
+        public string data;
     }
     [Serializable] public class ReplayChange
     {
-        public string[] path;
-        public ReplayNode value;
+        public ReplayEntity entity;
+        public bool removed;
     }
     [Serializable] public class ReplayEntry
     {
@@ -35,11 +43,11 @@ namespace TcgEngine.Replay
     }
     [Serializable] public class ReplayRecord
     {
-        public int formatVersion = 1;
+        public int formatVersion = 2;
         public string buildVersion;
         public string matchId;
         public string[] players;
-        public ReplayNode initialState;
+        public ReplayState initialState;
         public List<ReplayEntry> events = new List<ReplayEntry>();
         public string finalHash;
     }

@@ -33,6 +33,25 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card> onCardDiscarded;
         public UnityAction<Card, int> onCardDissolved;
         public UnityAction<int> onCardDrawn;
+        public UnityAction<Card, long> onCardDrawStep;
+        private long drawRequestSequence;
+        public System.Action<System.Action> onPhaseTransition;
+        public void SetImmediateResolution(bool value) { resolve_queue.Immediate = value; }
+        public void SuspendResolution(bool value) { resolve_queue.Suspended = value; }
+        private System.Action phaseEntry;
+        private void EnterPhase(System.Action next) { phaseEntry = next; next(); }
+        private bool DeferPhase(System.Action next)
+        {
+            if (phaseEntry == next) { phaseEntry = null; return false; }
+            if (onPhaseTransition == null) return false;
+            Transition(next);
+            return true;
+        }
+        private void Transition(System.Action next)
+        {
+            if (onPhaseTransition != null) onPhaseTransition(() => EnterPhase(next));
+            else next();
+        }
         public UnityAction<Player> onExhaustDamage;
         public UnityAction<int> onRollValue;
         public UnityAction<Card, EffectStatType> onCardStatChange;
@@ -59,7 +78,9 @@ namespace TcgEngine.Gameplay
         public UnityAction onRefresh;
         public System.Action<Game> onReplaySetup;
         public System.Action<string> onReplayRandom;
-        public void ReplayBoundary() { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); }
+        public System.Action<Game> onPresentationBoundary;
+        private void PresentationBoundary() { if (!is_ai_predict) onPresentationBoundary?.Invoke(game_data); }
+        public void ReplayBoundary() { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); PresentationBoundary(); }
         public System.Action<Game> onReplayBoundary;
         public System.Action<TcgEngine.Replay.ReplayInteraction> onReplayInteraction;
         private string replay_pending_play;
@@ -102,7 +123,7 @@ namespace TcgEngine.Gameplay
             //is_instant ignores all gameplay delays and process everything immediately, needed for AI prediction
             resolve_queue = new ResolveQueue(null, is_ai);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
-            resolve_queue.onResolved = () => { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); };
+            resolve_queue.onResolved = ReplayBoundary;
             is_ai_predict = is_ai;
         }
 
@@ -113,7 +134,7 @@ namespace TcgEngine.Gameplay
             game.SetRandom(random);
             resolve_queue = new ResolveQueue(game, false);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
-            resolve_queue.onResolved = () => { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); };
+            resolve_queue.onResolved = ReplayBoundary;
         }
 
         public virtual void SetData(Game game)
@@ -248,6 +269,7 @@ namespace TcgEngine.Gameplay
             game_data.phase = GamePhase.GameStart;
             RefreshData();
             onGameStart?.Invoke();
+            PresentationBoundary();
 
             //OnGameStart abilities fire BEFORE the draw and mulligan now (hand and board are still empty here).
             //(club / hero / player_ability cards). The starting hand is drawn once these resolve.
@@ -261,9 +283,9 @@ namespace TcgEngine.Gameplay
             //ability_queue drains before callbacks, so effects fully resolve before the draw runs.
             resolve_queue.AddCallback(() => DrawStartingHands(start_hand_counts, first_override));
             if (should_mulligan)
-                resolve_queue.AddCallback(GoToMulligan);
+                resolve_queue.AddCallback(() => Transition(GoToMulligan));
             else
-                resolve_queue.AddCallback(StartFirstTurn);
+                resolve_queue.AddCallback(() => Transition(StartFirstTurn));
             resolve_queue.ResolveAll(GameConfig.Timing.game_start);
         }
 
@@ -308,6 +330,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
+            if (DeferPhase(StartFirstTurn)) return;
 
             //Leave the Mulligan phase first so the client closes the mulligan panel
             //(MulliganSelector shows while phase == Mulligan). GameStart enables no input and
@@ -316,7 +339,7 @@ namespace TcgEngine.Gameplay
             RefreshData();
 
             //Delay lets the mulligan panel close before the first turn begins.
-            resolve_queue.AddCallback(StartTurn);
+            resolve_queue.AddCallback(() => Transition(StartTurn));
             resolve_queue.ResolveAll(GameConfig.Timing.first_turn);
         }
 
@@ -324,6 +347,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
+            if (DeferPhase(StartTurn)) return;
 
             ClearTurnData();
             game_data.phase = GamePhase.StartTurn;
@@ -354,6 +378,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
+            if (DeferPhase(StartNextTurn)) return;
 
             game_data.current_player = (game_data.current_player + 1) % game_data.settings.nb_players;
 
@@ -362,7 +387,7 @@ namespace TcgEngine.Gameplay
 
             RefreshData();
             CheckForWinner();
-            StartTurn();
+            EnterPhase(StartTurn);
         }
 
         public virtual void BeforeMainPahse()
@@ -403,7 +428,7 @@ namespace TcgEngine.Gameplay
 
             //Draw happens after start-of-turn abilities resolve (ability_queue drains before callbacks)
             resolve_queue.AddCallback(DrawForTurn);
-            resolve_queue.AddCallback(StartMainPhase);
+            resolve_queue.AddCallback(() => Transition(StartMainPhase));
             resolve_queue.ResolveAll(GameConfig.Timing.pre_main_phase);
         }
 
@@ -424,6 +449,7 @@ namespace TcgEngine.Gameplay
         {
             if (game_data.state == GameState.GameEnded)
                 return;
+            if (DeferPhase(StartMainPhase)) return;
 
             game_data.phase = GamePhase.Main;
             onTurnPlay?.Invoke();
@@ -436,6 +462,7 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Main)
                 return;
+            if (DeferPhase(StartAttackPhase)) return;
 
             ClearSelector();
             game_data.phase = GamePhase.Attack;
@@ -481,7 +508,7 @@ namespace TcgEngine.Gameplay
             }
 
             // 한 바퀴 종료
-            resolve_queue.AddCallback(EndTurn);
+            resolve_queue.AddCallback(() => Transition(EndTurn));
             resolve_queue.ResolveAll(GameConfig.Timing.attack_phase_end);
         }
 
@@ -596,6 +623,7 @@ namespace TcgEngine.Gameplay
                 return;
             if (game_data.phase != GamePhase.Attack)
                 return;
+            if (DeferPhase(EndTurn)) return;
 
             ClearSelector();
             game_data.phase = GamePhase.EndTurn;
@@ -620,7 +648,7 @@ namespace TcgEngine.Gameplay
             onTurnEnd?.Invoke();
             RefreshData();
 
-            resolve_queue.AddCallback(StartNextTurn);
+            resolve_queue.AddCallback(() => Transition(StartNextTurn));
             resolve_queue.ResolveAll(GameConfig.Timing.turn_end);
         }
 
@@ -650,7 +678,7 @@ namespace TcgEngine.Gameplay
             ResolveSelectorOnTimeout();
 
             //Add to resolve queue in case its still resolving
-            resolve_queue.AddCallback(StartAttackPhase);
+            resolve_queue.AddCallback(() => Transition(StartAttackPhase));
             resolve_queue.ResolveAll();
         }
 
@@ -1343,6 +1371,11 @@ namespace TcgEngine.Gameplay
 
         public virtual void DrawCard(Player player, int nb = 1)
         {
+            // Preserve the rule order; identify one draw request for client presentation.
+            // Flush preceding effects before its first outcome so they cannot be folded
+            // into a simultaneous hand arrival.
+            PresentationBoundary();
+            long requestId = ++drawRequestSequence;
             for (int i = 0; i < nb; i++)
             {
                 if (player.cards_deck.Count > 0)
@@ -1354,6 +1387,7 @@ namespace TcgEngine.Gameplay
                     {
                         player.cards_hand.Add(card);
                         TriggerPlayerCardsAbilityType(player, AbilityTrigger.OnDraw);
+                        onCardDrawStep?.Invoke(card, requestId);
                     }
                     else
                     {
@@ -2463,6 +2497,7 @@ namespace TcgEngine.Gameplay
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
 
             onAbilityTargetPlayer?.Invoke(iability, caster, target);
+            PresentationBoundary();
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target, AbilityEventContext context = null)
@@ -2474,12 +2509,14 @@ namespace TcgEngine.Gameplay
 
             game_data.last_target = target.uid;
             game_data.last_targeted_slot = target.slot;
+            PresentationBoundary();
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target, AbilityEventContext context = null)
         {
             iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
+            PresentationBoundary();
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target, AbilityEventContext context = null)
@@ -2490,12 +2527,14 @@ namespace TcgEngine.Gameplay
             onAbilityTargetSlot?.Invoke(iability, caster, target);
 
             game_data.last_targeted_slot = target;
+            PresentationBoundary();
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target, AbilityEventContext context = null)
         {
             iability.DoEffects(this, caster, target, context: context);
             if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
+            PresentationBoundary();
         }
 
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster, Card trigger_card, int max_repeat, int current_repeat, AbilityEventContext context = null)
@@ -3379,7 +3418,7 @@ namespace TcgEngine.Gameplay
                 {
                     //Buffer covers the client-side mulligan->hand handoff animation
                     //before the mulligan panel closes and the first turn begins.
-                    resolve_queue.AddCallback(StartFirstTurn);
+                    resolve_queue.AddCallback(() => Transition(StartFirstTurn));
                     resolve_queue.ResolveAll(GameConfig.Timing.mulligan_to_turn);
                     //StartTurn();
                 }
@@ -3390,6 +3429,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void GoToSelectTarget(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
+            game_data.selector_version++;
             game_data.selector = SelectorType.SelectTarget;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
@@ -3404,6 +3444,7 @@ namespace TcgEngine.Gameplay
         protected virtual void GoToSelectorCard(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
             game_data.selector_card_uids = iability.GetCardTargets(game_data, caster, context: context).Select(c => c.uid).ToArray();
+            game_data.selector_version++;
             game_data.selector = SelectorType.SelectorCard;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
@@ -3417,6 +3458,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void GoToSelectorChoice(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
         {
+            game_data.selector_version++;
             game_data.selector = SelectorType.SelectorChoice;
             game_data.selector_player_id = caster.player_id;
             game_data.selector_ability_id = iability.id;
@@ -3430,6 +3472,8 @@ namespace TcgEngine.Gameplay
 
         protected virtual void GoToMulligan()
         {
+            if (DeferPhase(GoToMulligan)) return;
+
             game_data.phase = GamePhase.Mulligan;
             game_data.turn_timer = GameplayData.Get().turn_duration;
             foreach (Player player in game_data.players)

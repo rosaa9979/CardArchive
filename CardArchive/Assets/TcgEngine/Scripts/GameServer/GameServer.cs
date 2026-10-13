@@ -14,7 +14,7 @@ namespace TcgEngine.Server
     /// Manage receiving actions, sending refresh, and running AI
     /// </summary>
 
-    public class GameServer
+    public partial class GameServer
     {
         public string game_uid; //Game unique ID
         public int nb_players = 2;
@@ -83,12 +83,18 @@ namespace TcgEngine.Server
             is_dedicated_server = online;
             game_data = new Game(uid, nb_players);
             gameplay = new GameLogic(game_data);
+            gameplay.SetImmediateResolution(true);
+            gameplay.onPhaseTransition += WaitForPresentation;
+            presentation.Begin(game_data);
+            gameplay.onPresentationBoundary += CapturePresentation;
             gameplay.onReplaySetup += replay.Begin;
             gameplay.onReplayRandom += replay.Random;
             gameplay.onReplayBoundary += replay.Capture;
             gameplay.onReplayInteraction += interaction => replay.Interaction(game_data, interaction);
 
             //Commands
+            RegisterAction(GameAction.PresentationAck, ReceivePresentationAck);
+            RegisterAction(GameAction.PresentationSync, ReceivePresentationSync);
             RegisterAction(GameAction.PlayerSettings, ReceivePlayerSettings);
             RegisterAction(GameAction.PlayerSettingsAI, ReceivePlayerSettingsAI);
             RegisterAction(GameAction.GameSettings, ReceiveGameplaySettings);
@@ -121,7 +127,7 @@ namespace TcgEngine.Server
             gameplay.onCardTransformed += OnCardTransformed;
             gameplay.onCardDiscarded += OnCardDiscarded;
             gameplay.onCardDissolved += OnCardDissolved;
-            gameplay.onCardDrawn += OnCardDraw;
+            gameplay.onCardDrawStep += OnCardDrawStep;
             gameplay.onExhaustDamage += OnExhaustDamage;
             gameplay.onRollValue += OnValueRolled;
             gameplay.onCardStatChange += OnCardStatChange;
@@ -161,7 +167,7 @@ namespace TcgEngine.Server
             gameplay.onCardTransformed -= OnCardTransformed;
             gameplay.onCardDiscarded -= OnCardDiscarded;
             gameplay.onCardDissolved -= OnCardDissolved;
-            gameplay.onCardDrawn -= OnCardDraw;
+            gameplay.onCardDrawStep -= OnCardDrawStep;
             gameplay.onExhaustDamage -= OnExhaustDamage;
             gameplay.onRollValue -= OnValueRolled;
 
@@ -201,13 +207,14 @@ namespace TcgEngine.Server
 #if UNITY_EDITOR
             if (DebugEffectTestMode && DebugFreezeTimer) game_data.turn_timer = 100000f;
 #endif
-            if (game_data.state == GameState.Play && !gameplay.IsResolving())
+            if (game_data.state == GameState.Play && !inputClosed && !barrier.Active
+                && (game_data.phase == GamePhase.Main || game_data.phase == GamePhase.Mulligan))
             {
                 game_data.turn_timer -= Time.deltaTime;
                 if (game_data.turn_timer <= 0f)
                 {
                     //Time expired during turn
-                    gameplay.NextStep();
+                    ClosePhaseInput();
                 }
             }
 
@@ -220,12 +227,16 @@ namespace TcgEngine.Server
                     StartGame();
             }
 
+            UpdatePresentationBarrier();
+
             //Process queued actions
             if (queued_actions.Count > 0 && !gameplay.IsResolving())
             {
                 QueuedGameAction action = queued_actions.Dequeue();
                 ExecuteAction(action.type, action.client, action.sdata);
             }
+
+            DrainPhaseInput();
 
             //Update game logic
             gameplay.Update(Time.deltaTime);
@@ -239,8 +250,9 @@ namespace TcgEngine.Server
 #if UNITY_EDITOR
                 if (DebugEffectTestMode && DebugPauseAI && game_data.phase != GamePhase.Mulligan) continue;
 #endif
-                ai.Update();
+                if (!barrier.Active && !inputClosed) ai.Update();
             }
+            FlushPresentation();
             if (HasGameEnded() && !replay.Finished)
                 TcgEngine.Replay.ReplayStorage.Save(replay.Finish(game_data), is_dedicated_server && Authenticator.Get().IsApi());
         }
@@ -303,21 +315,32 @@ namespace TcgEngine.Server
             if (client != null)
             {
                 reader.ReadValueSafe(out ushort type);
+                reader.ReadValueSafe(out long epoch);
+                reader.ReadValueSafe(out long selection);
                 SerializedData sdata = new SerializedData(reader);
-                if (!gameplay.IsResolving())
+                if (type == GameAction.PresentationSync) { ExecuteAction(type, client, sdata); return; }
+                if (!players.Contains(client) || GetPlayer(client) == null) return;
+                if (IsControl(type)) { ExecuteAction(type, client, sdata); return; }
+                if (IsSelection(type) && type != GameAction.SelectMulligan && selection != game_data.selector_version) return;
+                if (inputClosed || barrier.Active || epoch != barrier.Id || game_data.HasEnded())
                 {
-                    //Not resolving, execute now
-                    ExecuteAction(type, client, sdata);
+                    if (type == GameAction.PlayCard) FinishCardRequest(client, sdata);
+                    return;
                 }
+                if (type == GameAction.EndTurn)
+                {
+                    Player player = GetPlayer(client);
+                    if (player != null && game_data.current_player == player.player_id && game_data.phase == GamePhase.Main)
+                        ReceiveEndTurn(client, sdata);
+                    return;
+                }
+                if (!gameplay.IsResolving() && (queued_actions.Count == 0 || IsSelection(type)))
+                    ExecuteAction(type, client, sdata);
                 else
                 {
-                    //Resolving, wait before executing
-                    QueuedGameAction action = new QueuedGameAction();
-                    action.type = type;
-                    action.client = client;
-                    action.sdata = sdata;
+                    if (IsSelection(type)) return; // Selections belong to the current suspended effect only.
                     sdata.PreRead();
-                    queued_actions.Enqueue(action);
+                    queued_actions.Enqueue(new QueuedGameAction { type = type, client = client, sdata = sdata });
                 }
             }
         }
@@ -325,8 +348,10 @@ namespace TcgEngine.Server
         public void ExecuteAction(ushort type, ClientData client, SerializedData sdata)
         {
             bool found = registered_commands.TryGetValue(type, out CommandEvent command);
-            if(found)
+            if (found)
                 command.callback.Invoke(client, sdata);
+            FlushPresentation();
+            if (type == GameAction.PlayCard) FinishCardRequest(client, sdata);
         }
 
         //-------
@@ -362,13 +387,22 @@ namespace TcgEngine.Server
 
         public void ReceivePlayCard(ClientData iclient, SerializedData sdata)
         {
-            MsgPlayCard msg = sdata.Get<MsgPlayCard>();
+            MsgPlayRequest msg = sdata.Get<MsgPlayRequest>();
             Player player = GetPlayer(iclient);
-            if (player != null && msg != null && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
+            if (player != null && msg != null && game_data.phase == GamePhase.Main && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
             {
                 Card card = player.GetCard(msg.card_uid);
                 if (card != null && card.player_id == player.player_id)
+                {
+                    // A unit target is pinned to its UID, so a replacement in the same slot is never hit.
+                    if (!string.IsNullOrEmpty(msg.target_uid))
+                    {
+                        Card target = game_data.GetCard(msg.target_uid);
+                        if (!game_data.CanInputTarget(target)) return;
+                        msg.slot = target.slot;
+                    }
                     gameplay.SelectPlayTarget(card, msg.slot);
+                }
             }
         }
 
@@ -442,6 +476,7 @@ namespace TcgEngine.Server
             if (player != null && msg != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
             {
                 Card target = game_data.GetCard(msg.card_uid);
+                if (game_data.selector == SelectorType.SelectTarget && (!game_data.CanInputTarget(target))) return;
                 gameplay.SelectCard(target);
                 //gameplay.SelectSlot(target.slot);
             }
@@ -460,7 +495,14 @@ namespace TcgEngine.Server
 
         public void ReceiveSelectSlot(ClientData iclient, SerializedData sdata)
         {
-            Slot slot = sdata.Get<Slot>();
+            MsgSelectSlotRequest request = sdata.Get<MsgSelectSlotRequest>();
+            Slot slot = request.slot;
+            if (!string.IsNullOrEmpty(request.target_uid))
+            {
+                Card target = game_data.GetCard(request.target_uid);
+                if (!game_data.CanInputTarget(target)) return;
+                slot = target.slot;
+            }
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
             {
@@ -505,7 +547,7 @@ namespace TcgEngine.Server
             if (player != null && game_data.IsPlayerTurn(player))
             {
                 replay.Interaction(game_data, new TcgEngine.Replay.ReplayInteraction { kind = "endTurn", player = player.player_id, slot = Slot.None });
-                gameplay.NextStep();
+                ClosePhaseInput();
             }
         }
 
@@ -659,7 +701,7 @@ namespace TcgEngine.Server
             connected_clients.Remove(client);
 
             Player player = GetPlayer(client);
-            if (player != null && player.connected)
+            if (players.Contains(client) && player != null && player.connected)
             {
                 player.connected = false;
                 RefreshAll();
@@ -678,10 +720,13 @@ namespace TcgEngine.Server
 
         public int AddPlayer(ClientData client)
         {
-            if (!players.Contains(client))
-                players.Add(client);
-
             int player_id = FindPlayerID(client.user_id);
+            if (player_id >= 0) players[player_id] = client; // Reconnect replaces the session, not the player slot.
+            else
+            {
+                player_id = players.Count;
+                players.Add(client);
+            }
             Player player = game_data.GetPlayer(player_id);
             if (player != null)
             {
@@ -706,7 +751,7 @@ namespace TcgEngine.Server
 
         public Player GetPlayer(ClientData client)
         {
-            return GetPlayer(client.user_id);
+            return client != null ? GetPlayer(client.user_id) : null;
         }
 
         public Player GetPlayer(string user_id)
@@ -860,6 +905,12 @@ namespace TcgEngine.Server
             mdata.card_uid = card.uid;
             mdata.player_id = player_id;
             SendToAll(GameAction.CardDissolved, mdata, NetworkDelivery.Reliable);
+        }
+
+        private void OnCardDrawStep(Card card, long requestId)
+        {
+            presentation.MarkDraw(requestId, card.player_id);
+            OnCardDraw(1);
         }
 
         protected virtual void OnCardDraw(int nb)
@@ -1050,10 +1101,8 @@ namespace TcgEngine.Server
 
         public virtual void RefreshAll()
         {
-            replay.Capture(game_data);
-            MsgRefreshAll mdata = new MsgRefreshAll();
-            mdata.game_data = GetGameData();
-            SendToAll(GameAction.RefreshAll, mdata, NetworkDelivery.ReliableFragmentedSequenced);
+            replay.Capture(game_data); // Live snapshots are captured at the enclosing rule boundary.
+            presentationDirty = true;
         }
 
         public void SendToAll(ushort tag)
@@ -1061,14 +1110,10 @@ namespace TcgEngine.Server
             FastBufferWriter writer = new FastBufferWriter(128, Unity.Collections.Allocator.Temp, TcgNetwork.MsgSizeMax);
             writer.WriteValueSafe(tag);
             replay.Event(game_data, writer.ToArray());
-            foreach (ClientData iclient in connected_clients)
-            {
-                if (iclient != null)
-                {
-                    Messaging.Send("refresh", iclient.client_id, writer, NetworkDelivery.Reliable);
-                }
-            }
+            presentation.Event(tag, writer.ToArray());
+            presentationDirty = true;
             writer.Dispose();
+
         }
 
         public void SendToAll(ushort tag, INetworkSerializable data, NetworkDelivery delivery)
@@ -1077,6 +1122,13 @@ namespace TcgEngine.Server
             writer.WriteValueSafe(tag);
             writer.WriteNetworkSerializable(data);
             if (tag != GameAction.RefreshAll) replay.Event(game_data, writer.ToArray());
+            if (tag != GameAction.ChatMessage && tag != GameAction.ServerMessage && tag != GameAction.PlayerReady)
+            {
+                presentation.Event(tag, writer.ToArray());
+            presentationDirty = true;
+                writer.Dispose();
+                return;
+            }
             foreach (ClientData iclient in connected_clients)
             {
                 if (iclient != null)

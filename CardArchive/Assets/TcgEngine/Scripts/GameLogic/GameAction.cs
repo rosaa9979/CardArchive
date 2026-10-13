@@ -11,6 +11,11 @@ namespace TcgEngine
     public static class GameAction
     {
         public const ushort None = 0;
+        public const ushort Presentation = 2200;
+        public const ushort PresentationAck = 1200;
+        public const ushort PresentationSync = 1201;
+        public const ushort PresentationGate = 2201;
+        public const ushort ActionResult = 2202;
 
         //Commands (client to server)
         public const ushort PlayCard = 1000;

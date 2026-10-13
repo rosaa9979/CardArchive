@@ -28,8 +28,9 @@ namespace TcgEngine
         }
 
         /// <summary>
-        /// Resolve/pacing delays in seconds, used by ResolveQueue and GameLogic.
-        /// AI prediction runs with skip_delay=true and ignores all of these.
+        /// Legacy resolve delays retained for standalone simulations and editor tools.
+        /// Live servers use immediate resolution; clients wait on PresentationClock and actual FX.
+        /// AI prediction also ignores these delays.
         /// </summary>
         public static class Timing
         {

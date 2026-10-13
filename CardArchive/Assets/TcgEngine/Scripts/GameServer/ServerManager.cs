@@ -173,7 +173,7 @@ namespace TcgEngine.Server
             if (client != null)
             {
                 GameServer gserver = GetGame(client.game_uid);
-                if (gserver != null && gserver.IsConnectedPlayer(client.user_id))
+                if (gserver != null)
                     gserver.ReceiveAction(client_id, reader);
             }
         }

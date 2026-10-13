@@ -11,7 +11,7 @@ namespace TcgEngine.Replay
 {
     public class ReplayDirector : MonoBehaviour
     {
-        ReplayNode state;
+        ReplayState state;
         int cursor;
         float speed = 1;
         bool paused;

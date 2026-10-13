@@ -169,7 +169,8 @@ namespace TcgEngine.UI
                     }
                 }
                 
-                bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && game_data.CanPlay(hcard.GetCard());
+                bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(hcard.GetCardUID()))
+                    && !GameClient.Get().IsCardPending(hcard.GetCardUID());
                 card_outline.SetActive(is_outline_enabled); 
             }
             else

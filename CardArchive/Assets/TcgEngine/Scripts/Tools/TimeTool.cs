@@ -17,6 +17,7 @@ namespace TcgEngine
 
         public static void WaitFor(float time, Action callback)
         {
+            TcgEngine.Client.PresentationClock.Hold(time);
             StartCoroutine(WaitForRun(time, callback));
         }
 
