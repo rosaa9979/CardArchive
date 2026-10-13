@@ -23,7 +23,7 @@ Project: C:/Users/rlafu/Downloads/PPJ/GAME/CardArchive/CardArchive.
 - GameBoardFX.OnAbility spawns AbilityData.board_fx through FXTool.DoFX.
   BoardCardFX handles per-target effects and sound. FXLayer defines established sorting bands.
 - Authoritative damage must not be added to VFX scripts. Preserve replay/network rules.
-- Existing flow documentation is under docs/; resolve queue checks under Tools/ResolveQueueTests.
+- Existing flow documentation is under docs/.
 
 ## Nonomi effect
 - Nonomi_Fire and Nonomi_Fire_Tutorial reference spell_damage1_all_enemy.

@@ -78,3 +78,10 @@ crashlytics-build.properties
 # Per-machine AI permissions and editor analysis preferences
 /.claude/settings.local.json
 /ProjectSettings/ProjectAuditorSettings.asset
+
+# Disposable authoring, preview and validation artifacts
+/Tools/AnimeCartoonFX/
+/Tools/ImportDefaults/
+/Tools/ResolveQueueTests/
+/Samples/Replays/
+/hs_err_pid*.log
