@@ -198,6 +198,7 @@ namespace TcgEngine.Client
         private void CancelPresentationStep()
         {
             presentationState.Cancel();
+            TcgEngine.UI.CoinTossUI.Cancel();
             ongoingSpawns.Clear();
             collectingAnimations = false;
             afterPresentationCommit.Clear();

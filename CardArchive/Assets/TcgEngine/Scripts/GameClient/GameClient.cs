@@ -544,7 +544,8 @@ namespace TcgEngine.Client
         private void OnGameStart(SerializedData sdata)
         {
             directCardPlays.Clear();
-            onGameStart?.Invoke();
+            // Preparation UI reads only the published first-player/phase snapshot.
+            AfterPresentationCommit(() => onGameStart?.Invoke());
         }
 
         private void OnGameEnd(SerializedData sdata)
@@ -569,7 +570,8 @@ namespace TcgEngine.Client
         {
             MsgPlayer msg = sdata.Get<MsgPlayer>();
             int player_id = msg.player_id;
-            onMulligan?.Invoke(player_id);
+            // Swap/handoff UI must inspect the confirmed replacement hand and ready flags.
+            AfterPresentationCommit(() => onMulligan?.Invoke(player_id));
         }
 
         private void OnCardPlayed(SerializedData sdata)

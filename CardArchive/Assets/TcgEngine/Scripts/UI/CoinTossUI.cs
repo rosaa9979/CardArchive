@@ -8,16 +8,17 @@ namespace TcgEngine.UI
     {
         [SerializeField] private Animator animator;
         private static CoinTossUI active;
-        public static bool IsShowing => active != null;
+        private bool finished;
+        public static bool IsShowing => active != null && !active.finished;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() { active = null; }
 
         public static void Show(GameUI owner)
         {
-            if (TcgEngine.Replay.ReplaySession.Active || active != null) return;
+            if (owner == null || active != null) return;
             GameClient client = GameClient.Get();
-            Game data = client.GetGameData();
+            Game data = client != null ? client.GetGameData() : null;
             if (data == null || data.state != GameState.Play || data.phase != GamePhase.GameStart) return;
             CoinTossUI prefab = Resources.Load<CoinTossUI>("CoinToss/CoinTossUI");
             if (prefab == null || prefab.animator == null)
@@ -27,16 +28,31 @@ namespace TcgEngine.UI
             }
             active = Instantiate(prefab, owner.transform, false);
             active.Play(data.first_player == client.GetPlayerID());
-            PresentationClock.Track(() => active == null);
+            // Track this instance, so a canceled intro cannot wait on a later one.
+            var instance = active;
+            PresentationClock.Track(() => instance == null || instance.finished);
         }
 
         public void Play(bool goesFirst)
         {
+            if (TcgEngine.Replay.ReplaySession.Active) animator.updateMode = AnimatorUpdateMode.Normal;
             animator.Play(goesFirst ? "First" : "Second", 0, 0f);
         }
 
         // Animation Event on the last frame of both clips.
-        public void Finish() { Destroy(gameObject); }
+        public void Finish()
+        {
+            finished = true;
+            Destroy(gameObject);
+        }
+
+        public static void Cancel()
+        {
+            if (active == null) return;
+            var canceled = active;
+            active = null;
+            canceled.Finish();
+        }
 
         private void OnDestroy()
         {
