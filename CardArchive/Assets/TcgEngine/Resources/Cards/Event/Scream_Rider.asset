@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Scream_Rider
   m_EditorClassIdentifier: 
   id: Scream_Rider
-  title: "\uC2A4\uD06C\uB9BC \uB77C\uC774\uB354"
+  title: "\uD0C8\uC120 \uACF5\uC791"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
@@ -26,11 +26,10 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 6b5a50cee833733419f74d02fced06ac, type: 2}
-  text: "\uC120\uD0DD\uD55C \uC5F4\uC758 \uBAA8\uB4E0 \uC720\uB2DB\uC5D0\uAC8C 6\uC758
-    \uD53C\uD574\uB97C \uC900\uB2E4."
+  text: "\uC120\uD0DD\uD55C \uC5F4\uC758 \uBAA8\uB4E0 \uC720\uB2DB\uC5D0\uAC8C 6\uC758 \uD53C\uD574\uB97C \uC900\uB2E4."
+  text_format: 
+  text_values: []
   desc: 
-  card_desc: 
-  desc_values: []
   spawn_fx: {fileID: 0}
   death_fx: {fileID: 0}
   attack_fx: {fileID: 0}

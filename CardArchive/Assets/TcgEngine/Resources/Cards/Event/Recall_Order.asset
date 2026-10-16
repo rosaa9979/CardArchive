@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Recall_Order
   m_EditorClassIdentifier: 
   id: Recall_Order
-  title: "\uADC0\uAC00 \uBA85\uB839"
+  title: "\uAE34\uAE09 \uD1F4\uAC01"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
@@ -26,8 +26,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: aac381ecd99f459db8c33cf1b0e38167, type: 2}
-  text: "\uC9C0\uC815\uD55C \uC801 1\uBA85\uC744 \uC0C1\uB300\uC758 \uC190\uC73C\uB85C
-    \uB418\uB3CC\uB9BD\uB2C8\uB2E4."
+  text: "\uC9C0\uC815\uD55C \uC801 1\uBA85\uC744 \uC0C1\uB300\uC758 \uC190\uC73C\uB85C \uB418\uB3CC\uB9BD\uB2C8\uB2E4."
   text_format: 
   text_values: []
   desc: 

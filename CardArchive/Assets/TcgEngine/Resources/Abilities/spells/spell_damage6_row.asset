@@ -26,7 +26,7 @@ MonoBehaviour:
   effects:
   - {fileID: 11400000, guid: f714a00f5a0c516489bf1b4f2ae0d31b, type: 2}
   status: []
-  value: 4
+  value: 6
   duration: 0
   can_cancel: 1
   chain_abilities: []

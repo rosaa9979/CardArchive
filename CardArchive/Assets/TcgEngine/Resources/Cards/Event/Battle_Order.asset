@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Battle_Order
   m_EditorClassIdentifier: 
   id: Battle_Order
-  title: "\uC804\uD22C \uBA85\uB839"
+  title: "\uBC18\uACA9\uC758 \uC2E0\uD638"
   art_full: {fileID: 0}
   art_board: {fileID: 0}
   type: 20
