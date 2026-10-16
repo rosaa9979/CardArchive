@@ -97,10 +97,7 @@ namespace TcgEngine.Client
             //This also covers the GameStart phase (starting hand is drawn there, just before the
             //mulligan phase begins) so the freshly drawn cards don't flash in hand first.
             //Once the handoff reveals them, the mulligan cards turn into these real hand cards.
-            bool mulligan_flow = GameplayData.Get() != null && GameplayData.Get().mulligan;
-            bool mulligan_hold = mulligan_flow
-                && (data.phase == GamePhase.Mulligan || data.phase == GamePhase.GameStart)
-                && (MulliganSelector.Get() == null || !MulliganSelector.Get().IsHandReady());
+            bool mulligan_hold = IsWaitingForMulligan(data);
 
             foreach (HandCard hcard in card_list)
             {
@@ -119,6 +116,14 @@ namespace TcgEngine.Client
             //Set target forcus
             HandCard drag_card = HandCard.GetDrag();
             is_dragging = drag_card != null;
+        }
+
+        private static bool IsWaitingForMulligan(Game data)
+        {
+            var gameplay = GameplayData.Get();
+            return data != null && gameplay != null && gameplay.mulligan
+                && (data.phase == GamePhase.GameStart || data.phase == GamePhase.Mulligan)
+                && (MulliganSelector.Get() == null || !MulliganSelector.Get().IsHandReady());
         }
 
         public void SpawnNewCard(Card card)
@@ -148,12 +153,13 @@ namespace TcgEngine.Client
 		public void SortCards()
         {
             cards.Sort(SortFunc);
+            bool show = !IsWaitingForMulligan(GameClient.Get().GetGameData());
 
             int i = 0;
             foreach (HandCard acard in cards)
             {
                 acard.transform.SetSiblingIndex(i);
-                acard.SetHide(true);
+                acard.SetHide(show);
                 i++;
             }
         }
