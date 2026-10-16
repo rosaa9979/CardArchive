@@ -186,6 +186,7 @@ namespace TcgEngine.Client
 
         private void ResetPresentation(ReplayState state, long sequence = 0)
         {
+            PresentationLoopClock.ResetSession();
             CancelPresentationStep();
             if (presentationRoutine != null) StopCoroutine(presentationRoutine);
             PresentationClock.Reset();
@@ -197,6 +198,7 @@ namespace TcgEngine.Client
         private void CancelPresentationStep()
         {
             presentationState.Cancel();
+            ongoingSpawns.Clear();
             collectingAnimations = false;
             afterPresentationCommit.Clear();
             foreach (var fx in presentationFX) if (fx != null) fx.Cancel();
@@ -270,16 +272,17 @@ namespace TcgEngine.Client
         public bool IsCurrentReservation(AnimationReservation reservation) => reservation == null
             || reservation.generation == presentationState.Generation;
 
-        public bool BindPresentationAnimation(GameObject root, AnimationReservation reservation)
+        public bool BindPresentationAnimation(GameObject root, AnimationReservation reservation, Action<TcgEngine.FX.FXPlayback> onPlaybackReady = null)
         {
             if (reservation == null) return false;
-            if (!IsCurrentReservation(reservation)) { Destroy(root); return true; }
+            if (!IsCurrentReservation(reservation)) { onPlaybackReady?.Invoke(null); Destroy(root); return true; }
             if (reservation.bound) throw new InvalidOperationException("Animation reservation already bound");
             reservation.bound = true;
             var playback = TcgEngine.FX.FXPlayback.Prepare(root, reservation.impact != null);
             if (playback == null)
             {
                 Debug.LogError("Presentation FX has no usable animation timeline; state remains pending: " + root.name, root);
+                onPlaybackReady?.Invoke(null);
                 Destroy(root);
                 return true;
             }
@@ -288,6 +291,7 @@ namespace TcgEngine.Client
                     reservation.complete();
                     continuingFX.Remove(playback);
                 }, reservation.continuation);
+            onPlaybackReady?.Invoke(playback);
             presentationFX.Add(playback);
             if (!collectingAnimations) playback.Arm();
             return true;

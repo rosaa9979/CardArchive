@@ -135,7 +135,7 @@ namespace TcgEngine.UI
             //avatar.SetImage(avatar_dead);
             avatar_dead.enabled = true;
             AudioTool.Get().PlaySFX("fx", dead_audio);
-            FXTool.DoFX(dead_fx, avatar.transform.position);
+            FXTool.DoFX(dead_fx, avatar.transform.position, ownerPlayerId: GetPlayer()?.player_id);
         }
 
         private void OnClickAvatar(AvatarData avatar)

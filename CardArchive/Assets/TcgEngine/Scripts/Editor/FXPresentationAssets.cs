@@ -147,7 +147,7 @@ namespace TcgEngine.Editor
             if (!events.Any(e => e.functionName == "Complete"))
                 events.Add(new AnimationEvent { time = Mathf.Max(end, events.Where(e => e.functionName == "Impact").Select(e => e.time).DefaultIfEmpty(0f).Max()), functionName = "Complete" });
             AnimationUtility.SetAnimationEvents(clip, events.OrderBy(e => e.time)
-                .ThenBy(e => e.functionName == "Complete" ? 2 : e.functionName == "Continue" ? 1 : 0).ToArray());
+                .ThenBy(e => e.functionName == "Complete" ? 3 : e.functionName == "Continue" ? 2 : e.functionName == "StartOngoing" ? 1 : 0).ToArray());
             EditorUtility.SetDirty(clip);
         }
 
@@ -190,10 +190,13 @@ namespace TcgEngine.Editor
                 var impacts = events.Where(e => e.functionName == "Impact").ToArray();
                 var finishes = events.Where(e => e.functionName == "Complete").ToArray();
                 var continuations = events.Where(e => e.functionName == "Continue").ToArray();
+                var ongoingStarts = events.Where(e => e.functionName == "StartOngoing").ToArray();
                 if (clip.isLooping || (appliesState ? !impacts.Any(e => e.intParameter == 0) : impacts.Length != 0) || finishes.Length != 1
                     || impacts.Any(e => e.time > finishes[0].time || e.time < 0f)
                     || finishes[0].time > clip.length || events.Any(e => e.functionName == "OnAnimationFinished"))
                     throw new BuildFailedException(path + "/" + clip.name + ": require a non-looping clip, one Complete, and Impact only for state-bearing FX.");
+                if (ongoingStarts.Length > 1 || ongoingStarts.Any(e => e.time < 0f || e.time > finishes[0].time))
+                    throw new BuildFailedException(path + "/" + clip.name + ": optional StartOngoing must occur once, before or at Complete.");
                 if (continuations.Length > 1 || continuations.Any(e => e.time < 0f || e.time > finishes[0].time))
                     throw new BuildFailedException(path + "/" + clip.name + ": optional Continue must occur once, before or at Complete.");
             }

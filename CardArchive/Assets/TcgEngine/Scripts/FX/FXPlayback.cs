@@ -13,6 +13,7 @@ namespace TcgEngine.FX
         private bool[] fired;
         private Action complete;
         private Action continuation;
+        private Action ongoingStart;
         private bool continueRequested;
         private bool progressionReleased;
         private bool finished;
@@ -82,7 +83,7 @@ namespace TcgEngine.FX
                 events.Sort((a, b) => {
                     int order = a.time.CompareTo(b.time);
                     if (order != 0) return order;
-                    int Rank(string name) => name == "Complete" ? 2 : name == "Continue" ? 1 : 0;
+                    int Rank(string name) => name == "Complete" ? 3 : name == "Continue" ? 2 : name == "StartOngoing" ? 1 : 0;
                     return Rank(a.functionName).CompareTo(Rank(b.functionName));
                 });
                 AnimationClip copy = Instantiate(original);
@@ -112,6 +113,26 @@ namespace TcgEngine.FX
             complete = onComplete;
             continuation = onContinue;
             PresentationClock.Track(() => this == null || finished || progressionReleased);
+        }
+
+        // Registered before Arm. This marker only opens a view gate; it never applies a result.
+        public void BindOngoingStart(Action onStart)
+        {
+            if (armed || finished || ongoingStart != null) throw new InvalidOperationException("Bind ongoing before arming FX");
+            ongoingStart = onStart;
+        }
+
+        public void StartOngoing(AnimationEvent marker)
+        {
+            if (marker == null || !marker.isFiredByAnimator || !armed || finished) return;
+            ReleaseOngoingStart();
+        }
+
+        private void ReleaseOngoingStart()
+        {
+            var callback = ongoingStart;
+            ongoingStart = null;
+            callback?.Invoke();
         }
 
         public void Arm()
@@ -164,6 +185,8 @@ namespace TcgEngine.FX
             if (marker == null || !marker.isFiredByAnimator || !armed || finished) return;
             if (HasPendingImpact)
                 Debug.LogWarning("FX completed without Impact; Presentation will synchronize at the effect boundary", this);
+            // Without an explicit StartOngoing marker, ongoing begins when spawn completes.
+            ReleaseOngoingStart();
             finished = true;
             complete?.Invoke();
             complete = null;
@@ -175,6 +198,7 @@ namespace TcgEngine.FX
         {
             // A reconnect/scene reset supplies a new baseline; old results must not run.
             finished = true;
+            ReleaseOngoingStart(); // Cleanup only; canceled generations cannot open a newer spawn.
             complete = null;
             continuation = null;
             Destroy(root != null ? root : gameObject);
@@ -203,7 +227,7 @@ namespace TcgEngine.FX
 
         private void OnDestroy()
         {
-            if (!finished) { ReportMissingImpacts(); finished = true; complete = null; continuation = null; }
+            if (!finished) { ReportMissingImpacts(); finished = true; ReleaseOngoingStart(); complete = null; continuation = null; }
             foreach (var clip in ownedClips) if (clip != null) Destroy(clip);
             if (ownedController != null) Destroy(ownedController);
         }

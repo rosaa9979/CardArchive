@@ -61,6 +61,8 @@ namespace TcgEngine
         public bool show_card_fx;               //Show caster card zoom on board when this ability triggers
         public GameObject board_fx;
         public GameObject caster_fx;
+        [Tooltip("Looping decoration attached to an ongoing ability caster while on board and not silenced.")]
+        public GameObject ongoing_fx;
         public GameObject target_fx;
         public AudioClip cast_audio;
         public AudioClip target_audio;

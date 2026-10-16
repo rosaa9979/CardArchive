@@ -133,12 +133,12 @@ namespace TcgEngine.Client
             if (!win && !tied)
                 PlayerUI.Get(false).Kill();
 
-            if (win && AssetData.Get().win_fx != null)
-                Instantiate(AssetData.Get().win_fx, Vector3.zero, Quaternion.identity);
-            else if (tied && AssetData.Get().tied_fx != null)
-                Instantiate(AssetData.Get().tied_fx, Vector3.zero, Quaternion.identity);
-            else if (!tied && AssetData.Get().lose_fx != null)
-                Instantiate(AssetData.Get().lose_fx, Vector3.zero, Quaternion.identity);
+            GameObject endingPrefab = win ? AssetData.Get().win_fx : tied ? AssetData.Get().tied_fx : AssetData.Get().lose_fx;
+            if (endingPrefab != null)
+            {
+                GameObject endingFX = Instantiate(endingPrefab, Vector3.zero, Quaternion.identity);
+                FXTool.SetOwner(endingFX, pwinner?.player_id);
+            }
 
             if (win)
                 AudioTool.Get().PlaySFX("ending_sfx", AssetData.Get().win_audio);

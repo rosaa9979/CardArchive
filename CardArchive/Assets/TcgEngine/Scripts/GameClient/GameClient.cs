@@ -83,6 +83,7 @@ namespace TcgEngine.Client
         protected virtual void Awake()
         {
             instance = this;
+            PresentationLoopClock.ResetSession();
             presentationState.Changed += OnPresentationStateChanged;
             Application.targetFrameRate = 120;
         }
@@ -153,6 +154,7 @@ namespace TcgEngine.Client
             CancelPresentationStep();
             presentationState.Changed -= OnPresentationStateChanged;
             PresentationClock.Reset();
+            PresentationLoopClock.ResetSession();
             TcgNetwork.Get().onConnect -= OnConnectedServer;
             TcgNetwork.Get().Messaging.UnListenMsg("refresh");
         }

@@ -8,6 +8,20 @@ namespace TcgEngine.Client
         private readonly HashSet<string> preparedSpawns = new HashSet<string>();
         private readonly HashSet<string> preparedDeaths = new HashSet<string>();
 
+        private readonly OngoingSpawnPresentation ongoingSpawns = new OngoingSpawnPresentation();
+
+        public bool CanShowOngoingFX(Card card) => ongoingSpawns.CanShow(card);
+
+        public void ScheduleBoardSpawnFX(Card card, GameObject prefab, Vector3 position)
+        {
+            var release = ongoingSpawns.Begin(card);
+            FXTool.ScheduleStateFX(prefab, position, ownerPlayerId: card.player_id,
+                onPlaybackReady: playback => {
+                    if (playback != null) playback.BindOngoingStart(release);
+                    else release();
+                });
+        }
+
         public bool ConsumeSpawnPresentation(string uid) => preparedSpawns.Remove(uid);
         public bool ConsumeDeathPresentation(string uid) => preparedDeaths.Remove(uid);
 
@@ -26,7 +40,7 @@ namespace TcgEngine.Client
         private void PresentAbilityTarget(AbilityData ability, Card caster, Vector3 position)
         {
             if (ability == null || caster == null) return;
-            FXTool.ScheduleStateFX(ability.target_fx, position, abilityTarget: true);
+            FXTool.ScheduleStateFX(ability.target_fx, position, abilityTarget: true, ownerPlayerId: caster.player_id);
             AfterPresentationCommit(() => AudioTool.Get().PlaySFX("ability_effect", ability.target_audio));
         }
 
@@ -42,7 +56,7 @@ namespace TcgEngine.Client
                     PresentationClock.SkipGapForCurrentStep();
                     preparedSpawns.Add(card.uid);
                     var data = card.CardData;
-                    FXTool.ScheduleStateFX(data.spawn_fx != null ? data.spawn_fx : AssetData.Get().card_spawn_fx,
+                    ScheduleBoardSpawnFX(card, data.spawn_fx != null ? data.spawn_fx : AssetData.Get().card_spawn_fx,
                         SlotPosition(card.slot));
                 }
             foreach (Player player in game_data.players)
@@ -55,7 +69,7 @@ namespace TcgEngine.Client
                     preparedDeaths.Add(card.uid);
                     var data = card.CardData;
                     FXTool.ScheduleStateFX(data.death_fx != null ? data.death_fx : AssetData.Get().card_destroy_fx,
-                        CardPosition(card));
+                        CardPosition(card), ownerPlayerId: card.player_id);
                 }
         }
     }

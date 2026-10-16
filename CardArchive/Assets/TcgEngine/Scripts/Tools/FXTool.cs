@@ -28,9 +28,10 @@ namespace TcgEngine
         // Normal DoFX remains a decorative cue (priority 0).
         // Reserve NOW, create LATER. Never wrap DoFX in a timer for a state-bearing FX.
         public static void ScheduleStateFX(GameObject prefab, Vector3 position, float delay = -1f,
-            int priority = 2, System.Action<GameObject> onCreated = null, bool abilityTarget = false)
+            int priority = 2, System.Action<GameObject> onCreated = null, bool abilityTarget = false, int? ownerPlayerId = null,
+            System.Action<FXPlayback> onPlaybackReady = null)
         {
-            if (prefab == null) return;
+            if (prefab == null) { onPlaybackReady?.Invoke(null); return; }
             var client = GameClient.Get();
             GameClient.AnimationReservation reservation;
             using (client?.PresentationCue(priority)) reservation = client?.ReservePresentationAnimation(prefab, abilityTarget);
@@ -39,7 +40,7 @@ namespace TcgEngine
             System.Action create = () => {
                 if (reservation != null && (client == null || !client.IsCurrentReservation(reservation))) return;
                 GameObject fx = Instantiate(prefab, position, GetFXRotation());
-                ManageLifetime(fx, GetDuration(prefab), reservation);
+                ManageLifetime(fx, GetDuration(prefab), reservation, ownerPlayerId, onPlaybackReady);
                 onCreated?.Invoke(fx);
             };
             if (wait > 0f) TimeTool.WaitFor(wait, create); else create();
@@ -47,7 +48,7 @@ namespace TcgEngine
         private static Dictionary<string, GameObject> unique_fx = new Dictionary<string, GameObject>();
 
         //Only one FX per key can be alive at a time, spawning a new one destroys the previous one
-        public static GameObject DoUniqueFX(string key, GameObject fx_prefab, Vector3 pos, float duration = -1f)
+        public static GameObject DoUniqueFX(string key, GameObject fx_prefab, Vector3 pos, float duration = -1f, int? ownerPlayerId = null)
         {
             if (fx_prefab == null)
                 return null;
@@ -60,33 +61,33 @@ namespace TcgEngine
                 if (playback == null || !playback.IsPlaying) Destroy(existing);
             }
 
-            GameObject fx = DoFX(fx_prefab, pos, duration);
+            GameObject fx = DoFX(fx_prefab, pos, duration, ownerPlayerId);
             unique_fx[key] = fx;
             return fx;
         }
 
-        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = -1f)
+        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, float duration = -1f, int? ownerPlayerId = null)
         {
             if (fx_prefab != null)
             {
                 duration = duration < 0f ? GetDuration(fx_prefab) : duration;
                 var reservation = GameClient.Get()?.ReservePresentationAnimation(fx_prefab);
                 GameObject fx = Instantiate(fx_prefab, pos, GetFXRotation());
-                ManageLifetime(fx, duration, reservation);
+                ManageLifetime(fx, duration, reservation, ownerPlayerId);
                 return fx;
             }
             return null;
         }
 
-        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, FXLayer layer, float duration = -1f)
+        public static GameObject DoFX(GameObject fx_prefab, Vector3 pos, FXLayer layer, float duration = -1f, int? ownerPlayerId = null)
         {
-            GameObject fx = DoFX(fx_prefab, pos, duration);
+            GameObject fx = DoFX(fx_prefab, pos, duration, ownerPlayerId);
             SetFXLayer(fx, layer);
             return fx;
         }
 
         //Spawn a screen UI FX under a canvas, worldPositionStays=false so the prefab's RectTransform (anchors/offsets) is preserved
-        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, float duration = -1f)
+        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, float duration = -1f, int? ownerPlayerId = null)
         {
             if (fx_prefab != null && canvas_parent != null)
             {
@@ -101,15 +102,15 @@ namespace TcgEngine
                 group.blocksRaycasts = false;
                 group.interactable = false;
 
-                ManageLifetime(fx, duration, reservation);
+                ManageLifetime(fx, duration, reservation, ownerPlayerId);
                 return fx;
             }
             return null;
         }
 
-        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, FXLayer layer, float duration = -1f)
+        public static GameObject DoUIFX(GameObject fx_prefab, Transform canvas_parent, FXLayer layer, float duration = -1f, int? ownerPlayerId = null)
         {
-            GameObject fx = DoUIFX(fx_prefab, canvas_parent, duration);
+            GameObject fx = DoUIFX(fx_prefab, canvas_parent, duration, ownerPlayerId);
             if (fx != null && layer != FXLayer.Default && fx.GetComponent<Canvas>() == null)
                 fx.AddComponent<Canvas>(); //부모 캔버스 order 대신 FX 대역으로 그리려면 자체 캔버스가 필요
             SetFXLayer(fx, layer);
@@ -158,12 +159,12 @@ namespace TcgEngine
             }
         }
 
-        public static GameObject DoSnapFX(GameObject fx_prefab, Transform snap_target)
+        public static GameObject DoSnapFX(GameObject fx_prefab, Transform snap_target, int? ownerPlayerId = null)
         {
-            return DoSnapFX(fx_prefab, snap_target, Vector3.zero);
+            return DoSnapFX(fx_prefab, snap_target, Vector3.zero, ownerPlayerId);
         }
 
-        public static GameObject DoSnapFX(GameObject fx_prefab, Transform snap_target, Vector3 offset)
+        public static GameObject DoSnapFX(GameObject fx_prefab, Transform snap_target, Vector3 offset, int? ownerPlayerId = null)
         {
             if (fx_prefab != null && snap_target != null)
             {
@@ -173,15 +174,56 @@ namespace TcgEngine
                 snap.target = snap_target;
                 snap.offset = offset;
                 float duration = GetDuration(fx_prefab);
-                ManageLifetime(fx, duration, reservation);
+                ManageLifetime(fx, duration, reservation, ownerPlayerId);
                 return fx;
             }
             return null;
         }
 
-        private static void ManageLifetime(GameObject fx, float duration, GameClient.AnimationReservation reservation)
+        // The owner rule is shared by world, UI, attached, status and ongoing FX.
+        public static void SetOwner(GameObject fx, int? ownerPlayerId) => FXOwnerState.Bind(fx, ownerPlayerId);
+
+        // Persistent decorations never reserve a presentation boundary or get a finite timer.
+        public static GameObject DoPersistentFX(GameObject prefab, Transform parent, int ownerPlayerId, bool preserveWorldSize = false)
         {
-            if (GameClient.Get() != null && GameClient.Get().BindPresentationAnimation(fx, reservation)) return;
+            if (prefab == null || parent == null) return null;
+            GameObject fx;
+            if (preserveWorldSize)
+            {
+                fx = Instantiate(prefab, parent.position, GetFXRotation(prefab));
+                fx.transform.SetParent(parent, true);
+            }
+            else
+            {
+                fx = Instantiate(prefab, parent, false);
+                fx.transform.localPosition = Vector3.zero;
+            }
+            SetOwner(fx, ownerPlayerId);
+            FXLoopSync.Bind(fx);
+            return fx;
+        }
+
+        private static void ManageLifetime(GameObject fx, float duration, GameClient.AnimationReservation reservation, int? ownerPlayerId,
+            System.Action<FXPlayback> onPlaybackReady = null)
+        {
+            bool bound = GameClient.Get() != null && GameClient.Get().BindPresentationAnimation(fx, reservation, onPlaybackReady);
+            // Prepare may replace/disable the Animator. Select only after preparation and never evaluate it here.
+            SetOwner(fx, ownerPlayerId);
+            if (bound) return;
+            if (onPlaybackReady != null)
+            {
+                // Baseline/direct spawns still use real animation events without a state reservation.
+                var playback = FXPlayback.Prepare(fx, false);
+                if (playback != null)
+                {
+                    playback.Bind(System.Array.Empty<System.Action>(), null);
+                    onPlaybackReady(playback);
+                    SetOwner(fx, ownerPlayerId);
+                    playback.Arm();
+                    return;
+                }
+                onPlaybackReady(null);
+            }
             PresentationClock.Hold(duration);
             Destroy(fx, duration);
         }

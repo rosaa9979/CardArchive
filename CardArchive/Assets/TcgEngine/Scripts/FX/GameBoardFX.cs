@@ -34,14 +34,14 @@ namespace TcgEngine.FX
         {
             AudioTool.Get().PlaySFX("turn", AssetData.Get().new_turn_audio);
 
-            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, ownerPlayerId: player_id);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);
         }
 
         void OnAttackPhase(int player_id)
         {
-            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero);
+            GameObject prefab = FXTool.DoFX(AssetData.Get().new_turn_fx, Vector3.zero, ownerPlayerId: player_id);
             TurnStartUI ui = prefab.GetComponentInChildren<TurnStartUI>();
             ui.SetTurn(player_id);
         }
@@ -65,7 +65,7 @@ namespace TcgEngine.FX
                 if (icard.type == CardType.Secret)
                 {
                     GameObject sprefab = player_id == card.player_id ? AssetData.Get().play_secret_fx : AssetData.Get().play_secret_other_fx;
-                    FXTool.DoFX(sprefab, Vector3.zero);
+                    FXTool.DoFX(sprefab, Vector3.zero, ownerPlayerId: card.player_id);
 
                     AudioClip spawn_audio = icard.spawn_audio != null ? icard.spawn_audio : AssetData.Get().card_spawn_audio;
                     AudioTool.Get().PlaySFX("card_spell", spawn_audio);
@@ -87,7 +87,7 @@ namespace TcgEngine.FX
 
             //Self/Enemy 프리팹 모두 원점 기준으로 디자인되어 있으므로 (0,0)에 스폰
             GameObject prefab = opponent ? AssetData.Get().player_exhausted_other_fx : AssetData.Get().player_exhausted_fx;
-            GameObject fx = FXTool.DoFX(prefab, Vector3.zero, FXLayer.OverHand);
+            GameObject fx = FXTool.DoFX(prefab, Vector3.zero, FXLayer.OverHand, ownerPlayerId: player_id);
 
             TMP_Text text = fx != null ? fx.GetComponentInChildren<TMP_Text>(true) : null;
             if (text != null)
@@ -102,7 +102,7 @@ namespace TcgEngine.FX
             BoardCard board = BoardCard.Get(target.uid);
             BSlot slot = BSlot.Get(target.slot);
             Vector3 position = board != null ? board.transform.position : slot != null ? slot.GetPosition(target.slot) : Vector3.zero;
-            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, position, FXLayer.OverHand);
+            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, position, FXLayer.OverHand, ownerPlayerId: target.player_id);
             if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
         }
 
@@ -119,7 +119,7 @@ namespace TcgEngine.FX
                 return;
 
             // This callback is dispatched by the same Impact that publishes HP.
-            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position, FXLayer.OverHand);
+            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position, FXLayer.OverHand, ownerPlayerId: target.player_id);
             if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
         }
 
@@ -133,7 +133,7 @@ namespace TcgEngine.FX
             if (game_ui == null || game_ui.game_canvas == null)
                 return;
 
-            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand);
+            GameObject obj = FXTool.DoUIFX(AssetData.Get().card_dissolve_fx, game_ui.game_canvas.transform, FXLayer.OverHand, ownerPlayerId: owner_player_id);
             if (obj == null)
                 return;
 
@@ -142,16 +142,13 @@ namespace TcgEngine.FX
             if (ui != null)
                 ui.SetCard(card);
 
-            FXSetting setting = obj.GetComponentInChildren<FXSetting>(true);
-            if (setting != null)
-                setting.PlayOwnerState(owner_player_id);
         }
 
         private void OnAbility(AbilityData iability, Card caster)
         {
             if (iability != null)
             {
-                FXTool.ScheduleStateFX(iability.board_fx, Vector3.zero, priority: 1);
+                FXTool.ScheduleStateFX(iability.board_fx, Vector3.zero, priority: 1, ownerPlayerId: caster?.player_id);
 
                 if (iability.show_card_fx && caster != null)
                 {
@@ -173,7 +170,7 @@ namespace TcgEngine.FX
         {
             GameObject prefab = GameClient.Get().GetPlayerID() == card.player_id
                 ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
-            GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
+            GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero, ownerPlayerId: card.player_id);
             CardUI ui = obj != null ? obj.GetComponentInChildren<CardUI>() : null;
             if (ui != null)
                 ui.SetCard(card);
