@@ -85,3 +85,6 @@ crashlytics-build.properties
 /Tools/ResolveQueueTests/
 /Samples/Replays/
 /hs_err_pid*.log
+
+# AI intermediate artifacts and internal reports (see AGENTS.md)
+/.ai-work/
