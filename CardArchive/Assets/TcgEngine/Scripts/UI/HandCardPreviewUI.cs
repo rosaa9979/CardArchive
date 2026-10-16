@@ -75,7 +75,7 @@ namespace TcgEngine.UI
             // animation_y_offset = 100f; // (클래스 멤버 변수로 이동시킴)
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (!GameClient.Get().IsReady())
                 return;
@@ -169,7 +169,7 @@ namespace TcgEngine.UI
                     }
                 }
                 
-                bool is_outline_enabled = GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(hcard.GetCardUID()))
+                bool is_outline_enabled = GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(hcard.GetCardUID()))
                     && !GameClient.Get().IsCardPending(hcard.GetCardUID());
                 card_outline.SetActive(is_outline_enabled); 
             }

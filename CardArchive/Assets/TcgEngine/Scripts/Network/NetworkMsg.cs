@@ -176,6 +176,27 @@ namespace TcgEngine
         }
     }
 
+    // Outcome metadata; requests and movement/summon packets keep their existing format.
+    public class MsgCardPlayed : MsgPlayCard, INetworkSerializable
+    {
+        public bool automatic;
+
+        public new void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            base.NetworkSerialize(serializer);
+            if (serializer.IsReader)
+            {
+                var reader = serializer.GetFastBufferReader();
+                if (reader.Position == reader.Length)
+                {
+                    automatic = true; // Old replay packets have no origin; preserve their previews.
+                    return;
+                }
+            }
+            serializer.SerializeValue(ref automatic);
+        }
+    }
+
     public class MsgCard : INetworkSerializable
     {
         public string card_uid;

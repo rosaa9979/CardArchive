@@ -71,6 +71,17 @@ namespace TcgEngine.UI
                 end_turn_image.alphaHitTestMinimumThreshold = 0.1f;
         }
 
+        void LateUpdate()
+        {
+            if (GameClient.Get() == null || !GameClient.Get().IsReady()) return;
+            Game data = GameClient.Get().GetGameData();
+            turn_count.text = "Turn " + data.turn_count.ToString();
+            float remaining = TcgEngine.Replay.ReplaySession.Active ? data.turn_timer : GameClient.Get().TurnTimeRemaining;
+            turn_timer.text = Mathf.RoundToInt(remaining).ToString();
+            turn_timer.enabled = remaining < 999f;
+            turn_timer.color = new Color32(37, 44, 91, 255);
+        }
+
         void Update()
         {
             Game data = GameClient.Get().GetGameData();
@@ -86,9 +97,10 @@ namespace TcgEngine.UI
                 return;
 
             bool yourturn = GameClient.Get().IsYourTurn();
+            bool can_input = GameClient.Get().IsInputOpen;
             LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
             //if (yourturn && end_turn_timer > 1f)
-            if (yourturn && data.phase == GamePhase.Main)
+            if (can_input && yourturn && data.phase == GamePhase.Main)
             {
                 end_turn_button.interactable = true;
                 end_turn_image.sprite = end_turn_on;
@@ -102,15 +114,7 @@ namespace TcgEngine.UI
             end_turn_timer += Time.deltaTime;
             selector_timer += Time.deltaTime;
 
-            //Timer
-            turn_count.text = "Turn " + data.turn_count.ToString();
-            float remaining = TcgEngine.Replay.ReplaySession.Active ? data.turn_timer : GameClient.Get().TurnTimeRemaining;
-            turn_timer.enabled = remaining > 0f;
-            turn_timer.text = Mathf.RoundToInt(remaining).ToString();
-            turn_timer.color = new Color32(37, 44, 91, 255);
-            turn_timer.enabled = remaining < 999f;
-
-            //The clock follows the latest server state; presentation snapshots stay immutable.
+            // The clock derives from the published presentation state.
 
             //Timer warning
             if (data.state == GameState.Play)
@@ -141,7 +145,7 @@ namespace TcgEngine.UI
             }
 
             //Hide
-            if (!yourturn && data.phase != GamePhase.Mulligan)
+            if ((!can_input || !yourturn) && data.phase != GamePhase.Mulligan)
             {
                 SelectorPanel.HideAll();
             }

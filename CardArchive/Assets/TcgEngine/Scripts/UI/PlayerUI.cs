@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -76,16 +76,6 @@ namespace TcgEngine.UI
             if (player != null)
             {
                 pname.text = player.username;
-                mana_bar.value = player.mana;
-                mana_bar.max_value = player.mana_max;
-                hp_txt.text = player.hp.ToString();
-                deck_count_text.text = player.cards_deck.Count.ToString();
-                hand_count_text.text = player.cards_hand.Count.ToString();
-
-                if (player.hp < player.hp_max)
-                    hp_txt.color = Color.red;
-
-                hp_max_txt.text = "/" + player.hp_max.ToString();
 
                 AvatarData adata = AvatarData.Get(player.avatar);
                 if (avatar != null && adata != null && !killed)
@@ -103,6 +93,21 @@ namespace TcgEngine.UI
                 timer = 0f;
                 SlowUpdate();
             }
+        }
+
+        void LateUpdate()
+        {
+            if (GameClient.Get() == null || !GameClient.Get().IsReady()) return;
+            Player player = GetPlayer();
+            if (player == null) return;
+            hp_txt.text = player.hp.ToString();
+            hp_max_txt.text = "/" + player.hp_max.ToString();
+            mana_bar.value = player.mana;
+            mana_bar.max_value = player.mana_max;
+            mana_bar.Refresh();
+            deck_count_text.text = player.cards_deck.Count.ToString();
+            hand_count_text.text = player.cards_hand.Count.ToString();
+            if (player.hp < player.hp_max) hp_txt.color = Color.red;
         }
 
         void SlowUpdate()

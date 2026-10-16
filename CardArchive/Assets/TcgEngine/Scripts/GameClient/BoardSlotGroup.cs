@@ -68,7 +68,7 @@ namespace TcgEngine.Client
 
             Game gdata = GameClient.Get().GetLatestGameData();
             HandCard drag_card = HandCard.GetDrag();
-            bool your_turn = GameClient.Get().IsYourTurn();
+            bool your_turn = GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn();
             Card dcard = drag_card != null ? gdata.GetCard(drag_card.GetCardUID()) : null;
 
             //Find target opacity value

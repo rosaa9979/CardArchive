@@ -29,7 +29,7 @@ namespace TcgEngine.Client
             }
         }
 
-        void Update()
+        void LateUpdate()
         {
             Refresh();
         }

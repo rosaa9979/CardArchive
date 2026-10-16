@@ -70,7 +70,7 @@ namespace TcgEngine.Client
             //"Usable" = same rule HandCard uses for its can-play outline (mana, in-hand, a valid target
             //exists, ...), independent of cursor Y. An unusable card shows no targeting UI.
             Game gdata = GameClient.Get().GetLatestGameData();
-            bool usable = GameClient.Get().IsYourTurn()
+            bool usable = GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn()
                 && gdata.phase == GamePhase.Main
                 && !GameClient.Get().IsCardPending(card.uid) && gdata.CanPlay(gdata.GetCard(card.uid));
 

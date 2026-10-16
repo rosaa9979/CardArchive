@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -67,13 +67,51 @@ namespace TcgEngine.UI
 
         }
 
+        private string runtimeCardUid;
+        private bool waitingForRuntimeCard;
+        private void LateUpdate()
+        {
+            var client = GameClient.Get();
+            if (runtimeCardUid == null || client == null || !client.IsReady()) return;
+            Card current = client.GetGameData().GetCard(runtimeCardUid);
+            if (current == null) return;
+            if (waitingForRuntimeCard) SetCard(current);
+            else RefreshRuntimeValues(current);
+        }
+
         public void SetCard(Card card)
         {
+            // Event payloads may contain a later result. Runtime numbers always resolve
+            // the card by ID from Presentation's published state, including zoom/previews.
+            var client = GameClient.Get();
+            if (card != null && client != null && client.IsReady())
+            {
+                Card published = client.GetGameData().GetCard(card.uid);
+                if (published == null)
+                {
+                    SetCard(card.CardData, card.VariantData);
+                    runtimeCardUid = card.uid;
+                    waitingForRuntimeCard = true;
+                    if (cost != null) cost.text = "";
+                    if (attack != null) attack.text = "";
+                    if (hp != null) hp.text = "";
+                    if (range != null) range.text = "";
+                    if (card_text != null) card_text.text = "";
+                    return;
+                }
+                card = published;
+            }
             if (card == null)
                 return;
 
             SetCard(card.CardData, card.VariantData);
+            runtimeCardUid = card.uid;
+            RefreshRuntimeValues(card);
+        }
 
+        // Refresh numbers without resetting owner-specific frames, artwork or animation styling.
+        private void RefreshRuntimeValues(Card card)
+        {
             if (cost != null)
                 cost.text = card.GetMana().ToString();
             if (attack != null)
@@ -112,7 +150,7 @@ namespace TcgEngine.UI
             }
 
             //Card (runtime) face text: prefer text_format, fall back to text when empty.
-            //Resolved with the live card's current stats/status; runs every frame via BoardCard.Update.
+            //Resolved from the published card's stats/status after animation events.
             if (card_text != null)
             {
                 CardData cd = card.CardData;
@@ -153,6 +191,8 @@ namespace TcgEngine.UI
 
         public void SetCard(CardData card, VariantData variant)
         {
+            runtimeCardUid = null;
+            waitingForRuntimeCard = false;
             if (card == null)
                 return;
 

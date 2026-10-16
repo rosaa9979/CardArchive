@@ -122,11 +122,86 @@ namespace TcgEngine
     public sealed class MsgPlayRequest : MsgPlayCard, INetworkSerializable
     {
         public string target_uid = "";
+        public long request_id;
         public new void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             base.NetworkSerialize(serializer);
             serializer.SerializeValue(ref target_uid);
+            serializer.SerializeValue(ref request_id);
         }
+    }
+
+    public sealed class MsgCardActionResult : INetworkSerializable
+    {
+        public string card_uid = "";
+        public long request_id;
+        public bool accepted;
+        // Last rule boundary before this request, not an animation completion fence.
+        public long sequence;
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref card_uid);
+            serializer.SerializeValue(ref request_id);
+            serializer.SerializeValue(ref accepted);
+            serializer.SerializeValue(ref sequence);
+        }
+    }
+
+    // Local input feedback overlays the displayed hand without changing either game model.
+    public sealed class CardPlayFeedback
+    {
+        private sealed class Request
+        {
+            public long id;
+            public bool accepted;
+            public long sequence;
+            public long lastAbsentSequence = -1;
+        }
+        private readonly Dictionary<string, Request> requests = new Dictionary<string, Request>();
+        private readonly List<string> completed = new List<string>();
+        private long nextId;
+
+        public bool IsPending(string uid) => requests.ContainsKey(uid);
+        public bool IsAwaitingResult(string uid) => requests.TryGetValue(uid, out var request) && !request.accepted;
+        public bool IsAccepted(string uid) => requests.TryGetValue(uid, out var request) && request.accepted;
+
+        public long Begin(string uid)
+        {
+            var request = new Request { id = ++nextId };
+            requests.Add(uid, request);
+            return request.id;
+        }
+
+        public bool Resolve(MsgCardActionResult result)
+        {
+            if (!requests.TryGetValue(result.card_uid, out var request) || request.id != result.request_id)
+                return false; // Ignore an old response after a reset or another use of the same card.
+            if (!result.accepted || request.lastAbsentSequence > result.sequence)
+                requests.Remove(result.card_uid);
+            else
+            {
+                request.accepted = true;
+                request.sequence = result.sequence;
+            }
+            return true;
+        }
+
+        public void ObserveDisplayedHand(Player player, long sequence)
+        {
+            completed.Clear();
+            foreach (var pair in requests)
+            {
+                var request = pair.Value;
+                if (player.GetHandCard(pair.Key) == null)
+                    request.lastAbsentSequence = sequence;
+                // Stop suppressing at the first displayed departure. A later return to hand is visible.
+                if (request.accepted && request.lastAbsentSequence > request.sequence)
+                    completed.Add(pair.Key);
+            }
+            foreach (string uid in completed) requests.Remove(uid);
+        }
+
+        public void Clear() { requests.Clear(); completed.Clear(); } // Keep IDs unique across reconnects.
     }
 
     public sealed class MsgPresentation : INetworkSerializable

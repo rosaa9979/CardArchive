@@ -38,7 +38,7 @@ namespace TcgEngine.UI
             offset = start_pos[1].x - start_pos[0].x;
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (!GameClient.Get().IsReady())
                 return;
@@ -59,6 +59,7 @@ namespace TcgEngine.UI
                 pcard = histcard;
             if (pcard == null)
                 pcard = hero_ui?.GetCard();
+            if (pcard != null) pcard = game_data.GetCard(pcard.uid);
 
             //A held press must be able to show the preview (hold-to-preview);
             //only an actual hand card drag blocks it

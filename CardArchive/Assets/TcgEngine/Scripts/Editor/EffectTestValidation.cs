@@ -21,7 +21,7 @@ public static class EffectTestValidation
         var logic = new GameLogic(game);
         int triggered = 0, refreshed = 0;
         logic.onAbilityStart += (a, c) => triggered++;
-        logic.onCardPlayed += (c, s) => triggered++;
+        logic.onCardPlayed += (c, s, automatic) => triggered++;
         logic.onCardSummoned += (c, s) => triggered++;
         logic.onCardDrawn += n => triggered++;
         logic.onRefresh += () => refreshed++;

@@ -210,7 +210,11 @@ namespace TcgEngine.Server
             if (game_data.state == GameState.Play && !inputClosed && !barrier.Active
                 && (game_data.phase == GamePhase.Main || game_data.phase == GamePhase.Mulligan))
             {
+                int previousSecond = Mathf.RoundToInt(game_data.turn_timer);
                 game_data.turn_timer -= Time.deltaTime;
+                // Timer numbers use the same snapshot/Impact path as every other value.
+                // Capture at the normal end-of-update boundary, never midway through rules.
+                if (Mathf.RoundToInt(game_data.turn_timer) != previousSecond) presentationDirty = true;
                 if (game_data.turn_timer <= 0f)
                 {
                     //Time expired during turn
@@ -324,7 +328,8 @@ namespace TcgEngine.Server
                 if (IsSelection(type) && type != GameAction.SelectMulligan && selection != game_data.selector_version) return;
                 if (inputClosed || barrier.Active || epoch != barrier.Id || game_data.HasEnded())
                 {
-                    if (type == GameAction.PlayCard) FinishCardRequest(client, sdata);
+                    if (type == GameAction.PlayCard)
+                        FinishCardRequest(client, sdata.Get<MsgPlayRequest>(), false, presentation.Sequence);
                     return;
                 }
                 if (type == GameAction.EndTurn)
@@ -351,7 +356,6 @@ namespace TcgEngine.Server
             if (found)
                 command.callback.Invoke(client, sdata);
             FlushPresentation();
-            if (type == GameAction.PlayCard) FinishCardRequest(client, sdata);
         }
 
         //-------
@@ -388,6 +392,14 @@ namespace TcgEngine.Server
         public void ReceivePlayCard(ClientData iclient, SerializedData sdata)
         {
             MsgPlayRequest msg = sdata.Get<MsgPlayRequest>();
+            long sequence = presentation.Sequence;
+            bool accepted = TryPlayRequestedCard(iclient, msg);
+            FlushPresentation();
+            FinishCardRequest(iclient, msg, accepted, sequence);
+        }
+
+        private bool TryPlayRequestedCard(ClientData iclient, MsgPlayRequest msg)
+        {
             Player player = GetPlayer(iclient);
             if (player != null && msg != null && game_data.phase == GamePhase.Main && game_data.IsPlayerActionTurn(player) && !gameplay.IsResolving())
             {
@@ -398,12 +410,13 @@ namespace TcgEngine.Server
                     if (!string.IsNullOrEmpty(msg.target_uid))
                     {
                         Card target = game_data.GetCard(msg.target_uid);
-                        if (!game_data.CanInputTarget(target)) return;
+                        if (!game_data.CanInputTarget(target)) return false;
                         msg.slot = target.slot;
                     }
-                    gameplay.SelectPlayTarget(card, msg.slot);
+                    return gameplay.SelectPlayTarget(card, msg.slot);
                 }
             }
+            return false;
         }
 
         public void ReceiveAttackTarget(ClientData iclient, SerializedData sdata)
@@ -861,11 +874,12 @@ namespace TcgEngine.Server
             SendToAll(GameAction.AttackPhase, msg, NetworkDelivery.Reliable);
         }
 
-        protected virtual void OnCardPlayed(Card card, Slot slot)
+        protected virtual void OnCardPlayed(Card card, Slot slot, bool automatic)
         {
-            MsgPlayCard mdata = new MsgPlayCard();
+            MsgCardPlayed mdata = new MsgCardPlayed();
             mdata.card_uid = card.uid;
             mdata.slot = slot;
+            mdata.automatic = automatic;
             SendToAll(GameAction.CardPlayed, mdata, NetworkDelivery.Reliable);
         }
 

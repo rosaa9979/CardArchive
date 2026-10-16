@@ -14,10 +14,13 @@
 프레임당 512 × 288픽셀, 전체 4096 × 1728픽셀이다.
 Unity 기본 Particle System의 Texture Sheet Animation이 60fps로 0.8초 동안
 한 번 재생한다. 파티클은 정지한 사각형 한 개이며, 탄환·총구 섬광·불꽃은
-모두 이미지에 포함된다. Stop Action은 Destroy다.
+모두 이미지에 포함된다. Stop Action은 None이며 Animator의 Complete가 수명을 종료한다.
 
 머티리얼은 프리팹 내부에 포함하며 Unity 기본 URP 파티클 셰이더를 사용한다.
-노노미 전용 C# 스크립트, 커스텀 셰이더, Animator, 별도 머티리얼 파일은 없다.
+노노미 전용 C# 스크립트, 커스텀 셰이더, 별도 머티리얼 파일은 없다.
+공용 FXPlayback과 이벤트용 Animator를 사용한다. FXSetting의 presentation_impact는 false다.
+이 애니메이션에는 Complete만 있고 Impact는 없으며, 런타임에서도 Impact를 추가하지 않는다.
+수치와 피해 숫자는 별도 target_fx인 ExplosionFX의 Impact가 담당한다.
 전용 미리보기와 일회성 검증·변환 스크립트도 프로젝트에 남기지 않는다.
 미리보기는 Unity의 프리팹 모드에서 기본 파티클 재생 기능을 사용한다.
 

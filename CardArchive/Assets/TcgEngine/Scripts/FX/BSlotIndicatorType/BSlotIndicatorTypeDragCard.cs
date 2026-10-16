@@ -14,7 +14,7 @@ namespace TcgEngine.FX
         {
             ResetAllFX();
 
-            if (!GameClient.Get().IsYourTurn())
+            if (!GameClient.Get().IsInputOpen || !GameClient.Get().IsYourTurn())
                 return;
 
             HandCard hcard = HandCard.GetDrag();
@@ -62,7 +62,7 @@ namespace TcgEngine.FX
 
         public override bool RequireDim(Game game_data)
         {
-            if (!GameClient.Get().IsYourTurn())
+            if (!GameClient.Get().IsInputOpen || !GameClient.Get().IsYourTurn())
                 return false;
 
             HandCard hcard = HandCard.GetDrag();

@@ -159,8 +159,7 @@ namespace TcgEngine.FX
             {
                 if (target == bslot.GetSlot())
                 {
-                    FXTool.DoSnapFX(iability.target_fx, bslot.transform);
-                    AudioTool.Get().PlaySFX("ability_effect", iability.target_audio);
+                    // Target FX is started by Presentation before publishing the linked state.
                 }
                 /*
                 if (caster.uid == bcard.GetCardUID())

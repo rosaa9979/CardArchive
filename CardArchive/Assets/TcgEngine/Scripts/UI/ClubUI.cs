@@ -67,18 +67,9 @@ namespace TcgEngine.UI
             if (!GameClient.Get().IsReady())
                 return;
 
-            Game game = GameClient.Get().GetGameData();
-            Player player = opponent ? GameClient.Get().GetOpponentPlayer() : GetPlayer();
-
             reference_clubs = opponent ? GameClient.Get().GetOpponentPlayer().clubs_revealed : GetPlayer().cards_club;
 
-            if (index + 1 <= reference_clubs.Count)
-                club = reference_clubs[index];
-
-            club_image.sprite = club?.CardData.GetBoardArt(club.VariantData) ?? default_icon;
-            count_image.enabled = club != null ? true : false;
-            count_text.enabled = club != null ? true : false;
-            count_text.text = club != null ? game.GetClubCount(player, club.clubs[0].ClubData).ToString() : "0";
+            club = index >= 0 && index < reference_clubs.Count ? reference_clubs[index] : null;
 
             //Preview appears after the shared hold/hover delay (tap alone does nothing)
             if (focus && club != null)
@@ -99,6 +90,19 @@ namespace TcgEngine.UI
                     HidePreview();
                 }
             }
+        }
+
+        void LateUpdate()
+        {
+            if (GameClient.Get() == null || !GameClient.Get().IsReady()) return;
+            Game game = GameClient.Get().GetGameData();
+            Player player = opponent ? GameClient.Get().GetOpponentPlayer() : GetPlayer();
+            reference_clubs = opponent ? player.clubs_revealed : player.cards_club;
+            club = index >= 0 && index < reference_clubs.Count ? reference_clubs[index] : null;
+            club_image.sprite = club?.CardData.GetBoardArt(club.VariantData) ?? default_icon;
+            count_image.enabled = club != null;
+            count_text.enabled = club != null;
+            count_text.text = club != null ? game.GetClubCount(player, club.clubs[0].ClubData).ToString() : "0";
         }
 
         //Hover (PC) and touch-down both enter here; touch release fires PointerExit/Up

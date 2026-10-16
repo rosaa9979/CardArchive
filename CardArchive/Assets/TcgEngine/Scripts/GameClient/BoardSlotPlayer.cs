@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.UI;
@@ -41,7 +41,7 @@ namespace TcgEngine.Client
 
         private void Start()
         {
-            GameClient.Get().onAbilityTargetPlayer += OnAbilityEffect;
+
 
         }
 
@@ -113,19 +113,6 @@ namespace TcgEngine.Client
             Vector2 uiWroldSize = new Vector2(width, height);
 
             renderer.size = uiWroldSize;
-        }
-
-        private void OnAbilityEffect(AbilityData iability, Card caster, Player target)
-        {
-            if (iability != null && caster != null && target != null)
-            {
-                int player_id = opponent ? GameClient.Get().GetOpponentPlayerID() : GameClient.Get().GetPlayerID();
-                if (target.player_id == player_id)
-                {
-                    FXTool.DoFX(iability.target_fx, transform.position);
-                    AudioTool.Get().PlaySFX("fx", iability.target_audio);
-                }
-            }
         }
 
         //Player targeting is confirmed on release by PlayerControls (tap = confirm, hold = preview)

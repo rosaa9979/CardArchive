@@ -24,6 +24,26 @@ namespace TcgEngine
 
     public class FXTool : MonoBehaviour
     {
+        // 2 = target impact / field entry / field exit; 1 = board or caster cue.
+        // Normal DoFX remains a decorative cue (priority 0).
+        // Reserve NOW, create LATER. Never wrap DoFX in a timer for a state-bearing FX.
+        public static void ScheduleStateFX(GameObject prefab, Vector3 position, float delay = -1f,
+            int priority = 2, System.Action<GameObject> onCreated = null, bool abilityTarget = false)
+        {
+            if (prefab == null) return;
+            var client = GameClient.Get();
+            GameClient.AnimationReservation reservation;
+            using (client?.PresentationCue(priority)) reservation = client?.ReservePresentationAnimation(prefab, abilityTarget);
+            var setting = prefab.GetComponentInChildren<FXSetting>(true);
+            float wait = delay >= 0f ? delay : setting != null ? setting.presentation_delay : 0f;
+            System.Action create = () => {
+                if (reservation != null && (client == null || !client.IsCurrentReservation(reservation))) return;
+                GameObject fx = Instantiate(prefab, position, GetFXRotation());
+                ManageLifetime(fx, GetDuration(prefab), reservation);
+                onCreated?.Invoke(fx);
+            };
+            if (wait > 0f) TimeTool.WaitFor(wait, create); else create();
+        }
         private static Dictionary<string, GameObject> unique_fx = new Dictionary<string, GameObject>();
 
         //Only one FX per key can be alive at a time, spawning a new one destroys the previous one
@@ -33,7 +53,12 @@ namespace TcgEngine
                 return null;
 
             if (unique_fx.TryGetValue(key, out GameObject existing) && existing != null)
-                Destroy(existing);
+            {
+                // Replacing a visual must not destroy an outstanding state cue. Let it
+                // deliver its own Impact/Complete instead of manufacturing a result.
+                var playback = existing.GetComponentInChildren<FXPlayback>(true);
+                if (playback == null || !playback.IsPlaying) Destroy(existing);
+            }
 
             GameObject fx = DoFX(fx_prefab, pos, duration);
             unique_fx[key] = fx;
@@ -45,9 +70,9 @@ namespace TcgEngine
             if (fx_prefab != null)
             {
                 duration = duration < 0f ? GetDuration(fx_prefab) : duration;
-                PresentationClock.Hold(duration);
+                var reservation = GameClient.Get()?.ReservePresentationAnimation(fx_prefab);
                 GameObject fx = Instantiate(fx_prefab, pos, GetFXRotation());
-                Destroy(fx, duration);
+                ManageLifetime(fx, duration, reservation);
                 return fx;
             }
             return null;
@@ -66,7 +91,7 @@ namespace TcgEngine
             if (fx_prefab != null && canvas_parent != null)
             {
                 duration = duration < 0f ? GetDuration(fx_prefab) : duration;
-                PresentationClock.Hold(duration);
+                var reservation = GameClient.Get()?.ReservePresentationAnimation(fx_prefab);
                 GameObject fx = Instantiate(fx_prefab, canvas_parent, false);
 
                 //연출용 UI가 게임 입력을 가로채지 않게 클릭 통과 처리
@@ -76,7 +101,7 @@ namespace TcgEngine
                 group.blocksRaycasts = false;
                 group.interactable = false;
 
-                Destroy(fx, duration);
+                ManageLifetime(fx, duration, reservation);
                 return fx;
             }
             return null;
@@ -142,16 +167,23 @@ namespace TcgEngine
         {
             if (fx_prefab != null && snap_target != null)
             {
+                var reservation = GameClient.Get()?.ReservePresentationAnimation(fx_prefab);
                 GameObject fx = Instantiate(fx_prefab, snap_target.transform.position + snap_target.transform.up * 2f, GetFXRotation());
                 SnapFX snap = fx.AddComponent<SnapFX>();
                 snap.target = snap_target;
                 snap.offset = offset;
                 float duration = GetDuration(fx_prefab);
-                PresentationClock.Hold(duration);
-                Destroy(fx, duration);
+                ManageLifetime(fx, duration, reservation);
                 return fx;
             }
             return null;
+        }
+
+        private static void ManageLifetime(GameObject fx, float duration, GameClient.AnimationReservation reservation)
+        {
+            if (GameClient.Get() != null && GameClient.Get().BindPresentationAnimation(fx, reservation)) return;
+            PresentationClock.Hold(duration);
+            Destroy(fx, duration);
         }
 
         public static float GetDuration(GameObject prefab)

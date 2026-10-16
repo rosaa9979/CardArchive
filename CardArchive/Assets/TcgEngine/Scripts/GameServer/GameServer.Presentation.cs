@@ -20,6 +20,7 @@ namespace TcgEngine.Server
         private void CapturePresentation(Game game)
         {
             presentation.Capture(game);
+            replay.PresentationBoundary(game);
             presentationDirty = false;
         }
 
@@ -150,13 +151,13 @@ namespace TcgEngine.Server
 
         private static bool IsSelection(ushort type) => type >= GameAction.SelectCard && type <= GameAction.CancelSelect;
 
-        private void FinishCardRequest(ClientData client, SerializedData data)
+        private void FinishCardRequest(ClientData client, MsgPlayRequest msg, bool accepted, long sequence)
         {
-            var msg = data.Get<MsgPlayRequest>();
             using (var writer = new FastBufferWriter(128, Allocator.Temp, TcgNetwork.MsgSizeMax))
             {
                 writer.WriteValueSafe(GameAction.ActionResult);
-                writer.WriteNetworkSerializable(new MsgCard { card_uid = msg.card_uid });
+                writer.WriteNetworkSerializable(new MsgCardActionResult {
+                    card_uid = msg.card_uid, request_id = msg.request_id, accepted = accepted, sequence = sequence });
                 Messaging.Send("refresh", client.client_id, writer, NetworkDelivery.ReliableFragmentedSequenced);
             }
         }

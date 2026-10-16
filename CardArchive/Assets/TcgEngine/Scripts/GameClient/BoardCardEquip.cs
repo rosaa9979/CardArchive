@@ -30,8 +30,11 @@ namespace TcgEngine.Client
             rect = GetComponent<RectTransform>();
         }
 
-        private void Update()
+        private void LateUpdate()
         {
+            // A presentation commit replaces the card instances, including equipment.
+            if (equip != null && GameClient.Get() != null && GameClient.Get().IsReady())
+                SetEquip(GameClient.Get().GetGameData().GetCard(equip.uid));
             if (equip != null)
             {
                 target_alpha = focus ? 1f : 0f;
@@ -43,7 +46,7 @@ namespace TcgEngine.Client
                 focus = false;
             }
 
-            if (equip_glow != null)
+            if (equip_glow != null && equip != null)
             {
                 int player_id = GameClient.Get().GetPlayerID();
                 Color ccolor = player_id == equip.player_id ? glow_ally : glow_enemy;

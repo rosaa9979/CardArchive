@@ -27,6 +27,10 @@ namespace TcgEngine.FX
         public FXRotationOption rotation_option;
 
         [Header("Animation")]
+        [Tooltip("Whether this FX's Impact publishes the linked display state. Disable for visuals whose result is carried by another FX.")]
+        public bool presentation_impact = true;
+        [Tooltip("Delay before creating a scheduled presentation FX. Its state waits for the eventual Impact.")]
+        [Min(0f)] public float presentation_delay;
         [Tooltip("Presentation duration in seconds; zero measures animation clips and particles.")]
         [Min(0f)] public float presentation_duration;
         public Animator animator;   //자신/상대 스테이트 분기가 필요한 FX만 할당

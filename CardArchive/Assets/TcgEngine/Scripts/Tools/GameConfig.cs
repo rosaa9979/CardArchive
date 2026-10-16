@@ -62,7 +62,7 @@ namespace TcgEngine
             public const float attack_player_step = 0.2f;   //AttackPlayer chain steps
 
             //--- Card actions ---
-            public const float play_card = 0.3f;            //after summon/play card
+            public const float play_card = 0f;              //after summon/play card
             public const float move_card = 0.2f;            //after move card
             public const float ability_resolve = 0.2f;      //after an ability resolves
         }

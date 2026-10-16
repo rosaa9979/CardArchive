@@ -10,11 +10,12 @@ namespace TcgEngine.Replay
         ReplayState previous;
         public bool Finished { get; private set; }
         public bool Failed { get; private set; }
-        public void Begin(Game game)
+        public void Begin(Game game) { Begin(game, Application.version); }
+        public void Begin(Game game, string buildVersion)
         {
             Guard(() => {
                 previous = ReplayStateCodec.Capture(game);
-                Record = new ReplayRecord { matchId = game.game_uid, buildVersion = Application.version,
+                Record = new ReplayRecord { matchId = game.game_uid, buildVersion = buildVersion,
                     players = game.players.Select(p => p.username).ToArray(), initialState = previous };
             });
         }
@@ -38,13 +39,25 @@ namespace TcgEngine.Replay
         }
         public void Interaction(Game game, ReplayInteraction interaction)
         {
-            Capture(game);
+            PresentationBoundary(game);
             if (Record != null && !Finished && !Failed)
                 Record.events.Add(new ReplayEntry { kind = "interaction", interaction = interaction });
         }
-        public ReplayRecord Finish(Game game)
+
+        // Raw event snapshots can be taken midway through an effect (damage before
+        // lifesteal, death attribution, etc.). Preserve the live publication boundary
+        // so playback never exposes those intermediate values before the target FX.
+        public void PresentationBoundary(Game game)
         {
             Capture(game);
+            if (Record == null || Finished || Failed || Record.events.Count == 0) return;
+            string last = Record.events[Record.events.Count - 1].kind;
+            if (last != "presentation" && last != "interaction")
+                Record.events.Add(new ReplayEntry { kind = "presentation" });
+        }
+        public ReplayRecord Finish(Game game)
+        {
+            PresentationBoundary(game);
             Finished = true;
             if (Record == null || Failed) return null;
             Record.finalHash = ReplayStateCodec.Hash(previous);

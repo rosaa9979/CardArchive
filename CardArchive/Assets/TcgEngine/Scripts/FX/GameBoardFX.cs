@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TcgEngine.Client;
@@ -24,6 +24,7 @@ namespace TcgEngine.FX
             client.onCardDissolved += OnDissolveCard;
             client.onExhaustDamage += OnExhaustDamage;
             client.onPlayerDamaged += OnPlayerDamaged;
+            client.onCardDamaged += OnCardDamaged;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -53,10 +54,9 @@ namespace TcgEngine.FX
                 CardData icard = CardData.Get(card.card_id);
                 if (icard.type == CardType.Spell)
                 {
-                    GameObject prefab = player_id == card.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
-                    GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
-                    CardUI ui = obj.GetComponentInChildren<CardUI>();
-                    ui.SetCard(icard, card.VariantData);
+                    // The acting player already saw the card in hand. Automatic plays still reveal it.
+                    if (player_id != card.player_id || !GameClient.Get().IsDirectCardPlay(card))
+                        ShowCardPreview(card);
 
                     AudioClip spawn_audio = icard.spawn_audio != null ? icard.spawn_audio : AssetData.Get().card_spawn_audio;
                     AudioTool.Get().PlaySFX("card_spell", spawn_audio);
@@ -96,6 +96,16 @@ namespace TcgEngine.FX
             AudioTool.Get().PlaySFX("player_damage", AssetData.Get().player_damage_audio);
         }
 
+        void OnCardDamaged(Card attacker, Card target, int value)
+        {
+            if (target == null) return;
+            BoardCard board = BoardCard.Get(target.uid);
+            BSlot slot = BSlot.Get(target.slot);
+            Vector3 position = board != null ? board.transform.position : slot != null ? slot.GetPosition(target.slot) : Vector3.zero;
+            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, position, FXLayer.OverHand);
+            if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
+        }
+
         void OnPlayerDamaged(Card attacker, Player target, int value)
         {
             if (target == null)
@@ -108,11 +118,9 @@ namespace TcgEngine.FX
             if (zone == null)
                 return;
 
-            TimeTool.WaitFor(0.15f, () =>
-            {
-                GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position);
-                fx.GetComponent<DamageFX>().SetValue(value);
-            });
+            // This callback is dispatched by the same Impact that publishes HP.
+            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position, FXLayer.OverHand);
+            if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
         }
 
         void OnDissolveCard(Card card, int owner_player_id)
@@ -132,7 +140,7 @@ namespace TcgEngine.FX
             //재생 전에 카드 정보 주입, 연출은 프리팹의 Self/Enemy 애니메이션이 담당
             CardUI ui = obj.GetComponentInChildren<CardUI>(true);
             if (ui != null)
-                ui.SetCard(CardData.Get(card.card_id), card.VariantData);
+                ui.SetCard(card);
 
             FXSetting setting = obj.GetComponentInChildren<FXSetting>(true);
             if (setting != null)
@@ -143,21 +151,32 @@ namespace TcgEngine.FX
         {
             if (iability != null)
             {
-                FXTool.DoFX(iability.board_fx, Vector3.zero);
+                FXTool.ScheduleStateFX(iability.board_fx, Vector3.zero, priority: 1);
 
                 if (iability.show_card_fx && caster != null)
                 {
                     CardData icard = CardData.Get(caster.card_id);
                     if (icard != null && icard.type != CardType.Spell) //Spells already show the zoom in OnPlayCard
                     {
-                        int player_id = GameClient.Get().GetPlayerID();
-                        GameObject prefab = player_id == caster.player_id ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
-                        GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
-                        CardUI ui = obj.GetComponentInChildren<CardUI>();
-                        ui.SetCard(icard, caster.VariantData);
+                        // Suppress only the local card's entry abilities, not its later triggers or secrets.
+                        bool ownDirectEntry = caster.player_id == GameClient.Get().GetPlayerID()
+                            && icard.type != CardType.Secret && GameClient.Get().IsDirectCardPlay(caster)
+                            && (iability.trigger == AbilityTrigger.OnPlay || iability.trigger == AbilityTrigger.OnUse);
+                        if (!ownDirectEntry)
+                            ShowCardPreview(caster);
                     }
                 }
             }
+        }
+
+        private void ShowCardPreview(Card card)
+        {
+            GameObject prefab = GameClient.Get().GetPlayerID() == card.player_id
+                ? AssetData.Get().play_card_fx : AssetData.Get().play_card_other_fx;
+            GameObject obj = FXTool.DoUniqueFX("card_zoom", prefab, Vector3.zero);
+            CardUI ui = obj != null ? obj.GetComponentInChildren<CardUI>() : null;
+            if (ui != null)
+                ui.SetCard(card);
         }
 
         private void OnSecret(Card secret, Card triggerer)

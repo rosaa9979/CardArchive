@@ -36,7 +36,8 @@ namespace TcgEngine.Client
             _instance = this;
         }
 
-        void Update()
+        // Also called when the server acknowledges a play, independently of the FX queue.
+        public void RefreshCards()
         {
             if (!GameClient.Get().IsReady())
                 return;
@@ -45,12 +46,10 @@ namespace TcgEngine.Client
             Game data = GameClient.Get().GetGameData();
             Player player = data.GetPlayer(player_id);
 
-            last_destroyed_timer += Time.deltaTime;
-
             //Add new cards
             foreach (Card card in player.cards_hand)
             {
-                if (!HasCard(card.uid))
+                if (!GameClient.Get().IsHandCardSuppressed(card.uid) && !HasCard(card.uid))
                     SpawnNewCard(card, player.cards_hand.IndexOf(card));
             }
 
@@ -58,7 +57,8 @@ namespace TcgEngine.Client
             for (int i = cards.Count - 1; i >= 0; i--)
             {
                 HandCard card = cards[i];
-                if (card == null || player.GetHandCard(card.GetCard().uid) == null)
+                if (card == null || GameClient.Get().IsHandCardSuppressed(card.GetCardUID())
+                    || (player.GetHandCard(card.GetCardUID()) == null && !GameClient.Get().IsCardAwaitingResult(card.GetCardUID())))
                 {
                     cards.RemoveAt(i);
                     if (card != null)
@@ -79,6 +79,16 @@ namespace TcgEngine.Client
                 card.deck_angle = (index - count_half) * -card_angle;
                 index++;
             }
+        }
+
+        void Update()
+        {
+            if (!GameClient.Get().IsReady())
+                return;
+
+            last_destroyed_timer += Time.deltaTime;
+            RefreshCards();
+            Game data = GameClient.Get().GetGameData();
 
             HandCard selected_card = HandCard.GetDrag();
             List<HandCard> card_list = HandCard.GetAll();
@@ -97,7 +107,7 @@ namespace TcgEngine.Client
                 bool visible = false;
                 if (!mulligan_hold && !GameUI.Get().GetHideUI())
                 {
-                    if (selected_card == null)
+                    if (selected_card == null || GameClient.Get().IsCardAwaitingResult(hcard.GetCardUID()))
                         visible = true;
                     else if (selected_card == hcard)
                         visible = true;
@@ -124,7 +134,7 @@ namespace TcgEngine.Client
             GameObject card_obj = Instantiate(card_prefab, card_area.transform);
             card_obj.GetComponent<HandCard>().SetCard(card);
             card_obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
-            cards.Insert(index, card_obj.GetComponent<HandCard>());
+            cards.Insert(Mathf.Clamp(index, 0, cards.Count), card_obj.GetComponent<HandCard>());
 
             SortCards();
         }

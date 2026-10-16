@@ -26,7 +26,7 @@ namespace TcgEngine.Gameplay
         public UnityAction onTurnEnd;
         public UnityAction<int> onMulligan;
 
-        public UnityAction<Card, Slot> onCardPlayed;      
+        public UnityAction<Card, Slot, bool> onCardPlayed; // Last argument: played automatically by an effect.
         public UnityAction<Card, Slot> onCardSummoned;
         public UnityAction<Card, Slot> onCardMoved;
         public UnityAction<Card> onCardTransformed;
@@ -79,8 +79,57 @@ namespace TcgEngine.Gameplay
         public System.Action<Game> onReplaySetup;
         public System.Action<string> onReplayRandom;
         public System.Action<Game> onPresentationBoundary;
-        private void PresentationBoundary() { if (!is_ai_predict) onPresentationBoundary?.Invoke(game_data); }
-        public void ReplayBoundary() { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); PresentationBoundary(); }
+        private int presentationTargetDepth;
+        private void PresentationBoundary()
+        {
+            if (!is_ai_predict && presentationTargetDepth == 0)
+                onPresentationBoundary?.Invoke(game_data);
+        }
+        // Intermediate rule snapshots are replay data, not publishable presentation frames.
+        public void RecordReplayState() { if (!is_ai_predict) onReplayBoundary?.Invoke(game_data); }
+        // All completed rule steps use this path. Intermediate EffectData records do not.
+        private void CompletePresentationStep() { RecordReplayState(); PresentationBoundary(); }
+
+        private void ResolvePresentedTarget(AbilityData ability, Action apply, Action notify = null)
+        {
+            // A target animation owns its complete result, including nested rule operations.
+            // Without a target FX, specialized operations such as draws retain their own frames.
+            // AI prediction runs on a worker thread; Unity's object null comparison
+            // can access native state and must only run for actual presentation.
+            bool atomic = !is_ai_predict && ability.target_fx != null;
+            if (atomic) presentationTargetDepth++;
+            try
+            {
+                apply();
+                RecordReplayState();
+                notify?.Invoke();
+            }
+            finally
+            {
+                if (atomic) presentationTargetDepth--;
+            }
+            // The state and the event selecting its Impact must be captured together.
+            CompletePresentationStep();
+        }
+
+        // One execution owns either one atomic result or an ordered series of target results.
+        // Close it BEFORE resolving chained/triggered abilities or the following death wave.
+        private void ResolvePresentedAbility(AbilityData ability, Action targets, Action finish)
+        {
+            bool simultaneous = !is_ai_predict && ability.playback_mode == AbilityPlaybackMode.Simultaneous;
+            if (simultaneous) presentationTargetDepth++;
+            try
+            {
+                targets();
+                finish();
+            }
+            finally
+            {
+                if (simultaneous) presentationTargetDepth--;
+            }
+            CompletePresentationStep();
+            resolve_queue.ResolveAll(GameConfig.Timing.ability_resolve);
+        }
         public System.Action<Game> onReplayBoundary;
         public System.Action<TcgEngine.Replay.ReplayInteraction> onReplayInteraction;
         private string replay_pending_play;
@@ -123,7 +172,7 @@ namespace TcgEngine.Gameplay
             //is_instant ignores all gameplay delays and process everything immediately, needed for AI prediction
             resolve_queue = new ResolveQueue(null, is_ai);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
-            resolve_queue.onResolved = ReplayBoundary;
+            resolve_queue.onResolved = CompletePresentationStep;
             is_ai_predict = is_ai;
         }
 
@@ -134,7 +183,7 @@ namespace TcgEngine.Gameplay
             game.SetRandom(random);
             resolve_queue = new ResolveQueue(game, false);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
-            resolve_queue.onResolved = ReplayBoundary;
+            resolve_queue.onResolved = CompletePresentationStep;
         }
 
         public virtual void SetData(Game game)
@@ -269,7 +318,7 @@ namespace TcgEngine.Gameplay
             game_data.phase = GamePhase.GameStart;
             RefreshData();
             onGameStart?.Invoke();
-            PresentationBoundary();
+            CompletePresentationStep();
 
             //OnGameStart abilities fire BEFORE the draw and mulligan now (hand and board are still empty here).
             //(club / hero / player_ability cards). The starting hand is drawn once these resolve.
@@ -829,7 +878,7 @@ namespace TcgEngine.Gameplay
         }
 
         //---- Gameplay Actions --------------
-        public virtual void SelectPlayTarget(Card card, Slot slot, bool skip_cost = false)
+        public virtual bool SelectPlayTarget(Card card, Slot slot, bool skip_cost = false)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
@@ -855,12 +904,14 @@ namespace TcgEngine.Gameplay
                     if (iability.HasValidSelectTarget(game_data, card))
                     {
                         GoToSelectTarget(iability, card, card, 1, 1);
-                        return; //SelectCard/SelectPlayer/SelectSlot plays it from its slot
+                        return true; //SelectCard/SelectPlayer/SelectSlot plays it from its slot
                     }
                 }
 
                 PlayCard(card, slot, skip_cost); //No target to select: played right away (from hand or its slot)
+                return true;
             }
+            return false;
         }
         
         public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
@@ -941,7 +992,10 @@ namespace TcgEngine.Gameplay
 
                 RefreshData();
 
-                onCardPlayed?.Invoke(card, slot);
+                onCardPlayed?.Invoke(card, slot, skip_cost);
+                // Playing/summoning is complete before any queued OnPlay/OnUse response.
+                // This also records summons with no follow-up ability at all.
+                CompletePresentationStep();
                 resolve_queue.ResolveAll(GameConfig.Timing.play_card);
             }
         }
@@ -982,6 +1036,7 @@ namespace TcgEngine.Gameplay
                 if (!skip_cost)
                     TriggerCardAbilityType(AbilityTrigger.OnMove, card);
 
+                CompletePresentationStep();
                 resolve_queue.ResolveAll(GameConfig.Timing.move_card);
             }
         }
@@ -1366,15 +1421,13 @@ namespace TcgEngine.Gameplay
                 cards[i] = cards[randomIndex];
                 cards[randomIndex] = temp;
             }
-            ReplayBoundary();
+            CompletePresentationStep();
         }
 
         public virtual void DrawCard(Player player, int nb = 1)
         {
-            // Preserve the rule order; identify one draw request for client presentation.
-            // Flush preceding effects before its first outcome so they cannot be folded
-            // into a simultaneous hand arrival.
-            PresentationBoundary();
+            // Each outcome closes its own step. Preceding steps must close themselves;
+            // beginning a draw must not be what finally publishes an unrelated result.
             long requestId = ++drawRequestSequence;
             for (int i = 0; i < nb; i++)
             {
@@ -1400,7 +1453,7 @@ namespace TcgEngine.Gameplay
                 {
                     DamagePlayer_Exhaust(player); // 덱 없음 → 데미지
                 }
-                ReplayBoundary();
+                CompletePresentationStep();
             }
 
             onCardDrawn?.Invoke(nb);
@@ -2109,6 +2162,7 @@ namespace TcgEngine.Gameplay
             UpdateOngoing();
 
             RefreshData();
+            CompletePresentationStep(); // Entire simultaneous death wave, including lost auras.
             return true;
         }
 
@@ -2370,13 +2424,14 @@ namespace TcgEngine.Gameplay
             if (is_selector)
                 return; //Wait for player to select
 
-            ResolveCardAbilityPlayTarget(iability, caster, context: context);
-            ResolveCardAbilityPlayers(iability, caster, context: context);
-            ResolveCardAbilityCards(iability, caster, context: context);
-            ResolveCardAbilitySlots(iability, caster, context: context);
-            ResolveCardAbilityCardData(iability, caster, context: context);
-            ResolveCardAbilityNoTarget(iability, caster, context: context);
-            AfterAbilityResolved(iability, caster, triggerer, max_repeat, current_repeat, context: context);
+            ResolvePresentedAbility(iability, () => {
+                ResolveCardAbilityPlayTarget(iability, caster, context: context);
+                ResolveCardAbilityPlayers(iability, caster, context: context);
+                ResolveCardAbilityCards(iability, caster, context: context);
+                ResolveCardAbilitySlots(iability, caster, context: context);
+                ResolveCardAbilityCardData(iability, caster, context: context);
+                ResolveCardAbilityNoTarget(iability, caster, context: context);
+            }, () => AfterAbilityResolved(iability, caster, triggerer, max_repeat, current_repeat, context: context));
         }
 
         protected virtual bool ResolveCardAbilitySelector(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
@@ -2488,53 +2543,43 @@ namespace TcgEngine.Gameplay
         protected virtual void ResolveCardAbilityNoTarget(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
             if (iability.criteria_target == AbilityTarget.None)
-                iability.DoEffects(this, caster, context: context);
+                ResolvePresentedTarget(iability, () => iability.DoEffects(this, caster, context: context));
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Player target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target, context: context);
-            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
-
-            onAbilityTargetPlayer?.Invoke(iability, caster, target);
-            PresentationBoundary();
+            ResolvePresentedTarget(iability,
+                () => iability.DoEffects(this, caster, target, context: context),
+                () => onAbilityTargetPlayer?.Invoke(iability, caster, target));
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target, context: context);
-            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
-
-            onAbilityTargetCard?.Invoke(iability, caster, target);
-
-            game_data.last_target = target.uid;
-            game_data.last_targeted_slot = target.slot;
-            PresentationBoundary();
+            ResolvePresentedTarget(iability,
+                () => iability.DoEffects(this, caster, target, context: context), () => {
+                    onAbilityTargetCard?.Invoke(iability, caster, target);
+                    game_data.last_target = target.uid;
+                    game_data.last_targeted_slot = target.slot;
+                });
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, List<Card> target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target, context: context);
-            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
-            PresentationBoundary();
+            ResolvePresentedTarget(iability, () => iability.DoEffects(this, caster, target, context: context));
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target, context: context);
-            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
-
-            onAbilityTargetSlot?.Invoke(iability, caster, target);
-
-            game_data.last_targeted_slot = target;
-            PresentationBoundary();
+            ResolvePresentedTarget(iability,
+                () => iability.DoEffects(this, caster, target, context: context), () => {
+                    onAbilityTargetSlot?.Invoke(iability, caster, target);
+                    game_data.last_targeted_slot = target;
+                });
         }
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, CardData target, AbilityEventContext context = null)
         {
-            iability.DoEffects(this, caster, target, context: context);
-            if (!is_ai_predict) onReplayBoundary?.Invoke(game_data);
-            PresentationBoundary();
+            ResolvePresentedTarget(iability, () => iability.DoEffects(this, caster, target, context: context));
         }
 
         protected virtual void AfterAbilityResolved(AbilityData iability, Card caster, Card trigger_card, int max_repeat, int current_repeat, AbilityEventContext context = null)
@@ -2569,7 +2614,6 @@ namespace TcgEngine.Gameplay
             }
 
             onAbilityEnd?.Invoke(iability, caster);
-            resolve_queue.ResolveAll(GameConfig.Timing.ability_resolve);
 
             //Repeat (Hearthstone/Defile pacing): the next iteration is deferred to the Death
             //Phase stable point after this iteration's consequences (deaths + death triggers
@@ -2591,6 +2635,7 @@ namespace TcgEngine.Gameplay
 
 
             RefreshData();
+            CompletePresentationStep();
         }
 
         //This function is called often to update status/stats affected by ongoing abilities
@@ -3114,8 +3159,9 @@ namespace TcgEngine.Gameplay
                 {
                     //Phase: effects applied outside Resolve(), so open the depth-first scope manually
                     resolve_queue.BeginPhase();
-                    ResolveEffectTarget(ability, caster, target, context: context);
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
+                    ResolvePresentedAbility(ability,
+                        () => ResolveEffectTarget(ability, caster, target, context: context),
+                        () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }
@@ -3133,8 +3179,9 @@ namespace TcgEngine.Gameplay
                 game_data.selector_context = null;
 
                 resolve_queue.BeginPhase();
-                ResolveEffectTarget(ability, caster, target, context: context);
-                AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
+                ResolvePresentedAbility(ability,
+                    () => ResolveEffectTarget(ability, caster, target, context: context),
+                    () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
                 resolve_queue.EndPhase();
                 resolve_queue.ResolveAll();
             }
@@ -3174,8 +3221,9 @@ namespace TcgEngine.Gameplay
                 else
                 {
                     resolve_queue.BeginPhase();
-                    ResolveEffectTarget(ability, caster, target, context: context);
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
+                    ResolvePresentedAbility(ability,
+                        () => ResolveEffectTarget(ability, caster, target, context: context),
+                        () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }
@@ -3222,16 +3270,16 @@ namespace TcgEngine.Gameplay
                     List<Slot> targets = Slot.GetAll();
 
                     resolve_queue.BeginPhase();
-                    foreach (Slot targ in targets)
-                    {
-                        if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ, context: context))
-                            continue;
+                    ResolvePresentedAbility(ability, () => {
+                        foreach (Slot targ in targets)
+                        {
+                            if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ, context: context))
+                                continue;
 
-                        if (ability.AreTargetConditionsMet(game_data, caster, targ, context: context))
-                        ResolveEffectTarget(ability, caster, targ, context: context);
-                    }
-
-                    AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
+                            if (ability.AreTargetConditionsMet(game_data, caster, targ, context: context))
+                                ResolveEffectTarget(ability, caster, targ, context: context);
+                        }
+                    }, () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
                     resolve_queue.EndPhase();
                     resolve_queue.ResolveAll();
                 }

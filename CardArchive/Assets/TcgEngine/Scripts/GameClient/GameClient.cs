@@ -69,7 +69,7 @@ namespace TcgEngine.Client
         public UnityAction onRefreshAll;
 
         private int player_id = 0; //Player playing on this device;
-        private Game game_data;
+        private Game game_data => presentationState.Displayed;
 
         private bool observe_mode = false;
         private int observe_player_id = 0;
@@ -83,6 +83,7 @@ namespace TcgEngine.Client
         protected virtual void Awake()
         {
             instance = this;
+            presentationState.Changed += OnPresentationStateChanged;
             Application.targetFrameRate = 120;
         }
 
@@ -130,14 +131,13 @@ namespace TcgEngine.Client
 
             RegisterRefresh(GameAction.ChatMessage, OnChat);
             RegisterRefresh(GameAction.ServerMessage, OnServerMsg);
-            RegisterRefresh(GameAction.RefreshAll, OnRefreshAll);
 
             if (TcgEngine.Replay.ReplaySession.Active)
             {
                 player_id = TcgEngine.Replay.ReplaySession.PlayerId;
                 observe_player_id = player_id;
                 observe_mode = true;
-                game_data = TcgEngine.Replay.ReplayStateCodec.Restore(TcgEngine.Replay.ReplaySession.Record.initialState);
+                ResetPresentation(TcgEngine.Replay.ReplaySession.Record.initialState);
                 gameObject.AddComponent<TcgEngine.Replay.ReplayDirector>();
                 return;
             }
@@ -150,6 +150,8 @@ namespace TcgEngine.Client
 
         protected virtual void OnDestroy()
         {
+            CancelPresentationStep();
+            presentationState.Changed -= OnPresentationStateChanged;
             PresentationClock.Reset();
             TcgNetwork.Get().onConnect -= OnConnectedServer;
             TcgNetwork.Get().Messaging.UnListenMsg("refresh");
@@ -299,6 +301,10 @@ namespace TcgEngine.Client
         public void OnReceiveRefresh(ulong client_id, FastBufferReader reader)
         {
             reader.ReadValueSafe(out ushort type);
+            if (type != GameAction.Presentation && type != GameAction.PresentationGate
+                && type != GameAction.ActionResult && type != GameAction.Connected
+                && type != GameAction.PlayerReady && type != GameAction.ChatMessage
+                && type != GameAction.ServerMessage) return;
             bool found = registered_commands.TryGetValue(type, out RefreshEvent command);
             if (found)
             {
@@ -325,7 +331,7 @@ namespace TcgEngine.Client
 
         public void PlayCard(Card card, Slot slot)
         {
-            if (card == null || !IsInputOpen || pendingCards.Contains(card.uid)) return;
+            if (card == null || !IsInputOpen || cardPlays.IsPending(card.uid)) return;
             Card latest = GetLatestGameData().GetCard(card.uid);
             if (!GetLatestGameData().CanPlayCard(latest, slot)) return;
             MsgPlayRequest mdata = new MsgPlayRequest();
@@ -337,7 +343,7 @@ namespace TcgEngine.Client
                 if (!CanUseBoardCard(visibleTarget.uid)) return;
                 mdata.target_uid = visibleTarget.uid;
             }
-            pendingCards.Add(card.uid);
+            mdata.request_id = cardPlays.Begin(card.uid);
             SendAction(GameAction.PlayCard, mdata);
         }
 
@@ -513,17 +519,13 @@ namespace TcgEngine.Client
         {
             MsgAfterConnected msg = sdata.Get<MsgAfterConnected>();
             player_id = msg.player_id;
-            if (!presentationReady) game_data = msg.game_data;
+            connectNotificationPending = true;
+            if (!presentationReady) ResetPresentation(TcgEngine.Replay.ReplayStateCodec.Capture(msg.game_data));
             observe_mode = player_id < 0; //Will usually return -1 if its an observer
 
-            if (observe_mode)
-                SetObserverMode(observe_user);
-
-            if (onConnectGame != null)
-                onConnectGame.Invoke();
-
             acknowledgedBarrier = -1;
-            pendingCards.Clear();
+            cardPlays.Clear();
+            directCardPlays.Clear();
             RequestPresentationSync();
             SendGameSettings();
         }
@@ -539,13 +541,14 @@ namespace TcgEngine.Client
 
         private void OnGameStart(SerializedData sdata)
         {
+            directCardPlays.Clear();
             onGameStart?.Invoke();
         }
 
         private void OnGameEnd(SerializedData sdata)
         {
             MsgPlayer msg = sdata.Get<MsgPlayer>();
-            onGameEnd?.Invoke(msg.player_id);
+            AfterPresentationCommit(() => onGameEnd?.Invoke(msg.player_id));
         }
 
         private void OnNewTurn(SerializedData sdata)
@@ -569,8 +572,13 @@ namespace TcgEngine.Client
 
         private void OnCardPlayed(SerializedData sdata)
         {
-            MsgPlayCard msg = sdata.Get<MsgPlayCard>();
-            Card card = game_data.GetCard(msg.card_uid);
+            MsgCardPlayed msg = sdata.Get<MsgCardPlayed>();
+            Card card = EventData.GetCard(msg.card_uid);
+            if (card != null)
+            {
+                if (msg.automatic) directCardPlays.Remove(card.uid);
+                else directCardPlays[card.uid] = card.play_order;
+            }
             onCardPlayed?.Invoke(card, msg.slot);
         }
 
@@ -583,35 +591,35 @@ namespace TcgEngine.Client
         private void OnCardMoved(SerializedData sdata)
         {
             MsgPlayCard msg = sdata.Get<MsgPlayCard>();
-            Card card = game_data.GetCard(msg.card_uid);
+            Card card = EventData.GetCard(msg.card_uid);
             onCardMoved?.Invoke(card, msg.slot);
         }
 
         private void OnCardTransformed(SerializedData sdata)
         {
             MsgCard msg = sdata.Get<MsgCard>();
-            Card card = game_data.GetCard(msg.card_uid);
+            Card card = EventData.GetCard(msg.card_uid);
             onCardTransformed?.Invoke(card);
         }
 
         private void OnCardDiscarded(SerializedData sdata)
         {
             MsgCard msg = sdata.Get<MsgCard>();
-            Card card = game_data.GetCard(msg.card_uid);
+            Card card = EventData.GetCard(msg.card_uid);
             onCardDiscarded?.Invoke(card);
         }
 
         private void OnCardDissolved(SerializedData sdata)
         {
             MsgDissolveCard msg = sdata.Get<MsgDissolveCard>();
-            Card card = game_data.GetCard(msg.card_uid);
+            Card card = EventData.GetCard(msg.card_uid);
             onCardDissolved?.Invoke(card, msg.player_id);
         }
 
         private void OnCardDraw(SerializedData sdata)
         {
             MsgInt msg = sdata.Get<MsgInt>();
-            onCardDraw?.Invoke(msg.value);
+            AfterPresentationCommit(() => onCardDraw?.Invoke(msg.value));
         }
 
         private void OnExhaustDamage(SerializedData sdata)
@@ -629,94 +637,79 @@ namespace TcgEngine.Client
         private void OnCardStatChange(SerializedData sdata)
         {
             MsgStat msg = sdata.Get<MsgStat>();
-            Card card = game_data.GetCard(msg.card_uid);
-            onCardStatChange?.Invoke(card, msg.type);
+            Card card = EventData.GetCard(msg.card_uid);
+            AfterPresentationCommit(() => onCardStatChange?.Invoke(card, msg.type));
         }
 
         private void OnAttackStart(SerializedData sdata)
         {
             MsgAttack msg = sdata.Get<MsgAttack>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Card target = game_data.GetCard(msg.target_uid);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
             onAttackStart?.Invoke(attacker, target);
         }
 
         private void OnAttackHit(SerializedData sdata)
         {
             MsgAttack msg = sdata.Get<MsgAttack>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Card target = game_data.GetCard(msg.target_uid);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
             onAttackHit?.Invoke(attacker, target);
         }
 
         private void OnCardDamaged(SerializedData sdata)
         {
             MsgAttack msg = sdata.Get<MsgAttack>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Card target = game_data.GetCard(msg.target_uid);
-            if (target == null)
-                return;
-
-            //Display prediction: apply the damage to the local copy so hp text updates at hit
-            //time (BoardCard polls game_data every frame). Sent on the same sequenced channel
-            //as RefreshAll, so the next authoritative snapshot always arrives after this and
-            //replaces game_data wholesale, correcting any divergence. Deaths are never
-            //processed locally — card removal only happens on server events.
-            if (!TcgEngine.Replay.ReplaySession.Active && !playingPresentation) target.damage += msg.damage;
-            onCardDamaged?.Invoke(attacker, target, msg.damage);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
+            if (target != null) AfterPresentationCommit(() => onCardDamaged?.Invoke(attacker, target, msg.damage));
         }
 
         private void OnPlayerDamaged(SerializedData sdata)
         {
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Player target = game_data.GetPlayer(msg.target_id);
-            if (target == null)
-                return;
-
-            //Display prediction, same model as OnCardDamaged: the next RefreshAll snapshot
-            //(same sequenced channel) replaces game_data and corrects any divergence
-            if (!TcgEngine.Replay.ReplaySession.Active && !playingPresentation) target.hp = Mathf.Clamp(target.hp - msg.damage, 0, target.hp_max);
-            onPlayerDamaged?.Invoke(attacker, target, msg.damage);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
+            if (target != null) AfterPresentationCommit(() => onPlayerDamaged?.Invoke(attacker, target, msg.damage));
         }
 
         private void OnAttackEvade(SerializedData sdata)
         {
             MsgAttack msg = sdata.Get<MsgAttack>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Card target = game_data.GetCard(msg.target_uid);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
             onAttackEvade?.Invoke(attacker, target);
         }
 
         private void OnAttackEnd(SerializedData sdata)
         {
             MsgAttack msg = sdata.Get<MsgAttack>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Card target = game_data.GetCard(msg.target_uid);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
             onAttackEnd?.Invoke(attacker, target);
         }
 
         private void OnAttackPlayerStart(SerializedData sdata)
         {
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Player target = game_data.GetPlayer(msg.target_id);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
             onAttackPlayerStart?.Invoke(attacker, target);
         }
 
         private void OnAttackPlayerHit(SerializedData sdata)
         {
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Player target = game_data.GetPlayer(msg.target_id);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
             onAttackPlayerHit?.Invoke(attacker, target);
         }
 
         private void OnAttackPlayerEnd(SerializedData sdata)
         {
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
-            Card attacker = game_data.GetCard(msg.attacker_uid);
-            Player target = game_data.GetPlayer(msg.target_id);
+            Card attacker = EventData.GetCard(msg.attacker_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
             onAttackPlayerEnd?.Invoke(attacker, target);
         }
 
@@ -724,7 +717,7 @@ namespace TcgEngine.Client
         {
             MsgCastAbility msg = sdata.Get<MsgCastAbility>();
             AbilityData ability = AbilityData.Get(msg.ability_id);
-            Card caster = game_data.GetCard(msg.caster_uid);
+            Card caster = EventData.GetCard(msg.caster_uid);
             onAbilityStart?.Invoke(ability, caster);
         }
 
@@ -732,49 +725,53 @@ namespace TcgEngine.Client
         {
             MsgCastAbility msg = sdata.Get<MsgCastAbility>();
             AbilityData ability = AbilityData.Get(msg.ability_id);
-            Card caster = game_data.GetCard(msg.caster_uid);
-            Card target = game_data.GetCard(msg.target_uid);
-            onAbilityTargetCard?.Invoke(ability, caster, target);
+            Card caster = EventData.GetCard(msg.caster_uid);
+            Card target = EventData.GetCard(msg.target_uid);
+            PresentAbilityTarget(ability, caster, target != null ? CardPosition(target) : Vector3.zero);
+            AfterPresentationCommit(() => onAbilityTargetCard?.Invoke(ability, caster, target));
         }
 
         private void OnAbilityTargetPlayer(SerializedData sdata)
         {
             MsgCastAbilityPlayer msg = sdata.Get<MsgCastAbilityPlayer>();
             AbilityData ability = AbilityData.Get(msg.ability_id);
-            Card caster = game_data.GetCard(msg.caster_uid);
-            Player target = game_data.GetPlayer(msg.target_id);
-            onAbilityTargetPlayer?.Invoke(ability, caster, target);
+            Card caster = EventData.GetCard(msg.caster_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
+            BoardSlotPlayer zone = target != null ? BoardSlotPlayer.Get(target.player_id != GetPlayerID()) : null;
+            if (zone != null) PresentAbilityTarget(ability, caster, zone.transform.position);
+            AfterPresentationCommit(() => onAbilityTargetPlayer?.Invoke(ability, caster, target));
         }
 
         private void OnAbilityTargetSlot(SerializedData sdata)
         {
             MsgCastAbilitySlot msg = sdata.Get<MsgCastAbilitySlot>();
             AbilityData ability = AbilityData.Get(msg.ability_id);
-            Card caster = game_data.GetCard(msg.caster_uid);
-            onAbilityTargetSlot?.Invoke(ability, caster, msg.slot);
+            Card caster = EventData.GetCard(msg.caster_uid);
+            PresentAbilityTarget(ability, caster, SlotPosition(msg.slot));
+            AfterPresentationCommit(() => onAbilityTargetSlot?.Invoke(ability, caster, msg.slot));
         }
 
         private void OnAbilityAfter(SerializedData sdata)
         {
             MsgCastAbility msg = sdata.Get<MsgCastAbility>();
             AbilityData ability = AbilityData.Get(msg.ability_id);
-            Card caster = game_data.GetCard(msg.caster_uid);
+            Card caster = EventData.GetCard(msg.caster_uid);
             onAbilityEnd?.Invoke(ability, caster);
         }
 
         private void OnSecretTrigger(SerializedData sdata)
         {
             MsgSecret msg = sdata.Get<MsgSecret>();
-            Card secret = game_data.GetCard(msg.secret_uid);
-            Card triggerer = game_data.GetCard(msg.triggerer_uid);
+            Card secret = EventData.GetCard(msg.secret_uid);
+            Card triggerer = EventData.GetCard(msg.triggerer_uid);
             onSecretTrigger?.Invoke(secret, triggerer);
         }
 
         private void OnSecretResolve(SerializedData sdata)
         {
             MsgSecret msg = sdata.Get<MsgSecret>();
-            Card secret = game_data.GetCard(msg.secret_uid);
-            Card triggerer = game_data.GetCard(msg.triggerer_uid);
+            Card secret = EventData.GetCard(msg.secret_uid);
+            Card triggerer = EventData.GetCard(msg.triggerer_uid);
             onSecretResolve?.Invoke(secret, triggerer);
         }
 
@@ -790,36 +787,7 @@ namespace TcgEngine.Client
             onServerMsg?.Invoke(msg);
         }
 
-        private void OnRefreshAll(SerializedData sdata)
-        {
-            MsgRefreshAll msg = sdata.Get<MsgRefreshAll>();
-            game_data = msg.game_data;
-            onRefreshAll?.Invoke();
-        }
-
         //--------------------------
-
-        public void ApplyReplayState(Game state)
-        {
-            if (!TcgEngine.Replay.ReplaySession.Active) throw new System.InvalidOperationException();
-            game_data = state;
-            onRefreshAll?.Invoke();
-        }
-
-        public void ApplyReplayEvent(byte[] packet)
-        {
-            if (!TcgEngine.Replay.ReplaySession.Active) throw new System.InvalidOperationException();
-            using (var reader = new FastBufferReader(packet, Unity.Collections.Allocator.Temp))
-            {
-                reader.ReadValueSafe(out ushort type);
-                // These messages contain session actions or full network serialization and
-                // are never part of the replay format. Do not deserialize them from files.
-                if (type == GameAction.Connected || type == GameAction.RefreshAll || type == GameAction.PlayerReady
-                    || type == GameAction.ChatMessage || type == GameAction.ServerMessage) return;
-                if (!registered_commands.TryGetValue(type, out var command)) throw new System.IO.InvalidDataException("Unknown replay event");
-                command.callback.Invoke(new SerializedData(reader));
-            }
-        }
 
         public virtual bool IsReady()
         {
@@ -852,9 +820,10 @@ namespace TcgEngine.Client
 
         public virtual bool IsYourTurn()
         {
-            Game latest = GetLatestGameData();
-            Player player = latest?.GetPlayer(GetPlayerID());
-            return IsInputOpen && (latest.phase == GamePhase.Main || latest.selector != SelectorType.None) && latest.IsPlayerTurn(player);
+            Player player = game_data?.GetPlayer(GetPlayerID());
+            // Turn/selection ownership is independent of connection and presentation gates.
+            return game_data != null && (game_data.phase == GamePhase.Main || game_data.selector != SelectorType.None)
+                && game_data.IsPlayerTurn(player);
         }
 
         public bool IsObserveMode()

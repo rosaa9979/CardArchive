@@ -25,7 +25,7 @@ namespace TcgEngine.Replay
     }
     [Serializable] public class ReplayEntry
     {
-        public string kind; // state, event, interaction
+        public string kind; // state, event, interaction, random, presentation (atomic display boundary)
         public List<ReplayChange> changes;
         public string packet;
         public ReplayInteraction interaction;

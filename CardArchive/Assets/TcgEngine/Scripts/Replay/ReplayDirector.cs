@@ -37,67 +37,61 @@ namespace TcgEngine.Replay
                 if (behaviour.GetType().Name == "AIDebugPanel" || behaviour.GetType().Name == "EffectStepPanel")
                     behaviour.gameObject.SetActive(false);
             state = ReplayStateCodec.Copy(ReplaySession.Record.initialState);
-            client.ApplyReplayState(ReplayStateCodec.Restore(state));
+            while (!client.IsReady() || client.IsPresentingState) yield return null;
             yield return null; // Let scene subscribers initialize before dispatching events.
             yield return new WaitForSeconds(0.5f);
             var entries = ReplaySession.Record.events;
-            abilityDepth = 0;
-            attackInFlight = false;
+            bool explicitBoundaries = entries.Exists(e => e.kind == "presentation");
             for (cursor = 0; cursor < entries.Count; cursor++)
             {
                 while (paused) yield return null;
                 var entry = entries[cursor];
                 if (entry.kind == "interaction")
                 {
-                    abilityDepth = 0;
-                    attackInFlight = false;
                     // Live matches get this gap from queue timers and player input; the recording only keeps order.
                     if (entry.interaction.kind != "mulligan" && entry.interaction.kind != "cancel")
                         yield return new WaitForSeconds(ActionLead);
                     yield return presenter.Present(entry.interaction);
                 }
-                else if (entry.kind == "state")
+                else if (entry.kind == "state" || entry.kind == "event")
                 {
                     bool selectorBefore = client.GetGameData().selector != SelectorType.None;
                     var phaseBefore = client.GetGameData().phase;
-                    bool applied = TryApply(entry);
-                    if (!applied) yield break;
-                    var data = client.GetGameData();
-                    // Ensure panels have appeared before synthetic selection/confirmation.
-                    if ((!selectorBefore && data.selector != SelectorType.None) || (phaseBefore != GamePhase.Mulligan && data.phase == GamePhase.Mulligan))
-                        yield return new WaitForSeconds(1.5f);
-                }
-                else if (entry.kind == "event")
-                {
-                    ushort tag = 0;
+                    var packets = new System.Collections.Generic.List<string>();
                     try
                     {
-                        byte[] packet = Convert.FromBase64String(entry.packet);
-                        using (var reader = new FastBufferReader(packet, Allocator.Temp)) reader.ReadValueSafe(out tag);
-                        client.ApplyReplayEvent(packet);
+                        if (entry.kind == "state") state = ReplayStateCodec.Apply(state, entry.changes);
+                        else packets.Add(entry.packet);
+                        // New recordings preserve the exact live presentation boundary.
+                        // Older recordings retain their original state/event grouping.
+                        while (cursor + 1 < entries.Count)
+                        {
+                            var following = entries[cursor + 1];
+                            if (following.kind == "interaction" || (!explicitBoundaries && following.kind == "state")) break;
+                            cursor++;
+                            if (following.kind == "presentation") break;
+                            if (following.kind == "state") state = ReplayStateCodec.Apply(state, following.changes);
+                            if (following.kind == "event") packets.Add(following.packet);
+                        }
                     }
-                    catch (Exception e) { status = "Replay event failed: " + e.Message; paused = true; Failed = true; Debug.LogException(e); }
-                    if (paused) yield break;
-                    if (tag == GameAction.AbilityTrigger) abilityDepth++;
-                    else if (tag == GameAction.AbilityEnd) abilityDepth = Mathf.Max(0, abilityDepth - 1);
-                    else if (tag == GameAction.NewTurn || tag == GameAction.AttackPhase || tag == GameAction.AttackStart || tag == GameAction.AttackPlayerStart)
-                        abilityDepth = 0; // never let a missing AbilityEnd swallow later pauses
-                    // Live, an attack's damage events and its hit arrive in the same frame (CardDamaged before AttackHit);
-                    // keep them together so damage numbers line up with the hit FX as in game.
-                    if (tag == GameAction.AttackStart || tag == GameAction.AttackPlayerStart) attackInFlight = true;
-                    else if (tag == GameAction.AttackHit || tag == GameAction.AttackEvade || tag == GameAction.AttackPlayerHit
-                        || tag == GameAction.AttackEnd || tag == GameAction.AttackPlayerEnd || tag == GameAction.NewTurn || tag == GameAction.AttackPhase)
-                        attackInFlight = false;
-                    // One ability's targets and area damage land together: no pauses between AbilityTrigger and AbilityEnd.
-                    bool together = (abilityDepth > 0 && tag != GameAction.AbilityTrigger)
-                        || (attackInFlight && tag != GameAction.AttackStart && tag != GameAction.AttackPlayerStart);
-                    float delay = together ? 0 : EventDelay(tag);
-                    if (delay > 0) yield return new WaitForSeconds(delay);
+                    catch (Exception e)
+                    {
+                        status = "Replay state failed: " + e.Message;
+                        Failed = true;
+                        Debug.LogException(e);
+                    }
+                    if (Failed) yield break;
+                    yield return client.PresentReplayState(state, packets);
+                    presenter.SyncState();
+                    var data = client.GetGameData();
+                    if ((!selectorBefore && data.selector != SelectorType.None)
+                        || (phaseBefore != GamePhase.Mulligan && data.phase == GamePhase.Mulligan))
+                        yield return new WaitForSeconds(1.5f);
                 }
-                // Allow the board to instantiate/despawn cards between state changes (inside an ability or an attack they apply together).
-                if (abilityDepth == 0 && !attackInFlight) yield return null;
+                yield return null;
             }
-            Failed = ReplayStateCodec.Hash(state) != ReplaySession.Record.finalHash;
+            Failed = ReplayStateCodec.Hash(state) != ReplaySession.Record.finalHash
+                || ReplayStateCodec.Hash(ReplayStateCodec.Capture(client.GetGameData())) != ReplaySession.Record.finalHash;
             Completed = !Failed;
             status = Completed ? "Completed — state verified" : "ERROR: final state mismatch";
             if (Completed && client.HasEnded())
@@ -112,35 +106,7 @@ namespace TcgEngine.Replay
                     if (input != null) input.enabled = true;
             }
         }
-        bool TryApply(ReplayEntry entry)
-        {
-            try
-            {
-                state = ReplayStateCodec.Apply(state, entry.changes);
-                client.ApplyReplayState(ReplayStateCodec.Restore(state));
-                presenter.SyncState();
-                return true;
-            }
-            catch (Exception e) { status = "Replay state failed: " + e.Message; Failed = true; Debug.LogException(e); return false; }
-        }
         const float ActionLead = 0.35f; // before a recorded play, move, selection or end turn
-        const float DrawDelay = 0.6f;   // lets the drawn card reach the hand
-        const float EffectGap = 0.15f;  // presentation events without their own pause
-        const float AttackGap = 0.8f;   // after each attack, before the next attacker
-        int abilityDepth;               // inside AbilityTrigger..AbilityEnd
-        bool attackInFlight;            // after AttackStart, until the hit/evade/end
-        static float EventDelay(ushort tag)
-        {
-            if (tag == GameAction.Mulligan) return GameConfig.Timing.mulligan_to_turn;
-            if (tag == GameAction.NewTurn || tag == GameAction.AttackPhase) return GameConfig.Timing.turn_start;
-            if (tag == GameAction.AbilityTrigger) return GameConfig.Timing.ability;
-            if (tag == GameAction.AttackStart || tag == GameAction.AttackPlayerStart) return 0.35f;
-            if (tag == GameAction.AttackEnd || tag == GameAction.AttackPlayerEnd) return AttackGap;
-            if (tag == GameAction.CardPlayed || tag == GameAction.CardMoved) return GameConfig.Timing.play_card;
-            if (tag == GameAction.ValueRolled) return 0.7f;
-            if (tag == GameAction.CardDrawn) return DrawDelay;
-            return EffectGap;
-        }
         void OnGUI()
         {
             if (!ReplaySession.Active) return;

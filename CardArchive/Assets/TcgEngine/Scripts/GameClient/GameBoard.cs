@@ -35,7 +35,9 @@ namespace TcgEngine.Client
             
         }
 
-        void Update()
+        void Update() { RefreshDisplayedState(); }
+
+        public void RefreshDisplayedState()
         {
             if (!GameClient.Get().IsReady())
                 return;

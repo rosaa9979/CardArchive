@@ -7,6 +7,12 @@ using TcgEngine.Client;
 
 namespace TcgEngine
 {
+    public enum AbilityPlaybackMode
+    {
+        Simultaneous = 0,
+        Sequential = 1,
+    }
+
     /// <summary>
     /// Defines all ability data
     /// </summary>
@@ -50,6 +56,8 @@ namespace TcgEngine
         public bool exhaust;                    //Action cost for activated abilities
 
         [Header("FX")]
+        [Tooltip("Simultaneous: all targets share one Impact. Sequential: each target's Impact reveals its own result, in target sort order.")]
+        public AbilityPlaybackMode playback_mode = AbilityPlaybackMode.Simultaneous;
         public bool show_card_fx;               //Show caster card zoom on board when this ability triggers
         public GameObject board_fx;
         public GameObject caster_fx;
@@ -364,13 +372,15 @@ namespace TcgEngine
 
         //EffectStepDebug.LogEffect는 [Conditional("UNITY_EDITOR")]라 빌드에서는 호출 자체가 사라지고,
         //에디터에서도 치트가 꺼져 있으면 static bool 하나만 읽고 즉시 반환한다.
+        // Keep intermediate replay snapshots, but publish only after GameLogic has
+        // attached the target animation event and finished this target's statuses.
         public void DoEffects(GameLogic logic, Card caster, AbilityEventContext context = null)
         {
             foreach(EffectData effect in effects)
             {
                 EffectStepDebug.LogEffect(this, effect, caster);
                 effect?.DoEffect(logic, this, caster, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
         }
 
@@ -380,7 +390,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
             foreach(StatusData stat in status)
                 target.AddStatus(stat, value, duration);
@@ -392,7 +402,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
             foreach (Card targ in target)
             {
@@ -407,7 +417,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
             foreach (StatusData stat in status)
                 target.AddStatus(stat, value, duration);
@@ -421,7 +431,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
             if (slot_card != null)
             {
@@ -437,7 +447,7 @@ namespace TcgEngine
             {
                 EffectStepDebug.LogEffect(this, effect, caster, target);
                 effect?.DoEffect(logic, this, caster, target, context: context);
-                logic.ReplayBoundary();
+                logic.RecordReplayState();
             }
         }
 

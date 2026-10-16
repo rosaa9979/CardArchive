@@ -90,6 +90,15 @@ namespace TcgEngine.Client
             if (!GameClient.Get().IsReady())
                 return;
 
+            // Keep the dropped card in place until the server accepts or rejects the request.
+            bool awaitingResult = GameClient.Get().IsCardAwaitingResult(card_uid);
+            canvas_group.blocksRaycasts = !awaitingResult;
+            if (awaitingResult)
+            {
+                card_outline.SetActive(false);
+                return;
+            }
+
             Game game_data = GameClient.Get().GetGameData();
             int player_id = GameClient.Get().GetPlayerID();
             Player player = game_data.GetPlayer(player_id);
@@ -133,7 +142,7 @@ namespace TcgEngine.Client
 
                 if (bslot != null && GameClient.Get().GetLatestGameData().CanPlayCard(GameClient.Get().GetLatestGameData().GetCard(card_uid), bslot.GetSlot())
                     && GetCard().CardData.IsBoardCard()
-                    && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
+                    && GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
                 {
                     hand_canvas_group.alpha = 0;
                     board_canvas_group.alpha = 1;
@@ -163,16 +172,17 @@ namespace TcgEngine.Client
                 target.StartDrag();
             }
 
-            if ((!GameClient.Get().IsYourTurn() || game_data.phase != GamePhase.Main) && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line)
+            if ((!GameClient.Get().IsInputOpen || !GameClient.Get().IsYourTurn() || game_data.phase != GamePhase.Main) && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line)
             {
-                WarningText.ShowNotYourTurn();
+                if (GameClient.Get().IsInputOpen && !GameClient.Get().IsYourTurn())
+                    WarningText.ShowNotYourTurn();
                 HandCardArea.Get().SortCards();
                 drag = false;
                 focus = false;
                 press_consumed = true; //Don't restart the drag until the pointer is released
             }
 
-            if (GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line && !player.CanPayMana(card))
+            if (GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line && !player.CanPayMana(card))
             {
                 WarningText.ShowNoMana();
                 HandCardArea.Get().SortCards();
@@ -196,7 +206,7 @@ namespace TcgEngine.Client
             hand_card_ui.SetCard(card);
             board_card_ui.SetCard(card);
             //card_glow.enabled = IsFocus() || IsDrag();
-            bool is_outline_enabled = GameClient.Get().IsYourTurn() && !GameClient.Get().IsCardPending(card_uid) && GameClient.Get().GetLatestGameData().phase == GamePhase.Main
+            bool is_outline_enabled = GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && !GameClient.Get().IsCardPending(card_uid) && GameClient.Get().GetLatestGameData().phase == GamePhase.Main
                 && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(card_uid));
             card_outline.SetActive(is_outline_enabled); 
             prev_pos = Vector3.Lerp(prev_pos, card_transform.position, 1f * Time.deltaTime);
@@ -219,7 +229,7 @@ namespace TcgEngine.Client
 
                 if (bslot != null && GameClient.Get().GetLatestGameData().CanPlayCard(GameClient.Get().GetLatestGameData().GetCard(card_uid), bslot.GetSlot())
                     && card.CardData.IsBoardCard()
-                    && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
+                    && GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main)
                 {
                     Vector3 screenPos = Camera.main.WorldToScreenPoint(bslot.transform.position);
             
@@ -232,6 +242,7 @@ namespace TcgEngine.Client
         public void SetCard(Card card)
         {
             PresentationClock.Track(() => this == null || !gameObject.activeInHierarchy || IsDrag() || IsFocus()
+                || GameClient.Get().IsCardPending(card_uid)
                 || Vector2.Distance(card_transform.anchoredPosition, deck_position) < 1f);
             this.card_uid = card.uid;
             hand_card_ui.SetCard(card);
@@ -244,12 +255,14 @@ namespace TcgEngine.Client
             if (!destroyed)
             {
                 destroyed = true;
+                gameObject.SetActive(false);
                 Destroy(gameObject);
             }
         }
 
         public bool IsFocus()
         {
+            if (GameClient.Get().IsCardPending(card_uid)) return false;
             //No hover/preview during game start and mulligan (cards may be gliding into hand here)
             Game game_data = GameClient.Get().GetGameData();
             if (game_data != null && (game_data.phase == GamePhase.GameStart || game_data.phase == GamePhase.Mulligan))
@@ -349,7 +362,7 @@ namespace TcgEngine.Client
         //Begin dragging this card (pointer crossed the hand line while pressed)
         private void StartDrag()
         {
-            if (!GameClient.Get().IsYourTurn() || GameClient.Get().IsCardPending(card_uid)) return;
+            if (!GameClient.Get().IsInputOpen || !GameClient.Get().IsYourTurn() || GameClient.Get().IsCardPending(card_uid)) return;
             focus = false;
             drag = true;
             PlayerControls.Get().UnselectAll();
@@ -396,6 +409,7 @@ namespace TcgEngine.Client
 
         public void TryPlayCard(Vector3 board_pos)
         {
+            if (!GameClient.Get().IsInputOpen) return;
             if (!GameClient.Get().IsYourTurn())
             {
                 WarningText.ShowNotYourTurn();
@@ -464,7 +478,7 @@ namespace TcgEngine.Client
 
         public void SetHide(bool status)
         {
-            this.gameObject.SetActive(status);
+            this.gameObject.SetActive(status && !destroyed);
         }
 
         // General per-situation control over how fast the card lerps toward its hand slot.

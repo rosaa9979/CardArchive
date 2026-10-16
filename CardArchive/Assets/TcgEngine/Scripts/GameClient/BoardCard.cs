@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -224,6 +224,22 @@ namespace TcgEngine.Client
                 status_group.alpha = Mathf.MoveTowards(status_group.alpha, status_alpha_target, 5f * Time.deltaTime);
         }
 
+        private void LateUpdate()
+        {
+            if (GameClient.Get() == null || !GameClient.Get().IsReady() || destroyed) return;
+            Card card = GetCard();
+            if (card == null) return;
+            card_ui.attack.color = card.GetAttack() > card.CardData.attack ? new Color32(40, 150, 90, 255) : font_color;
+            card_ui.hp.color = card.damage > 0 ? Color.red : card.GetHP() > card.CardData.hp ? new Color32(40, 150, 90, 255) : font_color;
+            int value = card.GetStatusValue(StatusType.Armor);
+            armor.text = value.ToString();
+            armor.enabled = value > 0;
+            armor_icon.enabled = value > 0;
+            if (equipment != null)
+                equipment.SetEquip(GameClient.Get().GetGameData().GetEquipCard(card.equipped_uid));
+            if (status_shown) ShowStatusBar();
+        }
+
         private Vector3 GetTargetPos()
         {
             Game data = GameClient.Get().GetGameData();
@@ -280,8 +296,12 @@ namespace TcgEngine.Client
                 card_shadow.enabled = false;
 
                 //SetOrder(card_sprite.sortingOrder - 2);
-                PresentationClock.Hold(1.3f);
-                Destroy(gameObject, 1.3f);
+                bool returningToPile = player.HasCard(player.cards_hand, card) || player.HasCard(player.cards_deck, card);
+                // Death visuals finish before one second; trim only the cleanup tail.
+                // Returning cards retain their existing travel time.
+                float cleanupDelay = returningToPile ? 1.3f : 1f;
+                PresentationClock.Hold(cleanupDelay);
+                Destroy(gameObject, cleanupDelay);
 
                 TimeTool.WaitFor(0.8f, () =>
                 {
@@ -290,7 +310,7 @@ namespace TcgEngine.Client
                 });
 
                 GameBoard board = GameBoard.Get();
-                if (player.HasCard(player.cards_hand, card) || player.HasCard(player.cards_deck, card))
+                if (returningToPile)
                 {
                     back_to_hand = true;
                     back_to_hand_target = player.player_id == GameClient.Get().GetPlayerID() ? -board.transform.up : board.transform.up;
@@ -299,7 +319,8 @@ namespace TcgEngine.Client
 
                 if (!back_to_hand)
                 {
-                    card.hp = 0;
+                    // Presentation already published the authoritative death result.
+                    // A view must never overwrite the card's HP to fake a death display.
                     card_ui.SetCard(card);
                 }
 
