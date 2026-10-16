@@ -9,6 +9,28 @@ namespace TcgEngine.FX
     // Bind confirmed results BEFORE the Animator's first update. Clips carry no damage values.
     public sealed class FXPlayback : MonoBehaviour
     {
+        private static bool shuttingDown;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetShutdown() { shuttingDown = false; }
+
+        private void OnApplicationQuit() { shuttingDown = true; }
+
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void RegisterEditorShutdown()
+        {
+            UnityEditor.EditorApplication.playModeStateChanged -= OnEditorPlayState;
+            UnityEditor.EditorApplication.playModeStateChanged += OnEditorPlayState;
+        }
+
+        private static void OnEditorPlayState(UnityEditor.PlayModeStateChange state)
+        {
+            if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode) shuttingDown = true;
+            else if (state == UnityEditor.PlayModeStateChange.ExitingEditMode) shuttingDown = false;
+        }
+#endif
+
         private Action[] impacts;
         private bool[] fired;
         private Action complete;
@@ -132,7 +154,7 @@ namespace TcgEngine.FX
         {
             var callback = ongoingStart;
             ongoingStart = null;
-            callback?.Invoke();
+            if (!shuttingDown) callback?.Invoke();
         }
 
         public void Arm()
@@ -227,7 +249,16 @@ namespace TcgEngine.FX
 
         private void OnDestroy()
         {
-            if (!finished) { ReportMissingImpacts(); finished = true; ReleaseOngoingStart(); complete = null; continuation = null; }
+            if (!finished)
+            {
+                // Scene teardown order is unspecified: FX may die before GameClient cancels them.
+                // A real mid-game destruction still reports missing results and never invents Impact.
+                if (!shuttingDown) ReportMissingImpacts();
+                finished = true;
+                ReleaseOngoingStart();
+                complete = null;
+                continuation = null;
+            }
             foreach (var clip in ownedClips) if (clip != null) Destroy(clip);
             if (ownedController != null) Destroy(ownedController);
         }
