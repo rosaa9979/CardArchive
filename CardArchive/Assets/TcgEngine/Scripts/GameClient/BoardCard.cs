@@ -7,6 +7,7 @@ using TcgEngine.Client;
 using UnityEngine.Events;
 using TcgEngine.UI;
 using TcgEngine.FX;
+using DG.Tweening;
 
 namespace TcgEngine.Client
 {
@@ -379,6 +380,24 @@ namespace TcgEngine.Client
             if (txt.Length > 2)
                 txt = txt.Substring(0, txt.Length - 2);
             return txt;
+        }
+
+        // Fades the frame/stat UI so it disappears together with the dissolving card art.
+        public void FadeOutCanvases(float duration)
+        {
+            FadeOutCanvas(ui_canvas, duration);
+            FadeOutCanvas(stat_canvas, duration);
+        }
+
+        private void FadeOutCanvas(Canvas canvas, float duration)
+        {
+            if (canvas == null)
+                return;
+
+            CanvasGroup group = canvas.GetComponent<CanvasGroup>();
+            if (group == null)
+                group = canvas.gameObject.AddComponent<CanvasGroup>();
+            group.DOFade(0f, duration).SetLink(gameObject);
         }
 
         public bool IsDead()

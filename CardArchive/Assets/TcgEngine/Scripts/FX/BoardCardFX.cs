@@ -190,6 +190,11 @@ namespace TcgEngine.FX
             if (GameTool.IsURP())
             {
                 FadeKill(bcard.card_sprite, 0f, 0.5f);
+
+                // Presented deaths dissolve without the 0.5s lead-in, so the UI canvases
+                // (hidden at 0.8s by BoardCard.Kill) would otherwise outlive the art.
+                if (alreadyPresented)
+                    bcard.FadeOutCanvases(0.5f);
             }
         }
 		
