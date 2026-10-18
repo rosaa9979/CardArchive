@@ -27,8 +27,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: 3e925f0590eb48b597c1f9a0e7a69c4a, type: 2}
-  text: "\uBBF8\uC2DD\uC5F0\uAD6C\uBD80 \uB3D9\uC544\uB9AC \uD6A8\uACFC\uAC00 \uD53C\uD574
-    \uB300\uC2E0 \uD30C\uAD34\uB85C \uBC14\uAFBC\uB2E4."
+  text: "\uc544\uad70 \ubbf8\uc2dd\uc5f0\uad6c\ud68c \ub3d9\uc544\ub9ac \ud6a8\uacfc\uac00 \ud53c\ud574\ub97c \uc8fc\ub294 \ub300\uc2e0 \ub300\uc0c1\uc744 \ud30c\uad34\ud558\uac8c \ud569\ub2c8\ub2e4."
   desc: 
   card_desc: 
   desc_values: []

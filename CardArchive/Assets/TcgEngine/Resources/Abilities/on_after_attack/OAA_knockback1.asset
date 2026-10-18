@@ -40,6 +40,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: Knockback
-  desc: '공격 후, 대상이 일직선상에 있으면 공격 방향으로 한 칸 밀어냅니다.'
+  title: "\ubc00\uce58\uae30"
+  desc: "\uc720\ub2db\uc744 \uacf5\uaca9\ud55c \ud6c4, \uadf8 \uc720\ub2db\uc774 \uc790\uc2e0\uacfc \uc77c\uc9c1\uc120\uc0c1\uc5d0 \uc788\uc73c\uba74 \uacf5\uaca9 \ubc29\ud5a5\uc73c\ub85c 1\uce78 \ubc00\uc5b4\ub0c5\ub2c8\ub2e4."
   selector_desc:

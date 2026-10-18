@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: paralysed
   m_EditorClassIdentifier: 
   effect: 32
-  title: Paralysed
+  title: "\uae30\uc808"
   icon: {fileID: 0}
   bad_status: 1
-  desc: Cannot perform any actions.
+  desc: "\uacf5\uaca9\ud558\uac70\ub098 \ud65c\uc131\ud654 \ub2a5\ub825\uc744 \uc0ac\uc6a9\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4."
   status_fx: {fileID: 333339856484750616, guid: 7b4fb318f22132249b71d750fcff75bf,
     type: 3}
   hvalue: -1
