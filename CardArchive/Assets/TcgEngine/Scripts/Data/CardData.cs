@@ -57,7 +57,10 @@ namespace TcgEngine
 
         [Header("Traits")]
         public TraitData[] traits;
-        public TraitStat[] stats;
+
+        [Header("Markers")]
+        [UnityEngine.Serialization.FormerlySerializedAs("stats")]
+        public MarkerValue[] markers;
 
         [Header("Abilities")]
         public AbilityData[] abilities;
@@ -269,43 +272,29 @@ namespace TcgEngine
             return false;
         }
 
-        public bool HasStat(string trait)
+        public bool HasMarker(MarkerData marker)
         {
-            if (stats == null)
+            if (marker == null || markers == null)
                 return false;
 
-            foreach (TraitStat stat in stats)
+            foreach (MarkerValue entry in markers)
             {
-                if (stat.trait.id == trait)
+                if (entry.marker != null && entry.marker.id == marker.id)
                     return true;
             }
             return false;
         }
 
-        public bool HasStat(TraitData trait)
+        public int GetMarkerValue(MarkerData marker)
         {
-            if(trait != null)
-                return HasStat(trait.id);
-            return false;
-        }
-
-        public int GetStat(string trait_id)
-        {
-            if (stats == null)
+            if (marker == null || markers == null)
                 return 0;
 
-            foreach (TraitStat stat in stats)
+            foreach (MarkerValue entry in markers)
             {
-                if (stat.trait.id == trait_id)
-                    return stat.value;
+                if (entry.marker != null && entry.marker.id == marker.id)
+                    return entry.value;
             }
-            return 0;
-        }
-
-        public int GetStat(TraitData trait)
-        {
-            if(trait != null)
-                return GetStat(trait.id);
             return 0;
         }
 

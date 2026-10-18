@@ -12,7 +12,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/DamageCount", order = 10)]
     public class EffectDamageCount : EffectData
     {
-        public TraitData bonus_damage;
+        public MarkerData bonus_damage;
 
         [Header("Count Traits")]
         public PileType pile;
@@ -47,7 +47,7 @@ namespace TcgEngine
         private int GetDamage(Game data, Card caster, int value)
         {
             Player player = data.GetPlayer(caster.player_id);
-            int damage = value + caster.GetTraitValue(bonus_damage) + player.GetTraitValue(bonus_damage);
+            int damage = value + caster.GetMarkerValue(bonus_damage) + player.GetMarkerValue(bonus_damage);
             return damage;
         }
 

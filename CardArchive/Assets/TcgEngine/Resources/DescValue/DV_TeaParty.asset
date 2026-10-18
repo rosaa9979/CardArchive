@@ -21,4 +21,4 @@ MonoBehaviour:
     label: "\uBBF8\uCE74"
   - value: 2
     label: "\uB099\uAE30\uC0AC"
-  trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
+  marker: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}

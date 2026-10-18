@@ -6,41 +6,42 @@ using TcgEngine.Gameplay;
 namespace TcgEngine
 {
     /// <summary>
-    /// Effect that sets custom stats to a specific value
+    /// Effect that sets a marker to a specific value
     /// </summary>
     
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/SetStatCustom", order = 10)]
     public class EffectSetStatCustom : EffectData
     {
-        public TraitData trait;
+        [UnityEngine.Serialization.FormerlySerializedAs("trait")]
+        public MarkerData marker;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            target.SetTrait(trait.id, ability.value);
+            target.SetMarker(marker.id, ability.value);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            target.SetTrait(trait.id, ability.value);
+            target.SetMarker(marker.id, ability.value);
         }
 
         //[stored_slot exception] When the target is a SLOT, store the encoded slot coordinate on the
-        //CASTER's trait (slot-memory, e.g. "포격"). The slot is encoded via Slot.ToTraitCode().
+        //CASTER's marker (slot-memory, e.g. "포격"). The slot is encoded via Slot.ToMarkerCode().
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
-            if (trait == null)
+            if (marker == null)
                 return;
-            caster.SetTrait(trait.id, target.ToTraitCode());
+            caster.SetMarker(marker.id, target.ToMarkerCode());
         }
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            target.SetTrait(trait.id, ability.value);
+            target.SetMarker(marker.id, ability.value);
         }
 
         public override void DoOngoingEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            target.SetTrait(trait.id, ability.value);
+            target.SetMarker(marker.id, ability.value);
         }
     }
 }

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: is_teaparty_host
   m_EditorClassIdentifier:
   club: {fileID: 11400000, guid: d6c7599c84e95ed45899edf9cb90938d, type: 2}
-  trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
+  marker: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
   oper: 0

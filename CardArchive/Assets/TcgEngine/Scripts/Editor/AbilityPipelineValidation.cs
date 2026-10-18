@@ -446,7 +446,8 @@ namespace TcgEngine.EditorValidation
                 count.DoEffect(f.logic, a, c, t.slot); Check(t.damage == 2 && f.game.players[1].hp == 98, "count route");
                 var ratio = Make<EffectDamageRatio>(); ratio.ratio = 0.5f; ratio.DoEffect(f.logic, a, c, t.slot);
                 Check(t.damage == 11 && f.game.players[1].hp == 49, "ratio must use each recipient health");
-                c.SetTrait(EffectDamage.StoredSlotTrait, t.slot.ToTraitCode()); Make<EffectDamage>().DoEffect(f.logic, a, c);
+                var stored = Make<EffectDamage>(); stored.stored_slot = ScriptableObject.CreateInstance<MarkerData>(); stored.stored_slot.id = "stored_slot";
+                c.SetMarker(stored.stored_slot.id, t.slot.ToMarkerCode()); stored.DoEffect(f.logic, a, c);
                 Check(t.damage == 13 && f.game.players[1].hp == 47, "stored-position route"); f.Roundtrip();
             });
             Case("Tile death resolves after the same tile teacher result", () => {

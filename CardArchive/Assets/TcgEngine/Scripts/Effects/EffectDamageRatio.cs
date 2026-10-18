@@ -12,7 +12,7 @@ namespace TcgEngine
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/DamageRatio", order = 10)]
     public class EffectDamageRatio : EffectData
     {
-        public TraitData bonus_damage;
+        public MarkerData bonus_damage;
         public float ratio;
 
 

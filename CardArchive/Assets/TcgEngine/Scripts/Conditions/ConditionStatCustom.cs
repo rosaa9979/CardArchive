@@ -5,25 +5,26 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// Compares cards or players custom stats
+    /// Compares a card's or player's marker value
     /// </summary>
     
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/StatCustom", order = 10)]
     public class ConditionStatCustom : ConditionData
     {
-        [Header("Card stat is")]
-        public TraitData trait;
+        [Header("Marker value is")]
+        [UnityEngine.Serialization.FormerlySerializedAs("trait")]
+        public MarkerData marker;
         public ConditionOperatorInt oper;
         public int value;
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            return CompareInt(target.GetTraitValue(trait.id), oper, value);
+            return CompareInt(target.GetMarkerValue(marker), oper, value);
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
         {
-            return CompareInt(target.GetTraitValue(trait.id), oper, value);
+            return CompareInt(target.GetMarkerValue(marker), oper, value);
         }
     }
 }

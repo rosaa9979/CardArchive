@@ -374,11 +374,7 @@ namespace TcgEngine.Client
             {
                 TraitData itrait = TraitData.Get(atrait.id);
                 if (itrait != null && !string.IsNullOrEmpty(itrait.title))
-                {
-                    int ival = atrait.value;
-                    string sval = ival > 1 ? " " + ival : "";
-                    txt += itrait.GetTitle() + sval + ", ";
-                }
+                    txt += itrait.GetTitle() + ", ";
             }
             if (txt.Length > 2)
                 txt = txt.Substring(0, txt.Length - 2);

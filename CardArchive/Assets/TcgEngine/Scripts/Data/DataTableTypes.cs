@@ -8,7 +8,7 @@ namespace TcgEngine
     //   EffectSetStat        -> EffectType.SetStat
     //   ConditionSlotDist    -> ConditionType.SlotDist
     //   FilterRandomCount    -> FilterType.RandomCount
-    //   SortTrait            -> SortType.Trait
+    //   SortMarker           -> SortType.Marker
     //   RepeatCountType      -> RepeatType.CountType
     // The exporter relies on this convention to map an asset's runtime
     // class to its `type` value via reflection.
@@ -31,7 +31,7 @@ namespace TcgEngine
 
         SummonSlot = 50, MoveUnit = 51, Knockback = 52, Attack = 53, AttackRedirect = 54,
 
-        AddAbility = 60, RemoveAbility = 61, AddTrait = 62, RemoveTrait = 63, AddClub = 64,
+        AddAbility = 60, RemoveAbility = 61, AddMarker = 62, RemoveMarker = 63, AddClub = 64,
 
         ClearStatus = 70, AttachCard = 71, ChangeWeapon = 72, ChangeOwner = 73,
         Destroy = 74, DestroyEquip = 75, Exhaust = 76,
@@ -107,7 +107,7 @@ namespace TcgEngine
     public enum SortType
     {
         None = 0,
-        Trait = 1,
+        Marker = 1,
     }
 
     public enum RepeatType

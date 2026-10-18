@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 510a78cb12497a646b6e2a8ba36b4dcf, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d74ad60e0fd41369d89dcc5daf4da3c, type: 3}
   m_Name: gourmet_mark
   m_EditorClassIdentifier:
   id: gourmet_mark
   title: "미식연구부 마크"
-  icon: {fileID: 0}
+  desc: Set on the Gourmet club card by Haruna; read by caster_has_gourmet_mark.

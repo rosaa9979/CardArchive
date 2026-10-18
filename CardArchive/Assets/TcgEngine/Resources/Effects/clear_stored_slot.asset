@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68bcb42ba7f34b0489fcbe3bb0bf518c, type: 3}
   m_Name: clear_stored_slot
   m_EditorClassIdentifier:
-  trait: {fileID: 11400000, guid: f82997ccd3f6432f9af66bbfe95acd4c, type: 2}
+  marker: {fileID: 11400000, guid: f82997ccd3f6432f9af66bbfe95acd4c, type: 2}

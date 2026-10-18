@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   value_type: 0
   bonus_damage: {fileID: 0}
+  stored_slot: {fileID: 11400000, guid: f82997ccd3f6432f9af66bbfe95acd4c, type: 2}

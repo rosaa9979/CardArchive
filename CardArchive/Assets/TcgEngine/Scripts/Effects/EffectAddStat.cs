@@ -15,7 +15,7 @@ namespace TcgEngine
         public EffectStatType type;
 
         [Header("Use Stored Value")]
-        public bool use_stored_value;
+        public MarkerData stored_value; //Optional: adds the caster's marker value
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
@@ -79,8 +79,8 @@ namespace TcgEngine
         {
             int val = ability.value;
 
-            if (use_stored_value && caster.HasStatus(StatusType.StoreValue))
-                val += caster.GetStatusValue(StatusType.StoreValue);
+            if (stored_value != null)
+                val += caster.GetMarkerValue(stored_value);
     
             return val;
         }

@@ -12,7 +12,7 @@ namespace TcgEngine
         AddAttack = 4,      //Attack status can be used for attack boost limited for X turns 
         AddHP = 5,          //HP status can be used for hp boost limited for X turns 
         AddManaCost = 6,    //Mana Cost status can be used for mana cost increase/reduction limited for X turns
-        StoreValue = 7,
+        //7: reserved (former StoreValue, moved to MarkerData)
 
         Stealth = 10,       //Cant be attacked until do action
         Invincibility = 12, //Cant be attacked for X turns

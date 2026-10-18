@@ -35,6 +35,7 @@ namespace TcgEngine
             //TeamData.Load();
             RarityData.Load();
             TraitData.Load();
+            MarkerData.Load();
             VariantData.Load();
             PackData.Load();
             LevelData.Load();
@@ -78,12 +79,12 @@ namespace TcgEngine
                         Debug.LogError(card.id + " has null trait");
                 }
 
-                if (card.stats != null)
+                if (card.markers != null)
                 {
-                    foreach (TraitStat stat in card.stats)
+                    foreach (MarkerValue entry in card.markers)
                     {
-                        if (stat.trait == null)
-                            Debug.LogError(card.id + " has null stat trait");
+                        if (entry.marker == null)
+                            Debug.LogError(card.id + " has null marker");
                     }
                 }
 

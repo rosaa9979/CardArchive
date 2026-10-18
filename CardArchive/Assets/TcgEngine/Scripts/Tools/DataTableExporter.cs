@@ -95,6 +95,7 @@ namespace TcgEngine.Tools
                 total += ExportWorkbook(outDir, "Effect", BuildEffectTable());
                 total += Export<WeaponData>(outDir, "Weapon",   BuildWeaponRow,  WeaponColumns);
                 total += Export<TraitData>(outDir, "Trait",     BuildSimpleRow,  null);
+                total += Export<MarkerData>(outDir, "Marker",   BuildSimpleRow,  null);
                 total += Export<StatusData>(outDir, "Status",   BuildSimpleRow,  null);
                 total += ExportWorkbook(outDir, "Condition",
                     BuildConditionTable(),
@@ -221,13 +222,14 @@ namespace TcgEngine.Tools
         // ------------------------------------------------------------------
         static readonly Dictionary<string, string[]> REFERENCES = new Dictionary<string, string[]>
         {
-            { "CardData",  new[] { "Club.xlsx", "Weapon.xlsx", "Trait.xlsx", "Ability.xlsx", "Pack.xlsx" } },
+            { "CardData",  new[] { "Club.xlsx", "Weapon.xlsx", "Trait.xlsx", "Marker.xlsx", "Ability.xlsx", "Pack.xlsx" } },
             { "Academy",   new string[0] },
             { "Club",      new[] { "Academy.xlsx" } },
             { "Ability",   new[] { "Condition.xlsx", "Effect.xlsx", "Status.xlsx", "Ability.xlsx", "DataContainer.xlsx" } },
             { "DataContainer", new string[0] },
             { "Weapon",    new string[0] },
             { "Trait",     new string[0] },
+            { "Marker",    new string[0] },
             { "Status",    new string[0] },
             { "Pack",      new[] { "Rarity.xlsx", "Variant.xlsx" } },
             { "Rarity",    new string[0] },
@@ -559,6 +561,7 @@ namespace TcgEngine.Tools
             { typeof(ClubData),     "Club" },
             { typeof(AcademyData),  "Academy" },
             { typeof(TraitData),    "Trait" },
+            { typeof(MarkerData),   "Marker" },
             { typeof(StatusData),   "Status" },
             { typeof(WeaponData),   "Weapon" },
             { typeof(PackData),     "Pack" },
@@ -621,7 +624,7 @@ namespace TcgEngine.Tools
             else if (t == typeof(bool)) s = "!Int";   // bool exported as 0/1 int
             else if (typeof(ScriptableObject).IsAssignableFrom(t)) s = "_ID_" + TableNameOf(t);
             else if (typeof(UnityEngine.Object).IsAssignableFrom(t)) s = "!String";  // external asset -> path string
-            else s = t.Name;  // structs (TraitStat, PackRarity, WeightedCard, ...)
+            else s = t.Name;  // structs (MarkerValue, PackRarity, WeightedCard, ...)
 
             return isList ? s + "[]" : s;
         }
@@ -684,31 +687,31 @@ namespace TcgEngine.Tools
                 "status_kind", "EffectStatusType",
                 "card_kind", "CardType",
                 "ref_card", "_ID_CardData", "ref_club", "_ID_Club",
-                "ref_trait", "_ID_Trait", "bonus_trait", "_ID_Trait",
+                "ref_trait", "_ID_Trait", "ref_marker", "_ID_Marker", "bonus_marker", "_ID_Marker",
                 "ref_status", "_ID_Status", "ref_ability", "_ID_Ability",
                 "ref_weapon", "_ID_Weapon", "ref_condition", "_ID_Condition",
                 "effects_true", "_ID_Effect", "effects_false", "_ID_Effect",
                 "weighted_cards", "!String",
                 "x", "!Int", "y", "!Int", "dx", "!Int", "dy", "!Int");
-            foreach (var d in new[] { "CardData.xlsx", "Club.xlsx", "Trait.xlsx", "Status.xlsx",
+            foreach (var d in new[] { "CardData.xlsx", "Club.xlsx", "Trait.xlsx", "Marker.xlsx", "Status.xlsx",
                                       "Ability.xlsx", "Weapon.xlsx", "Condition.xlsx" }) t.refDeps.Add(d);
 
             // [type별 슬롯 의미] — col -> original field name
             DocRow(t, "SetStat", "stat", "type");
-            DocRow(t, "AddStat", "stat", "type", "flag", "use_stored_value");
+            DocRow(t, "AddStat", "stat", "type", "ref_marker", "stored_value(optional)");
             DocRow(t, "ResetStat");
-            DocRow(t, "SetStatCustom", "ref_trait", "trait");
+            DocRow(t, "SetStatCustom", "ref_marker", "marker");
             DocRow(t, "AddStatRoll", "stat", "type");
             DocRow(t, "AddStatCount", "stat", "type", "pile", "pile", "scope", "player",
                 "card_kind", "has_type", "ref_club", "has_club", "ref_trait", "has_trait");
             DocRow(t, "AddStatTotalCount", "stat", "stat_type", "total", "total_type");
-            DocRow(t, "CopyStat", "ref_trait", "trait", "ref_club", "require_club(선택)", "flag", "only_if_missing");
-            DocRow(t, "CycleStat", "ref_trait", "trait");
-            DocRow(t, "Damage", "value_kind", "value_type", "bonus_trait", "bonus_damage");
-            DocRow(t, "DamageRatio", "bonus_trait", "bonus_damage", "value", "ratio(만분율)");
-            DocRow(t, "DamageCount", "bonus_trait", "bonus_damage",
+            DocRow(t, "CopyStat", "ref_marker", "marker", "ref_club", "require_club(선택)", "flag", "only_if_missing");
+            DocRow(t, "CycleStat", "ref_marker", "marker");
+            DocRow(t, "Damage", "value_kind", "value_type", "bonus_marker", "bonus_damage", "ref_marker", "stored_slot(no-target path)");
+            DocRow(t, "DamageRatio", "bonus_marker", "bonus_damage", "value", "ratio(만분율)");
+            DocRow(t, "DamageCount", "bonus_marker", "bonus_damage",
                 "pile", "pile", "scope", "player", "card_kind", "has_type", "ref_club", "has_club", "ref_trait", "has_trait");
-            DocRow(t, "Heal", "value_kind", "heal_type", "bonus_trait", "bonus_heal");
+            DocRow(t, "Heal", "value_kind", "heal_type", "bonus_marker", "bonus_heal");
             DocRow(t, "Draw");
             DocRow(t, "Discard");
             DocRow(t, "Shuffle");
@@ -729,8 +732,8 @@ namespace TcgEngine.Tools
             DocRow(t, "AttackRedirect", "last_type", "attacker_type");
             DocRow(t, "AddAbility", "ref_ability", "gain_ability");
             DocRow(t, "RemoveAbility", "ref_ability", "remove_ability");
-            DocRow(t, "AddTrait", "ref_trait", "trait");
-            DocRow(t, "RemoveTrait", "ref_trait", "trait");
+            DocRow(t, "AddMarker", "ref_marker", "marker");
+            DocRow(t, "RemoveMarker", "ref_marker", "marker");
             DocRow(t, "AddClub", "ref_club", "club");
             DocRow(t, "ClearStatus", "ref_status", "status(빈 칸이면 status_kind로 일괄 제거)", "status_kind", "status_type");
             DocRow(t, "AttachCard", "ref_card", "attach");
@@ -776,17 +779,17 @@ namespace TcgEngine.Tools
                     row["card_kind"] = CardKind(e.has_type); row["ref_club"] = RefName(e.has_club); row["ref_trait"] = RefName(e.has_trait); break;
                 case EffectAddStatRoll e: row["stat"] = e.type.ToString(); break;
                 case EffectAddStatTotalCount e: row["stat"] = e.stat_type.ToString(); row["total"] = e.total_type.ToString(); break;
-                case EffectAddStat e: row["stat"] = e.type.ToString(); row["flag"] = e.use_stored_value ? 1 : 0; break;
-                case EffectSetStatCustom e: row["ref_trait"] = RefName(e.trait); break;
-                case EffectCopyStat e: row["ref_trait"] = RefName(e.trait); row["ref_club"] = RefName(e.require_club); row["flag"] = e.only_if_missing ? 1 : 0; break;
-                case EffectCycleStat e: row["ref_trait"] = RefName(e.trait); break;
+                case EffectAddStat e: row["stat"] = e.type.ToString(); row["ref_marker"] = RefName(e.stored_value); break;
+                case EffectSetStatCustom e: row["ref_marker"] = RefName(e.marker); break;
+                case EffectCopyStat e: row["ref_marker"] = RefName(e.marker); row["ref_club"] = RefName(e.require_club); row["flag"] = e.only_if_missing ? 1 : 0; break;
+                case EffectCycleStat e: row["ref_marker"] = RefName(e.marker); break;
                 case EffectDamageCount e:
-                    row["bonus_trait"] = RefName(e.bonus_damage);
+                    row["bonus_marker"] = RefName(e.bonus_damage);
                     row["pile"] = e.pile.ToString(); row["scope"] = ScopeOf(e.player);
                     row["card_kind"] = CardKind(e.has_type); row["ref_club"] = RefName(e.has_club); row["ref_trait"] = RefName(e.has_trait); break;
-                case EffectDamageRatio e: row["bonus_trait"] = RefName(e.bonus_damage); row["value"] = (int)Math.Round(e.ratio * 10000.0); break;
-                case EffectDamage e: row["value_kind"] = e.value_type.ToString(); row["bonus_trait"] = RefName(e.bonus_damage); break;
-                case EffectHeal e: row["value_kind"] = e.heal_type.ToString(); row["bonus_trait"] = RefName(e.bonus_heal); break;
+                case EffectDamageRatio e: row["bonus_marker"] = RefName(e.bonus_damage); row["value"] = (int)Math.Round(e.ratio * 10000.0); break;
+                case EffectDamage e: row["value_kind"] = e.value_type.ToString(); row["bonus_marker"] = RefName(e.bonus_damage); row["ref_marker"] = RefName(e.stored_slot); break;
+                case EffectHeal e: row["value_kind"] = e.heal_type.ToString(); row["bonus_marker"] = RefName(e.bonus_heal); break;
                 case EffectCreateCard e:
                     row["weighted_cards"] = JoinWeighted(e.create_card); row["pile"] = e.create_pile.ToString();
                     row["flag"] = e.is_same_possibility ? 1 : 0; row["scope"] = OppScope(e.create_opponent); break;
@@ -804,8 +807,8 @@ namespace TcgEngine.Tools
                 case EffectAttack e: row["last_type"] = e.attacker_type.ToString(); break;
                 case EffectAddAbility e: row["ref_ability"] = RefName(e.gain_ability); break;
                 case EffectRemoveAbility e: row["ref_ability"] = RefName(e.remove_ability); break;
-                case EffectAddTrait e: row["ref_trait"] = RefName(e.trait); break;
-                case EffectRemoveTrait e: row["ref_trait"] = RefName(e.trait); break;
+                case EffectAddMarker e: row["ref_marker"] = RefName(e.marker); break;
+                case EffectRemoveMarker e: row["ref_marker"] = RefName(e.marker); break;
                 case EffectAddClub e: row["ref_club"] = RefName(e.club); break;
                 case EffectClearStatus e: row["ref_status"] = RefName(e.status); row["status_kind"] = e.status_type.ToString(); break;
                 case EffectAttachCard e: row["ref_card"] = RefName(e.attach); break;
@@ -820,7 +823,7 @@ namespace TcgEngine.Tools
                     row["value"] = e.set_to_value ? e.set_value : e.delta; break;
                 case EffectStoreCount e:
                     row["pile"] = e.pile.ToString(); row["scope"] = ScopeOf(e.player);
-                    row["card_kind"] = CardKind(e.has_type); row["ref_club"] = RefName(e.has_club); row["ref_trait"] = RefName(e.has_trait); break;
+                    row["card_kind"] = CardKind(e.has_type); row["ref_club"] = RefName(e.has_club); row["ref_trait"] = RefName(e.has_trait); row["ref_marker"] = RefName(e.marker); break;
                 case EffectConditionalCaster e:
                     row["ref_condition"] = RefName(e.condition);
                     row["effects_true"] = JoinRefs(e.effects_true); row["effects_false"] = JoinRefs(e.effects_false); break;
@@ -947,15 +950,15 @@ namespace TcgEngine.Tools
                 "side", "SlotSide", "zone", "SlotZone",
                 "card_kind", "CardType",
                 "ref_card", "_ID_CardData", "ref_club", "_ID_Club",
-                "ref_trait", "_ID_Trait", "ref_status", "_ID_Status",
+                "ref_trait", "_ID_Trait", "ref_marker", "_ID_Marker", "ref_status", "_ID_Status",
                 "sub_conditions", "_ID_Condition");
-            foreach (var d in new[] { "Effect.xlsx", "CardData.xlsx", "Club.xlsx", "Trait.xlsx", "Status.xlsx" }) t.refDeps.Add(d);
+            foreach (var d in new[] { "Effect.xlsx", "CardData.xlsx", "Club.xlsx", "Trait.xlsx", "Marker.xlsx", "Status.xlsx" }) t.refDeps.Add(d);
 
             // [type별 슬롯 의미] — col -> original field name
             DocRow(t, "Stat", "stat", "type", "oper", "oper", "value", "value");
-            DocRow(t, "StatCustom", "ref_trait", "trait", "oper", "oper", "value", "value");
+            DocRow(t, "StatCustom", "ref_marker", "marker", "oper", "oper", "value", "value");
             DocRow(t, "PlayerStat", "stat", "type", "oper", "oper", "value", "value");
-            DocRow(t, "ClubStatMatch", "ref_club", "club", "ref_trait", "trait", "oper", "oper");
+            DocRow(t, "ClubStatMatch", "ref_club", "club", "ref_marker", "marker", "oper", "oper");
             DocRow(t, "BossGauge", "stat", "gauge(Boss*)", "oper", "oper", "value", "value", "flag", "compare_to_max");
             DocRow(t, "CardType", "card_kind", "has_type(다중 OR은 CompositeOr 분해, NotEqual은 ;목록)", "ref_club", "has_club(동일)", "ref_trait", "has_trait(동일)", "oper", "oper");
             DocRow(t, "CardData", "ref_card", "card_types(다중 OR은 CompositeOr 분해, NotEqual은 ;목록)", "oper", "oper");
@@ -1271,7 +1274,7 @@ namespace TcgEngine.Tools
                 case ConditionCardPile c:
                     row["pile"] = c.type.ToString(); row["oper"] = Oper(c.oper); break;
                 case ConditionClubStatMatch c:
-                    row["ref_club"] = RefName(c.club); row["ref_trait"] = RefName(c.trait); row["oper"] = Oper(c.oper); break;
+                    row["ref_club"] = RefName(c.club); row["ref_marker"] = RefName(c.marker); row["oper"] = Oper(c.oper); break;
                 case ConditionCompositeOr c:
                     row["sub_conditions"] = JoinConditionRefs(c.any); break;
                 case ConditionDamaged c: row["oper"] = Oper(c.oper); break;
@@ -1295,7 +1298,7 @@ namespace TcgEngine.Tools
                 case ConditionSlotRange c: row["oper"] = Oper(c.oper); break;
                 case ConditionSlotUnitEmpty c: row["oper"] = Oper(c.oper); break;
                 case ConditionStat c: row["stat"] = c.type.ToString(); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
-                case ConditionStatCustom c: row["ref_trait"] = RefName(c.trait); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
+                case ConditionStatCustom c: row["ref_marker"] = RefName(c.marker); row["oper"] = Oper(c.oper); row["value"] = c.value; break;
                 case ConditionStatus c: row["ref_status"] = StatusId(c.has_status); row["value"] = c.value; row["oper"] = Oper(c.oper); break;
                 case ConditionTarget c: row["target_kind"] = c.type.ToString(); row["oper"] = Oper(c.oper); break;
                 case ConditionTriggered c: row["oper"] = Oper(c.is_oper); break;
@@ -1358,9 +1361,9 @@ namespace TcgEngine.Tools
         DDTable BuildSortTable()
         {
             // descending (SortData base field) -> shared `flag` (0=asc, 1=desc).
-            var t = NewDDTable("Sort", "id", "!Id", "type", "SortType", "flag", "!Int", "ref_trait", "_ID_Trait");
-            t.refDeps.Add("Trait.xlsx");
-            DocRow(t, "Trait", "flag", "descending", "ref_trait", "trait");
+            var t = NewDDTable("Sort", "id", "!Id", "type", "SortType", "flag", "!Int", "ref_marker", "_ID_Marker");
+            t.refDeps.Add("Marker.xlsx");
+            DocRow(t, "Marker", "flag", "descending", "ref_marker", "marker");
 
             var idUsed = new HashSet<string>(StringComparer.Ordinal);
             foreach (var a in LoadSorted<SortData>())
@@ -1369,7 +1372,7 @@ namespace TcgEngine.Tools
                 var row = new Dictionary<string, object> { ["type"] = type, ["flag"] = a.descending ? 1 : 0 };
                 switch (a)
                 {
-                    case SortTrait s: row["ref_trait"] = RefName(s.trait); break;
+                    case SortMarker s: row["ref_marker"] = RefName(s.marker); break;
                     default: Debug.LogWarning("[DataTableExporter] Unmapped sort: " + a.GetType().Name); break;
                 }
                 row["id"] = MakeUniqueId(Sanitize(a.name), idUsed);
@@ -1614,9 +1617,9 @@ namespace TcgEngine.Tools
         {
             // --- Condition ---
             { "Condition.Stat",          "타깃(카드/플레이어)의 스탯(공격·체력·마나)을 value와 oper로 비교" },
-            { "Condition.StatCustom",    "타깃의 특정 특성(trait) 값을 value와 oper로 비교" },
+            { "Condition.StatCustom",    "타깃의 마커(marker) 값을 value와 oper로 비교" },
             { "Condition.PlayerStat",    "타깃 플레이어의 스탯(체력·마나)을 value와 oper로 비교 (카드면 소유 플레이어로 환산)" },
-            { "Condition.ClubStatMatch", "시전자의 특성값과 소유 클럽 카드의 같은 특성값을 oper로 비교" },
+            { "Condition.ClubStatMatch", "시전자의 마커 값과 소유 클럽 카드의 같은 마커 값을 oper로 비교" },
             { "Condition.BossGauge",     "보스 게이지 현재값을 value(또는 최대치)와 oper로 비교. 보스 없으면 거짓" },
             { "Condition.CardType",      "타깃 카드가 지정 종류·클럽·특성에 모두 해당하는지 검사. 다중 OR은 CompositeOr 행으로 분해, oper=다름 + ;목록은 '모두 아님'" },
             { "Condition.CardData",      "타깃 카드가 지정 카드인지 검사. 다중 OR은 CompositeOr 행으로 분해, oper=다름 + ;목록은 '모두 아님'" },
@@ -1651,14 +1654,14 @@ namespace TcgEngine.Tools
             { "Condition.CompositeOr",   "하위 조건 중 하나라도 충족하면 참 (OR 합성)" },
             // --- Effect ---
             { "Effect.SetStat",          "대상의 스탯을 능력 value로 설정" },
-            { "Effect.AddStat",          "대상의 스탯에 능력 value를 가산 (flag=1이면 저장된 값 사용)" },
+            { "Effect.AddStat",          "대상의 스탯에 능력 value를 가산 (ref_marker가 있으면 시전자 마커 값을 더함)" },
             { "Effect.ResetStat",        "대상의 스탯을 원본 카드 수치로 되돌림" },
-            { "Effect.SetStatCustom",    "대상의 커스텀 스탯(특성)을 능력 value로 설정" },
+            { "Effect.SetStatCustom",    "대상의 마커를 능력 value로 설정 (타일 대상이면 시전자 마커에 좌표 저장)" },
             { "Effect.AddStatRoll",      "대상의 스탯에 주사위 결과값을 가산" },
             { "Effect.AddStatCount",     "지정 더미의 (조건 일치) 카드 수 × 능력 value를 스탯에 가산" },
             { "Effect.AddStatTotalCount","누적 카운트(누적 회복량 등)를 스탯에 가산" },
-            { "Effect.CopyStat",         "시전자의 특성값을 대상에 복사 (flag=1이면 대상에 특성이 없을 때만)" },
-            { "Effect.CycleStat",        "특성값을 순환 카운터로 1 증가" },
+            { "Effect.CopyStat",         "시전자의 마커 값을 대상에 복사 (flag=1이면 대상에 마커가 없을 때만)" },
+            { "Effect.CycleStat",        "마커 값을 순환 카운터로 1 증가" },
             { "Effect.Damage",           "대상에 피해 (수치 출처=value_kind, 보정 특성 가산)" },
             { "Effect.DamageRatio",      "대상 체력의 value(만분율) 비율만큼 피해" },
             { "Effect.DamageCount",      "지정 더미의 (조건 일치) 카드 수 × 능력 value만큼 피해" },
@@ -1682,8 +1685,8 @@ namespace TcgEngine.Tools
             { "Effect.AttackRedirect",   "지정 주체(last_type)의 공격을 대상으로 돌림" },
             { "Effect.AddAbility",       "대상에 능력 부여" },
             { "Effect.RemoveAbility",    "대상의 능력 제거" },
-            { "Effect.AddTrait",         "대상에 특성 부여 (값=능력 value)" },
-            { "Effect.RemoveTrait",      "대상의 특성 제거" },
+            { "Effect.AddMarker",        "대상의 마커에 능력 value를 가산" },
+            { "Effect.RemoveMarker",     "대상의 마커 제거" },
             { "Effect.AddClub",          "대상에 클럽 부여" },
             { "Effect.ClearStatus",      "대상의 상태이상 제거 (ref_status 지정 시 그것만, 아니면 status_kind 일괄)" },
             { "Effect.AttachCard",       "지정 카드를 대상 슬롯에 부착" },
@@ -1695,7 +1698,7 @@ namespace TcgEngine.Tools
             { "Effect.Mana",             "마나를 능력 value만큼 증감" },
             { "Effect.Roll",             "value면 주사위를 굴림" },
             { "Effect.BossGauge",        "보스 게이지를 value만큼 증감 (flag=1이면 value로 설정)" },
-            { "Effect.StoreCount",       "지정 더미의 (조건 일치) 카드 수를 저장 (이후 use_stored_value로 사용)" },
+            { "Effect.StoreCount",       "지정 더미의 (조건 일치) 카드 수를 저장 (ref_marker 마커에 누적, AddStat의 ref_marker로 사용)" },
             { "Effect.SetClubCardUI",    "클럽 카드 UI 상태 갱신" },
             { "Effect.Conditional",      "대상이 조건 충족 시 effects_true, 아니면 effects_false 실행" },
             { "Effect.ConditionalCaster","시전자가 조건 충족 시 effects_true, 아니면 effects_false 실행" },
@@ -1708,7 +1711,7 @@ namespace TcgEngine.Tools
             { "Filter.MostUnitSlot",     "range 내 유닛이 가장 많은 슬롯 1개 선택" },
             { "Filter.MostWoundedSlot",  "range 내 부상 유닛이 가장 많은 슬롯 1개 선택" },
             // --- Sort ---
-            { "Sort.Trait",              "지정 특성값 기준 정렬 (flag=1이면 내림차순)" },
+            { "Sort.Marker",             "지정 마커 값 기준 정렬 (flag=1이면 내림차순)" },
             // --- Repeat ---
             { "Repeat.StaticValue",      "고정 value회 반복" },
             { "Repeat.CountType",        "지정 플레이어·더미의 (조건 일치) 카드 수만큼 반복" },
@@ -1723,7 +1726,7 @@ namespace TcgEngine.Tools
         static readonly string[] CardColumns =
         {
             "id", "title", "type", "mana", "attack", "hp",
-            "clubs", "weapon", "traits", "stats", "abilities",
+            "clubs", "weapon", "traits", "markers", "abilities",
             "text", "text_format", "text_values", "desc",
             "deckbuilding", "cost", "packs",
             "art_full", "art_board",
@@ -1744,7 +1747,7 @@ namespace TcgEngine.Tools
                 { "clubs", JoinRefs(c.clubs) },
                 { "weapon", RefName(c.weapon) },
                 { "traits", JoinRefs(c.traits) },
-                { "stats", JoinTraitStats(c.stats) },
+                { "markers", JoinMarkerValues(c.markers) },
                 { "abilities", JoinRefs(c.abilities) },
                 { "text", c.text },
                 { "text_format", c.text_format },
@@ -1963,14 +1966,14 @@ namespace TcgEngine.Tools
             return string.Join(";", parts);
         }
 
-        static string JoinTraitStats(TraitStat[] stats)
+        static string JoinMarkerValues(MarkerValue[] markers)
         {
-            if (stats == null) return string.Empty;
-            var parts = new List<string>(stats.Length);
-            foreach (var s in stats)
+            if (markers == null) return string.Empty;
+            var parts = new List<string>(markers.Length);
+            foreach (var s in markers)
             {
-                if (s.trait == null) continue;
-                parts.Add(RefName(s.trait) + "=" + s.value);
+                if (s.marker == null) continue;
+                parts.Add(RefName(s.marker) + "=" + s.value);
             }
             return string.Join(";", parts);
         }

@@ -16,12 +16,12 @@ namespace TcgEngine.Replay
     // The outer snapshot/delta remains shallow JSON for transport and replay storage.
     public static class ReplayStateCodec
     {
-        public const int FormatVersion = 2;
+        public const int FormatVersion = 3; //3: Card/Player marker lists, CardTrait without value
         const int MaxCollectionCount = 1000000;
         static readonly Dictionary<Type, FieldInfo[]> fields = new Dictionary<Type, FieldInfo[]>();
         static readonly HashSet<Type> leaves = new HashSet<Type> {
             typeof(GameSettings), typeof(BossState), typeof(DeathEventContext),
-            typeof(CardTrait), typeof(CardStatus), typeof(CardClub), typeof(CardWeapon), typeof(ActionHistory)
+            typeof(CardTrait), typeof(CardMarker), typeof(CardStatus), typeof(CardClub), typeof(CardWeapon), typeof(ActionHistory)
         };
 
         sealed class References

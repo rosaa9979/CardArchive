@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: sort_teaparty_asc
   m_EditorClassIdentifier:
   descending: 0
-  trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
+  marker: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}

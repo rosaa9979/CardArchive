@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c699d916b042ace48b4681ab73837368, type: 3}
   m_Name: cycle_teaPartyHost
   m_EditorClassIdentifier: 
-  trait: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}
+  marker: {fileID: 11400000, guid: 0275bd2a3683a5743a3ae0469c31f882, type: 2}

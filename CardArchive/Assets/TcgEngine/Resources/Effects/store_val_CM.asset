@@ -17,3 +17,4 @@ MonoBehaviour:
   has_type: 0
   has_club: {fileID: 0}
   has_trait: {fileID: 11400000, guid: 91a0f1957d25d8e45b44806949d2a5c7, type: 2}
+  marker: {fileID: 11400000, guid: d7f8b1d73492450eb9b0c4d2120f4a07, type: 2}

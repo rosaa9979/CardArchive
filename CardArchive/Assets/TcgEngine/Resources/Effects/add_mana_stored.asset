@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: add_mana_stored
   m_EditorClassIdentifier: 
   type: 30
-  use_stored_value: 1
+  stored_value: {fileID: 11400000, guid: d7f8b1d73492450eb9b0c4d2120f4a07, type: 2}

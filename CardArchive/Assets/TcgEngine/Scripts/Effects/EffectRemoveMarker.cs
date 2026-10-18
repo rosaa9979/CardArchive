@@ -6,22 +6,23 @@ using TcgEngine.Gameplay;
 namespace TcgEngine
 {
     /// <summary>
-    /// Effect that removes card/player custom stats or traits
+    /// Effect that removes a card/player marker
     /// </summary>
     
-    [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/RemoveTrait", order = 10)]
-    public class EffectRemoveTrait : EffectData
+    [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/RemoveMarker", order = 10)]
+    public class EffectRemoveMarker : EffectData
     {
-        public TraitData trait;
+        [UnityEngine.Serialization.FormerlySerializedAs("trait")]
+        public MarkerData marker;
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            target.RemoveTrait(trait.id);
+            target.RemoveMarker(marker.id);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            target.RemoveTrait(trait.id);
+            target.RemoveMarker(marker.id);
         }
     }
 }

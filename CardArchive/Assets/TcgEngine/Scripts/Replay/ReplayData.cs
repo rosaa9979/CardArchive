@@ -9,7 +9,7 @@ namespace TcgEngine.Replay
     // ReplayStateCodec; relationships are IDs, never nested entities.
     [Serializable] public class ReplayState
     {
-        public int formatVersion = 2;
+        public int formatVersion = ReplayStateCodec.FormatVersion;
         public List<ReplayEntity> entities = new List<ReplayEntity>();
     }
     [Serializable] public class ReplayEntity
@@ -43,7 +43,7 @@ namespace TcgEngine.Replay
     }
     [Serializable] public class ReplayRecord
     {
-        public int formatVersion = 2;
+        public int formatVersion = ReplayStateCodec.FormatVersion;
         public string buildVersion;
         public string matchId;
         public string[] players;

@@ -56,6 +56,8 @@ namespace TcgEngine
 
         public List<CardTrait> traits = new List<CardTrait>();              //Current persistant traits the cards has
         public List<CardTrait> ongoing_traits = new List<CardTrait>();      //Current ongoing traits the cards has
+        public List<CardMarker> markers = new List<CardMarker>();           //Internal values used by rule logic
+        public List<CardMarker> ongoing_markers = new List<CardMarker>();
 
         public List<CardStatus> status = new List<CardStatus>();    //Current persistant (or with duration) traits the cards has
         public List<CardStatus> ongoing_status = new List<CardStatus>();    //Current ongoing traits the cards has
@@ -69,7 +71,7 @@ namespace TcgEngine
         public bool IsReady() { return ready && cards_all.Count > 0; }
         public bool IsConnected() { return connected || is_ai; }
 
-        public virtual void ClearOngoing() { ongoing_status.Clear(); ongoing_traits.Clear(); }
+        public virtual void ClearOngoing() { ongoing_status.Clear(); ongoing_traits.Clear(); ongoing_markers.Clear(); }
 
         //---- Cards ---------
 
@@ -332,43 +334,18 @@ namespace TcgEngine
             return valid;
         }
 
-        //------ Custom Traits/Stats ---------
+        //------ Traits (tribe, presence only) ---------
 
-        public void SetTrait(string id, int value)
+        public void AddTrait(string id)
         {
-            CardTrait trait = GetTrait(id);
-            if (trait != null)
-            {
-                trait.value = value;
-            }
-            else
-            {
-                trait = new CardTrait(id, value);
-                traits.Add(trait);
-            }
+            if (GetTrait(id) == null)
+                traits.Add(new CardTrait(id));
         }
 
-        public void AddTrait(string id, int value)
+        public void AddOngoingTrait(string id)
         {
-            CardTrait trait = GetTrait(id);
-            if (trait != null)
-                trait.value += value;
-            else
-                SetTrait(id, value);
-        }
-
-        public void AddOngoingTrait(string id, int value)
-        {
-            CardTrait trait = GetOngoingTrait(id);
-            if (trait != null)
-            {
-                trait.value += value;
-            }
-            else
-            {
-                trait = new CardTrait(id, value);
-                ongoing_traits.Add(trait);
-            }
+            if (GetOngoingTrait(id) == null)
+                ongoing_traits.Add(new CardTrait(id));
         }
 
         public void RemoveTrait(string id)
@@ -408,25 +385,6 @@ namespace TcgEngine
             return all_traits;
         }
 
-        public int GetTraitValue(TraitData trait)
-        {
-            if (trait != null)
-                return GetTraitValue(trait.id);
-            return 0;
-        }
-
-        public virtual int GetTraitValue(string id)
-        {
-            int val = 0;
-            CardTrait stat1 = GetTrait(id);
-            CardTrait stat2 = GetOngoingTrait(id);
-            if (stat1 != null)
-                val += stat1.value;
-            if (stat2 != null)
-                val += stat2.value;
-            return val;
-        }
-
         public bool HasTrait(TraitData trait)
         {
             if (trait != null)
@@ -436,12 +394,85 @@ namespace TcgEngine
 
         public bool HasTrait(string id)
         {
-            foreach (CardTrait trait in traits)
+            return GetTrait(id) != null || GetOngoingTrait(id) != null;
+        }
+
+        //------ Markers (internal values, never displayed) ---------
+
+        public void SetMarker(string id, int value)
+        {
+            CardMarker marker = GetMarker(id);
+            if (marker != null)
+                marker.value = value;
+            else
+                markers.Add(new CardMarker(id, value));
+        }
+
+        public void AddMarker(string id, int value)
+        {
+            CardMarker marker = GetMarker(id);
+            if (marker != null)
+                marker.value += value;
+            else
+                markers.Add(new CardMarker(id, value));
+        }
+
+        public void AddOngoingMarker(string id, int value)
+        {
+            CardMarker marker = GetOngoingMarker(id);
+            if (marker != null)
+                marker.value += value;
+            else
+                ongoing_markers.Add(new CardMarker(id, value));
+        }
+
+        public void RemoveMarker(string id)
+        {
+            for (int i = markers.Count - 1; i >= 0; i--)
             {
-                if (trait.id == id)
-                    return true;
+                if (markers[i].id == id)
+                    markers.RemoveAt(i);
             }
-            return false;
+        }
+
+        public CardMarker GetMarker(string id)
+        {
+            foreach (CardMarker marker in markers)
+            {
+                if (marker.id == id)
+                    return marker;
+            }
+            return null;
+        }
+
+        public CardMarker GetOngoingMarker(string id)
+        {
+            foreach (CardMarker marker in ongoing_markers)
+            {
+                if (marker.id == id)
+                    return marker;
+            }
+            return null;
+        }
+
+        //Persistent value plus ongoing contributions. Missing marker counts as 0.
+        public int GetMarkerValue(MarkerData marker)
+        {
+            if (marker == null)
+                return 0;
+            int val = 0;
+            CardMarker base_marker = GetMarker(marker.id);
+            CardMarker ongoing_marker = GetOngoingMarker(marker.id);
+            if (base_marker != null)
+                val += base_marker.value;
+            if (ongoing_marker != null)
+                val += ongoing_marker.value;
+            return val;
+        }
+
+        public bool HasMarker(MarkerData marker)
+        {
+            return marker != null && (GetMarker(marker.id) != null || GetOngoingMarker(marker.id) != null);
         }
 
         //---- Status ---------
@@ -683,6 +714,10 @@ namespace TcgEngine
 
             CardStatus.CloneList(source.status, dest.status);
             CardStatus.CloneList(source.ongoing_status, dest.ongoing_status);
+            CardTrait.CloneList(source.traits, dest.traits);
+            CardTrait.CloneList(source.ongoing_traits, dest.ongoing_traits);
+            CardMarker.CloneList(source.markers, dest.markers);
+            CardMarker.CloneList(source.ongoing_markers, dest.ongoing_markers);
         }
     }
 

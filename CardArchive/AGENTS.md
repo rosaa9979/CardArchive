@@ -284,7 +284,7 @@ Ongoing의 AllCardsAllPiles는 현재 손패·보드·장비를 순회하며 일
 | --- | --- | --- |
 | FilterData | 수량·선택 방식·수치 기준 | 후보의 일부 또는 조건에 맞는 후보를 선택한다. 대상형별 지원, 부족한 후보 수, 동률 및 무작위 판정 수명을 정의한다. |
 | SortData | `descending`, 파생 정렬 기준 | 지정 기준으로 결과를 정렬한다. descending은 정렬 방향을 제어한다. |
-| CardData | `abilities`, 기본 수치·분류·소속·무기·특성 | 능력 참조와 카드의 기본 데이터를 구성한다. 전투 중 변경값은 런타임 카드에 보관한다. |
+| CardData | `abilities`, 기본 수치·분류·소속·무기·종족(`traits`)·Marker 초기값(`markers`) | 능력 참조와 카드의 기본 데이터를 구성한다. 전투 중 변경값은 런타임 카드에 보관한다. |
 | CardData 표시 | `text`, `text_format`, `text_values`, `desc` | 카드 표면 문구·동적 치환값·상세 설명을 각각 관리한다. |
 | DescValueData | 값 원천, `mapping` | 표시할 값을 산정하고 선택적으로 정수→문자열 매핑을 적용한다. mapping은 StringMapping(value, label) 배열이다. |
 
@@ -300,7 +300,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | StatusData.GetDesc(value) | desc의 `<value>`에 전달값을 적용한다. 인자 없는 호출은 API의 기본 표시값을 사용한다. |
 | DescValueStatic | 설정된 text를 사용한다. |
 | DescValueCardStat | 설정된 기본 수치를 읽는다. 런타임은 표시용 카드의 현재 값, 정적 화면은 CardData 기본값을 사용한다. |
-| DescValueStat | 설정된 Trait 수치를 읽는다. 런타임은 표시용 카드, 정적 화면은 CardData의 해당 기본 수치를 사용한다. |
+| DescValueStat | 설정된 `marker`의 값을 읽는다. 런타임은 표시용 카드의 Marker 값, 정적 화면은 CardData.markers의 초기값을 사용한다. Marker가 플레이어에게 보이는 경로는 이 치환값과 카드 본문뿐이다. |
 | DescValueStatus | 설정된 상태 수치를 읽는다. 런타임 상태가 없는 정적 화면은 기본 상태값으로 해석한다. |
 | DescValueData.mapping | 산정값과 일치하는 label을 사용하며 매핑되지 않은 값은 수치 문자열로 표시한다. |
 
@@ -351,7 +351,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | [ConditionCardData](Assets/TcgEngine/Scripts/Conditions/ConditionCardData.cs) | `card_types: List<CardData>`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(CardData)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card.card_id 또는 CardData.id가 card_types의 id 중 하나인지 검사하고 oper를 적용한다. 빈 목록은 포함되지 않음으로 판정한다. Player/Slot은 항상 false다. |
 | [ConditionCardPile](Assets/TcgEngine/Scripts/Conditions/ConditionCardPile.cs) | `type: PileType`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card는 Club/Hand/Board/Equipped/Deck/Discard/Secret/Temp 소속 여부에 oper를 적용하며 null 및 미지원 영역은 false다. Player는 false. Slot은 type=Board이고 Slot.None이 아니면 true이며 oper와 실제 점유는 검사하지 않는다. |
 | [ConditionCardType](Assets/TcgEngine/Scripts/Conditions/ConditionCardType.cs) | `has_type: List<CardType>`; `has_club: List<ClubData>`; `has_trait: List<TraitData>`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(CardData)` | 각 분류 목록 내부는 OR, 목록 간은 AND이며 빈 목록은 제한이 없다. Card는 결과에 oper를 적용한다. Slot은 점유 카드의 Card 판정으로 전달하며 빈 타일은 false다. Player는 false. CardData는 같은 분류식을 사용하지만 현재 oper를 적용하지 않는다. |
-| [ConditionClubStatMatch](Assets/TcgEngine/Scripts/Conditions/ConditionClubStatMatch.cs) | `club: ClubData`; `trait: TraitData`; `oper: ConditionOperatorInt` | `IsTriggerConditionMet()` | caster 소유자의 cards_club에서 지정 club에 속한 첫 카드를 찾고, caster와 그 카드의 trait 값을 oper로 비교한다. club/trait 또는 일치하는 동아리 카드가 없으면 false다. |
+| [ConditionClubStatMatch](Assets/TcgEngine/Scripts/Conditions/ConditionClubStatMatch.cs) | `club: ClubData`; `marker: MarkerData`; `oper: ConditionOperatorInt` | `IsTriggerConditionMet()` | caster 소유자의 cards_club에서 지정 club에 속한 첫 카드를 찾고, caster와 그 카드의 Marker 값을 oper로 비교한다. club/marker 또는 일치하는 동아리 카드가 없으면 false다. |
 | [ConditionCompositeOr](Assets/TcgEngine/Scripts/Conditions/ConditionCompositeOr.cs) | `any: ConditionData[]` | `Evaluate(...)`<br>`IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(CardData)` | 전달된 검사 역할에 맞는 각 자식의 전체 판정을 OR로 결합한다. 발동 역할은 자식별 Trigger AND Target 결과를 사용한다. 자식의 문맥·캐시 정책을 유지한다. 빈 배열은 true, null 자식만 있으면 false다. 직접 대상 오버로드는 Target 역할로 평가기에 위임한다. |
 | [ConditionCount](Assets/TcgEngine/Scripts/Conditions/ConditionCount.cs) | `target: ConditionPlayerType`; `pile: PileType`; `oper: ConditionOperatorInt`; `value: int`; `has_type: List<CardType>`; `has_club: List<ClubData>`; `has_trait: List<TraitData>`; `has_card: List<CardData>` | `IsTriggerConditionMet()` | caster 기준 target 소유자 범위의 Hand/Board/Equipped/Deck/Discard/Secret/Temp에서 개수를 산정해 oper/value와 비교한다. 분류 목록 내부는 OR, 목록 간은 AND, 빈 목록은 제한 없음이다. 미지원 pile의 개수는 0이다. |
 | [ConditionDamaged](Assets/TcgEngine/Scripts/Conditions/ConditionDamaged.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card는 damage가 양수인지, Player는 hp가 hp_max 미만인지 검사해 oper를 적용한다. Slot은 false다. |
@@ -378,7 +378,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | [ConditionSlotRange](Assets/TcgEngine/Scripts/Conditions/ConditionSlotRange.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot은 caster.slot.GetNeighborSlot(caster.GetRange()) 포함 여부에 oper를 적용한다. |
 | [ConditionSlotUnitEmpty](Assets/TcgEngine/Scripts/Conditions/ConditionSlotUnitEmpty.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Slot은 GetSlotCard(target)가 없는지 oper로 검사한다. Card/Player는 false에 oper를 적용한다. |
 | [ConditionStat](Assets/TcgEngine/Scripts/Conditions/ConditionStat.cs) | `type: ConditionStatType`; `oper: ConditionOperatorInt`; `value: int` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)` | Card는 현재 Attack/HP/Mana, Player는 HP/Mana를 oper/value와 비교한다. 각 경로가 처리하지 않는 type은 false다. |
-| [ConditionStatCustom](Assets/TcgEngine/Scripts/Conditions/ConditionStatCustom.cs) | `trait: TraitData`; `oper: ConditionOperatorInt`; `value: int` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)` | Card/Player의 trait.id에 해당하는 수치를 oper/value와 비교한다. trait 참조는 필수이며 내부 null 검사는 없다. |
+| [ConditionStatCustom](Assets/TcgEngine/Scripts/Conditions/ConditionStatCustom.cs) | `marker: MarkerData`; `oper: ConditionOperatorInt`; `value: int` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)` | Card/Player의 Marker 값(영구값 + 지속값)을 oper/value와 비교한다. Marker가 없으면 0으로 비교하며 marker가 null이어도 0으로 비교한다. |
 | [ConditionStatus](Assets/TcgEngine/Scripts/Conditions/ConditionStatus.cs) | `has_status: StatusType`; `value: int`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card/Player는 has_status 보유와 상태값이 value 이상임을 함께 검사한 뒤 oper를 적용한다. Slot은 점유 카드로 전달하며 빈 타일은 oper와 무관하게 false다. |
 | [ConditionTarget](Assets/TcgEngine/Scripts/Conditions/ConditionTarget.cs) | `type: ConditionTargetType`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(Slot selected, Slot)` | Card/Player/Slot의 전달 형식과 type의 일치 여부에 oper를 적용한다. (Slot selected, Slot)도 Slot 형식만 검사한다. None을 무대상 검사로 처리하는 오버라이드는 없다. |
 | [ConditionTriggered](Assets/TcgEngine/Scripts/Conditions/ConditionTriggered.cs) | `is_oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | 실행 문맥의 trigger_uid로 카드를 조회하여 UID 또는 현재 위치를 비교한다. 문맥 없는 호출은 Game.ability_triggerer를 사용한다. 원인 누락은 비교 false로 처리한 뒤 is_oper를 적용한다. |
@@ -451,11 +451,11 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | --- | --- | --- | --- |
 | [EffectAddAbility](Assets/TcgEngine/Scripts/Effects/EffectAddAbility.cs) | `gain_ability: AbilityData` | `DoEffect(Card)`<br>`DoOngoingEffect(Card)` | Card에 gain_ability를 AddAbility로 부여한다. 지속 경로는 AddOngoingAbility를 사용한다. ability.value/duration은 사용하지 않는다. |
 | [EffectAddClub](Assets/TcgEngine/Scripts/Effects/EffectAddClub.cs) | `club: ClubData` | `DoEffect(Card)` | 현재 club 필드는 사용하지 않는다. target.card_id를 동아리 ID로 간주하여 logic.AddClub(caster, target.card_id)를 호출하므로 변경 대상은 caster다. 유효한 신규 가입은 지속 재계산과 OnAddClubOther를 유발한다. |
-| [EffectAddStat](Assets/TcgEngine/Scripts/Effects/EffectAddStat.cs) | `type: EffectStatType`; `use_stored_value: bool` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)` | 적용값은 ability.value에 use_stored_value가 켜진 경우 caster의 StoreValue 상태값을 더한 값이다. Card의 Attack/HP/Mana/Range를 가산하고 지속 Card는 대응 ongoing 필드를 가산한다. Player는 HP와 최대 HP, 또는 Mana와 최대 Mana를 가산한다. 플레이어 마나는 0 이상, 최대 마나는 게임 상한 안으로 보정한다. 저장 상태를 소비·제거하지 않는다. |
+| [EffectAddMarker](Assets/TcgEngine/Scripts/Effects/EffectAddMarker.cs) | `marker: MarkerData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)`<br>`DoOngoingEffect(Player)` | Card/Player의 Marker에 ability.value를 AddMarker로 가산한다. 지속 Card/Player는 AddOngoingMarker를 사용한다. marker 참조는 필수다. |
+| [EffectAddStat](Assets/TcgEngine/Scripts/Effects/EffectAddStat.cs) | `type: EffectStatType`; `stored_value: MarkerData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)` | 적용값은 ability.value에 stored_value가 지정된 경우 caster의 해당 Marker 값을 더한 값이다. Card의 Attack/HP/Mana/Range를 가산하고 지속 Card는 대응 ongoing 필드를 가산한다. Player는 HP와 최대 HP, 또는 Mana와 최대 Mana를 가산한다. 플레이어 마나는 0 이상, 최대 마나는 게임 상한 안으로 보정한다. 저장값을 소비·제거하지 않는다. |
 | [EffectAddStatCount](Assets/TcgEngine/Scripts/Effects/EffectAddStatCount.cs) | `type: EffectStatType`; `pile: PileType`; `player: EffectPlayerType`; `has_type: CardType`; `has_club: ClubData`; `has_trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)` | 적용값은 조건부 개수 × ability.value다. Card 및 지속 Card는 Attack/HP/Mana/Range 또는 대응 ongoing 필드를 가산한다. Player Mana/최대 Mana는 계산값을 가산·보정한다. 현재 Player HP는 계산값을, 최대 HP는 개수와 무관한 ability.value만 가산한다. |
 | [EffectAddStatRoll](Assets/TcgEngine/Scripts/Effects/EffectAddStatRoll.cs) | `type: EffectStatType` | `DoEffect(Player)`<br>`DoEffect(Card)` | Game.rolled_value를 Card의 Attack/HP/Mana 또는 Player의 HP/최대 HP·Mana/최대 Mana에 가산한다. 플레이어 마나 하한·최대 마나 상한을 보정한다. Range·지속 효과는 지원하지 않으며 ability.value는 사용하지 않는다. |
 | [EffectAddStatTotalCount](Assets/TcgEngine/Scripts/Effects/EffectAddStatTotalCount.cs) | `stat_type: EffectStatType`; `total_type: EffectTotalCountType` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)` | TotalHeal이면 caster 소유자의 total_heal, 그 외에는 0을 사용한다. Card의 Attack/HP/Mana/Range 및 지속 ongoing 필드에 가산한다. Player는 HP/최대 HP 또는 Mana/최대 Mana를 가산·보정한다. ability.value를 곱하지 않는다. |
-| [EffectAddTrait](Assets/TcgEngine/Scripts/Effects/EffectAddTrait.cs) | `trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)`<br>`DoOngoingEffect(Player)` | Card/Player에 trait.id와 ability.value를 AddTrait로 전달한다. 지속 Card/Player는 AddOngoingTrait를 사용한다. trait 참조는 필수다. |
 | [EffectAttachCard](Assets/TcgEngine/Scripts/Effects/EffectAttach.cs) | `attach: CardData` | `DoEffect(Slot)` | attach와 caster의 VariantData로 caster 소유 카드를 생성하고 대상 Slot에 AttachCard를 호출한다. 파일명은 EffectAttach.cs다. 실제 부착 규칙과 기존 부착물 교체는 GameLogic에 위임한다. |
 | [EffectAttack](Assets/TcgEngine/Scripts/Effects/EffectAttack.cs) | `attacker_type: EffectActionType` | `DoEffect(Player)`<br>`DoEffect(Card)` | Player는 attacker_type으로 찾은 공격자가 있을 때 AttackPlayer(attacker, target, true)를 호출한다. Card 오버라이드는 비어 있다. 공격자 조회는 Self/AbilityTriggerer/LastPlayed/LastTargeted를 지원하며 LastSelected는 null이다. LastTargeted는 Game.last_target을 사용한다. |
 | [EffectAttackRedirect](Assets/TcgEngine/Scripts/Effects/EffectAttackRedirect.cs) | `attacker_type: EffectActionType` | `DoEffect(Player)`<br>`DoEffect(Card)` | Card/Player에 대해 조회한 공격자의 RedirectAttack을 호출한다. 공격자가 없으면 무동작. 조회는 Self/AbilityTriggerer/LastPlayed/LastTargeted를 지원하며 LastSelected는 null이다. LastTargeted는 Game.last_target을 사용한다. |
@@ -466,19 +466,19 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | [EffectClearTemp](Assets/TcgEngine/Scripts/Effects/EffectClearTemp.cs) | 추가 필드 없음 | `DoEffect()`<br>`DoEffect(Card)` | 무대상과 Card 모두 caster 소유자의 cards_temp를 비운다. 전달된 Card와 ability.value는 사용하지 않는다. Discard나 사망 처리 메서드를 호출하지 않는다. |
 | [EffectConditional](Assets/TcgEngine/Scripts/Effects/EffectConditional.cs) | `condition: ConditionData`; `effects_true: EffectData[]`; `effects_false: EffectData[]` | `DoEffect(Card/Player/Slot/CardData)` 및 각 문맥 포함 오버로드<br>`GetConditionTarget(...)` | 공통 평가기의 Effect 역할로 수신자 조건을 검사하고 선택한 분기를 같은 대상과 문맥으로 실행한다. 문맥 없는 오버로드는 문맥 포함 경로에 위임한다. 조건 없음은 참 분기, 빈 분기는 무동작이다. |
 | [EffectConditionalCaster](Assets/TcgEngine/Scripts/Effects/EffectConditionalCaster.cs) | EffectConditional 필드 상속 | `GetConditionTarget(...)` | 검사 대상만 caster로 바꾸며 선택한 효과는 원래 수신자에게 적용한다. 나머지 실행·문맥 전달·분기 처리는 EffectConditional에서 상속한다. |
-| [EffectCopyStat](Assets/TcgEngine/Scripts/Effects/EffectCopyStat.cs) | `trait: TraitData`; `require_club: ClubData`; `only_if_missing: bool` | `DoEffect(Card)` | caster의 trait 값을 Card에 SetTrait한다. trait/target이 없거나 require_club에 불일치하면 무동작. only_if_missing일 때 이미 특성 객체가 있으면 값과 무관하게 건너뛴다. |
+| [EffectCopyStat](Assets/TcgEngine/Scripts/Effects/EffectCopyStat.cs) | `marker: MarkerData`; `require_club: ClubData`; `only_if_missing: bool` | `DoEffect(Card)` | caster의 Marker 값을 Card에 SetMarker한다. marker/target이 없거나 require_club에 불일치하면 무동작. only_if_missing일 때 대상에 영구 Marker 객체가 있으면 값과 무관하게 건너뛴다. |
 | [EffectCreate](Assets/TcgEngine/Scripts/Effects/EffectCreate.cs) | `create_pile: PileType`; `create_opponent: bool` | `DoEffect(CardData)`<br>`DoEffect(Card)` | 대상 정의 또는 Card의 정의로 카드 한 장을 생성한다. 변경 수치와 ability.value는 복사/수량에 사용하지 않는다. 생성·등록·목적지 배치는 CreateCardToPile에 위임한다. Deck/Discard/Hand/Temp/PlayerAbility를 지원하며 손패 초과는 Discard, 미지원 영역은 생성 전에 오류 처리한다. |
 | [EffectCreateCard](Assets/TcgEngine/Scripts/Effects/EffectCreateCard.cs) | `create_card: List<WeightedCard>`; `create_pile: PileType`; `is_same_possibility: bool`; `create_opponent: bool` | `DoEffect()` | 생성 수량은 max(1, ability.value)이며 매 생성마다 후보를 다시 추첨한다. 균등 방식은 목록 인덱스, 가중 방식은 [0,1) 난수와 weight 누적합을 사용한다. 자동 정규화 없이 미선택 시 첫 후보로 폴백하므로 유효 후보·비음수 가중값·완전한 확률 분포가 필요하다. CreateCardToPile에 생성 결과 처리를 위임한다. 지원 영역·초과 처리·등록 규칙은 EffectCreate와 같다. 빈 후보 목록은 보호하지 않는다. WeightedCard의 필드는 CardData card와 float weight다. |
-| [EffectCycleStat](Assets/TcgEngine/Scripts/Effects/EffectCycleStat.cs) | `trait: TraitData` | `DoEffect()`<br>`DoEffect(Card)` | 무대상과 Card 모두 caster의 trait를 (현재값 + 1) % ability.value로 갱신한다. 특성이 없으면 현재값을 0으로 사용한다. trait가 없거나 주기가 양수가 아니면 무동작이며 전달된 Card는 갱신하지 않는다. |
-| [EffectDamage](Assets/TcgEngine/Scripts/Effects/EffectDamage.cs) | `value_type: EffectValueType`; `bonus_damage: TraitData` | `DoEffect()`<br>`DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | 피해는 value_type으로 고른 ability.value/caster 공격력/현재 HP에 caster와 소유 Player의 bonus_damage 특성값을 더한다. Card/Player는 해당 이벤트 피해 경로로, Slot은 공통 타일 래퍼로 전달한다. 무대상은 상수 StoredSlotTrait="stored_slot"의 코드가 양수일 때 위치를 복원하여 같은 Slot 경로를 호출한다. 저장 코드가 없거나 위치가 무효면 무동작이다. 빈 실내도 Player에게 적용하며 저장값 소비는 별도 연결 효과의 책임이다. |
-| [EffectDamageCount](Assets/TcgEngine/Scripts/Effects/EffectDamageCount.cs) | `bonus_damage: TraitData`; `pile: PileType`; `player: EffectPlayerType`; `has_type: CardType`; `has_club: ClubData`; `has_trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | 조건부 개수 × ability.value에 caster와 소유 Player의 bonus_damage 특성값을 더한다. Card/Player는 각각 이벤트 피해 경로, Slot은 산정한 값을 공통 타일 래퍼로 전달한다. |
-| [EffectDamageRatio](Assets/TcgEngine/Scripts/Effects/EffectDamageRatio.cs) | `bonus_damage: TraitData`; `ratio: float` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | Card는 floor(현재 HP × ratio)를 DamageCard_Event로, Player는 floor(hp × ratio)를 DamagePlayer_Event로 전달한다. 두 경로 모두 NumericCause.Ability이며 공격으로 분류하지 않는다. Slot은 공통 타일 래퍼를 사용해 각 Card/Player의 현재 HP로 각각 계산한다. bonus_damage 및 ability.value는 사용하지 않는다. |
+| [EffectCycleStat](Assets/TcgEngine/Scripts/Effects/EffectCycleStat.cs) | `marker: MarkerData` | `DoEffect()`<br>`DoEffect(Card)` | 무대상과 Card 모두 caster의 영구 Marker를 (현재값 + 1) % ability.value로 갱신한다. Marker가 없으면 현재값을 0으로 사용한다. marker가 없거나 주기가 양수가 아니면 무동작이며 전달된 Card는 갱신하지 않는다. |
+| [EffectDamage](Assets/TcgEngine/Scripts/Effects/EffectDamage.cs) | `value_type: EffectValueType`; `bonus_damage: MarkerData`; `stored_slot: MarkerData` | `DoEffect()`<br>`DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | 피해는 value_type으로 고른 ability.value/caster 공격력/현재 HP에 caster와 소유 Player의 bonus_damage Marker 값을 더한다. Card/Player는 해당 이벤트 피해 경로로, Slot은 공통 타일 래퍼로 전달한다. 무대상은 caster의 stored_slot Marker 값이 양수일 때 Slot.FromMarkerCode로 위치를 복원하여 같은 Slot 경로를 호출한다. stored_slot 미지정·저장 코드 없음·무효 위치는 무동작이다. 빈 실내도 Player에게 적용하며 저장값 소비는 별도 연결 효과의 책임이다. |
+| [EffectDamageCount](Assets/TcgEngine/Scripts/Effects/EffectDamageCount.cs) | `bonus_damage: MarkerData`; `pile: PileType`; `player: EffectPlayerType`; `has_type: CardType`; `has_club: ClubData`; `has_trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | 조건부 개수 × ability.value에 caster와 소유 Player의 bonus_damage Marker 값을 더한다. Card/Player는 각각 이벤트 피해 경로, Slot은 산정한 값을 공통 타일 래퍼로 전달한다. |
+| [EffectDamageRatio](Assets/TcgEngine/Scripts/Effects/EffectDamageRatio.cs) | `bonus_damage: MarkerData`; `ratio: float` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | Card는 floor(현재 HP × ratio)를 DamageCard_Event로, Player는 floor(hp × ratio)를 DamagePlayer_Event로 전달한다. 두 경로 모두 NumericCause.Ability이며 공격으로 분류하지 않는다. Slot은 공통 타일 래퍼를 사용해 각 Card/Player의 현재 HP로 각각 계산한다. bonus_damage 및 ability.value는 사용하지 않는다. |
 | [EffectDestroy](Assets/TcgEngine/Scripts/Effects/EffectDestroy.cs) | 추가 필드 없음 | `DoEffect(Card)`<br>`DoEffect(Slot)` | 보드 Card는 KillCard로 사망 대기 처리하고 다른 영역은 DiscardCard로 보낸다. Slot은 점유 카드가 있을 때 Card 경로로 전달한다. 빈 타일은 무동작이다. |
 | [EffectDestroyEquip](Assets/TcgEngine/Scripts/Effects/EffectDestroyEquip.cs) | 추가 필드 없음 | `DoEffect(Card)` | 대상이 장비면 그 카드를, 아니면 equipped_uid로 조회한 장비를 DiscardCard에 전달한다. 조회 실패 처리는 DiscardCard의 null 보호를 따른다. |
 | [EffectDiscard](Assets/TcgEngine/Scripts/Effects/EffectDiscard.cs) | 추가 필드 없음 | `DoEffect(Player)`<br>`DoEffect(Card)` | Card는 DiscardCard로 처리한다. Player는 DrawDiscardCard(target, ability.value)를 호출하여 덱 선두에서 버림 영역으로 옮긴다. 손패 버리기와 구분하며 덱이 비면 남은 수량은 처리하지 않는다. |
 | [EffectDraw](Assets/TcgEngine/Scripts/Effects/EffectDraw.cs) | 추가 필드 없음 | `DoEffect(Player)`<br>`DoEffect(Card)` | Player 또는 Card의 소유자에게 ability.value를 수량으로 DrawCard를 호출한다. 드로우·손패 용량·덱 소진 규칙은 GameLogic에 위임한다. |
 | [EffectExhaust](Assets/TcgEngine/Scripts/Effects/EffectExhaust.cs) | `exhausted: bool` | `DoEffect(Card)` | Card.exhausted를 설정값 exhausted로 대입한다. |
-| [EffectHeal](Assets/TcgEngine/Scripts/Effects/EffectHeal.cs) | `heal_type: EffectValueType`; `bonus_heal: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | heal_type으로 고른 ability.value/caster 공격력/현재 HP에 caster와 소유 Player의 bonus_heal 특성값을 더한다. Card/Player에 HealCard/HealPlayer를 호출한다. Slot은 계산한 기본 회복량을 공통 타일 래퍼로 전달한다. 점유 카드와 실내 진영 Player는 각자의 수치 보정과 회복 제한을 적용한다. 요청 회복량과 실제 회복량·이벤트는 GameLogic의 회복 규칙을 따른다. |
+| [EffectHeal](Assets/TcgEngine/Scripts/Effects/EffectHeal.cs) | `heal_type: EffectValueType`; `bonus_heal: MarkerData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)` | heal_type으로 고른 ability.value/caster 공격력/현재 HP에 caster와 소유 Player의 bonus_heal Marker 값을 더한다. Card/Player에 HealCard/HealPlayer를 호출한다. Slot은 계산한 기본 회복량을 공통 타일 래퍼로 전달한다. 점유 카드와 실내 진영 Player는 각자의 수치 보정과 회복 제한을 적용한다. 요청 회복량과 실제 회복량·이벤트는 GameLogic의 회복 규칙을 따른다. |
 | [EffectKnockback](Assets/TcgEngine/Scripts/Effects/EffectKnockback.cs) | 추가 필드 없음 | `DoEffect(Card)` | caster와 target이 존재하고 ability.value가 양수일 때 caster→target 방향으로 최대 해당 칸 수만큼 빈 타일을 탐색한다. 현재 축 조건은 vy=0 또는 vx=0 또는 vx=vy이며 동일 위치는 제외한다. 각 경유 후보를 CanMoveCard(..., true)로 검사하여 최초 불허 위치 앞에서 멈추고 최종 후보가 같은 검사를 통과하면 MoveCard(..., true)한다. |
 | [EffectMana](Assets/TcgEngine/Scripts/Effects/EffectMana.cs) | 추가 필드 없음 | `DoEffect(Player)` | Player.mana에 ability.value를 가산하고 0 이상으로 보정한다. 최대 마나는 변경하지 않으며 현재 마나의 상한도 보정하지 않는다. |
 | [EffectMovePileTopToBottom](Assets/TcgEngine/Scripts/Effects/EffectMovePileTopToBottom.cs) | `pile: PileType` | `DoEffect()`<br>`DoEffect(Card)` | 무대상과 Card 모두 caster 소유자의 Deck/Discard/Hand 선두 카드를 끝으로 옮긴다. 미지원 pile 또는 항목 수가 순환에 부족하면 무동작이다. 전달 Card와 ability.value는 사용하지 않는다. |
@@ -486,15 +486,15 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | [EffectPlay](Assets/TcgEngine/Scripts/Effects/EffectPlay.cs) | 추가 필드 없음 | `DoEffect(Card)` | caster 소유자의 임의 빈 Slot을 고른 뒤 대상 Card를 그 플레이어의 그룹에서 제거하고 손패에 추가한다. 빈 Slot이 있으면 PlayCard(..., true)를 호출한다. 빈 Slot이 없으면 손패에 남는다. 소유자 변경과 손패 용량 검사를 이 클래스에서 하지 않는다. |
 | [EffectPlayCard](Assets/TcgEngine/Scripts/Effects/EffectPlayCard.cs) | `play_card: CardData` | `DoEffect(Slot)` | play_card를 caster 소유로 생성해 손패에 추가한 뒤 Slot이 None이 아니면 PlayCard(..., true)를 호출한다. None이면 생성된 카드가 손패에 남는다. 이 클래스의 손패 추가에는 용량 검사가 없다. |
 | [EffectRemoveAbility](Assets/TcgEngine/Scripts/Effects/EffectRemoveAbility.cs) | `remove_ability: AbilityData` | `DoEffect(Card)` | Card에서 remove_ability를 RemoveAbility로 제거한다. 지속 제거 경로는 없다. |
-| [EffectRemoveTrait](Assets/TcgEngine/Scripts/Effects/EffectRemoveTrait.cs) | `trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)` | Card/Player에서 trait.id를 RemoveTrait로 제거한다. trait 참조는 필수이며 지속 제거 경로는 없다. |
+| [EffectRemoveMarker](Assets/TcgEngine/Scripts/Effects/EffectRemoveMarker.cs) | `marker: MarkerData` | `DoEffect(Player)`<br>`DoEffect(Card)` | Card/Player에서 영구 Marker를 RemoveMarker로 제거한다. marker 참조는 필수이며 지속 제거 경로는 없다. |
 | [EffectResetStat](Assets/TcgEngine/Scripts/Effects/EffectResetStat.cs) | 추가 필드 없음 | `DoEffect(Card)` | Card.SetCard(target.CardData, target.VariantData)를 호출해 같은 정의로 재설정한다. 특정 수치만 복구하는 효과가 아니며 재설정 범위는 SetCard를 따른다. |
 | [EffectRoll](Assets/TcgEngine/Scripts/Effects/EffectRoll.cs) | `dice: int` | `DoEffect(Card)`<br>`DoEffect(Player)`<br>`DoEffect(Slot)` | Card/Player/Slot 대상 자체를 사용하지 않고 RollRandomValue(dice)를 호출한다. [1, dice]의 정수 결과를 Game.rolled_value에 저장하고 굴림 이벤트와 큐 지연을 발생시킨다. 다중 수신자면 호출마다 다시 굴린다. dice는 양수로 설정한다. |
 | [EffectSendPile](Assets/TcgEngine/Scripts/Effects/EffectSendPile.cs) | `pile: PileType`; `insert: DeckInsert` | `DoEffect(Card)`<br>`DoEffect(Slot)` | Card를 현재 소유자의 Deck/Hand/Discard/Temp/PlayerAbility로 옮기고 Clear한다. Deck은 insert에 따라 선두/끝, Hand 초과는 Discard와 onCardDissolved, PlayerAbility는 play_order 부여를 수행한다. 미지원 pile은 무동작. Slot은 점유 카드가 있을 때 Card 경로로 전달한다. |
 | [EffectSetClubCardUI](Assets/TcgEngine/Scripts/Effects/EffectSetClubCardUI.cs) | 추가 필드 없음 | `DoOngoingEffect(Card)` | 지속 Card 경로만 있다. caster의 첫 동아리를 기준으로 caster 소유 보드의 같은 동아리 카드 수를 target.mana_ongoing에 더한다. ability.value는 사용하지 않는다. 첫 동아리 항목이 있어야 하며 빈 동아리 목록은 보호하지 않는다. |
 | [EffectSetStat](Assets/TcgEngine/Scripts/Effects/EffectSetStat.cs) | `type: EffectStatType` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoOngoingEffect(Card)` | 일반 Card의 Attack/HP/Mana를 ability.value로 대입하며 HP 설정은 damage도 초기화한다. Player는 HP 또는 Mana를 대입하고 Mana 하한만 보정한다. 지속 Card는 ongoing 필드가 아닌 기본 attack/hp/mana를 직접 대입하며 damage를 초기화하지 않는다. Range는 모든 경로에서 처리하지 않는다. |
-| [EffectSetStatCustom](Assets/TcgEngine/Scripts/Effects/EffectSetStatCustom.cs) | `trait: TraitData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)`<br>`DoOngoingEffect(Player)`<br>`DoOngoingEffect(Card)` | 일반·지속 Card/Player 모두 trait.id를 ability.value로 SetTrait한다. 지속 전용 저장소를 사용하지 않는다. Slot은 trait가 있을 때 대상 위치의 ToTraitCode를 caster의 trait에 저장하며 ability.value를 사용하지 않는다. Card/Player의 trait null 보호는 없다. |
+| [EffectSetStatCustom](Assets/TcgEngine/Scripts/Effects/EffectSetStatCustom.cs) | `marker: MarkerData` | `DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)`<br>`DoOngoingEffect(Player)`<br>`DoOngoingEffect(Card)` | 일반·지속 Card/Player 모두 영구 Marker를 ability.value로 SetMarker한다. 지속 전용 저장소를 사용하지 않는다. Slot은 marker가 있을 때 대상 위치의 Slot.ToMarkerCode를 caster의 Marker에 저장하며 ability.value를 사용하지 않는다. Card/Player의 marker null 보호는 없다. |
 | [EffectShuffle](Assets/TcgEngine/Scripts/Effects/EffectShuffle.cs) | 추가 필드 없음 | `DoEffect(Player)` | Player.cards_deck를 ShuffleDeck으로 섞는다. |
-| [EffectStoreCount](Assets/TcgEngine/Scripts/Effects/EffectStoreCount.cs) | `pile: PileType`; `player: EffectPlayerType`; `has_type: CardType`; `has_club: ClubData`; `has_trait: TraitData` | `DoEffect()`<br>`DoEffect(Card)` | 조건부 개수를 무대상에서는 caster, Card에서는 target의 영구 StoreValue 상태로 AddStatus한다. ability.value/duration은 사용하지 않는다. 기존 상태와의 병합은 AddStatus의 규칙을 따른다. |
+| [EffectStoreCount](Assets/TcgEngine/Scripts/Effects/EffectStoreCount.cs) | `pile: PileType`; `player: EffectPlayerType`; `has_type: CardType`; `has_club: ClubData`; `has_trait: TraitData`; `marker: MarkerData` | `DoEffect()`<br>`DoEffect(Card)` | 조건부 개수를 무대상에서는 caster, Card에서는 target의 영구 Marker에 AddMarker로 누적한다. marker가 없으면 무동작이다. ability.value/duration은 사용하지 않는다. |
 | [EffectSummonSlot](Assets/TcgEngine/Scripts/Effects/EffectSummonSlot.cs) | `position: SlotXY`; `direction: SlotXY` | `DoEffect(Card)` | Card 소유자의 진영에 position을 적용하고 CanPlayCard(..., true)를 검사한다. 실패 시 direction이 있으면 유효 좌표와 내부 탐색 상한 안에서 대체 위치를 찾는다. 가능한 위치에서만 PlayCard(..., true)한다. target=null 또는 가능한 위치가 없으면 무동작이다. |
 | [EffectTransform](Assets/TcgEngine/Scripts/Effects/EffectTransform.cs) | `transform_to: CardData` | `DoEffect(Card)` | Card를 transform_to 정의로 TransformCard한다. 기존 VariantData를 유지하며 재설정과 변신 이벤트는 GameLogic에 위임한다. |
 | [EffectUseCard](Assets/TcgEngine/Scripts/Effects/EffectUseCard.cs) | `use: CardData`; `use_opponent: bool` | `DoEffect()`<br>`DoEffect(Player)`<br>`DoEffect(Card)`<br>`DoEffect(Slot)`<br>`DoEffect(CardData)` | 무대상은 caster 기준 소유자와 Slot.None으로 use를 SummonCard한다. Card/Slot은 대상 위치에 use를 SummonCard한다. Player는 해당 플레이어 기준 소유자에게 use를 SummonCardHand한다. CardData는 caster 기준 소유자에게 전달된 정의를 SummonCardHand하며 use 필드는 무시한다. 각 경로의 기준 소유자에 use_opponent를 적용한다. |
@@ -503,7 +503,7 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | --- | --- |
 | EffectValueType | Value=0: 설정값. Attack=1: 시전자 공격력. Health=2: 시전자 현재 HP. |
 | DeckInsert | Bottom=0, Top=1. 덱 삽입 위치. |
-| StatusType | 전투·행동·수치 상태의 분류. Data/StatusData.cs의 값과 해당 상태의 소비·만료 경로를 기준으로 한다. |
+| StatusType | 전투·행동·수치 상태의 분류. Data/StatusData.cs의 값과 해당 상태의 소비·만료 경로를 기준으로 한다. 7은 이전 StoreValue의 직렬화 값으로 예약하며 재사용하지 않는다. |
 | EffectStatType | None=0, Attack=10, HP=20, Mana=30, Range=40. 변경할 기본 수치. |
 | EffectPlayerType | All=0, Player=10, Opponent=20. 개수 산정의 소유자 범위. |
 | EffectActionType | Self=1, AbilityTriggerer=25, LastPlayed=70, LastTargeted=72, LastSelected=74. 행동할 카드의 조회 원천. |
@@ -546,16 +546,31 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 - 선택 위치와 적용 수신자를 데이터에서 구분한다. `effect_target=Unit`이면 같은 슬롯을 선택해도 점유 유닛의 Card 오버로드만 호출한다. `effect_target=Slot`일 때만 Slot 오버로드와 해당 효과의 타일 래퍼를 사용한다. 기준 조건은 선택할 슬롯의 점유·소유·종류·위치를 제한하며 대상형을 변환하지 않는다.
 - 빈 실내·점유 실내·실외·중립·무효 위치, 여러 실내 타일의 같은 선생님 적용, 범위 중복, 유닛 직접 지정, 수치 전환, 반복 및 사망 순서를 검증한다.
 
-#### 6.3.5 상태·특성 데이터와 검증
+#### 6.3.5 종족·상태·마커 데이터와 검증
+
+카드와 플레이어에 붙는 부가 정보는 Trait·Status·Marker 세 데이터형으로 나눈다. 판단 기준은 그 정보가 무엇인지다. 카드가 무엇인지를 나타내는 분류면 Trait, 규칙을 바꾸는 키워드·상태이상이면 Status, 계산·분기에 쓰는 내부 값이면 Marker다.
 
 | 데이터 종류 | 주요 필드 | 데이터 규격 및 적용 규칙 |
 | --- | --- | --- |
-| StatusData | `effect`, `title/icon/desc/status_fx`, `bad_status`, `hvalue` | 상태 종류, 표시 정보, 상태 분류 및 AI 평가값을 정의한다. 상태 수치와 수명은 부여 경로에서 전달한다. |
-| TraitData / TraitStat | `id/title/icon`, `trait/value` | 특성 정의와 커스텀 정수값을 구성한다. 실제 규칙 적용은 이를 소비하는 조건·효과·전투 코드가 담당한다. |
+| TraitData | `id/title/icon` | 종족 분류 태그(예: machine). 값이 없고 보유 여부만 의미가 있다. CardData.traits가 부여하며 런타임 CardTrait도 id만 갖는다. 화면에 태그로 표시한다. |
+| StatusData | `effect`, `title/icon/desc/status_fx`, `bad_status`, `hvalue` | 규칙을 바꾸는 키워드·상태이상. 상태 종류, 표시 정보, 상태 분류 및 AI 평가값을 정의한다. 상태 수치와 수명은 부여 경로에서 전달한다. GameLogic은 StatusType으로 읽는다. |
+| MarkerData / MarkerValue | `id/title/desc`, `marker/value` | 계산·분기용 내부 정수값(보너스 수치, 카운터, 저장 좌표·저장값, 분기 표식). CardData.markers가 초기값을 정의하고 런타임은 Card/Player의 `markers`·`ongoing_markers`에 보관한다. title·desc는 에디터용이며 태그로 표시하지 않는다. |
 
+| 판단 | Trait | Status | Marker |
+| --- | --- | --- | --- |
+| 값 | 없음 | 수치·기간 | 정수 (없으면 0) |
+| 플레이어 노출 | 태그로 표시 | 상태로 표시 | 카드 본문 또는 DescValueStat 치환값으로만 노출 |
+| 해제·만료·침묵·EffectClearStatus | 영향 없음 | 영향 받음 | 영향 없음 (침묵은 지속 기여만 제거) |
+| 소비자 | `has_trait` 조건·개수 산정 | GameLogic의 StatusType 분기, ConditionStatus | ConditionStatCustom·ConditionClubStatMatch·SortMarker·DescValueStat 및 Marker 필드를 가진 효과 |
+
+- 새 정보는 위 기준으로 하나의 데이터형만 사용한다. 같은 id를 TraitData와 MarkerData에 동시에 두지 않는다.
+- 코드는 Trait·Marker를 문자열 상수로 조회하지 않는다. 효과·조건은 직렬화된 TraitData/MarkerData 참조를 사용하고, GameLogic이 규칙 분기에 쓰는 값은 StatusType으로 표현한다.
+- `has_trait` 계열 필드(ConditionCardType·ConditionCount·FilterRandomCount·RepeatCountType·AddStatCount·DamageCount·StoreCount)는 TraitData만 받으며 Marker를 종족으로 세지 않는다.
+- Marker 값은 영구값과 지속값의 합이다. Set/Add/Remove는 영구값을, 지속 효과는 ongoing 값을 변경하며 지속값은 재계산마다 초기화한다. 카드가 영역 초기화(Card.Clear)를 거치면 CardData.markers의 초기값으로 되돌아간다.
+- 슬롯 좌표를 Marker에 저장할 때는 Slot.ToMarkerCode/FromMarkerCode를 사용한다. 0은 저장값 없음이다.
 - AbilityData.status는 효과 배열 실행 후 동일한 수신자 계약으로 적용한다. 일반 부여는 value·duration을, 지속 부여는 ongoing 상태 경로를 사용한다.
 - 상태 기간은 상태 수명 규칙을 따른다. 현재 상태 모델의 영구값은 0이며 영구 상태는 기간 감소 없이 유지한다. 유한 기간의 감소 경계와 중복 부여 시 병합 규칙을 확인한다.
-- Trait의 정수값은 해당 소비자가 정의한 의미로 해석한다. 표시용 치환은 6.1.6을 따르고, 규칙 상태를 표시 문자열에서 역산하지 않는다.
+- Marker 정수값의 의미는 해당 소비자와 MarkerData.desc가 정의한다. 표시용 치환은 6.1.6을 따르고, 규칙 상태를 표시 문자열에서 역산하지 않는다.
 - 지원 대상형별 결과, 카드/타일의 중복 전달, 효과 배열 순서, 분기·반복·연결 능력의 조합, 지속 재계산, 사망·이동·제거 후의 유효성을 검증한다.
 
 ### 6.4 데이터 컨테이너와 수치 보정 규격
@@ -816,7 +831,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 | 묘지 / 버림 영역 | `PileType.Discard`, `cards_discard`. 버려지거나 사망 처리를 마친 카드가 이동하는 영역. 이 영역으로 이동한 모든 경우가 사망은 아니다. |
 | 임시 영역 | 선택·생성·사용 준비를 위한 처리 영역. `cards_temp`와 사용 전 선택 대기의 `cards_board_temp`는 목적이 다르며 정상 손패나 보드로 간주하지 않는다. |
 | 무기 / Front·Middle·Back·None | `WeaponData`와 `WeaponType.FRONT/MIDDLE/BACK/NONE`. 무기 종류·기본 사거리·공격 대상 규칙을 담는다. 타입 이름만으로 카드의 현재 사거리를 고정하지 않는다. |
-| 특성 / 상태 | 특성은 `TraitData`와 카드/플레이어의 특성값, 상태는 `StatusData`/`StatusType`의 수치·기간을 갖는 적용 항목이다. 동아리 소속, 상태, 특성을 서로 대체해서 해석하지 않는다. |
+| 종족 특성 / 상태 / 마커 | 종족 특성은 `TraitData`로 정의하는 값 없는 분류 태그, 상태는 `StatusData`/`StatusType`의 수치·기간을 갖는 키워드·상태이상, 마커는 `MarkerData`로 정의하는 계산·분기용 내부 값이다. 판단 기준은 6.3.5를 따른다. 동아리 소속, 종족 특성, 상태, 마커를 서로 대체해서 해석하지 않는다. |
 
 ### 8.4 행동·발동·진행
 
@@ -860,7 +875,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 | 관통 / 흡혈 | `Trample` / `LifeSteal`. 각각 초과 피해를 상대 선생님에게 전달하는 처리, 피해에 연결해 자기 선생님을 회복하는 처리다. 별도의 수치 원인으로 공통 수치 경로를 통과한다. |
 | 중독 / 수면 | `Poisoned` / `Sleep`. 각각 턴 시작 피해에 사용하는 상태, 턴 시작의 소진 해제를 막는 상태다. |
 | 공격력 증가 / 체력 증가 / 비용 변경 | `AddAttack` / `AddHP` / `AddManaCost`. 상태로 부여한 값과 Effect가 기본 수치를 변경하는 경우를 구분한다. |
-| 저장값 | `StatusType.StoreValue`. 후속 능력이 참조할 값을 보관하는 상태다. 체력·공격력·청휘석 자체로 해석하지 않는다. |
+| 저장값 | `MarkerData` `stored_value`. EffectStoreCount가 누적하고 EffectAddStat.stored_value가 더해 사용하는 내부 값이다. 체력·공격력·청휘석 자체로 해석하지 않는다. 이전 `StatusType.StoreValue`는 사용하지 않는다. |
 
 키워드 이름만으로 카드별 수치·기간·선택 범위를 보충하지 않는다. 카드 설명의 값, 상태 데이터와 실제 소비 경로를 대조한다. 영문 상태 식별자를 번역한 설명과 현재 카드에 표시하는 고유 명칭을 혼동하지 않는다.
 

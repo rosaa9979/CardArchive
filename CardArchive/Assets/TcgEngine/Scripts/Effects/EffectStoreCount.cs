@@ -6,7 +6,7 @@ using TcgEngine.Gameplay;
 namespace TcgEngine
 {
     /// <summary>
-    /// Effect that damages a card or a player (lose hp)
+    /// Effect that adds a conditional card count to a marker (accumulates)
     /// </summary>
 
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/StoreCount", order = 10)]
@@ -22,19 +22,23 @@ namespace TcgEngine
         public ClubData has_club;
         public TraitData has_trait;
 
+        [Header("Store into")]
+        public MarkerData marker;
+
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
             int val = GetCount(logic.GetGameData(), caster);
 
-            caster.AddStatus(StatusType.StoreValue, val, 0);
-            Debug.Log(val);
+            if (marker != null)
+                caster.AddMarker(marker.id, val);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             int val = GetCount(logic.GetGameData(), caster);
 
-            target.AddStatus(StatusType.StoreValue, val, 0);
+            if (marker != null)
+                target.AddMarker(marker.id, val);
         }
 
         private int GetCount(Game data, Card caster)

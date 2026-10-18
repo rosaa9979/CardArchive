@@ -14,7 +14,7 @@ namespace TcgEngine
     public class EffectHeal : EffectData
     {
         public EffectValueType heal_type;
-        public TraitData bonus_heal;
+        public MarkerData bonus_heal;
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             int heal = GetHeal(logic.GameData, caster, ability.value);
@@ -43,7 +43,7 @@ namespace TcgEngine
                 value = caster.GetHP();
                 
             Player player = data.GetPlayer(caster.player_id);
-            int heal = value + caster.GetTraitValue(bonus_heal) + player.GetTraitValue(bonus_heal);
+            int heal = value + caster.GetMarkerValue(bonus_heal) + player.GetMarkerValue(bonus_heal);
             return heal;
         }
     }

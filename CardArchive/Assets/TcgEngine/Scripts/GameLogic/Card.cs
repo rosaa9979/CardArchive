@@ -48,6 +48,9 @@ namespace TcgEngine
         public List<CardTrait> traits = new List<CardTrait>();
         public List<CardTrait> ongoing_traits = new List<CardTrait>();
 
+        public List<CardMarker> markers = new List<CardMarker>();
+        public List<CardMarker> ongoing_markers = new List<CardMarker>();
+
         public List<CardClub> clubs = new List<CardClub>();
         public List<CardClub> ongoing_clubs = new List<CardClub>();
 
@@ -77,7 +80,7 @@ namespace TcgEngine
         [System.NonSerialized] private int hpmax_snapshot;
 
         public virtual void Refresh() { exhausted = false; }
-        public virtual void ClearOngoing() { hpmax_snapshot = GetHPMax(); ongoing_status.Clear(); ongoing_traits.Clear(); ClearOngoingAbility(); attack_ongoing = 0; hp_ongoing = 0; mana_ongoing = 0; }
+        public virtual void ClearOngoing() { hpmax_snapshot = GetHPMax(); ongoing_status.Clear(); ongoing_traits.Clear(); ongoing_markers.Clear(); ClearOngoingAbility(); attack_ongoing = 0; hp_ongoing = 0; mana_ongoing = 0; }
 
         public virtual void ForgiveDamageOnHPMaxLoss()
         {
@@ -114,6 +117,7 @@ namespace TcgEngine
             SetWeapon(icard.weapon.GetWeaponID());
 
             SetTraits(icard);
+            SetMarkers(icard);
             SetClubs(icard);
             SetAbilities(icard);
         }
@@ -133,11 +137,16 @@ namespace TcgEngine
         {
             traits.Clear();
             foreach (TraitData trait in icard.traits)
-                SetTrait(trait.id, 0);
-            if (icard.stats != null)
+                AddTrait(trait.id);
+        }
+
+        public void SetMarkers(CardData icard)
+        {
+            markers.Clear();
+            if (icard.markers != null)
             {
-                foreach (TraitStat stat in icard.stats)
-                    SetTrait(stat.trait.id, stat.value);
+                foreach (MarkerValue entry in icard.markers)
+                    SetMarker(entry.marker.id, entry.value);
             }
         }
 
@@ -158,43 +167,18 @@ namespace TcgEngine
                 AddAbility(ability);
         }
         
-        //------ Custom Traits/Stats ---------
+        //------ Traits (tribe, presence only) ---------
 
-        public void SetTrait(string id, int value)
+        public void AddTrait(string id)
         {
-            CardTrait trait = GetTrait(id);
-            if (trait != null)
-            {
-                trait.value = value;
-            }
-            else
-            {
-                trait = new CardTrait(id, value);
-                traits.Add(trait);
-            }
+            if (GetTrait(id) == null)
+                traits.Add(new CardTrait(id));
         }
 
-        public void AddTrait(string id, int value)
+        public void AddOngoingTrait(string id)
         {
-            CardTrait trait = GetTrait(id);
-            if (trait != null)
-                trait.value += value;
-            else
-                SetTrait(id, value);
-        }
-
-        public void AddOngoingTrait(string id, int value)
-        {
-            CardTrait trait = GetOngoingTrait(id);
-            if (trait != null)
-            {
-                trait.value += value;
-            }
-            else
-            {
-                trait = new CardTrait(id, value);
-                ongoing_traits.Add(trait);
-            }
+            if (GetOngoingTrait(id) == null)
+                ongoing_traits.Add(new CardTrait(id));
         }
 
         public void RemoveTrait(string id)
@@ -226,25 +210,6 @@ namespace TcgEngine
             return null;
         }
 
-        public int GetTraitValue(TraitData trait)
-        {
-            if (trait != null)
-                return GetTraitValue(trait.id);
-            return 0;
-        }
-
-        public virtual int GetTraitValue(string id)
-        {
-            int val = 0;
-            CardTrait stat1 = GetTrait(id);
-            CardTrait stat2 = GetOngoingTrait(id);
-            if (stat1 != null)
-                val += stat1.value;
-            if (stat2 != null)
-                val += stat2.value;
-            return val;
-        }
-
         public bool HasTrait(TraitData trait)
         {
             if (trait != null)
@@ -264,7 +229,85 @@ namespace TcgEngine
             all_traits.AddRange(ongoing_traits);
             return all_traits;
         }
-        
+
+        //------ Markers (internal values, never displayed) ---------
+
+        public void SetMarker(string id, int value)
+        {
+            CardMarker marker = GetMarker(id);
+            if (marker != null)
+                marker.value = value;
+            else
+                markers.Add(new CardMarker(id, value));
+        }
+
+        public void AddMarker(string id, int value)
+        {
+            CardMarker marker = GetMarker(id);
+            if (marker != null)
+                marker.value += value;
+            else
+                markers.Add(new CardMarker(id, value));
+        }
+
+        public void AddOngoingMarker(string id, int value)
+        {
+            CardMarker marker = GetOngoingMarker(id);
+            if (marker != null)
+                marker.value += value;
+            else
+                ongoing_markers.Add(new CardMarker(id, value));
+        }
+
+        public void RemoveMarker(string id)
+        {
+            for (int i = markers.Count - 1; i >= 0; i--)
+            {
+                if (markers[i].id == id)
+                    markers.RemoveAt(i);
+            }
+        }
+
+        public CardMarker GetMarker(string id)
+        {
+            foreach (CardMarker marker in markers)
+            {
+                if (marker.id == id)
+                    return marker;
+            }
+            return null;
+        }
+
+        public CardMarker GetOngoingMarker(string id)
+        {
+            foreach (CardMarker marker in ongoing_markers)
+            {
+                if (marker.id == id)
+                    return marker;
+            }
+            return null;
+        }
+
+        //Persistent value plus ongoing contributions. Missing marker counts as 0.
+        public int GetMarkerValue(MarkerData marker)
+        {
+            if (marker == null)
+                return 0;
+            int val = 0;
+            CardMarker base_marker = GetMarker(marker.id);
+            CardMarker ongoing_marker = GetOngoingMarker(marker.id);
+            if (base_marker != null)
+                val += base_marker.value;
+            if (ongoing_marker != null)
+                val += ongoing_marker.value;
+            return val;
+        }
+
+        public bool HasMarker(MarkerData marker)
+        {
+            return marker != null && (GetMarker(marker.id) != null || GetOngoingMarker(marker.id) != null);
+        }
+
         public void SetClub(string id)
         {
             CardClub club = GetClub(id);
@@ -322,17 +365,6 @@ namespace TcgEngine
             return all_clubs;
         }
         
-        //Alternate names since traits/stats are stored in same var
-        public void SetStat(string id, int value) => SetTrait(id, value);
-        public void AddStat(string id, int value) => AddTrait(id, value);
-        public void AddOngoingStat(string id, int value) => AddOngoingTrait(id, value);
-        public void RemoveStat(string id) => RemoveTrait(id);
-        public int GetStatValue(TraitData trait) => GetTraitValue(trait);
-        public int GetStatValue(string id) => GetTraitValue(id);
-        public bool HasStat(TraitData trait) => HasTrait(trait);
-        public bool HasStat(string id) => HasTrait(id);
-        public List<CardTrait> GetAllStats() => GetAllTraits();
-
         //------  Status Effects ---------
 
         public void AddStatus(StatusData status, int value, int duration)
@@ -738,6 +770,8 @@ namespace TcgEngine
 
             CardTrait.CloneList(source.traits, dest.traits);
             CardTrait.CloneList(source.ongoing_traits, dest.ongoing_traits);
+            CardMarker.CloneList(source.markers, dest.markers);
+            CardMarker.CloneList(source.ongoing_markers, dest.ongoing_markers);
             CardClub.CloneList(source.clubs, dest.clubs);
             CardClub.CloneList(source.ongoing_clubs, dest.ongoing_clubs);
             CardStatus.CloneList(source.status, dest.status);
@@ -868,22 +902,19 @@ namespace TcgEngine
     [System.Serializable]
     public class CardTrait
     {
-        public string id;
-        public int value;
+        public string id; //Tribe: presence only, no value
 
         [System.NonSerialized]
         private TraitData data = null;
 
-        public CardTrait(string id, int value)
+        public CardTrait(string id)
         {
             this.id = id;
-            this.value = value;
         }
 
-        public CardTrait(TraitData trait, int value)
+        public CardTrait(TraitData trait)
         {
             this.id = trait.id;
-            this.value = value;
         }
 
         public TraitData TraitData
@@ -901,17 +932,66 @@ namespace TcgEngine
 
         public static CardTrait CloneNew(CardTrait copy)
         {
-            CardTrait status = new CardTrait(copy.id, copy.value);
-            return status;
+            return new CardTrait(copy.id);
         }
 
         public static void Clone(CardTrait source, CardTrait dest)
         {
             dest.id = source.id;
-            dest.value = source.value;
         }
 
         public static void CloneList(List<CardTrait> source, List<CardTrait> dest)
+        {
+            for (int i = 0; i < source.Count; i++)
+            {
+                if (i < dest.Count)
+                    Clone(source[i], dest[i]);
+                else
+                    dest.Add(CloneNew(source[i]));
+            }
+
+            if (dest.Count > source.Count)
+                dest.RemoveRange(source.Count, dest.Count - source.Count);
+        }
+    }
+
+    [System.Serializable]
+    public class CardMarker
+    {
+        public string id; //Internal value used by rule logic, never displayed as a tag
+        public int value;
+
+        [System.NonSerialized]
+        private MarkerData data = null;
+
+        public CardMarker(string id, int value)
+        {
+            this.id = id;
+            this.value = value;
+        }
+
+        public MarkerData MarkerData
+        {
+            get
+            {
+                if (data == null || data.id != id)
+                    data = MarkerData.Get(id);
+                return data;
+            }
+        }
+
+        public static CardMarker CloneNew(CardMarker copy)
+        {
+            return new CardMarker(copy.id, copy.value);
+        }
+
+        public static void Clone(CardMarker source, CardMarker dest)
+        {
+            dest.id = source.id;
+            dest.value = source.value;
+        }
+
+        public static void CloneList(List<CardMarker> source, List<CardMarker> dest)
         {
             for (int i = 0; i < source.Count; i++)
             {

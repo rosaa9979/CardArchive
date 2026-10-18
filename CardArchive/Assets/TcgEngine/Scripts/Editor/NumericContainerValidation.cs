@@ -83,7 +83,7 @@ namespace TcgEngine.EditorValidation
         [MenuItem("TcgEngine/Validate Numeric Containers")]
         public static void Run()
         {
-            CardData.Load(); AbilityData.Load(); VariantData.Load(); TraitData.Load(); StatusData.Load(); WeaponData.Load(); ClubData.Load();
+            CardData.Load(); AbilityData.Load(); VariantData.Load(); TraitData.Load(); MarkerData.Load(); StatusData.Load(); WeaponData.Load(); ClubData.Load();
             var instanceField = typeof(DataLoader).GetField("instance", BindingFlags.Static | BindingFlags.NonPublic);
             object previousLoader = instanceField.GetValue(null);
             var host = new GameObject("Ability pipeline validation");

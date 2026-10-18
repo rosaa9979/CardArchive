@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace TcgEngine.UI
 {
     /// <summary>
-    /// Shows a trait or custom card stats, add it to the array of a CardUI
+    /// Shows a tribe trait tag, add it to the array of a CardUI
     /// </summary>
 
     public class TraitUI : MonoBehaviour
@@ -23,8 +23,7 @@ namespace TcgEngine.UI
         public void SetCard(Card card)
         {
             bool has_trait = card.HasTrait(trait);
-            int val = card.GetTraitValue(trait);
-            text.text = val.ToString();
+            text.text = trait != null ? trait.GetTitle() : "";
             bg.enabled = has_trait;
             text.enabled = has_trait;
         }
@@ -32,8 +31,7 @@ namespace TcgEngine.UI
         public void SetCard(CardData card)
         {
             bool has_trait = card.HasTrait(trait);
-            int val = card.GetStat(trait.id);
-            text.text = val.ToString();
+            text.text = trait != null ? trait.GetTitle() : "";
             bg.enabled = has_trait;
             text.enabled = has_trait;
         }

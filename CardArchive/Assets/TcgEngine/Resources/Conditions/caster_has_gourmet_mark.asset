@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc5ee312d5d0efd448bf6e1a851af5ce, type: 3}
   m_Name: caster_has_gourmet_mark
   m_EditorClassIdentifier:
-  trait: {fileID: 11400000, guid: 15c4d4e1cab6464f967ecf2d84d075fd, type: 2}
+  marker: {fileID: 11400000, guid: 15c4d4e1cab6464f967ecf2d84d075fd, type: 2}
   oper: 2
   value: 1

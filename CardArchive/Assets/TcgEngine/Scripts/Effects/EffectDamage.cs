@@ -22,20 +22,19 @@ namespace TcgEngine
     public class EffectDamage : EffectData
     {
         public EffectValueType value_type;
-        public TraitData bonus_damage;
-
-        public const string StoredSlotTrait = "stored_slot";
+        public MarkerData bonus_damage;
+        public MarkerData stored_slot; //No-target path: caster marker holding an encoded slot
 
         // No-target damage decodes the stored position and uses the same tile effect route.
         // If no position is stored, leave the request unchanged.
         //Used by effects on a card that previously stored a slot via EffectSetStatCustom (e.g. "포격").
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
-            int code = caster.GetTraitValue(StoredSlotTrait);
+            int code = caster.GetMarkerValue(stored_slot);
             if (code <= 0)
                 return; //no slot stored -> pass
 
-            Slot slot = Slot.FromTraitCode(code);
+            Slot slot = Slot.FromMarkerCode(code);
             DoEffect(logic, ability, caster, slot);
 
             //Consume (reset stored_slot to 0) is handled by a separate chained ability/effect, not here.
@@ -69,7 +68,7 @@ namespace TcgEngine
                 value = caster.GetHP();
                 
             Player player = data.GetPlayer(caster.player_id);
-            int damage = value + caster.GetTraitValue(bonus_damage) + player.GetTraitValue(bonus_damage);
+            int damage = value + caster.GetMarkerValue(bonus_damage) + player.GetMarkerValue(bonus_damage);
             return damage;
         }
 

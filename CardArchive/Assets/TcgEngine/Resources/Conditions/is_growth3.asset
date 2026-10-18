@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc5ee312d5d0efd448bf6e1a851af5ce, type: 3}
   m_Name: is_growth3
   m_EditorClassIdentifier: 
-  trait: {fileID: 11400000, guid: ce0807cc62e886b4994c9e2646420845, type: 2}
+  marker: {fileID: 11400000, guid: ce0807cc62e886b4994c9e2646420845, type: 2}
   oper: 2
   value: 3

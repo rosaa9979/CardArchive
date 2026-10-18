@@ -5,7 +5,8 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// Defines all traits and stats data
+    /// Defines a tribe (classification tag such as machine). Presence only, no value.
+    /// Internal values are MarkerData, rule keywords and conditions are StatusData.
     /// </summary>
 
     [CreateAssetMenu(fileName = "TraitData", menuName = "TcgEngine/TraitData", order = 1)]
@@ -42,12 +43,5 @@ namespace TcgEngine
         {
             return trait_list;
         }
-    }
-
-    [System.Serializable]
-    public struct TraitStat
-    {
-        public TraitData trait;
-        public int value;
     }
 }
