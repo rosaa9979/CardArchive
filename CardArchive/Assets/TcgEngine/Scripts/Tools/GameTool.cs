@@ -44,7 +44,7 @@ namespace TcgEngine
         }
 
         //Pick X random elements in a list (same cant be picked twice, unless it appears twice or more in the list)
-        public static List<T> PickXRandom<T>(List<T> source, List<T> dest, int x)
+        public static List<T> PickXRandom<T>(List<T> source, List<T> dest, int x, System.Random rng = null)
         {
             //if (source.Count <= x || x <= 0)
             //    return source; //No need to pick anything
@@ -59,7 +59,7 @@ namespace TcgEngine
 
             for (int i = 0; i < x; i++)
             {
-                int r = random.Next(source.Count);
+                int r = (rng ?? random).Next(source.Count);
                 dest.Add(source[r]);
                 source.RemoveAt(r);
             }

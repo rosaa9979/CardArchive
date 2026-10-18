@@ -24,18 +24,18 @@ namespace TcgEngine.FX
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
             if (current_bslot == null || caster == null || ability == null
-                || ability.criteria_target != AbilityTarget.SelectTarget)
+                || !ability.IsTargetSelector())
                 return;
 
             Slot selected = current_bslot.GetSlot();
-            if (!ability.CanTarget(game_data, caster, selected, context: game_data.selector_context))
+            if (!ability.CanTarget(game_data, caster, selected, context: AbilityExecutionContext.Query(game_data.selector_context)))
                 return;
 
             foreach (BoardSlot board_slot in BoardSlot.GetAll())
             {
                 Slot candidate = board_slot.GetSlot();
-                if (ability.AreWideRangeConditionsMet(game_data, caster, selected, candidate, context: game_data.selector_context)
-                    && ability.AreTargetConditionsMet(game_data, caster, candidate, context: game_data.selector_context))
+                if (ability.AreWideRangeConditionsMet(game_data, caster, selected, candidate, context: AbilityExecutionContext.Query(game_data.selector_context))
+                    && ability.AreSpatialTargetConditionsMet(game_data, caster, candidate, context: AbilityExecutionContext.Query(game_data.selector_context)))
                     board_slot.GetBoardSlotFX().SetRangeTarget(current_bslot, caster.uid, ability.id);
             }
         }

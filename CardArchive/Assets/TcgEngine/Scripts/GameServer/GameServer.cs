@@ -489,9 +489,7 @@ namespace TcgEngine.Server
             if (player != null && msg != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
             {
                 Card target = game_data.GetCard(msg.card_uid);
-                if (game_data.selector == SelectorType.SelectTarget && (!game_data.CanInputTarget(target))) return;
                 gameplay.SelectCard(target);
-                //gameplay.SelectSlot(target.slot);
             }
         }
 
@@ -510,16 +508,10 @@ namespace TcgEngine.Server
         {
             MsgSelectSlotRequest request = sdata.Get<MsgSelectSlotRequest>();
             Slot slot = request.slot;
-            if (!string.IsNullOrEmpty(request.target_uid))
-            {
-                Card target = game_data.GetCard(request.target_uid);
-                if (!game_data.CanInputTarget(target)) return;
-                slot = target.slot;
-            }
             Player player = GetPlayer(iclient);
             if (player != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
             {
-                if(slot != null && slot.IsValid())
+                if(slot.IsValid() || (slot.IsPlayerSlot() && game_data.GetPlayer(slot.p) != null))
                     gameplay.SelectSlot(slot);
             }
         }

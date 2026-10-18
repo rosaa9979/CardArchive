@@ -13,7 +13,7 @@ namespace TcgEngine
 
         public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
-            DeathEventContext death = context as DeathEventContext;
+            DeathEventContext death = AbilityExecutionContext.Event(context) as DeathEventContext;
             return death != null
                 && (causes == null || causes.Length == 0 || Array.IndexOf(causes, death.cause) >= 0)
                 && Matches(victim_conditions, data, ability, caster, data.GetCard(death.victim_uid), context)
@@ -26,8 +26,7 @@ namespace TcgEngine
             foreach (ConditionData condition in conditions)
             {
                 if (condition != null && (subject == null
-                    || !condition.IsTriggerConditionMet(data, ability, caster, context)
-                    || !condition.IsTargetConditionMet(data, ability, caster, subject, context)))
+                    || !ConditionEvaluation.Matches(condition, data, ability, caster, subject, ConditionStage.Trigger, context)))
                     return false;
             }
             return true;

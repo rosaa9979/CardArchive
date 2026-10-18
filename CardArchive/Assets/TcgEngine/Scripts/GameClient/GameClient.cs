@@ -391,6 +391,11 @@ namespace TcgEngine.Client
         public void SelectCard(Card card)
         {
             if (card == null) return;
+            if (game_data.IsSlotSelection())
+            {
+                SelectSlot(card.slot);
+                return;
+            }
             if (game_data.IsOnBoard(card) && !CanUseBoardCard(card.uid)) return;
             if (game_data.selector_version != GetLatestGameData().selector_version) return;
             MsgCard mdata = new MsgCard();
@@ -400,17 +405,22 @@ namespace TcgEngine.Client
 
         public void SelectPlayer(Player player)
         {
+            if (player == null) return;
+            if (game_data.IsSlotSelection())
+            {
+                SelectSlot(new Slot(0, 0, player.player_id));
+                return;
+            }
             if (game_data.selector_version != GetLatestGameData().selector_version) return;
             MsgPlayer mdata = new MsgPlayer();
             mdata.player_id = player.player_id;
             SendAction(GameAction.SelectPlayer, mdata);
         }
 
-        public void SelectSlot(Slot slot, string targetUid = "")
+        public void SelectSlot(Slot slot)
         {
-            if (!string.IsNullOrEmpty(targetUid) && !CanUseBoardCard(targetUid)) return;
             if (game_data.selector_version != GetLatestGameData().selector_version) return;
-            SendAction(GameAction.SelectSlot, new MsgSelectSlotRequest { slot = slot, target_uid = targetUid });
+            SendAction(GameAction.SelectSlot, new MsgSelectSlotRequest { slot = slot });
         }
 
         public void SelectChoice(int c)

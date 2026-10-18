@@ -18,22 +18,21 @@ namespace TcgEngine
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             int heal = GetHeal(logic.GameData, caster, ability.value);
-            logic.HealPlayer(target, heal);
+            logic.HealPlayer(target, heal, caster);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
             int heal = GetHeal(logic.GameData, caster, ability.value);
-            logic.HealCard(target, heal);
+            logic.HealCard(target, heal, caster);
         }
 
-        //PlayTarget on a board tile dispatches as a Slot; heal the unit standing on it
-        //(mirrors EffectDamage/EffectDestroy). Without this, targeted heals silently do nothing.
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
-            Card slot_card = logic.GameData.GetSlotCard(target);
-            if (slot_card != null)
-                DoEffect(logic, ability, caster, slot_card);
+            int heal = GetHeal(logic.GameData, caster, ability.value);
+            logic.ApplyTileEffect(target,
+                card => logic.HealCard(card, heal, caster),
+                player => logic.HealPlayer(player, heal, caster));
         }
 
         private int GetHeal(Game data, Card caster, int value)

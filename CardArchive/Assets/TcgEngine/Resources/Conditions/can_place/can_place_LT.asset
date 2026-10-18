@@ -16,3 +16,4 @@ MonoBehaviour:
   place_card: {fileID: 0}
   card_owner: 0
   oper: 0
+  purpose: 1

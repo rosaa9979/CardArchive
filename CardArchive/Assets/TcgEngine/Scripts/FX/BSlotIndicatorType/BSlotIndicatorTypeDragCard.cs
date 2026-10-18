@@ -49,7 +49,7 @@ namespace TcgEngine.FX
                     {
                         foreach (BoardSlot board_slot in BoardSlot.GetAll())
                         {
-                            if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot()) && ability.AreTargetConditionsMet(game_data, card, board_slot.GetSlot()))
+                            if (ability.AreWideRangeConditionsMet(game_data, card, current_bslot.GetSlot(), board_slot.GetSlot()) && ability.AreSpatialTargetConditionsMet(game_data, card, board_slot.GetSlot()))
                             {
                                 BoardSlotFX fx = board_slot.GetBoardSlotFX();
                                 fx.SetRangeTarget(current_bslot, card.uid, ability.id);

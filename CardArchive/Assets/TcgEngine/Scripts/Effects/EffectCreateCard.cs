@@ -36,26 +36,7 @@ namespace TcgEngine
         {
             // Roll independently for each copy, just as separate activations did.
             CardData selected_card = GetRandomCardData(logic.GetRandom());
-            Card card = Card.Create(selected_card, caster.VariantData, player);
-            //logic.GameData.last_summoned = card.uid;
-            
-            if (create_pile == PileType.Deck)
-                player.cards_deck.Add(card);
-
-            if (create_pile == PileType.Discard)
-                player.cards_discard.Add(card);
-
-            if (create_pile == PileType.Hand && player.cards_hand.Count < GameplayData.Get().cards_max)
-                player.cards_hand.Add(card);
-
-            if (create_pile == PileType.Temp)
-                player.cards_temp.Add(card);
-
-            if (create_pile == PileType.PlayerAbility)
-            {
-                player.player_ability.Add(card);
-                logic.AssignPlayOrder(card); //Player abilities are in play (trigger batches)
-            }
+            logic.CreateCardToPile(selected_card, caster.VariantData, player, create_pile);
         }
 
         public CardData GetRandomCardData(System.Random rng)

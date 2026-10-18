@@ -13,6 +13,7 @@ namespace TcgEngine
     public class ConditionCanPlace : ConditionData
     {
         [Header("Custom Card Data")]
+        public BoardDestinationPurpose purpose;
         public ConditionLastType last_type;
         public CardData place_card;
         public ConditionPlayerType card_owner;
@@ -20,45 +21,43 @@ namespace TcgEngine
         [Header("Operation")]
         public ConditionOperatorBool oper;
 
+        private bool CanUse(Game data, Card card, Slot slot)
+        {
+            return purpose == BoardDestinationPurpose.Movement
+                ? data.CanMoveCard(card, slot) : data.CanPlaceCard(card, slot);
+        }
+
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            return CompareBool(data.CanPlaceCard(caster, target.slot), oper);
+            return target != null && IsTargetConditionMet(data, ability, caster, target.slot, context);
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
+            var execution = context as AbilityExecutionContext;
+            Card source = caster;
             if (last_type == ConditionLastType.LastSelected)
+                source = data.GetCard(execution?.last_selected ?? data.last_selected);
+            else if (last_type == ConditionLastType.LastTargeted)
+                source = execution != null ? data.GetCard(execution.reference_target_uid) : data.GetSlotCard(data.last_targeted_slot);
+            else if (last_type == ConditionLastType.None && place_card != null)
             {
-                Card last_selected = data.GetCard(data.last_selected);
-                if (last_selected != null)
-                    return CompareBool(data.CanPlaceCard(last_selected, target), oper);
+                Player owner = card_owner == ConditionPlayerType.Self ? data.GetPlayer(caster.player_id)
+                    : card_owner == ConditionPlayerType.Opponent ? data.GetOpponentPlayer(caster.player_id) : null;
+                return CompareBool(purpose == BoardDestinationPurpose.Placement && owner != null
+                    && data.CanPlaceCard(place_card, owner.player_id, target), oper);
             }
-
-            if (last_type == ConditionLastType.LastTargeted)
-            {
-                Card last_targeted = data.GetSlotCard(data.last_targeted_slot);
-                if (last_targeted != null)
-                    return CompareBool(data.CanPlaceCard(last_targeted, target), oper);
-            }
-
-            if (last_type == ConditionLastType.None && place_card != null)
-            {
-                Player player = null;
-                if (card_owner == ConditionPlayerType.Self)
-                    player = data.GetPlayer(caster.player_id);
-                if (card_owner == ConditionPlayerType.Opponent)
-                    player = data.GetOpponentPlayer(caster.player_id);
-
-                Card card = Card.Create(place_card, VariantData.GetDefault(), player);
-                return CompareBool(data.CanPlaceCard(card, target), oper);
-            }
-
-            return CompareBool(data.CanPlaceCard(caster, target), oper);
+            return CompareBool(CanUse(data, source, target), oper);
         }
-        
+
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
+        {
+            return false;
+        }
+
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card selected, Slot target, AbilityEventContext context = null)
         {
-            return CompareBool(data.CanPlaceCard(selected, target), oper);
+            return CompareBool(CanUse(data, selected, target), oper);
         }
     }
 }

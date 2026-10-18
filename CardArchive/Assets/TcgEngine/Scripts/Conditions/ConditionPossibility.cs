@@ -1,49 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TcgEngine
 {
-    /// <summary>
-    /// Condition that check if the target is the same as the caster
-    /// </summary>
-    
+    /// <summary>Probability predicate; invocation lifetime is managed by ConditionEvaluation.</summary>
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/Possibility", order = 10)]
     public class ConditionPossibility : ConditionData
     {
         [Header("Possibility (0 <= possibility <= 1)")]
         public float possibility;
 
-        // The probability is rolled ONLY in IsTargetConditionMet, never in IsTriggerConditionMet.
-        // Rationale: a trigger condition is evaluated by AreTriggerConditionsMet, which calls BOTH
-        // IsTriggerConditionMet and IsTargetConditionMet for the same condition. If both rolled,
-        // the effective chance would be possibility^2 (e.g. 0.5 -> 0.25). IsTargetConditionMet is the
-        // method called in EVERY slot (trigger, criteria/target, wide-range), so keeping the single
-        // roll here yields a consistent, correct probability everywhere; IsTriggerConditionMet is a
-        // no-op (true).
-        public override bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
+        // Probability is independent of target shape. The common evaluator calls this once
+        // and owns EvaluateOnce caching across registration, execution and selection resume.
+        public override bool Evaluate(Game data, AbilityData ability, Card caster, object target,
+            ConditionStage stage, AbilityEventContext context, object selected = null)
         {
-            return true;
-        }
-
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
-        {
-            return Roll(data);
-        }
-
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Player target, AbilityEventContext context = null)
-        {
-            return Roll(data);
-        }
-
-        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
-        {
-            return Roll(data);
-        }
-
-        private bool Roll(Game data)
-        {
-            return data.GetRandom().NextDouble() < possibility;
+            if (possibility <= 0f) return false;
+            if (possibility >= 1f) return true;
+            return !(context is AbilityExecutionContext execution) || execution.is_query
+                || data.GetRandom().NextDouble() < possibility;
         }
     }
 }

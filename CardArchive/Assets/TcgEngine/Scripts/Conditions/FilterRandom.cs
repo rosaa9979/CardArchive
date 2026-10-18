@@ -14,30 +14,30 @@ namespace TcgEngine
 
         public override List<Card> FilterTargets(Game data, AbilityData ability, Card caster, List<Card> source, List<Card> dest)
         {
-            if (rest && source.Count - amount > 0)
-                return GameTool.PickXRandom(source, dest, source.Count - amount);
-            return GameTool.PickXRandom(source, dest, amount);
+            int excluded = System.Math.Max(0, amount);
+            int count = rest ? System.Math.Max(0, source.Count - excluded) : excluded;
+            return GameTool.PickXRandom(source, dest, count, data.GetRandom());
         }
 
         public override List<Player> FilterTargets(Game data, AbilityData ability, Card caster, List<Player> source, List<Player> dest)
         {
-            if (rest && source.Count - amount > 0)
-                return GameTool.PickXRandom(source, dest, source.Count - amount);
-            return GameTool.PickXRandom(source, dest, amount);
+            int excluded = System.Math.Max(0, amount);
+            int count = rest ? System.Math.Max(0, source.Count - excluded) : excluded;
+            return GameTool.PickXRandom(source, dest, count, data.GetRandom());
         }
 
         public override List<Slot> FilterTargets(Game data, AbilityData ability, Card caster, List<Slot> source, List<Slot> dest)
         {
-            if (rest && source.Count - amount > 0)
-                return GameTool.PickXRandom(source, dest, source.Count - amount);
-            return GameTool.PickXRandom(source, dest, amount);
+            int excluded = System.Math.Max(0, amount);
+            int count = rest ? System.Math.Max(0, source.Count - excluded) : excluded;
+            return GameTool.PickXRandom(source, dest, count, data.GetRandom());
         }
 
         public override List<CardData> FilterTargets(Game data, AbilityData ability, Card caster, List<CardData> source, List<CardData> dest)
         {
-            if (rest && source.Count - amount > 0)
-                return GameTool.PickXRandom(source, dest, source.Count - amount);
-            return GameTool.PickXRandom(source, dest, amount);
+            int excluded = System.Math.Max(0, amount);
+            int count = rest ? System.Math.Max(0, source.Count - excluded) : excluded;
+            return GameTool.PickXRandom(source, dest, count, data.GetRandom());
         }
     }
 }

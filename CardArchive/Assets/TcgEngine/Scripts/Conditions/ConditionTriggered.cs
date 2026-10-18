@@ -16,16 +16,16 @@ namespace TcgEngine
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
-            Card trigger = data.GetCard(data.ability_triggerer);
+            Card trigger = data.GetCard((context as AbilityExecutionContext)?.trigger_uid ?? data.ability_triggerer);
 
-            return CompareBool(target.uid == trigger.uid, is_oper);
+            return CompareBool(target != null && trigger != null && target.uid == trigger.uid, is_oper);
         }
 
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot target, AbilityEventContext context = null)
         {
-            Card trigger = data.GetCard(data.ability_triggerer);
+            Card trigger = data.GetCard((context as AbilityExecutionContext)?.trigger_uid ?? data.ability_triggerer);
 
-            return CompareBool(target == trigger.slot, is_oper);
+            return CompareBool(trigger != null && target == trigger.slot, is_oper);
         }
     }
 }

@@ -20,6 +20,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9e30e071751bf9c45a64675144549070, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 10
+  effect_target: 0
   conditions_criteria_target:
   - {fileID: 11400000, guid: b044d41bb4d6c0b469542eafe8d5f047, type: 2}
   - {fileID: 11400000, guid: 1ae405c308d60cc409deb9e25f3f965e, type: 2}

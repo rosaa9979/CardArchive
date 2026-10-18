@@ -5,7 +5,7 @@ namespace TcgEngine.Replay
 {
     // Records rolls even when they cause no state change (failed probability checks).
     // Playback never constructs or calls this RNG.
-    public sealed class ReplayRandom : Random
+    public sealed class ReplayRandom : GameRandom
     {
         readonly Action<string> record;
         public ReplayRandom(Action<string> record) { this.record = record; }

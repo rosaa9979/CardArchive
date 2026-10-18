@@ -12,7 +12,7 @@ namespace TcgEngine.Gameplay
     /// Execute and resolves game rules and logic
     /// </summary>
 
-    public class GameLogic
+    public partial class GameLogic
     {
 #if UNITY_EDITOR
         public int DebugStartingMana { get; set; } = -1;
@@ -144,11 +144,9 @@ namespace TcgEngine.Gameplay
         private ResolveQueue resolve_queue;
         private bool is_ai_predict = false;
         
-        private System.Random random = new System.Random();
 
         private ListSwap<Card> card_array = new ListSwap<Card>();
         private ListSwap<Player> player_array = new ListSwap<Player>();
-        private ListSwap<Slot> slot_array = new ListSwap<Slot>();
         private ListSwap<CardData> card_data_array = new ListSwap<CardData>();
         private List<Card> cards_to_clear = new List<Card>();
 
@@ -179,8 +177,7 @@ namespace TcgEngine.Gameplay
         public GameLogic(Game game)
         {
             game_data = game;
-            random = new TcgEngine.Replay.ReplayRandom(value => onReplayRandom?.Invoke(value));
-            game.SetRandom(random);
+            game.SetRandom(new TcgEngine.Replay.ReplayRandom(value => onReplayRandom?.Invoke(value)));
             resolve_queue = new ResolveQueue(game, false);
             resolve_queue.SetDeathStep(ProcessDeathStep, HasPendingDeaths, IsDeathStepSuspended);
             resolve_queue.onResolved = CompletePresentationStep;
@@ -189,7 +186,6 @@ namespace TcgEngine.Gameplay
         public virtual void SetData(Game game)
         {
             game_data = game;
-            game.SetRandom(random); //Share logic's thread-safe RNG with the data layer (conditions, etc.)
             resolve_queue.SetData(game);
         }
 
@@ -207,7 +203,7 @@ namespace TcgEngine.Gameplay
 
             //Choose first player
             game_data.state = GameState.Play;
-            game_data.first_player = random.NextDouble() < 0.5 ? 0 : 1;
+            game_data.first_player = GetRandom().NextDouble() < 0.5 ? 0 : 1;
             game_data.current_player = game_data.first_player;
             game_data.turn_count = 1;
 
@@ -444,7 +440,7 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             //Player poison
             if (player.HasStatus(StatusType.Poisoned))
-                player.hp -= player.GetStatusValue(StatusType.Poisoned);
+                ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, player.GetStatusValue(StatusType.Poisoned), null, player));
 
             if (player.hero != null)
                 player.hero.Refresh();
@@ -764,7 +760,6 @@ namespace TcgEngine.Gameplay
             death_step_suspended = false; //Queue was just wiped; never carry a volley's death hold across
             card_array.Clear();
             player_array.Clear();
-            slot_array.Clear();
             card_data_array.Clear();
             game_data.last_played = null;
             game_data.last_destroyed = null;
@@ -885,7 +880,7 @@ namespace TcgEngine.Gameplay
                 replay_pending_play = card.uid;
                 RecordInteraction("play", card.player_id, card.uid, slot);
 
-                AbilityData iability = card.GetAbility(AbilityTrigger.OnPlay, AbilityTarget.SelectTarget);
+                AbilityData iability = card.GetAbilities().Find(ability => ability.IsPlaySelectTarget());
                 if (iability != null)
                 {
                     //Put the card on its slot (cards_board_temp) BEFORE checking targets, so target conditions
@@ -901,9 +896,10 @@ namespace TcgEngine.Gameplay
                     game_data.last_selected = "";
                     game_data.last_selected_slot = new Slot(0, 0, -1);
 
-                    if (iability.HasValidSelectTarget(game_data, card))
+                    var execution = AbilityExecutionContext.PreparePlay(game_data, card);
+                    if (iability.HasValidSelectTarget(game_data, card, execution))
                     {
-                        GoToSelectTarget(iability, card, card, 1, 1);
+                        OpenSelection(SelectorType.SelectTarget, iability, card, card, 1, 0, execution);
                         return true; //SelectCard/SelectPlayer/SelectSlot plays it from its slot
                     }
                 }
@@ -914,7 +910,8 @@ namespace TcgEngine.Gameplay
             return false;
         }
         
-        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false)
+        public virtual void PlayCard(Card card, Slot slot, bool skip_cost = false,
+            AbilityData preparedAbility = null, AbilityExecutionContext preparedExecution = null)
         {
             if (game_data.CanPlayCard(card, slot, skip_cost))
             {
@@ -982,7 +979,7 @@ namespace TcgEngine.Gameplay
                     //Trigger abilities
                     TriggerSecrets(AbilityTrigger.OnPlayOther, card); //After playing card
 
-                    TriggerCardAbilityType(AbilityTrigger.OnPlay, card);
+                    TriggerCardAbilityType(AbilityTrigger.OnPlay, card, preparedAbility: preparedAbility, preparedExecution: preparedExecution);
                     TriggerOtherCardsAbilityType(AbilityTrigger.OnPlayOther, card);
                 }
 
@@ -1047,7 +1044,7 @@ namespace TcgEngine.Gameplay
             {
                 RecordInteraction("ability", card.player_id, card.uid);
                 Player player = game_data.GetPlayer(card.player_id);
-                if (!is_ai_predict && iability.criteria_target != AbilityTarget.SelectTarget)
+                if (!is_ai_predict && !iability.IsTargetSelector())
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
                 TriggerCardAbility(iability, card);
@@ -1194,7 +1191,7 @@ namespace TcgEngine.Gameplay
             
             if (attacker.HasStatus(StatusType.MassShooting) || target.HasStatus(StatusType.Evasion))
             {
-                double ran = random.NextDouble();
+                double ran = GetRandom().NextDouble();
                 if (ran < 0.5)
                 {
                     if (!game_data.attack_evade_list.Contains(target))
@@ -1417,7 +1414,7 @@ namespace TcgEngine.Gameplay
             for (int i = 0; i < cards.Count; i++)
             {
                 Card temp = cards[i];
-                int randomIndex = random.Next(i, cards.Count);
+                int randomIndex = GetRandom().Next(i, cards.Count);
                 cards[i] = cards[randomIndex];
                 cards[randomIndex] = temp;
             }
@@ -1487,25 +1484,57 @@ namespace TcgEngine.Gameplay
             return SummonCardHand(player, icard, copy.VariantData);
         }
 
-        public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
+        // Creation registers a card exactly once and always assigns a destination.
+        public virtual Card CreateCardToPile(CardData definition, VariantData variant, Player owner, PileType pile)
         {
-            Card acard = SummonCardHand(player, card, variant);
-            PlayCard(acard, slot, true);
+            if (definition == null || owner == null)
+                return null;
+            List<Card> destination;
+            switch (pile)
+            {
+                case PileType.Hand: destination = owner.cards_hand; break;
+                case PileType.Deck: destination = owner.cards_deck; break;
+                case PileType.Discard: destination = owner.cards_discard; break;
+                case PileType.Temp: destination = owner.cards_temp; break;
+                case PileType.PlayerAbility: destination = owner.player_ability; break;
+                default: throw new System.ArgumentException("Creation requires a pile destination; use SummonCard for board placement.", nameof(pile));
+            }
 
-            if (player.cards_hand.Contains(acard))
-                player.RemoveCardFromAllGroups(acard);
-
-            return acard;
+            Card created = Card.Create(definition, variant, owner);
+            if (pile == PileType.Hand && owner.cards_hand.Count >= GameplayData.Get().cards_max)
+            {
+                owner.cards_discard.Add(created);
+                onCardDissolved?.Invoke(created, owner.player_id);
+            }
+            else
+            {
+                destination.Add(created);
+                if (pile == PileType.PlayerAbility)
+                    AssignPlayOrder(created);
+            }
+            return created;
         }
 
-        //Create a new card and send it to your hand
+        public virtual Card SummonCard(Player player, CardData card, VariantData variant, Slot slot)
+        {
+            if (player == null || card == null || (card.IsBoardCard() && !game_data.CanPlaceCard(card, player.player_id, slot)))
+                return null;
+            Card created = CreateCardToPile(card, variant, player, PileType.Temp);
+            PlayCard(created, slot, true);
+            if (player.cards_temp.Remove(created)) player.cards_discard.Add(created);
+            return created;
+        }
+
+        // Actual hand creation obeys hand capacity; summon preparation never enters the hand.
         public virtual Card SummonCardHand(Player player, CardData card, VariantData variant)
         {
-            Card acard = Card.Create(card, variant, player);
-            player.cards_hand.Add(acard);
-            game_data.last_summoned = acard.uid;
-            game_data.last_summoned_slot = acard.slot;
-            return acard;
+            Card created = CreateCardToPile(card, variant, player, PileType.Hand);
+            if (created != null)
+            {
+                game_data.last_summoned = created.uid;
+                game_data.last_summoned_slot = created.slot;
+            }
+            return created;
         }
 
         //Transform card into another one
@@ -1602,299 +1631,90 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        //Damage a player
+        // Existing event entrypoints keep their cause; every health operation crosses the same gate.
         public virtual void DamagePlayer(Card attacker, Player target, int value)
         {
-            //Damage player
-            target.hp -= value;
-            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
-            onPlayerDamaged?.Invoke(attacker, target, value);
-
-            //Lifesteal
-            Player aplayer = game_data.GetPlayer(attacker.player_id);
-            if (attacker.HasStatus(StatusType.LifeSteal))
-                aplayer.hp += value;
+            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Attack, value, attacker, target));
         }
-        
+
         public virtual void DamagePlayer_Event(Card attacker, Player target, int value)
         {
-            if (attacker == null || target == null)
-                return;
-
-            //Damage player
-            target.hp -= value;
-            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
-            onPlayerDamaged?.Invoke(attacker, target, value);
-
-            //Lifesteal
-            Player aplayer = game_data.GetPlayer(attacker.player_id);
-            if (attacker.HasStatus(StatusType.LifeSteal))
-                aplayer.hp += value;
+            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target));
         }
 
         public virtual void DamagePlayer_Exhaust(Player target)
         {
+            if (target == null) return;
             target.exhaust_damage += 1;
-
-            //Damage player
-            target.hp -= target.exhaust_damage;
-            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
-
-            onExhaustDamage?.Invoke(target);
+            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Fatigue, target.exhaust_damage, null, target));
         }
 
-        //Heal a card
         public virtual void HealCard(Card target, int value)
         {
-            if (target == null)
-                return;
+            HealCard(target, value, null);
+        }
 
-            if (target.HasStatus(StatusType.Invincibility))
-                return;
-
-            if (target.card_id == "Akashi_Junko")
-                value = 0;
-
-            int before = target.damage;
-
-            target.damage -= value;
-            target.damage = Mathf.Max(target.damage, 0);
-
-            //Healed back above 0 before the death step: it survives, clear stale kill attribution
-            //(a card marked dying can't be saved and keeps its attribution)
-            if (!target.dying && target.GetHP() > 0)
-            {
-                target.death_source_uid = null;
-                target.death_source_counter = false;
-                target.death_cause = DeathCause.Unknown;
-            }
-
-            Player p = game_data.GetPlayer(target.player_id);
-
-            p.total_heal += (before - target.damage);
-
-            TriggerCardAbilityType(AbilityTrigger.OnHeal, target);
-            TriggerOtherCardsAbilityType(AbilityTrigger.OnHealOther, target);
+        public virtual void HealCard(Card target, int value, Card source)
+        {
+            ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
         }
 
         public virtual void HealPlayer(Player target, int value)
         {
-            if (target == null)
-                return;
-
-            int before = target.hp;
-            target.hp += value;
-            target.hp = Mathf.Clamp(target.hp, 0, target.hp_max);
-            int after = target.hp;
-
-            target.total_heal += (after - before);
+            HealPlayer(target, value, null);
         }
 
-        //Generic damage that doesnt come from another card
+        public virtual void HealPlayer(Player target, int value, Card source)
+        {
+            ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
+        }
+
         public virtual void DamageCard(Card target, int value)
         {
-            if(target == null)
-                return;
-
-            if (target.HasStatus(StatusType.Invincibility))
-                return; //Invincible
-
-            if (target.HasStatus(StatusType.SpellImmunity))
-                return; //Spell immunity
-
-            target.damage += value;
-            onCardDamaged?.Invoke(null, target, value);
-
-            //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
-            if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
-                DiscardCard(target);
+            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Other, value, null, target));
         }
 
-        //Damage a card with attacker/caster
         public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false, bool counter_attack = false)
         {
-            if (attacker == null || target == null)
-                return;
-
-            if (target.HasStatus(StatusType.Invincibility))
-                return; //Invincible
-
-            if (target.HasStatus(StatusType.SpellImmunity) && !attacker.CardData.IsCitizen())
-                return; //Spell immunity
-
-            //Shell
-            bool doublelife = target.HasStatus(StatusType.Shell);
-            if (doublelife && value > 0)
-            {
-                target.RemoveStatus(StatusType.Shell);
-                return;
-            }
-
-            //Armor
-            if (!spell_damage && target.HasStatus(StatusType.Armor))
-                value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
-
-            //Damage
-            int damage_max = Mathf.Min(value, target.GetHP());
-            int extra = value - target.GetHP();
-            target.damage += value;
-            onCardDamaged?.Invoke(attacker, target, value);
-
-            //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
-            if (value > 0 && target.GetHP() <= 0)
-                SetDeathSource(attacker, target, counter_attack, counter_attack ? DeathCause.CounterAttackDamage : (spell_damage ? DeathCause.AbilityDamage : DeathCause.AttackDamage));
-
-            if (value > 0)
-                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
-
-            //Trample
-            Player tplayer = game_data.GetPlayer(target.player_id);
-            if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
-                tplayer.hp -= extra;
-
-            //Lifesteal
-            Player player = game_data.GetPlayer(attacker.player_id);
-            if (!spell_damage && attacker.HasStatus(StatusType.LifeSteal))
-                player.hp += damage_max;
-
-            //Remove sleep on damage
-            target.RemoveStatus(StatusType.Sleep);
+            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage,
+                counter_attack ? NumericCause.CounterAttack : NumericCause.Attack, value, attacker, target), spell_damage);
         }
 
-        //Damage a slot with attacker/caster
-        public virtual void DamageCard(Card attacker, Slot target, int value, bool spell_damage = false)
-        {
-            Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
-            Card card_target = game_data.GetSlotCard(target);
-            Card attach_target = game_data.GetAttachCard(target);
-
-            foreach (var slot in Slot.GetInsideSlot(oplayer.player_id)) 
-            {
-                if (slot == target)
-                    DamagePlayer(attacker, oplayer, value);
-            }  
-
-            if (card_target != null)
-                DamageCard(attacker, card_target, value, spell_damage);
-            
-            if (attach_target != null)
-                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
-        }
-
-        // 어빌리티로 트리거 되지 않은 데미지
         public virtual void DamageCard_Event(Card target, int value)
         {
-            if (target == null)
-                return;
-
-            if (target.HasStatus(StatusType.Invincibility))
-                return; //Invincible
-
-            if (target.HasStatus(StatusType.SpellImmunity))
-                return; //Spell immunity
-
-            target.damage += value;
-            onCardDamaged?.Invoke(null, target, value);
-
-            //Board cards at 0 hp die at the Death Creation Step; other zones are removed immediately
-            if (target.GetHP() <= 0 && !game_data.IsOnBoard(target))
-                DiscardCard(target);
+            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, value, null, target));
         }
 
-        //Damage a card with attacker/caster
-        // 유닛에게 데미지
         public virtual void DamageCard_Event(Card attacker, Card target, int value, bool spell_damage = false)
         {
-            if (attacker == null || target == null)
-                return;
-
-            if (target.HasStatus(StatusType.Invincibility))
-                return; //Invincible
-
-            if (target.HasStatus(StatusType.SpellImmunity) && !attacker.CardData.IsCitizen())
-                return; //Spell immunity
-
-            if (target.card_id == "Shishido_Izumi")
-            {
-                HealCard(target, value);
-                return;
-            }
-
-            //Shell
-            bool doublelife = target.HasStatus(StatusType.Shell);
-            if (doublelife && value > 0)
-            {
-                target.RemoveStatus(StatusType.Shell);
-                return;
-            }
-
-            //Armor
-            if (!spell_damage && target.HasStatus(StatusType.Armor))
-                value = Mathf.Max(value - target.GetStatusValue(StatusType.Armor), 0);
-
-            //Damage
-            int damage_max = Mathf.Min(value, target.GetHP());
-            int extra = value - target.GetHP();
-            target.damage += value;
-            onCardDamaged?.Invoke(attacker, target, value);
-
-            //Kill attribution for the Death Creation Step (deaths are deferred; see ProcessDeathStep)
-            if (value > 0 && target.GetHP() <= 0)
-                SetDeathSource(attacker, target, false, DeathCause.AbilityDamage);
-
-            if (value > 0)
-                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
-
-
-            //Trample
-            Player tplayer = game_data.GetPlayer(target.player_id);
-            if (!spell_damage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
-                tplayer.hp -= extra;
-
-            //Lifesteal
-            Player player = game_data.GetPlayer(attacker.player_id);
-            if (!spell_damage && attacker.HasStatus(StatusType.LifeSteal))
-                player.hp += damage_max;
-
-            //Remove sleep on damage
-            target.RemoveStatus(StatusType.Sleep);
-
-            //Deathtouch: marks the target dying (removed at the next Death Creation Step)
-            if (value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
-                KillCard(attacker, target);
-
-            //0 hp: no immediate kill — the Death Creation Step collects GetHP()<=0 at step time,
-            //so a heal triggered before the step can still save the card (Hearthstone rule)
+            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target), spell_damage);
         }
 
-        //Damage a slot with attacker/caster
-        // 슬롯에게 데미지
-        public virtual void DamageCard_Event(Card attacker, Slot target, int value, EffectDamageType damage_type = EffectDamageType.Card, bool spell_damage = false)
+        // Resolve recipients once per board tile, inside the caller's existing ability phase.
+        // Distinct indoor tiles may reach the same player; range overlap is removed upstream.
+        public virtual void ApplyTileEffect(Slot target, Action<Card> applyCard, Action<Player> applyPlayer,
+            Action<Card> applyAttachment = null)
         {
-            Player oplayer = game_data.GetOpponentPlayer(attacker.player_id);
-            Card card_target = game_data.GetSlotCard(target);
-            Card attach_target = game_data.GetAttachCard(target);
+            if (!target.IsValid())
+                return;
 
-            if (damage_type == EffectDamageType.Slot)
-            {
-                foreach (var slot in Slot.GetInsideSlot())
-                {
-                    if (slot == target)
-                    {
-                        Player player = game_data.GetPlayer(target.GetP());
-                        if (player != null)
-                            DamagePlayer_Event(attacker, player, value);
-                    }
+            Card card = game_data.GetSlotCard(target);
+            Card attachment = applyAttachment != null ? game_data.GetAttachCard(target) : null;
+            Player player = game_data.GetPlayer(target.GetP());
+            if (player != null && !Slot.GetInsideSlot(player.player_id).Contains(target))
+                player = null;
 
-                }
-            }
+            if (card != null) applyCard?.Invoke(card);
+            if (attachment != null) applyAttachment(attachment);
+            if (player != null) applyPlayer?.Invoke(player);
+        }
 
-
-            if (card_target != null)
-                DamageCard_Event(attacker, card_target, value, spell_damage);
-
-            if (attach_target != null)
-                TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attach_target);
+        public virtual void DamageCard_Event(Card attacker, Slot target, int value, bool spell_damage = false)
+        {
+            ApplyTileEffect(target,
+                card => DamageCard_Event(attacker, card, value, spell_damage),
+                player => DamagePlayer_Event(attacker, player, value),
+                attachment => TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, attachment));
         }
 
         //A card that kills another card. Board cards are only marked dying and are removed at the
@@ -2235,7 +2055,7 @@ namespace TcgEngine.Gameplay
 
         public virtual int RollRandomValue(int min, int max)
         {
-            game_data.rolled_value = random.Next(min, max);
+            game_data.rolled_value = GetRandom().Next(min, max);
             onRollValue?.Invoke(game_data.rolled_value);
             resolve_queue.SetDelay(1f);
             return game_data.rolled_value;
@@ -2247,14 +2067,18 @@ namespace TcgEngine.Gameplay
         //하스스톤 Rule 3: 묶음 안에서는 죽음 처리가 절대 끼어들지 않는다 (칼 곡예사 2장 규칙 —
         //"All Knife Juggler effects are handled before any of their deaths are detected").
         //묶지 않으면 각 트리거가 자기 최상위 Phase가 되어 사이사이 사망 웨이브가 돈다.
-        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Card triggerer = null, AbilityEventContext context = null)
+        public virtual void TriggerCardAbilityType(AbilityTrigger type, Card caster, Card triggerer = null, AbilityEventContext context = null,
+            AbilityData preparedAbility = null, AbilityExecutionContext preparedExecution = null)
         {
             resolve_queue.BeginPhase();
             foreach (AbilityData iability in caster.GetAbilities())
             {
                 if (iability && iability.trigger == type)
                 {
-                    TriggerCardAbility(iability, caster, triggerer, false, context);
+                    if (iability == preparedAbility && preparedExecution != null)
+                        EnqueueAbility(iability, caster, triggerer ?? caster, preparedExecution, false);
+                    else
+                        TriggerCardAbility(iability, caster, triggerer, false, context);
                 }
             }
 
@@ -2339,25 +2163,21 @@ namespace TcgEngine.Gameplay
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, bool is_chain = false, AbilityEventContext context = null)
         {
-            Card trigger_card = triggerer != null ? triggerer : caster; //Triggerer is the caster if not set
+            Card trigger = triggerer ?? caster;
+            EnqueueAbility(iability, caster, trigger, new AbilityExecutionContext(game_data, trigger, null, context), is_chain);
+        }
 
-            // [DOUBLE-CHECK TRIGGER CONDITIONS] Hearthstone rule: trigger conditions are evaluated
-            // HERE at enqueue time (against the state of the triggering event) AND again at resolve
-            // time in ResolveCardAbility (against the latest state). The ability fires only if BOTH
-            // pass. Consequence: a condition that was false at the event but becomes true before
-            // resolve (e.g. a club host-counter cycled by an earlier ability in the same batch)
-            // does NOT fire — the ability is never enqueued.
-            // Repeat iterations skip both checks (repeat condition only, see ProcessPendingRepeats).
-            if (!caster.CanDoAbilities())
-                return; //Silenced card cant trigger
-            if (!iability.AreTriggerConditionsMet(game_data, caster, trigger_card, context))
-                return;
-
-            int current_repeat = 0;
-            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster, context);
-
-            if (iability.AreOngoingRepeatConditionsMet(game_data, max_repeat, current_repeat, context))
-                RepeatTriggerCardAbility(iability, caster, trigger_card, max_repeat, current_repeat, is_chain, context);
+        // New invocations create a context; prepared invocations explicitly resume their own context.
+        private void EnqueueAbility(AbilityData ability, Card caster, Card triggerer, AbilityExecutionContext execution, bool isChain)
+        {
+            if (ability == null || caster == null || !caster.CanDoAbilities()) return;
+            bool eligible = execution.trigger_player >= 0
+                ? ability.AreTriggerConditionsMet(game_data, caster, game_data.GetPlayer(execution.trigger_player), execution)
+                : ability.AreTriggerConditionsMet(game_data, caster, triggerer, execution);
+            if (!eligible) return;
+            int maxRepeat = ability.GetMaxRepeatTimes(game_data, caster, execution);
+            if (ability.AreOngoingRepeatConditionsMet(game_data, maxRepeat, 0, execution))
+                RepeatTriggerCardAbility(ability, caster, triggerer, maxRepeat, 0, isChain, execution);
         }
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Card triggerer = null, int max_repeat = 0, int current_repeat = 0, bool is_chain = false, AbilityEventContext context = null)
@@ -2374,19 +2194,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void TriggerCardAbility(AbilityData iability, Card caster, Player triggerer, AbilityEventContext context = null)
         {
-            // [DOUBLE-CHECK TRIGGER CONDITIONS] Enqueue-time check against the Player triggerer.
-            // This is the only point where player-triggerer conditions can be evaluated: the Player
-            // is not carried into the queue (the caster is passed as the trigger card), so the
-            // resolve-time re-check in ResolveCardAbility uses the caster as the trigger target.
-            if (!caster.CanDoAbilities())
-                return; //Silenced card cant trigger
-            if (!iability.AreTriggerConditionsMet(game_data, caster, triggerer, context))
-                return;
-
-            int current_repeat = 0;
-            int max_repeat = iability.GetMaxRepeatTimes(game_data, caster, context);
-
-            RepeatTriggerCardAbility(iability, caster, caster, max_repeat, current_repeat, context: context);
+            EnqueueAbility(iability, caster, caster, new AbilityExecutionContext(game_data, null, triggerer, context), false);
         }
 
         public virtual void RepeatTriggerCardAbility(AbilityData iability, Card caster, Player triggerer, int max_repeat = 0, int current_repeat = 0, AbilityEventContext context = null)
@@ -2410,8 +2218,17 @@ namespace TcgEngine.Gameplay
             // fired, its repeats are governed only by the repeat condition (evaluated at the death
             // phase stable point, see ProcessPendingRepeats), even if the first iteration's effects
             // made the trigger condition false. See docs/resolve-queue-hearthstone-redesign.md
-            if (current_repeat == 0 && !iability.AreTriggerConditionsMet(game_data, caster, triggerer, context: context))
-                return;
+            var execution = context as AbilityExecutionContext;
+            if (execution == null)
+                context = execution = new AbilityExecutionContext(game_data, triggerer, null, context);
+            execution.BeginIteration(current_repeat);
+            if (current_repeat == 0)
+            {
+                bool eligible = execution.trigger_player >= 0
+                    ? iability.AreTriggerConditionsMet(game_data, caster, game_data.GetPlayer(execution.trigger_player), context)
+                    : iability.AreTriggerConditionsMet(game_data, caster, triggerer, context);
+                if (!eligible) return;
+            }
 
             if (iability.trigger == AbilityTrigger.OnDeathOther && caster.CardData.IsBoardCard() && !game_data.IsOnBoard(caster))
                 return;
@@ -2439,53 +2256,45 @@ namespace TcgEngine.Gameplay
             game_data.last_selected = "";
             game_data.last_selected_slot = new Slot(0, 0, -1);
 
+            if (iability.criteria_target == AbilityTarget.CardSelector)
+                return OpenSelection(SelectorType.SelectorCard, iability, caster, triggerer, max_repeat, current_repeat, context);
+
             if (!iability.HasValidSelectTarget(game_data, caster, context: context))
                 return false;
 
             //A play-time target was already chosen in SelectPlayTarget and is read from the caster
-            if (iability.criteria_target == AbilityTarget.SelectTarget && !iability.IsPlaySelectTarget())
+            if (iability.IsTargetSelector() && !iability.IsPlaySelectTarget())
             {
                 //Wait for target
-                GoToSelectTarget(iability, caster, triggerer, max_repeat, current_repeat, context: context);
-                return true;
+                return OpenSelection(SelectorType.SelectTarget, iability, caster, triggerer, max_repeat, current_repeat, context);
             }
 
-            if (iability.criteria_target == AbilityTarget.CardSelector)
+            if (iability.criteria_target == AbilityTarget.ChoiceSelector)
             {
-                GoToSelectorCard(iability, caster, triggerer, max_repeat, current_repeat, context: context);
-                return true;
-            }
-            else if (iability.criteria_target == AbilityTarget.ChoiceSelector)
-            {
-                GoToSelectorChoice(iability, caster, triggerer, max_repeat, current_repeat, context: context);
-                return true;
+                return OpenSelection(SelectorType.SelectorChoice, iability, caster, triggerer, max_repeat, current_repeat, context);
             }
             return false;
         }
 
-        protected virtual void ResolveCardAbilityPlayTarget(AbilityData iability, Card caster, AbilityEventContext context = null)
+        protected virtual void ResolveCardAbilityPlayTarget(AbilityData ability, Card caster, AbilityEventContext context = null)
         {
-            if (iability.criteria_target == AbilityTarget.PlayTarget)
+            if (ability.criteria_target == AbilityTarget.PlayTarget)
+                ResolveSpatialRecipients(ability, caster, ability.GetSpatialTargets(game_data, caster, context, is_play_target: true), context);
+        }
+
+        private void ResolveSpatialRecipients(AbilityData ability, Card caster, List<object> recipients, AbilityEventContext context)
+        {
+            foreach (object recipient in recipients)
             {
-                Slot slot = caster.slot;
-                
-                if (slot.IsPlayerSlot())
+                if (recipient is Card card)
                 {
-                    Player tplayer = game_data.GetPlayer(slot.p);
-                    if (iability.CanTarget(game_data, caster, tplayer, context: context))
-                        ResolveEffectTarget(iability, caster, tplayer, context: context);
+                    if (!game_data.IsOnBoard(card) || !ability.AreTargetConditionsMet(game_data, caster, card, context)) continue;
+                    ResolveEffectTarget(ability, caster, card, context);
                 }
-
-                else
-                {
-                    if (iability.CanTarget(game_data, caster, slot, context: context))
-                    {
-                        List<Slot> target_slots = iability.GetSlotTargets(game_data, caster, true, context: context);
-
-                        foreach (Slot target_slot in target_slots)
-                            ResolveEffectTarget(iability, caster, target_slot, context: context);
-                    }
-                }
+                else if (recipient is Player player)
+                    ResolveEffectTarget(ability, caster, player, context);
+                else if (recipient is Slot slot)
+                    ResolveEffectTarget(ability, caster, slot, context);
             }
         }
 
@@ -2503,29 +2312,28 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveCardAbilityCards(AbilityData iability, Card caster, AbilityEventContext context = null)
         {
+            // Card selectors apply only the accepted recipient. An empty candidate set completes without effects.
+            if (iability.criteria_target == AbilityTarget.CardSelector || iability.UsesSpatialTargets()) return;
             //Get Cards Targets based on conditions
             List<Card> targets = iability.GetCardTargets(game_data, caster, card_array, context: context);
 
             //ResolveEffectTarget(iability, caster, targets, context: context);
             
-            //Resolve effects
+            var boardTargets = new HashSet<string>(targets.Where(game_data.IsOnBoard).Select(card => card.uid));
+            // Revalidate current recipients without rerunning candidate filters or cached rolls.
             foreach (Card target in targets)
             {
+                if (boardTargets.Contains(target.uid) && !game_data.IsOnBoard(target)) continue;
+                if (!iability.AreTargetConditionsMet(game_data, caster, target, context)) continue;
                 ResolveEffectTarget(iability, caster, target, context: context);
             }
             
         }
 
-        protected virtual void ResolveCardAbilitySlots(AbilityData iability, Card caster, AbilityEventContext context = null)
+        protected virtual void ResolveCardAbilitySlots(AbilityData ability, Card caster, AbilityEventContext context = null)
         {
-            //Get Slot Targets based on conditions
-            List<Slot> targets = iability.GetSlotTargets(game_data, caster, false, slot_array, context: context);
-
-            //Resolve effects
-            foreach (Slot target in targets)
-            {
-                ResolveEffectTarget(iability, caster, target, context: context);
-            }
+            if (ability.UsesSpatialTargets() && ability.criteria_target != AbilityTarget.PlayTarget)
+                ResolveSpatialRecipients(ability, caster, ability.GetSpatialTargets(game_data, caster, context), context);
         }
 
         protected virtual void ResolveCardAbilityCardData(AbilityData iability, Card caster, AbilityEventContext context = null)
@@ -2555,6 +2363,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Card target, AbilityEventContext context = null)
         {
+            (context as AbilityExecutionContext)?.RecordTarget(target.slot, target.uid);
             ResolvePresentedTarget(iability,
                 () => iability.DoEffects(this, caster, target, context: context), () => {
                     onAbilityTargetCard?.Invoke(iability, caster, target);
@@ -2570,6 +2379,7 @@ namespace TcgEngine.Gameplay
 
         protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot target, AbilityEventContext context = null)
         {
+            (context as AbilityExecutionContext)?.RecordTarget(target, game_data.GetSlotCard(target)?.uid);
             ResolvePresentedTarget(iability,
                 () => iability.DoEffects(this, caster, target, context: context), () => {
                     onAbilityTargetSlot?.Invoke(iability, caster, target);
@@ -2667,60 +2477,36 @@ namespace TcgEngine.Gameplay
             for (int p = 0; p < game_data.players.Length; p++)
             {
                 Player player = game_data.players[p];
-                UpdateOngoingAbilities(player, player.hero);  //Remove this line if hero is on the board
-
-                for (int c = 0; c < player.cards_board.Count; c++)
+                foreach (Card card in GetOngoingSources(player))
                 {
-                    Card card = player.cards_board[c];
-                    List<CardClub> card_clubs = card.GetAllClubs();
-
-                    foreach (CardClub card_club in card_clubs)
+                    if (player.cards_board.Contains(card))
                     {
-                        // player_clubs에서 모든 CardClub을 가져옴
-                        List<CardClub> playerClubList = player.cards_club.SelectMany(club => club.GetAllClubs()).ToList();
-                        List<CardClub> revealedClubList = player.clubs_revealed.SelectMany(club => club.GetAllClubs()).ToList();
-                        
-                        // 조건: player_clubs에 card_club이 포함되어 있고, 이미 공개되지 않은 경우
-                        if (playerClubList.Any(club => club.id == card_club.id) && !revealedClubList.Any(club => club.id == card_club.id))
+                        List<CardClub> card_clubs = card.GetAllClubs();
+
+                        foreach (CardClub card_club in card_clubs)
                         {
-                            /*
-                            // 공개되지 않은 경우에 추가
-                            Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Contains(card_club));
-                            if (matchingCard != null)
-                            player.clubs_revealed.Add(matchingCard);
-                            */
+                            // player_clubs에서 모든 CardClub을 가져옴
+                            List<CardClub> playerClubList = player.cards_club.SelectMany(club => club.GetAllClubs()).ToList();
+                            List<CardClub> revealedClubList = player.clubs_revealed.SelectMany(club => club.GetAllClubs()).ToList();
 
-                            Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Any(club => club.id == card_club.id));
-
-                            if (matchingCard != null)
+                            // 조건: player_clubs에 card_club이 포함되어 있고, 이미 공개되지 않은 경우
+                            if (playerClubList.Any(club => club.id == card_club.id) && !revealedClubList.Any(club => club.id == card_club.id))
+                            {
+                                /*
+                                // 공개되지 않은 경우에 추가
+                                Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Contains(card_club));
+                                if (matchingCard != null)
                                 player.clubs_revealed.Add(matchingCard);
+                                */
+
+                                Card matchingCard = player.cards_club.FirstOrDefault(card => card.GetAllClubs().Any(club => club.id == card_club.id));
+
+                                if (matchingCard != null)
+                                    player.clubs_revealed.Add(matchingCard);
+                            }
                         }
+
                     }
-
-                    UpdateOngoingAbilities(player, card);
-                }
-
-                for (int c = 0; c < player.cards_equip.Count; c++)
-                {
-                    Card card = player.cards_equip[c];
-                    UpdateOngoingAbilities(player, card);
-                }
-
-                for (int c = 0; c < player.cards_attach.Count; c++)
-                {
-                    Card card = player.cards_attach[c];
-                    UpdateOngoingAbilities(player, card);
-                }
-
-                for (int c = 0; c < player.cards_club.Count; c++)
-                {
-                    Card card = player.cards_club[c];
-                    UpdateOngoingAbilities(player, card);
-                }
-
-                for (int c = 0; c < player.player_ability.Count; c++)
-                {
-                    Card card = player.player_ability[c];
                     UpdateOngoingAbilities(player, card);
                 }
             }
@@ -2880,152 +2666,161 @@ namespace TcgEngine.Gameplay
 
         protected virtual void UpdateOngoingAbilities(Player player, Card card)
         {
-            if (card == null || !card.CanDoAbilities())
-                return;
-
-            List<AbilityData> cabilities = card.GetAbilities();
-            for (int a = 0; a < cabilities.Count; a++)
+            if (card == null || !card.CanDoAbilities()) return;
+            List<AbilityData> abilities = card.GetAbilities();
+            for (int index = 0; index < abilities.Count; index++)
             {
-                AbilityData ability = cabilities[a];
-                if (ability != null && ability.trigger == AbilityTrigger.Ongoing && ability.AreTriggerConditionsMet(game_data,  card))
+                AbilityData ability = abilities[index];
+                if (ability == null || ability.trigger != AbilityTrigger.Ongoing || !ability.HasEffectOrStatus()
+                    || !ability.AreTriggerConditionsMet(game_data, card)) continue;
+                foreach (object recipient in GetOngoingTargets(ability, card))
                 {
-                    if (ability.criteria_target == AbilityTarget.Self)
+                    if (recipient is Card target) ability.DoOngoingEffects(this, card, target);
+                    else if (recipient is Player targetPlayer) ability.DoOngoingEffects(this, card, targetPlayer);
+                }
+            }
+        }
+
+        // Shared by ongoing state recalculation and numeric-container lookup.
+        private IEnumerable<object> GetOngoingTargets(AbilityData ability, Card card, AbilityEventContext context = null)
+        {
+            Player player = game_data.GetPlayer(card.player_id);
+            if (ability.criteria_target == AbilityTarget.Self)
+            {
+                if (ability.AreCriteriaTargetConditionsMet(game_data, card, card, context))
+                {
+                    yield return card;
+                }
+            }
+
+            if (ability.criteria_target == AbilityTarget.PlayerSelf)
+            {
+                if (ability.AreCriteriaTargetConditionsMet(game_data, card, player, context))
+                {
+                    yield return player;
+                }
+            }
+
+            if (ability.criteria_target == AbilityTarget.AllPlayers || ability.criteria_target == AbilityTarget.PlayerOpponent)
+            {
+                for (int tp = 0; tp < game_data.players.Length; tp++)
+                {
+                    if (ability.criteria_target == AbilityTarget.AllPlayers || tp != player.player_id)
                     {
-                        if (ability.AreCriteriaTargetConditionsMet(game_data, card, card))
+                        Player oplayer = game_data.players[tp];
+                        if (ability.AreCriteriaTargetConditionsMet(game_data, card, oplayer, context))
                         {
-                            ability.DoOngoingEffects(this, card, card);
+                            yield return oplayer;
                         }
                     }
+                }
+            }
 
-                    if (ability.criteria_target == AbilityTarget.PlayerSelf)
+            if (ability.criteria_target == AbilityTarget.Club)
+            {
+                //Buff the caster owner's club card(s); ongoing so it is wiped/recomputed each
+                //cycle and naturally drops when the granter (card) is silenced.
+                foreach (Card club in player.cards_club)
+                {
+                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, club, context))
+                        yield return club;
+                }
+            }
+
+            if (ability.criteria_target == AbilityTarget.EquippedCard)
+            {
+                if (card.CardData.IsEquipment())
+                {
+                    //Get bearer of the equipment
+                    Card target = player.GetBearerCard(card);
+                    if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target, context))
                     {
-                        if (ability.AreCriteriaTargetConditionsMet(game_data, card, player))
-                        {
-                            ability.DoOngoingEffects(this, card, player);
-                        }
+                        yield return target;
                     }
-
-                    if (ability.criteria_target == AbilityTarget.AllPlayers || ability.criteria_target == AbilityTarget.PlayerOpponent)
+                }
+                else if (card.equipped_uid != null)
+                {
+                    //Get equipped card
+                    Card target = game_data.GetCard(card.equipped_uid);
+                    if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target, context))
                     {
-                        for (int tp = 0; tp < game_data.players.Length; tp++)
+                        yield return target;
+                    }
+                }
+            }
+
+            if (ability.criteria_target == AbilityTarget.AttachedSlot)
+            {
+                if (card.CardData.IsAttachment())
+                {
+                    Slot attached_slot = player.GetAttachedSlot(card);
+                    Card target = player.GetSlotCard(attached_slot);
+
+                    if (attached_slot.IsValid() && target != null)
+                    {
+                        yield return target;
+                    }
+                }
+            }
+
+            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand || ability.criteria_target == AbilityTarget.AllCardsBoard)
+            {
+                var ongoingRecipients = new HashSet<string>();
+                for (int tp = 0; tp < game_data.players.Length; tp++)
+                {
+                    //Looping on all cards is very slow, since there are no ongoing effects that works out of board/hand we loop on those only
+                    Player tplayer = game_data.players[tp];
+
+                    //Hand Cards
+                    if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand)
+                    {
+                        for (int tc = 0; tc < tplayer.cards_hand.Count; tc++)
                         {
-                            if (ability.criteria_target == AbilityTarget.AllPlayers || tp != player.player_id)
+                            Card tcard = tplayer.cards_hand[tc];
+                            if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard, context))
                             {
-                                Player oplayer = game_data.players[tp];
-                                if (ability.AreCriteriaTargetConditionsMet(game_data, card, oplayer))
+                                yield return tcard;
+                            }
+                        }
+                    }
+
+                    //Board Cards
+                    if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsBoard)
+                    {
+                        for (int tc = 0; tc < tplayer.cards_board.Count; tc++)
+                        {
+                            Card tcard = tplayer.cards_board[tc];
+                            if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard, context))
+                            {
+                                List<Slot> all_slot = Slot.GetAll();
+                                List<Card> targets = new List<Card>();
+
+                                foreach(Slot s in all_slot)
                                 {
-                                    ability.DoOngoingEffects(this, card, oplayer);
-                                }
-                            }
-                        }
-                    }
-
-                    if (ability.criteria_target == AbilityTarget.Club)
-                    {
-                        //Buff the caster owner's club card(s); ongoing so it is wiped/recomputed each
-                        //cycle and naturally drops when the granter (card) is silenced.
-                        foreach (Card club in player.cards_club)
-                        {
-                            if (ability.AreCriteriaTargetConditionsMet(game_data, card, club))
-                                ability.DoOngoingEffects(this, card, club);
-                        }
-                    }
-
-                    if (ability.criteria_target == AbilityTarget.EquippedCard)
-                    {
-                        if (card.CardData.IsEquipment())
-                        {
-                            //Get bearer of the equipment
-                            Card target = player.GetBearerCard(card);
-                            if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target))
-                            {
-                                ability.DoOngoingEffects(this, card, target);
-                            }
-                        }
-                        else if (card.equipped_uid != null)
-                        {
-                            //Get equipped card
-                            Card target = game_data.GetCard(card.equipped_uid);
-                            if (target != null && ability.AreCriteriaTargetConditionsMet(game_data, card, target))
-                            {
-                                ability.DoOngoingEffects(this, card, target);
-                            }
-                        }
-                    }
-
-                    if (ability.criteria_target == AbilityTarget.AttachedSlot)
-                    {
-                        if (card.CardData.IsAttachment())
-                        {
-                            Slot attached_slot = player.GetAttachedSlot(card);
-                            Card target = player.GetSlotCard(attached_slot);
-
-                            if (attached_slot.IsValid() && target != null)
-                            {
-                                ability.DoOngoingEffects(this, card, target);
-                            }
-                        }
-                    }
-
-                    if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand || ability.criteria_target == AbilityTarget.AllCardsBoard)
-                    {
-                        for (int tp = 0; tp < game_data.players.Length; tp++)
-                        {
-                            //Looping on all cards is very slow, since there are no ongoing effects that works out of board/hand we loop on those only
-                            Player tplayer = game_data.players[tp];
-
-                            //Hand Cards
-                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsHand)
-                            {
-                                for (int tc = 0; tc < tplayer.cards_hand.Count; tc++)
-                                {
-                                    Card tcard = tplayer.cards_hand[tc];
-                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
+                                    if (ability.AreWideRangeConditionsMet(game_data, card, tcard.slot, s, context) && game_data.GetSlotCard(s) != null)
                                     {
-                                        ability.DoOngoingEffects(this, card, tcard);
+                                        targets.Add(game_data.GetSlotCard(s));
                                     }
                                 }
-                            }
 
-                            //Board Cards
-                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles || ability.criteria_target == AbilityTarget.AllCardsBoard)
-                            {
-                                for (int tc = 0; tc < tplayer.cards_board.Count; tc++)
+                                foreach(Card t in targets)
                                 {
-                                    Card tcard = tplayer.cards_board[tc];
-                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
-                                    {
-                                        List<Slot> all_slot = Slot.GetAll();
-                                        List<Card> targets = new List<Card>();
-
-                                        foreach(Slot s in all_slot)
-                                        {
-                                            if (ability.AreWideRangeConditionsMet(game_data, card, tcard.slot, s) && game_data.GetSlotCard(s) != null)
-                                            {
-                                                targets.Add(game_data.GetSlotCard(s));
-                                            }
-                                        }
-
-                                        foreach(Card t in targets)
-                                        {
-                                            if (ability.AreTargetConditionsMet(game_data, card, t))
-                                                ability.DoOngoingEffects(this, card, t);
-                                        }
-                                    }
+                                    if (ongoingRecipients.Add(t.uid) && ability.AreTargetConditionsMet(game_data, card, t, context))
+                                        yield return t;
                                 }
                             }
+                        }
+                    }
 
-                            //Equip Cards
-                            if (ability.criteria_target == AbilityTarget.AllCardsAllPiles)
+                    //Equip Cards
+                    if (ability.criteria_target == AbilityTarget.AllCardsAllPiles)
+                    {
+                        for (int tc = 0; tc < tplayer.cards_equip.Count; tc++)
+                        {
+                            Card tcard = tplayer.cards_equip[tc];
+                            if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard, context))
                             {
-                                for (int tc = 0; tc < tplayer.cards_equip.Count; tc++)
-                                {
-                                    Card tcard = tplayer.cards_equip[tc];
-                                    if (ability.AreCriteriaTargetConditionsMet(game_data, card, tcard))
-                                    {
-                                        ability.DoOngoingEffects(this, card, tcard);
-                                    }
-                                }
+                                yield return tcard;
                             }
                         }
                     }
@@ -3124,199 +2919,117 @@ namespace TcgEngine.Gameplay
 
         //---- Resolve Selector -----
 
-        public virtual void SelectCard(Card target)
+        public virtual void SelectCard(Card target) { SelectTarget(target); }
+        public virtual void SelectPlayer(Player target) { SelectTarget(target); }
+        public virtual void SelectSlot(Slot target) { SelectTarget(target); }
+
+        private bool TryGetSelection(out AbilityData ability, out Card caster, out Card triggerer,
+            out AbilityExecutionContext context)
         {
-            AbilityEventContext context = game_data.selector_context;
-            if (game_data.selector == SelectorType.None)
-                return;
-
-            Card caster = game_data.GetCard(game_data.selector_caster_uid);
-            Card triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
-            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-
-            if (caster == null || target == null || ability == null)
-                return;
-
-            if (game_data.selector == SelectorType.SelectTarget)
-            {
-                if (!ability.CanTarget(game_data, caster, target, context: context))
-                    return; //Can't target that target
-
-                Player player = game_data.GetPlayer(caster.player_id);
-                if (!is_ai_predict)
-                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
-
-                RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
-                game_data.selector = SelectorType.None;
-                game_data.selector_context = null;
-
-                if (ability.IsPlaySelectTarget())
-                {
-                    caster.SetPlayTarget(target);
-                    PlayCard(caster, caster.slot);
-                }
-                else
-                {
-                    //Phase: effects applied outside Resolve(), so open the depth-first scope manually
-                    resolve_queue.BeginPhase();
-                    ResolvePresentedAbility(ability,
-                        () => ResolveEffectTarget(ability, caster, target, context: context),
-                        () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
-                    resolve_queue.EndPhase();
-                    resolve_queue.ResolveAll();
-                }
-            }
-
-            if (game_data.selector == SelectorType.SelectorCard)
-            {
-                if (game_data.selector_card_uids != null
-                    ? !game_data.selector_card_uids.Contains(target.uid)
-                    : !ability.IsCardSelectionValid(game_data, caster, target, card_array, context: context))
-                    return; //Supports conditions and filters
-
-                RecordInteraction("card", game_data.selector_player_id, game_data.selector_caster_uid, target: target.uid);
-                game_data.selector = SelectorType.None;
-                game_data.selector_context = null;
-
-                resolve_queue.BeginPhase();
-                ResolvePresentedAbility(ability,
-                    () => ResolveEffectTarget(ability, caster, target, context: context),
-                    () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
-                resolve_queue.EndPhase();
-                resolve_queue.ResolveAll();
-            }
+            ability = AbilityData.Get(game_data.selector_ability_id);
+            caster = game_data.GetCard(game_data.selector_caster_uid);
+            triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
+            context = game_data.selector_context as AbilityExecutionContext;
+            return game_data.selector != SelectorType.None && ability != null && caster != null && context != null;
         }
 
-        public virtual void SelectPlayer(Player target)
+        // Input types differ only in validation, history and recipient dispatch.
+        // Selection lifetime, play preparation and phase resumption are shared.
+        private void SelectTarget(object target)
         {
-            AbilityEventContext context = game_data.selector_context;
-            if (game_data.selector == SelectorType.None)
-                return;
-
-            Card caster = game_data.GetCard(game_data.selector_caster_uid);
-            Card triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
-            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-
-            if (caster == null || target == null || ability == null)
-                return;
-
-            if (game_data.selector == SelectorType.SelectTarget)
+            if (!TryGetSelection(out var ability, out var caster, out var triggerer, out var context)) return;
+            bool cardSelector = game_data.selector == SelectorType.SelectorCard;
+            if (!cardSelector && game_data.selector != SelectorType.SelectTarget) return;
+            if (!cardSelector && target is Card occupant)
             {
-                if (!ability.CanTarget(game_data, caster, target, context: context))
-                    return; //Can't target that target
-
-                Player player = game_data.GetPlayer(caster.player_id);
-                if (!is_ai_predict)
-                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
-
-                RecordInteraction("player", game_data.selector_player_id, game_data.selector_caster_uid, choice: target.player_id);
-                game_data.selector = SelectorType.None;
-                game_data.selector_context = null;
-
-                if (ability.IsPlaySelectTarget())
-                {
-                    caster.SetPlayTarget(target);
-                    PlayCard(caster, caster.slot);
-                }
-                else
-                {
-                    resolve_queue.BeginPhase();
-                    ResolvePresentedAbility(ability,
-                        () => ResolveEffectTarget(ability, caster, target, context: context),
-                        () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
-                    resolve_queue.EndPhase();
-                    resolve_queue.ResolveAll();
-                }
+                if (!game_data.IsOnBoard(occupant)) return;
+                target = occupant.slot;
             }
+            if (!cardSelector && target is Player selectedTeacher)
+                target = new Slot(0, 0, selectedTeacher.player_id);
+
+            bool valid = cardSelector
+                ? target is Card candidate && ability.IsSelectionCandidate(game_data, caster, candidate, context)
+                : target is Slot slot && ability.CanTarget(game_data, caster, slot, context, true);
+            if (!valid) return;
+
+            Player owner = game_data.GetPlayer(caster.player_id);
+            if (target is Card selectedCard)
+            {
+                RecordInteraction("card", owner.player_id, caster.uid, target: selectedCard.uid);
+                if (!cardSelector && !is_ai_predict) owner.AddHistory(GameAction.CastAbility, caster, ability, selectedCard);
+            }
+            else if (target is Player selectedPlayer)
+            {
+                RecordInteraction("player", owner.player_id, caster.uid, choice: selectedPlayer.player_id);
+                if (!is_ai_predict) owner.AddHistory(GameAction.CastAbility, caster, ability, selectedPlayer);
+            }
+            else if (target is Slot selectedSlot)
+            {
+                RecordInteraction("slot", owner.player_id, caster.uid, slot: selectedSlot);
+                if (!is_ai_predict) owner.AddHistory(GameAction.CastAbility, caster, ability, selectedSlot);
+            }
+
+            if (ability.IsPlaySelectTarget())
+            {
+                caster.SetPlayTarget((Slot)target);
+                FinishPlaySelection(ability, caster, context);
+                return;
+            }
+            CompleteSelection(ability, caster, triggerer, context,
+                () => ResolveSelectedTarget(ability, caster, target, context));
         }
 
-        public virtual void SelectSlot(Slot target)
+        private void ResolveSelectedTarget(AbilityData ability, Card caster, object target, AbilityEventContext context)
         {
-            AbilityEventContext context = game_data.selector_context;
-            if (game_data.selector == SelectorType.None)
-                return;
+            if (ability.criteria_target == AbilityTarget.CardSelector && target is Card card)
+                ResolveEffectTarget(ability, caster, card, context);
+            else if (target is Slot slot)
+                ResolveSpatialRecipients(ability, caster, ability.GetSpatialTargets(game_data, caster, context, selected: slot), context);
+        }
 
-            Card caster = game_data.GetCard(game_data.selector_caster_uid);
-            Card triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
-            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
+        private void FinishPlaySelection(AbilityData ability, Card caster, AbilityExecutionContext context)
+        {
+            ResetSelectionState();
+            PlayCard(caster, caster.slot, preparedAbility: ability, preparedExecution: context);
+        }
 
-            if (caster == null || ability == null || !target.IsValid())
-                return;
-            
-            //if (ability.target == AbilityTarget.SelectCard)
-            //    return;
-
-            if (game_data.selector == SelectorType.SelectTarget)
+        private void CompleteSelection(AbilityData ability, Card caster, Card triggerer,
+            AbilityExecutionContext context, Action apply, Action after = null)
+        {
+            int maxRepeat = game_data.selector_max_repeat, currentRepeat = game_data.selector_current_repeat;
+            ResetSelectionState();
+            resolve_queue.BeginPhase(); // Restores the suspended scope before registering consequences.
+            try
             {
-                if (!ability.CanTarget(game_data, caster, target, context: context))
-                    return; //Conditions not met
-
-
-                Player player = game_data.GetPlayer(caster.player_id);
-                if (!is_ai_predict)
-                    player.AddHistory(GameAction.CastAbility, caster, ability, target);
-
-                RecordInteraction("slot", game_data.selector_player_id, game_data.selector_caster_uid, slot: target);
-                game_data.selector = SelectorType.None;
-                game_data.selector_context = null;
-
-                if (ability.IsPlaySelectTarget())
-                {
-                    caster.SetPlayTarget(target);
-                    PlayCard(caster, caster.slot);
-                }
-                else
-                {
-                    List<Slot> targets = Slot.GetAll();
-
-                    resolve_queue.BeginPhase();
-                    ResolvePresentedAbility(ability, () => {
-                        foreach (Slot targ in targets)
-                        {
-                            if (!ability.AreWideRangeConditionsMet(game_data, caster, target, targ, context: context))
-                                continue;
-
-                            if (ability.AreTargetConditionsMet(game_data, caster, targ, context: context))
-                                ResolveEffectTarget(ability, caster, targ, context: context);
-                        }
-                    }, () => AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context));
-                    resolve_queue.EndPhase();
-                    resolve_queue.ResolveAll();
-                }
+                Action complete = () => {
+                    AfterAbilityResolved(ability, caster, triggerer, maxRepeat, currentRepeat, context);
+                    after?.Invoke();
+                };
+                if (apply != null) ResolvePresentedAbility(ability, apply, complete);
+                else complete();
             }
+            finally { resolve_queue.EndPhase(); }
+            resolve_queue.ResolveAll();
+        }
+
+        private void ResetSelectionState()
+        {
+            game_data.selector = SelectorType.None;
+            game_data.selector_context = null;
+            game_data.selector_card_uids = null;
         }
 
         public virtual void SelectChoice(int choice)
         {
-            AbilityEventContext context = game_data.selector_context;
-            if (game_data.selector == SelectorType.None)
-                return;
-
-            Card caster = game_data.GetCard(game_data.selector_caster_uid);
-            Card triggerer = game_data.GetCard(game_data.selector_triggerer_uid);
-            AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-
-            if (caster == null || ability == null || choice < 0)
-                return;
-
-            if (game_data.selector == SelectorType.SelectorChoice && ability.criteria_target == AbilityTarget.ChoiceSelector)
-            {
-                if (choice >= 0 && choice < ability.chain_abilities.Length)
-                {
-                    AbilityData achoice = ability.chain_abilities[choice];
-                    if (achoice != null && game_data.CanSelectAbility(caster, achoice))
-                    {
-                        RecordInteraction("choice", game_data.selector_player_id, game_data.selector_caster_uid, choice: choice);
-                        game_data.selector = SelectorType.None;
-                        game_data.selector_context = null;
-                        resolve_queue.BeginPhase();
-                        AfterAbilityResolved(ability, caster, triggerer, game_data.selector_max_repeat, game_data.selector_current_repeat, context: context);
-                        ResolveCardAbility(achoice, caster, caster, achoice.GetMaxRepeatTimes(game_data, caster, context), 0, context);
-                        resolve_queue.EndPhase();
-                        resolve_queue.ResolveAll();
-                    }
-                }
-            }
+            if (!TryGetSelection(out var ability, out var caster, out var triggerer, out var context)
+                || game_data.selector != SelectorType.SelectorChoice || ability.criteria_target != AbilityTarget.ChoiceSelector
+                || choice < 0 || choice >= ability.chain_abilities.Length) return;
+            AbilityData selected = ability.chain_abilities[choice];
+            if (!game_data.CanSelectAbility(caster, selected)) return;
+            RecordInteraction("choice", caster.player_id, caster.uid, choice: choice);
+            CompleteSelection(ability, caster, triggerer, context, null,
+                () => TriggerCardAbility(selected, caster, caster, true, context));
         }
 
         //Player cancel: only allowed by Game.CanCancelSelector (target selection with can_cancel)
@@ -3355,8 +3068,7 @@ namespace TcgEngine.Gameplay
             //무관한 이벤트의 트리거가 취소된 어빌리티의 자식으로 들어간다 (최상위 Phase가 못 되어 사이의 사망 처리가 밀린다).
             resolve_queue.DiscardSuspendedScope();
 
-            game_data.selector = SelectorType.None;
-            game_data.selector_context = null;
+            ResetSelectionState();
         }
 
         //Turn time is up (or the turn is ended) with a selection still pending: answer it without the player.
@@ -3382,9 +3094,7 @@ namespace TcgEngine.Gameplay
                 Player player = game_data.GetPlayer(caster.player_id);
                 if (player.cards_board_temp.Contains(caster) && !ability.can_cancel)
                 {
-                    game_data.selector = SelectorType.None;
-                    game_data.selector_context = null;
-                    PlayCard(caster, caster.slot); //No play target was set: its OnPlay resolves without one
+                    FinishPlaySelection(ability, caster, (AbilityExecutionContext)context); //No play target was set.
                 }
                 else
                 {
@@ -3395,23 +3105,10 @@ namespace TcgEngine.Gameplay
 
             if (game_data.selector == SelectorType.SelectorCard)
             {
-                List<Card> candidates = new List<Card>();
-                if (game_data.selector_card_uids != null)
-                {
-                    foreach (string uid in game_data.selector_card_uids)
-                    {
-                        Card candidate = game_data.GetCard(uid);
-                        if (candidate != null)
-                            candidates.Add(candidate);
-                    }
-                }
-                else
-                {
-                    candidates.AddRange(ability.GetCardTargets(game_data, caster, card_array, context: context));
-                }
+                List<Card> candidates = ability.GetSelectionCandidates(game_data, caster);
 
                 if (candidates.Count > 0)
-                    SelectCard(candidates[random.Next(candidates.Count)]);
+                    SelectCard(candidates[GetRandom().Next(candidates.Count)]);
                 else
                     ClearSelector();
                 return;
@@ -3428,7 +3125,7 @@ namespace TcgEngine.Gameplay
                 }
 
                 if (choices.Count > 0)
-                    SelectChoice(choices[random.Next(choices.Count)]);
+                    SelectChoice(choices[GetRandom().Next(choices.Count)]);
                 else
                     ClearSelector();
                 return;
@@ -3475,47 +3172,24 @@ namespace TcgEngine.Gameplay
 
         //-----Trigger Selector-----
 
-        protected virtual void GoToSelectTarget(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
+        private bool OpenSelection(SelectorType type, AbilityData ability, Card caster, Card triggerer,
+            int maxRepeat, int currentRepeat, AbilityEventContext context)
         {
+            string[] candidates = type == SelectorType.SelectorCard
+                ? ability.GetCardTargets(game_data, caster, context: context).Select(c => c.uid).ToArray() : null;
+            if (candidates != null && candidates.Length == 0) return false;
             game_data.selector_version++;
-            game_data.selector = SelectorType.SelectTarget;
+            game_data.selector = type;
             game_data.selector_player_id = caster.player_id;
-            game_data.selector_ability_id = iability.id;
+            game_data.selector_ability_id = ability.id;
             game_data.selector_caster_uid = caster.uid;
             game_data.selector_triggerer_uid = triggerer.uid;
             game_data.selector_context = context;
-            game_data.selector_max_repeat = max_repeat;
-            game_data.selector_current_repeat = current_repeat;
+            game_data.selector_card_uids = candidates;
+            game_data.selector_max_repeat = maxRepeat;
+            game_data.selector_current_repeat = currentRepeat;
             RefreshData();
-        }
-
-        protected virtual void GoToSelectorCard(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
-        {
-            game_data.selector_card_uids = iability.GetCardTargets(game_data, caster, context: context).Select(c => c.uid).ToArray();
-            game_data.selector_version++;
-            game_data.selector = SelectorType.SelectorCard;
-            game_data.selector_player_id = caster.player_id;
-            game_data.selector_ability_id = iability.id;
-            game_data.selector_caster_uid = caster.uid;
-            game_data.selector_triggerer_uid = triggerer.uid;
-            game_data.selector_context = context;
-            game_data.selector_max_repeat = max_repeat;
-            game_data.selector_current_repeat = current_repeat;
-            RefreshData();
-        }
-
-        protected virtual void GoToSelectorChoice(AbilityData iability, Card caster, Card triggerer, int max_repeat, int current_repeat, AbilityEventContext context = null)
-        {
-            game_data.selector_version++;
-            game_data.selector = SelectorType.SelectorChoice;
-            game_data.selector_player_id = caster.player_id;
-            game_data.selector_ability_id = iability.id;
-            game_data.selector_caster_uid = caster.uid;
-            game_data.selector_triggerer_uid = triggerer.uid;
-            game_data.selector_context = context;
-            game_data.selector_max_repeat = max_repeat;
-            game_data.selector_current_repeat = current_repeat;
-            RefreshData();
+            return true;
         }
 
         protected virtual void GoToMulligan()
@@ -3595,7 +3269,7 @@ namespace TcgEngine.Gameplay
 
         public System.Random GetRandom()
         {
-            return random;
+            return game_data.GetRandom();
         }
 
         public Game GameData { get { return game_data; } }

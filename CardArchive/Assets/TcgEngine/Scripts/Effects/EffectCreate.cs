@@ -23,20 +23,7 @@ namespace TcgEngine
             if (create_opponent)
                 player = logic.GameData.GetOpponentPlayer(caster.player_id);
 
-            Card card = Card.Create(target, caster.VariantData, player);
-            //logic.GameData.last_summoned = card.uid;
-
-            if (create_pile == PileType.Deck)
-                player.cards_deck.Add(card);
-
-            if (create_pile == PileType.Discard)
-                player.cards_discard.Add(card);
-
-            if (create_pile == PileType.Hand)
-                player.cards_hand.Add(card);
-
-            if (create_pile == PileType.Temp)
-                player.cards_temp.Add(card);
+            logic.CreateCardToPile(target, caster.VariantData, player, create_pile);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)

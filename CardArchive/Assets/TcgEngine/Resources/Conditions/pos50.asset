@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: pos50
   m_EditorClassIdentifier: 
   possibility: 0.5
+  evaluation: 1

@@ -18,6 +18,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e8059ae2736090840a1753e474fb8b05, type: 2}
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
   criteria_target: 15
+  effect_target: 0
   conditions_criteria_target:
   - {fileID: 11400000, guid: 774a5a63703bf83439cf8ed5c8ab1b5b, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 389caf6e10cc56a4188d2455106d548d,

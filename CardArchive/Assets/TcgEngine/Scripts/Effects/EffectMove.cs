@@ -15,23 +15,30 @@ namespace TcgEngine
         public EffectActionType target_type;
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
+            DoEffect(logic, ability, caster, target, null);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target, AbilityEventContext context)
+        {
             Game game_data = logic.GetGameData();
-            Card target_unit = GetTarget(game_data, caster);
+            Card target_unit = GetTarget(game_data, caster, context);
             logic.MoveCard(target_unit, target);
         }
 
-        public Card GetTarget(Game gdata, Card caster)
+        public Card GetTarget(Game gdata, Card caster, AbilityEventContext context = null)
         {
             if (target_type == EffectActionType.Self)
                 return caster;
             if (target_type == EffectActionType.AbilityTriggerer)
-                return gdata.GetCard(gdata.ability_triggerer);
+                return gdata.GetCard(((context as AbilityExecutionContext)?.trigger_uid ?? gdata.ability_triggerer));
             if (target_type == EffectActionType.LastPlayed)
-                return gdata.GetCard(gdata.last_played);
+                return gdata.GetCard(((context as AbilityExecutionContext)?.last_played ?? gdata.last_played));
             if (target_type == EffectActionType.LastTargeted)
-                return gdata.GetSlotCard(gdata.last_targeted_slot);
+                return context is AbilityExecutionContext execution
+                    ? gdata.GetCard(execution.reference_target_uid)
+                    : gdata.GetSlotCard(gdata.last_targeted_slot);
             if (target_type == EffectActionType.LastSelected)
-                return gdata.GetCard(gdata.last_selected);
+                return gdata.GetCard(((context as AbilityExecutionContext)?.last_selected ?? gdata.last_selected));
             return null;
         }
     }

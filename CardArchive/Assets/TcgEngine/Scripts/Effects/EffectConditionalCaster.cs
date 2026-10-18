@@ -13,39 +13,8 @@ namespace TcgEngine
     /// </summary>
 
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/ConditionalCaster", order = 10)]
-    public class EffectConditionalCaster : EffectData
+    public class EffectConditionalCaster : EffectConditional
     {
-        public ConditionData condition;
-        public EffectData[] effects_true;
-        public EffectData[] effects_false;
-
-        private bool IsMet(GameLogic logic, AbilityData ability, Card caster)
-        {
-            return condition == null || condition.IsTargetConditionMet(logic.GetGameData(), ability, caster, caster);
-        }
-
-        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
-        {
-            EffectData[] list = IsMet(logic, ability, caster) ? effects_true : effects_false;
-            if (list == null) return;
-            foreach (EffectData e in list)
-                if (e != null) e.DoEffect(logic, ability, caster, target);
-        }
-
-        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
-        {
-            EffectData[] list = IsMet(logic, ability, caster) ? effects_true : effects_false;
-            if (list == null) return;
-            foreach (EffectData e in list)
-                if (e != null) e.DoEffect(logic, ability, caster, target);
-        }
-
-        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
-        {
-            EffectData[] list = IsMet(logic, ability, caster) ? effects_true : effects_false;
-            if (list == null) return;
-            foreach (EffectData e in list)
-                if (e != null) e.DoEffect(logic, ability, caster, target);
-        }
+        protected override object GetConditionTarget(Card caster, object target) { return caster; }
     }
 }

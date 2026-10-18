@@ -130,8 +130,22 @@ namespace TcgEngine.Replay
             if (type == typeof(Card)) { WriteCard(writer, (Card)value, refs); return; }
             if (type == typeof(AbilityEventContext))
             {
-                if (value != null && !(value is DeathEventContext)) throw Invalid("unregistered ability context");
-                WriteLeaf(writer, value, typeof(DeathEventContext));
+                if (value is AbilityExecutionContext execution)
+                {
+                    writer.Write((byte)2);
+                    foreach (var field in Fields(typeof(AbilityExecutionContext)))
+                    {
+                        if (field.Name == nameof(AbilityExecutionContext.source_event))
+                            WriteLeaf(writer, execution.source_event, typeof(DeathEventContext));
+                        else
+                            WriteValue(writer, field.GetValue(execution), field.FieldType, refs);
+                    }
+                }
+                else
+                {
+                    if (value != null && !(value is DeathEventContext)) throw Invalid("unregistered ability context");
+                    WriteLeaf(writer, value, typeof(DeathEventContext));
+                }
                 return;
             }
             if (type == typeof(Dictionary<string, Card>))
@@ -219,7 +233,21 @@ namespace TcgEngine.Replay
         {
             if (Atom(type)) return ReadAtom(reader, type);
             if (type == typeof(Card)) return ReadCard(reader, refs);
-            if (type == typeof(AbilityEventContext)) return ReadLeaf(reader, typeof(DeathEventContext));
+            if (type == typeof(AbilityEventContext))
+            {
+                byte kind = reader.ReadByte();
+                if (kind == 0) return null;
+                Type contextType = kind == 1 ? typeof(DeathEventContext)
+                    : kind == 2 ? typeof(AbilityExecutionContext) : throw Invalid("unknown ability context");
+                object context = System.Runtime.Serialization.FormatterServices.GetUninitializedObject(contextType);
+                foreach (var field in Fields(contextType))
+                {
+                    object fieldValue = field.Name == nameof(AbilityExecutionContext.source_event)
+                        ? ReadLeaf(reader, typeof(DeathEventContext)) : ReadValue(reader, field.FieldType, refs);
+                    field.SetValue(context, fieldValue);
+                }
+                return context;
+            }
             if (type == typeof(Dictionary<string, Card>))
             {
                 if (!reader.ReadBoolean()) return null;

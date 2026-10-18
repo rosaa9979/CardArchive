@@ -22,8 +22,6 @@ namespace TcgEngine
 
         //Target chosen while this card is played, for its OnPlay SelectTarget ability (AbilityData.IsPlaySelectTarget).
         //Only one kind is set at a time; cleared when the card starts a new play.
-        public string play_target_uid = null;
-        public int play_target_player = -1;
         public Slot play_target_slot = Slot.None;
 
         //Death phase (Phase 2): destroy effects mark the card dying instead of removing it immediately.
@@ -545,14 +543,12 @@ namespace TcgEngine
 
         public void SetPlayTarget(Card target)
         {
-            ClearPlayTarget();
-            play_target_uid = target.uid;
+            SetPlayTarget(target.slot);
         }
 
         public void SetPlayTarget(Player target)
         {
-            ClearPlayTarget();
-            play_target_player = target.player_id;
+            SetPlayTarget(new Slot(0, 0, target.player_id));
         }
 
         public void SetPlayTarget(Slot target)
@@ -563,8 +559,6 @@ namespace TcgEngine
 
         public void ClearPlayTarget()
         {
-            play_target_uid = null;
-            play_target_player = -1;
             play_target_slot = Slot.None;
         }
 
@@ -723,8 +717,6 @@ namespace TcgEngine
             dest.exhausted = source.exhausted;
             dest.damage = source.damage;
             dest.play_order = source.play_order;
-            dest.play_target_uid = source.play_target_uid;
-            dest.play_target_player = source.play_target_player;
             dest.play_target_slot = source.play_target_slot;
             dest.dying = source.dying;
             dest.death_source_uid = source.death_source_uid;

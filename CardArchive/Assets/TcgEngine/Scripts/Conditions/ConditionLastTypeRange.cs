@@ -22,7 +22,7 @@ namespace TcgEngine
         public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Card target, AbilityEventContext context = null)
         {
             if (type == ConditionLastType.LastPlayed)
-                return CompareBool(data.last_played == target.uid, oper);
+                return CompareBool(((context as AbilityExecutionContext)?.last_played ?? data.last_played) == target.uid, oper);
 
             //Other types check the card's slot against the last slot (range 0 = that card's own slot)
             return IsTargetConditionMet(data, ability, caster, target.slot, context: context);
@@ -37,23 +37,22 @@ namespace TcgEngine
 
             if (type == ConditionLastType.LastAttacked)
             {
-                if (!data.last_player_attacked && data.last_attacked_slot.GetNeighborSlot(range).Contains(target))
+                if (!((context as AbilityExecutionContext)?.last_player_attacked ?? data.last_player_attacked) && ((context as AbilityExecutionContext)?.last_attacked_slot ?? data.last_attacked_slot).GetNeighborSlot(range).Contains(target))
                     result = true;
             }
 
-            if (type == ConditionLastType.LastTargeted && data.last_targeted_slot.GetNeighborSlot(range).Contains(target))
+            if (type == ConditionLastType.LastTargeted && ((context as AbilityExecutionContext)?.reference_target_slot ?? data.last_targeted_slot).GetNeighborSlot(range).Contains(target))
                 result = true;
 
             if (type == ConditionLastType.LastSummoned)
             {
-                //OnPlay targets are selected before the card is summoned: the played card (caster, already on its slot) is the summon
-                Slot summoned_slot = ability.IsPlaySelectTarget() ? caster.slot : data.last_summoned_slot;
+                Slot summoned_slot = (context as AbilityExecutionContext)?.last_summoned_slot ?? data.last_summoned_slot;
                 if (summoned_slot.GetNeighborSlot(range).Contains(target))
                     result = true;
             }
 
 
-            if (type == ConditionLastType.LastDestroyed && data.last_destroyed_slot.GetNeighborSlot(range).Contains(target))
+            if (type == ConditionLastType.LastDestroyed && ((context as AbilityExecutionContext)?.last_destroyed_slot ?? data.last_destroyed_slot).GetNeighborSlot(range).Contains(target))
                 result = true;
 
             return CompareBool(result, oper);

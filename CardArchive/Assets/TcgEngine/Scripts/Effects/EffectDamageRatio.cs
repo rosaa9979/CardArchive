@@ -6,7 +6,7 @@ using TcgEngine.Gameplay;
 namespace TcgEngine
 {
     /// <summary>
-    /// Effect that sets stats equal to a dynamic calculated value from a pile (number of cards on board/hand/deck)
+    /// Deals ability damage proportional to the recipient's current health.
     /// </summary>
 
     [CreateAssetMenu(fileName = "effect", menuName = "TcgEngine/Effect/DamageRatio", order = 10)]
@@ -19,7 +19,7 @@ namespace TcgEngine
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
             int damage = Mathf.FloorToInt(target.hp * ratio);
-            logic.DamagePlayer(caster, target, damage);
+            logic.DamagePlayer_Event(caster, target, damage);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
@@ -31,7 +31,9 @@ namespace TcgEngine
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
         {
-            return;
+            logic.ApplyTileEffect(target,
+                card => DoEffect(logic, ability, caster, card),
+                player => DoEffect(logic, ability, caster, player));
         }
     }
 }

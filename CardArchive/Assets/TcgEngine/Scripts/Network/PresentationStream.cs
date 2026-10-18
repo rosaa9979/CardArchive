@@ -111,11 +111,9 @@ namespace TcgEngine
     public sealed class MsgSelectSlotRequest : INetworkSerializable
     {
         public Slot slot;
-        public string target_uid = "";
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeNetworkSerializable(ref slot);
-            serializer.SerializeValue(ref target_uid);
         }
     }
 

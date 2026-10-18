@@ -17,26 +17,61 @@ namespace TcgEngine
         public EffectData[] effects_true;
         public EffectData[] effects_false;
 
+        protected virtual object GetConditionTarget(Card caster, object target) { return target; }
+
+        private EffectData[] SelectEffects(GameLogic logic, AbilityData ability, Card caster, object target, AbilityEventContext context)
+        {
+            return ConditionEvaluation.Matches(condition, logic.GameData, ability, caster,
+                GetConditionTarget(caster, target), ConditionStage.Effect, context) ? effects_true : effects_false;
+        }
+
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target)
         {
-            bool met = condition == null || condition.IsTargetConditionMet(logic.GetGameData(), ability, caster, target);
-            Run(met ? effects_true : effects_false, logic, ability, caster, target);
+            DoEffect(logic, ability, caster, target, null);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Card target, AbilityEventContext context)
+        {
+            EffectData[] branch = SelectEffects(logic, ability, caster, target, context);
+            if (branch == null) return;
+            foreach (EffectData effect in branch) effect?.DoEffect(logic, ability, caster, target, context);
         }
 
         public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target)
         {
-            bool met = condition == null || condition.IsTargetConditionMet(logic.GetGameData(), ability, caster, target);
-            EffectData[] list = met ? effects_true : effects_false;
-            if (list == null) return;
-            foreach (EffectData e in list)
-                if (e != null) e.DoEffect(logic, ability, caster, target);
+            DoEffect(logic, ability, caster, target, null);
         }
 
-        private void Run(EffectData[] list, GameLogic logic, AbilityData ability, Card caster, Card target)
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Player target, AbilityEventContext context)
         {
-            if (list == null) return;
-            foreach (EffectData e in list)
-                if (e != null) e.DoEffect(logic, ability, caster, target);
+            EffectData[] branch = SelectEffects(logic, ability, caster, target, context);
+            if (branch == null) return;
+            foreach (EffectData effect in branch) effect?.DoEffect(logic, ability, caster, target, context);
         }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target)
+        {
+            DoEffect(logic, ability, caster, target, null);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot target, AbilityEventContext context)
+        {
+            EffectData[] branch = SelectEffects(logic, ability, caster, target, context);
+            if (branch == null) return;
+            foreach (EffectData effect in branch) effect?.DoEffect(logic, ability, caster, target, context);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target)
+        {
+            DoEffect(logic, ability, caster, target, null);
+        }
+
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target, AbilityEventContext context)
+        {
+            EffectData[] branch = SelectEffects(logic, ability, caster, target, context);
+            if (branch == null) return;
+            foreach (EffectData effect in branch) effect?.DoEffect(logic, ability, caster, target, context);
+        }
+
     }
 }

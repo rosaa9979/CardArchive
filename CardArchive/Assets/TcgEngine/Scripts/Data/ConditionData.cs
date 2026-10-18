@@ -10,6 +10,25 @@ namespace TcgEngine
 
     public class ConditionData : ScriptableObject
     {
+        public ConditionEvaluationPolicy evaluation = ConditionEvaluationPolicy.Revalidate;
+
+        public virtual bool Evaluate(Game data, AbilityData ability, Card caster, object target,
+            ConditionStage stage, AbilityEventContext context, object selected = null)
+        {
+            if (stage == ConditionStage.Trigger && !IsTriggerConditionMet(data, ability, caster, context))
+                return false;
+            if (target is Slot slot)
+            {
+                if (selected is Card selectedCard) return IsTargetConditionMet(data, ability, caster, selectedCard, slot, context);
+                if (selected is Slot selectedSlot) return IsTargetConditionMet(data, ability, caster, selectedSlot, slot, context);
+                return IsTargetConditionMet(data, ability, caster, slot, context);
+            }
+            if (target is Card card) return IsTargetConditionMet(data, ability, caster, card, context);
+            if (target is Player player) return IsTargetConditionMet(data, ability, caster, player, context);
+            if (target is CardData definition) return IsTargetConditionMet(data, ability, caster, definition, context);
+            return IsTargetConditionMet(data, ability, caster, (Card)null, context);
+        }
+
         public virtual bool IsTriggerConditionMet(Game data, AbilityData ability, Card caster, AbilityEventContext context = null)
         {
             return true; //Override this, applies to any target, always checked

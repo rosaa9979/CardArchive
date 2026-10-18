@@ -91,6 +91,7 @@ namespace TcgEngine.Tools
                 total += Export<AcademyData>(outDir, "Academy", BuildSimpleRow,  null);
                 total += Export<ClubData>(outDir, "Club",       BuildSimpleRow,  null);
                 total += Export<AbilityData>(outDir, "Ability", BuildAbilityRow, AbilityColumns);
+                total += Export<DataContainer>(outDir, "DataContainer", BuildContainerRow, null);
                 total += ExportWorkbook(outDir, "Effect", BuildEffectTable());
                 total += Export<WeaponData>(outDir, "Weapon",   BuildWeaponRow,  WeaponColumns);
                 total += Export<TraitData>(outDir, "Trait",     BuildSimpleRow,  null);
@@ -125,7 +126,7 @@ namespace TcgEngine.Tools
 
             float dt = Time.realtimeSinceStartup - t0;
             Debug.Log(string.Format(
-                "<b>[DataTableExporter] Wrote {0} rows across 24 files in {1:F2}s.</b>\nOutput: {2}",
+                "<b>[DataTableExporter] Wrote {0} rows across 25 files in {1:F2}s.</b>\nOutput: {2}",
                 total, dt, outDir));
 
             if (exit_when_done)
@@ -223,7 +224,8 @@ namespace TcgEngine.Tools
             { "CardData",  new[] { "Club.xlsx", "Weapon.xlsx", "Trait.xlsx", "Ability.xlsx", "Pack.xlsx" } },
             { "Academy",   new string[0] },
             { "Club",      new[] { "Academy.xlsx" } },
-            { "Ability",   new[] { "Condition.xlsx", "Effect.xlsx", "Status.xlsx", "Ability.xlsx" } },
+            { "Ability",   new[] { "Condition.xlsx", "Effect.xlsx", "Status.xlsx", "Ability.xlsx", "DataContainer.xlsx" } },
+            { "DataContainer", new string[0] },
             { "Weapon",    new string[0] },
             { "Trait",     new string[0] },
             { "Status",    new string[0] },
@@ -270,6 +272,7 @@ namespace TcgEngine.Tools
         {
             { "CardData",  new[] { typeof(CardType) } },
             { "Ability",   new[] { typeof(AbilityTrigger), typeof(AbilityTarget) } },
+            { "DataContainer", new[] { typeof(NumericKind), typeof(NumericCause), typeof(NumericOperator) } },
             // Effect.xlsx owns the enums SHARED by the Condition family too
             // (ConditionStatType/ConditionPlayerType/ConditionLastType +
             // virtual PilePosType) — Condition.xlsx already references
@@ -282,7 +285,7 @@ namespace TcgEngine.Tools
             { "Effect",    new[] {
                 typeof(EffectType),
                 typeof(EffectTotalCountType),
-                typeof(EffectDamageType), typeof(EffectValueType),
+                typeof(EffectValueType),
                 typeof(PileType), typeof(EffectStatusType),
                 typeof(ConditionStatType), typeof(ConditionPlayerType),
                 typeof(ConditionLastType),
@@ -296,6 +299,7 @@ namespace TcgEngine.Tools
             { "Condition", new[] {
                 typeof(ConditionType), typeof(FilterType), typeof(SortType), typeof(RepeatType),
                 typeof(ConditionOperator), typeof(ConditionTargetType),
+                typeof(ConditionEvaluationPolicy), typeof(BoardDestinationPurpose),
             } },
             { "Pack",      new[] { typeof(PackType) } },
             { "Level",     new[] { typeof(LevelFirst) } },
@@ -545,6 +549,7 @@ namespace TcgEngine.Tools
         {
             { typeof(CardData),     "CardData" },
             { typeof(AbilityData),  "Ability" },
+            { typeof(DataContainer), "DataContainer" },
             { typeof(EffectData),   "Effect" },
             { typeof(ConditionWideAreaRange), "WideAreaRange" },
             { typeof(ConditionData), "Condition" },
@@ -624,6 +629,13 @@ namespace TcgEngine.Tools
         // ------------------------------------------------------------------
         // Generic / fallback row builder — every public serialized field
         // ------------------------------------------------------------------
+        IDictionary<string, object> BuildContainerRow(DataContainer asset)
+        {
+            var row = BuildSimpleRow(asset);
+            row["type"] = asset.GetType().Name;
+            return row;
+        }
+
         IDictionary<string, object> BuildSimpleRow<T>(T asset) where T : ScriptableObject
         {
             var row = new Dictionary<string, object>();
@@ -668,7 +680,7 @@ namespace TcgEngine.Tools
                 "total", "EffectTotalCountType",
                 "pile", "PileType", "pile_pos", "PilePosType",
                 "last_type", "ConditionLastType",
-                "damage_kind", "EffectDamageType", "value_kind", "EffectValueType",
+                "value_kind", "EffectValueType",
                 "status_kind", "EffectStatusType",
                 "card_kind", "CardType",
                 "ref_card", "_ID_CardData", "ref_club", "_ID_Club",
@@ -692,9 +704,9 @@ namespace TcgEngine.Tools
             DocRow(t, "AddStatTotalCount", "stat", "stat_type", "total", "total_type");
             DocRow(t, "CopyStat", "ref_trait", "trait", "ref_club", "require_club(선택)", "flag", "only_if_missing");
             DocRow(t, "CycleStat", "ref_trait", "trait");
-            DocRow(t, "Damage", "damage_kind", "damage_type", "value_kind", "value_type", "bonus_trait", "bonus_damage");
+            DocRow(t, "Damage", "value_kind", "value_type", "bonus_trait", "bonus_damage");
             DocRow(t, "DamageRatio", "bonus_trait", "bonus_damage", "value", "ratio(만분율)");
-            DocRow(t, "DamageCount", "damage_kind", "damage_type", "bonus_trait", "bonus_damage",
+            DocRow(t, "DamageCount", "bonus_trait", "bonus_damage",
                 "pile", "pile", "scope", "player", "card_kind", "has_type", "ref_club", "has_club", "ref_trait", "has_trait");
             DocRow(t, "Heal", "value_kind", "heal_type", "bonus_trait", "bonus_heal");
             DocRow(t, "Draw");
@@ -769,11 +781,11 @@ namespace TcgEngine.Tools
                 case EffectCopyStat e: row["ref_trait"] = RefName(e.trait); row["ref_club"] = RefName(e.require_club); row["flag"] = e.only_if_missing ? 1 : 0; break;
                 case EffectCycleStat e: row["ref_trait"] = RefName(e.trait); break;
                 case EffectDamageCount e:
-                    row["damage_kind"] = e.damage_type.ToString(); row["bonus_trait"] = RefName(e.bonus_damage);
+                    row["bonus_trait"] = RefName(e.bonus_damage);
                     row["pile"] = e.pile.ToString(); row["scope"] = ScopeOf(e.player);
                     row["card_kind"] = CardKind(e.has_type); row["ref_club"] = RefName(e.has_club); row["ref_trait"] = RefName(e.has_trait); break;
                 case EffectDamageRatio e: row["bonus_trait"] = RefName(e.bonus_damage); row["value"] = (int)Math.Round(e.ratio * 10000.0); break;
-                case EffectDamage e: row["damage_kind"] = e.damage_type.ToString(); row["value_kind"] = e.value_type.ToString(); row["bonus_trait"] = RefName(e.bonus_damage); break;
+                case EffectDamage e: row["value_kind"] = e.value_type.ToString(); row["bonus_trait"] = RefName(e.bonus_damage); break;
                 case EffectHeal e: row["value_kind"] = e.heal_type.ToString(); row["bonus_trait"] = RefName(e.bonus_heal); break;
                 case EffectCreateCard e:
                     row["weighted_cards"] = JoinWeighted(e.create_card); row["pile"] = e.create_pile.ToString();
@@ -927,6 +939,7 @@ namespace TcgEngine.Tools
             // EmitCardData/EmitCount below.
             var t = NewDDTable("Condition",
                 "id", "!Id", "type", "ConditionType", "oper", "ConditionOperator",
+                "evaluation", "ConditionEvaluationPolicy", "purpose", "BoardDestinationPurpose",
                 "value", "!Int", "range", "!Int", "flag", "!Int",
                 "scope", "ConditionPlayerType", "stat", "ConditionStatType",
                 "pile", "PileType", "pile_pos", "PilePosType",
@@ -960,7 +973,7 @@ namespace TcgEngine.Tools
                 "sub_conditions", "카드 필터 조건 목록(모두 충족한 카드만 셈; has_type/club/trait/card에서 분해)");
             DocRow(t, "CardPile", "pile", "type", "oper", "oper");
             DocRow(t, "PilePosition", "pile", "pile", "pile_pos", "mode", "value", "index", "oper", "oper");
-            DocRow(t, "CanPlace", "last_type", "last_type", "ref_card", "place_card", "scope", "card_owner", "oper", "oper");
+            DocRow(t, "CanPlace", "purpose", "purpose", "last_type", "last_type", "ref_card", "place_card", "scope", "card_owner", "oper", "oper");
             DocRow(t, "SlotDist", "range", "distance", "flag", "diagonals");
             DocRow(t, "SlotRange", "oper", "oper");
             DocRow(t, "SlotNeighbor", "range", "range");
@@ -1005,6 +1018,9 @@ namespace TcgEngine.Tools
                         break;
                     }
                 }
+                // Decomposed conditions retain the policy on the original root row.
+                var rootRow = t.rows.FirstOrDefault(row => row.TryGetValue("id", out object id) && Equals(id, realId[a]));
+                if (rootRow != null) rootRow["evaluation"] = a.evaluation.ToString();
             }
             return t;
         }
@@ -1250,6 +1266,7 @@ namespace TcgEngine.Tools
                 // ConditionCardType / ConditionCardData / ConditionCount are
                 // handled by EmitCardType/EmitCardData/EmitCount (OR-decomposed).
                 case ConditionCanPlace c:
+                    row["purpose"] = c.purpose.ToString();
                     row["last_type"] = c.last_type.ToString(); row["ref_card"] = RefName(c.place_card); row["scope"] = c.card_owner.ToString(); row["oper"] = Oper(c.oper); break;
                 case ConditionCardPile c:
                     row["pile"] = c.type.ToString(); row["oper"] = Oper(c.oper); break;
@@ -1757,7 +1774,7 @@ namespace TcgEngine.Tools
             "conditions_trigger", "conditions_criteria_target",
             "condition_wide_range", "condition_target", "filters_target", "sort_target",
             "condition_repeat",
-            "effects", "status",
+            "effects", "status", "data_containers",
             "value", "duration", "can_cancel",
             "chain_abilities", "mana_cost", "exhaust", "charge_target",
             "playback_mode", "show_card_fx", "board_fx", "caster_fx", "target_fx",
@@ -1782,6 +1799,7 @@ namespace TcgEngine.Tools
                 { "sort_target", RefName(a.sort_target) },
                 { "condition_repeat", RefName(a.condition_repeat) },
                 { "effects", JoinRefs(a.effects) },
+                { "data_containers", JoinRefs(a.data_containers) },
                 { "status", JoinRefs(a.status) },
                 { "value", a.value },
                 { "duration", a.duration },

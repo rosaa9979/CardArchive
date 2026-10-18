@@ -137,9 +137,7 @@ namespace TcgEngine.UI
         public override void Show(AbilityData iability, Card caster)
         {
             Game data = GameClient.Get().GetGameData();
-            this.card_list = data.selector_card_uids != null
-                ? data.selector_card_uids.Select(uid => data.GetCard(uid)).Where(c => c != null).ToList()
-                : iability.GetCardTargets(data, caster, context: data.selector_context);
+            this.card_list = iability.GetSelectionCandidates(data, caster);
             this.iability = iability;
             this.current_card = null;
             title.text = iability.title;

@@ -107,7 +107,7 @@ namespace TcgEngine.AI
                 return;
             }
 
-            List<Card> list = ability.GetCardTargets(game_data, caster, context: game_data.selector_context);
+            List<Card> list = ability.GetSelectionCandidates(game_data, caster);
             if (list != null && list.Count > 0)
                 gameplay.SelectCard(list[rand.Next(0, list.Count)]);
             else
@@ -118,16 +118,10 @@ namespace TcgEngine.AI
         {
             Game game_data = gameplay.GetGameData();
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
-            if (ability != null && ability.criteria_target == AbilityTarget.SelectTarget)
-            {
-                Slot s = Slot.GetRandom(rand);
-                if (s != Slot.None)
-                {
-                    gameplay.SelectSlot(s);
-                    return;
-                }
-            }
-            gameplay.CancelSelection();
+            Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (ability == null || caster == null || !ability.IsTargetSelector()) return;
+            var slots = ability.GetSelectableSlots(game_data, caster, game_data.selector_context);
+            if (slots.Count > 0) gameplay.SelectSlot(slots[rand.Next(slots.Count)]);
         }
 
         private void SelectRandomChoice()

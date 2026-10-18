@@ -50,10 +50,8 @@ namespace TcgEngine
             for (int i = 0; i < steps; i++)
             {
                 Slot next = cur.GetSlot(dir);
-                if (!next.IsValid())
-                    break;                            //보드 밖 -> 정지
-                if (data.GetSlotCard(next) != null)
-                    break;                            //다른 카드가 가로막음 -> 그 직전까지만
+                if (!data.CanMoveCard(target, next, true))
+                    break;
                 dest = next;
                 cur = next;
             }

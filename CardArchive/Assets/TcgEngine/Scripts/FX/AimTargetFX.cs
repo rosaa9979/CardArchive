@@ -93,7 +93,7 @@ namespace TcgEngine.FX
                     Card target = game_data.GetSlotCard(bslot.GetSlot());
                     Player player = bslot.GetPlayer();
 
-                    if (ability.criteria_target == AbilityTarget.SelectTarget && ability.CanTarget(game_data, caster, bslot.GetSlot(), context: game_data.selector_context))
+                    if (ability.IsTargetSelector() && ability.CanTarget(game_data, caster, bslot.GetSlot(), context: AbilityExecutionContext.Query(game_data.selector_context)))
                     {
                         visible = true;
                     }
@@ -133,7 +133,7 @@ namespace TcgEngine.FX
             
 
             Card visibleCard = bslot?.GetSlotCard(dest);
-            if (visibleCard != null && !GameClient.Get().CanUseBoardCard(visibleCard.uid)) visible = false;
+            if (!game_data.IsSlotSelection() && visibleCard != null && !GameClient.Get().CanUseBoardCard(visibleCard.uid)) visible = false;
 
             if (text_fx.activeSelf != text_visible)
                 text_fx.SetActive(text_visible);

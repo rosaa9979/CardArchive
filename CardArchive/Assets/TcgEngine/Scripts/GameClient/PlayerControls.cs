@@ -143,22 +143,17 @@ namespace TcgEngine.Client
             Game gdata = GameClient.Get().GetLatestGameData();
             Player player = GameClient.Get().GetLatestGameData().GetPlayer(GameClient.Get().GetPlayerID());
             Card visible = bcard.GetFocusCard();
-            if (visible == null || !GameClient.Get().CanUseBoardCard(visible.uid)) return;
+            if (visible == null) return;
+            if (gdata.IsPlayerSelectorTurn(player) && gdata.IsSlotSelection())
+            {
+                if (!Tutorial.Get().CanDo(TutoEndTrigger.SelectTarget, visible.slot)) return;
+                GameClient.Get().SelectSlot(visible.slot);
+                return;
+            }
+            if (!GameClient.Get().CanUseBoardCard(visible.uid)) return;
             Card card = gdata.GetCard(visible.uid);
-
-            if (gdata.IsPlayerSelectorTurn(player) && gdata.selector == SelectorType.SelectTarget)
-            {
-                if (!Tutorial.Get().CanDo(TutoEndTrigger.SelectTarget, card))
-                    return;
-
-                //Target selector, select this card
-                GameClient.Get().SelectSlot(card.slot, card.uid);
-            }
-            else if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
-            {
-                //Start ging card
+            if (gdata.IsPlayerActionTurn(player) && card.player_id == player.player_id)
                 selected_card = bcard;
-            }
         }
 
         public void SelectSlot(BoardSlot bslot)

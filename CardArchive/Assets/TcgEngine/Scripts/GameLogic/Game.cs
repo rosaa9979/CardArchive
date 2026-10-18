@@ -6,6 +6,12 @@ using UnityEngine;
 
 namespace TcgEngine
 {
+    public enum BoardDestinationPurpose
+    {
+        Placement = 0,
+        Movement = 1,
+    }
+
     //Contains all gameplay state data that is sync across network
 
     [System.Serializable]
@@ -165,25 +171,8 @@ namespace TcgEngine
             }
 
             if (card.CardData.IsBoardCard())
-            {
-                Card slot_card = GetSlotCard(slot);
-                if (!slot.IsValid() || (slot_card != null && slot_card.uid != card.uid))
-                {
-                    return false;   //Slot already occupied (a card waiting on its slot for its OnPlay target is played onto it)
-                }
-
-
-                //Units can only be placed on the player's own side or a neutral slot, never the opponent's.
-                if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
-                    return false; //Cant play on opponent side
-
-                if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
-                {
-                    return false; //Cant play place card in wrong slot
-                }
-
-                return true;
-            }
+                return CanOccupySlot(card.CardData, slot, card)
+                    && CanUseSlotTerritory(card.player_id, slot, BoardDestinationPurpose.Placement);
             if (card.CardData.IsEquipment())
             {
                 if (!slot.IsValid())
@@ -247,67 +236,37 @@ namespace TcgEngine
 
         public virtual bool CanPlaceCard(Card card, Slot slot)
         {
-            Player player = GetPlayer(card.player_id);
-            
-            if (card.CardData.IsBoardCard())
-            {
-                if (!slot.IsValid() || IsCardOnSlot(slot))
-                    return false;   //Slot already occupied
-
-                //if (Slot.GetP(card.player_id) != slot.p && slot.p != 2)
-                //    return false; //Cant play on opponent side
-
-                // Slot의 pid가 상대 id와 일치하면 배치 못함 (그 외는 자신의 Slot이거나 중립 Slot임)
-                if (GetOpponentPlayer(player.player_id).player_id == slot.p)
-                    return false; //Cant play on opponent side
-
-                if (card.CardData.IsPlace() && !Slot.GetOutsideSlot().Contains(slot))
-                    return false; //Cant play place card in wrong slot
-
-                return true;
-            }
-
-            return false;
+            return card != null && CanPlaceCard(card.CardData, card.player_id, slot);
         }
 
-        //Check if a card is allowed to move to slot
+        // Queries use definitions, never create or register a temporary card.
+        public virtual bool CanPlaceCard(CardData card, int ownerId, Slot slot)
+        {
+            return CanOccupySlot(card, slot) && CanUseSlotTerritory(ownerId, slot, BoardDestinationPurpose.Placement);
+        }
+
+        public virtual bool CanOccupySlot(CardData card, Slot slot, Card allowedOccupant = null)
+        {
+            if (card == null || !card.IsBoardCard() || !slot.IsValid())
+                return false;
+            Card occupant = GetSlotCard(slot);
+            return (occupant == null || (allowedOccupant != null && occupant.uid == allowedOccupant.uid))
+                && (!card.IsPlace() || Slot.GetOutsideSlot().Contains(slot));
+        }
+
+        // Placement and movement share a default rule, but are independently extensible.
+        public virtual bool CanUseSlotTerritory(int ownerId, Slot slot, BoardDestinationPurpose purpose)
+        {
+            Player owner = GetPlayer(ownerId);
+            Player opponent = owner != null ? GetOpponentPlayer(ownerId) : null;
+            return opponent != null && slot.p != opponent.player_id;
+        }
+
         public virtual bool CanMoveCard(Card card, Slot slot, bool skip_cost = false)
         {
-            if (card == null || !slot.IsValid())
-            {
-                Debug.Log(slot.IsValid());
-                return false;
-            }
-
-            if (!IsOnBoard(card))
-            {
-                Debug.Log("debug2");
-                return false; //Only cards in play can move
-            }
-
-            if (!card.CanMove(skip_cost))
-            {
-                Debug.Log("debug3");
-                return false; //Card cant move
-            }
-
-            //if (Slot.GetP(card.player_id) != slot.p)
-            //    return false; //Card played wrong side
-
-            if (card.slot == slot)
-            {
-                Debug.Log("debug4");
-                return false; //Cant move to same slot
-            }
-
-            Card slot_card = GetSlotCard(slot);
-            if (slot_card != null)
-            {
-                Debug.Log("debug5");
-                return false; //Already a card there
-            }
-
-            return true;
+            return card != null && IsOnBoard(card) && card.CanMove(skip_cost) && card.slot != slot
+                && CanOccupySlot(card.CardData, slot)
+                && CanUseSlotTerritory(card.player_id, slot, BoardDestinationPurpose.Movement);
         }
 
         //Check if a card is allowed to attack a player
@@ -432,7 +391,8 @@ namespace TcgEngine
             if (!player.CanPayAbility(card, ability))
                 return false; //Cant pay for ability
 
-            if (!ability.AreTriggerConditionsMet(this, card, context: selector_context))
+            if (!ability.AreTriggerConditionsMet(this, card, context: AbilityExecutionContext.Query(
+                new AbilityExecutionContext(this, card, null, selector_context))))
                 return false; //Conditions not met
 
             return true;
@@ -686,9 +646,9 @@ namespace TcgEngine
         
         //Thread-safe RNG shared from the owning GameLogic (injected via GameLogic.SetData).
         //Lets the data layer (e.g. conditions) roll randomness without referencing GameLogic and without UnityEngine.Random.
-        [System.NonSerialized] private System.Random rng;
-        public void SetRandom(System.Random r) { rng = r; }
-        public System.Random GetRandom() { return rng ?? (rng = new System.Random()); }
+        [System.NonSerialized] private GameRandom rng;
+        public void SetRandom(System.Random r) { rng = r as GameRandom ?? (r != null ? new GameRandom(r.Next()) : null); }
+        public System.Random GetRandom() { return rng ?? (rng = new GameRandom()); }
 
         public virtual Player GetRandomPlayer(System.Random rand)
         {
@@ -724,6 +684,12 @@ namespace TcgEngine
         }
 
         // Input eligibility uses the authoritative state, independently of presentation.
+        public bool IsSlotSelection()
+        {
+            return selector == SelectorType.SelectTarget
+                && AbilityData.Get(selector_ability_id)?.IsTargetSelector() == true;
+        }
+
         public bool CanInputTarget(Card card)
         {
             if (card == null || card.dying) return false;
@@ -788,6 +754,7 @@ namespace TcgEngine
         //Clone all variables into another var, used mostly by the AI when building a prediction tree
         public static void Clone(Game source, Game dest)
         {
+            dest.rng = ((GameRandom)source.GetRandom()).Clone();
             dest.game_uid = source.game_uid;
             dest.settings = source.settings;
 

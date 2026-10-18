@@ -44,7 +44,7 @@ namespace TcgEngine
                     tmp.Add(slot);
             }
 
-            return GameTool.PickXRandom(tmp, dest, 1);
+            return GameTool.PickXRandom(tmp, dest, 1, data.GetRandom());
         }
 
         //public override List<CardData> FilterTargets(Game data, AbilityData ability, Card caster, List<CardData> source, List<CardData> dest)

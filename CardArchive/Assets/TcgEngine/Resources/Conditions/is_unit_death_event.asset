@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d028860b966ab8f44908a62e25280a39, type: 3}
   m_Name: is_unit_death_event
   m_EditorClassIdentifier: Assembly-CSharp::TcgEngine.ConditionCardType
-  has_type: 0a0000000b000000i
+  has_type: 0a0000000b000000
   has_club: []
   has_trait: []
   oper: 0
