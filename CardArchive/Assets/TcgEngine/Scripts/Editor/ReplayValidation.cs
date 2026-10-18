@@ -106,18 +106,18 @@ public static class ReplayValidation
                 logic.SetPlayerDeck(player, i == 0 ? loader.data.test_deck : loader.data.test_deck_ai);
             }
             logic.StartGame();
-            Settle(logic);
+            Settle(server, logic);
             if (game.phase == GamePhase.Mulligan)
             {
                 foreach (var player in game.players)
                     logic.Mulligan(player, player.cards_hand.Take(1).Select(c => c.uid).ToArray());
-                Settle(logic);
+                Settle(server, logic);
             }
             var ai = new[] { new AIPlayerRandomSync(logic, 0, 1), new AIPlayerRandomSync(logic, 1, 1) };
             for (int i = 0; i < 12 && !game.HasEnded(); i++)
             {
                 ai[game.current_player].PlaySync();
-                Settle(logic);
+                Settle(server, logic);
             }
             if (!game.HasEnded()) logic.EndGame(-1);
             var record = recorder.Finish(game);
@@ -135,10 +135,23 @@ public static class ReplayValidation
         }
         finally { UnityEngine.Object.DestroyImmediate(go); }
     }
-    static void Settle(GameLogic logic)
+    // Phase transitions suspend the queue behind the server's presentation barrier. GameServer.Update
+    // releases it through UpdatePresentationBarrier; with AI-only players there are no participants,
+    // so the barrier completes on the first release step, exactly as on a live server.
+    // Only that step is driven here: GameServer.Update also runs the Time.deltaTime turn timer.
+    static readonly MethodInfo ReleaseBarrier = typeof(GameServer).GetMethod("UpdatePresentationBarrier", BindingFlags.NonPublic | BindingFlags.Instance);
+    static readonly FieldInfo BarrierField = typeof(GameServer).GetField("barrier", BindingFlags.NonPublic | BindingFlags.Instance);
+    static void Settle(GameServer server, GameLogic logic)
     {
+        Check(ReleaseBarrier != null && BarrierField != null, "presentation barrier hooks");
+        var barrier = (PresentationBarrier)BarrierField.GetValue(server);
         int limit = 1000;
-        while (logic.IsResolving() && limit-- > 0) logic.Update(1f);
+        while (limit-- > 0)
+        {
+            ReleaseBarrier.Invoke(server, null);
+            if (!barrier.Active && !logic.IsResolving()) break;
+            logic.Update(1f);
+        }
         Check(limit > 0, "effect queue settled");
     }
     static void Check(bool value, string name) { if (!value) throw new Exception("Replay validation failed: " + name); }
