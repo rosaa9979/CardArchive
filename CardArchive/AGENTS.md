@@ -849,6 +849,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 | 속사 | 소환된 턴에도 공격할 수 있도록 소진을 해제하는 능력 표현. 현재 `OU_haste`와 `EffectExhaust` 구성으로 처리한다. 별도 속사 Status가 있는 것으로 가정하지 않는다. |
 | 난사 | `StatusType.MassShooting`. 사거리 안의 복수 적을 공격 대상으로 구성하며 현재 공격 처리에서는 대상별 명중/회피 판정을 수행한다. |
 | 회피 | `StatusType.Evasion`. 현재 공격 경로의 회피 판정에 사용하는 상태다. Trait로 대체하지 않는다. 현재 난사 또는 회피에 의한 판정은 공격 대상별 50%이며 둘이 겹쳐도 해당 분기에서 한 번 판정한다. |
+| 선생님 우선 공격 | `StatusType.PrioritizeTeacher`. 공격 대상 탐색(`AttackSearch`)에서 사거리에 상대 실내 타일이 있으면 사거리 내 적 유닛보다 상대 선생님을 먼저 공격하게 하는 상태다. 트리니티 자경단 동아리 카드의 지속 능력 `OG_prioritize_teacher_TVC`가 보드의 아군 소속 유닛에게 부여하며, 동아리 소속만으로 적용하지 않는다. |
 | 기절 | `StatusType.Paralysed`. 공격·활성화 능력 자격을 제한한다. 이동 등 다른 행동은 각각의 행동 검사 계약을 따른다. |
 | 침묵 | `StatusType.Silenced`. 능력 실행과 지속 능력의 기여를 비활성화한다. 능력이 소유한 수치 컨테이너에도 적용한다. 카드의 타입·소유자 자체를 바꾸지는 않는다. |
 | 도발 / 보호받음 | `Protection` / `Protected`. 도발은 공격 대상 우선순위에 관여하는 상태, 보호받음은 도발로 부여되는 보호 상태다. 두 상태를 같은 이름으로 취급하지 않는다. |

@@ -573,7 +573,7 @@ namespace TcgEngine.Gameplay
             //through AttackTargets) its hold is still on, and this is where it gets released.
             death_step_suspended = false;
 
-            if (attacker.HasClub(ClubData.Get("Trinity_Vigilante_Crew")))
+            if (attacker.HasStatus(StatusType.PrioritizeTeacher))
             {
                 List<Slot> rslot = range_slot.Values.SelectMany(list => list).ToList();
                 List<Slot> pslot = Slot.GetInsideSlot(oplayer.player_id);

@@ -27,6 +27,7 @@ MonoBehaviour:
   stats: []
   abilities:
   - {fileID: 11400000, guid: d059a7cfcb1112442b7aec6f02193f97, type: 2}
+  - {fileID: 11400000, guid: c8d478c53e2945ecbfb5e6ada024e192, type: 2}
   text: "\uc544\uad70 \ud2b8\ub9ac\ub2c8\ud2f0 \uc790\uacbd\ub2e8 \uc18c\uc18d \uc720\ub2db\uc740 \uc0ac\uac70\ub9ac \ub0b4\uc5d0 \uc801 \uc720\ub2db\uc774 \uc788\uc5b4\ub3c4 \uc0c1\ub300 \uc120\uc0dd\ub2d8\uc744 \uc6b0\uc120 \uacf5\uaca9\ud569\ub2c8\ub2e4."
   text_format: 
   text_values: []

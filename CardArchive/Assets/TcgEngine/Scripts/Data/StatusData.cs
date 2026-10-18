@@ -35,6 +35,7 @@ namespace TcgEngine
         Sleep = 36,         //Doesnt untap at the start of turn
         MassShooting = 41,
         Evasion = 42,
+        PrioritizeTeacher = 43, //Attacks the opposing teacher first when the teacher is in range
 
 
     }
