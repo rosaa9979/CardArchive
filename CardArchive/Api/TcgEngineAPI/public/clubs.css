@@ -1,0 +1,60 @@
+/* Club showcase: game card + play example above the academy selectors. */
+.clubs-page {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 1.5rem 0 3rem;
+}
+.clubs-heading { margin-bottom: 1.75rem; }
+.clubs-heading h2 { font-size: 2.25rem; font-weight: 900; color: #233750; }
+.clubs-heading p { margin-top: 0.5rem; color: #64748b; }
+.club-showcase {
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border: 1px solid #dcebf5;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 40px rgba(28, 97, 145, 0.08);
+}
+.club-detail-heading { margin-bottom: 1.5rem; }
+.club-detail-heading p { color: #007caf; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.club-detail-heading h3 { margin-top: 0.25rem; font-size: 1.6rem; font-weight: 800; color: #233750; }
+.club-detail-grid { display: grid; grid-template-columns: minmax(180px, 260px) minmax(0, 1fr); gap: 2.5rem; align-items: center; }
+.club-card { width: 100%; aspect-ratio: 742 / 1200; display: flex; align-items: center; justify-content: center; }
+.club-card > img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(25, 65, 100, 0.12)); }
+.club-example { min-width: 0; }
+.club-example > h4 { margin-bottom: 0.65rem; font-size: 0.85rem; font-weight: 700; color: #64748b; }
+.club-media { aspect-ratio: 16 / 9; background: #eef5fa; border: 1px solid #dce9f2; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.club-media > img, .club-media > video { width: 100%; height: 100%; object-fit: contain; }
+.club-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.65rem; padding: 1.5rem; text-align: center; background: #eef5fa; border-radius: 16px; color: #536d84; }
+.club-placeholder strong { font-size: 1rem; }
+.club-placeholder p { font-size: 0.85rem; line-height: 1.7; }
+.club-schools { display: flex; flex-wrap: wrap; gap: 2rem 3rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid #e1edf5; }
+.club-school { min-width: 0; max-width: 100%; }
+.club-school h3 { margin-bottom: 0.85rem; font-size: 1.05rem; font-weight: 800; color: #233750; }
+.club-icon-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.club-choice { flex-shrink: 0; width: 88px; padding: 0.25rem 0; border: 0; background: transparent; cursor: pointer; color: #52667a; border-radius: 12px; }
+.club-hex { position: relative; display: block; width: 76px; height: 86px; margin: 0 auto; transition: transform 0.18s ease, filter 0.18s ease; }
+.club-hex-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+.club-hex-icon { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; clip-path: polygon(50% 8%, 92% 29%, 92% 71%, 50% 93%, 8% 71%, 8% 29%); }
+.club-choice-label { display: block; margin-top: 0.6rem; font-size: 0.75rem; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.club-choice:hover .club-hex { transform: translateY(-3px); }
+.club-choice[aria-pressed="true"] { color: #007caf; background: #edf8ff; }
+.club-choice[aria-pressed="true"] .club-hex { filter: drop-shadow(0 0 5px rgba(0, 174, 239, 0.6)); }
+.club-choice:focus-visible, .club-retry:focus-visible { outline: 3px solid #007caf; outline-offset: 4px; }
+.club-status:empty { display: none; }
+.club-status { color: #52667a; padding: 1.5rem 0; }
+.club-retry { color: #007caf; text-decoration: underline; font-weight: 700; }
+@media (max-width: 767px) {
+    .clubs-page { padding-top: 0.5rem; }
+    .clubs-heading h2 { font-size: 1.8rem; }
+    .club-detail-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .club-card { max-width: 220px; margin: 0 auto; }
+    .club-schools { gap: 1.75rem; }
+    .club-school { width: 100%; }
+    .club-icon-row { flex-wrap: nowrap; overflow-x: auto; padding: 0.25rem 0.25rem 0.75rem; }
+    .club-choice { width: 76px; }
+    .club-hex { width: 64px; height: 74px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .club-hex { transition: none; }
+    .club-choice:hover .club-hex { transform: none; }
+}

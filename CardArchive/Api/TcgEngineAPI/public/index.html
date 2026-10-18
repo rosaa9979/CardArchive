@@ -10,6 +10,7 @@
 
     <!-- 외부 CSS 파일 연결 -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="clubs.css">
 
     <!-- Google Fonts - Inter & Noto Sans KR -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -35,6 +36,7 @@
                     <a href="#" class="nav-link" data-page="page-main">메인홈</a>
                     <a href="#" class="nav-link" data-page="page-info">게임소개</a>
                     <a href="#" class="nav-link" data-page="page-cards">카드목록</a>
+                    <a href="#" class="nav-link" data-page="page-clubs">동아리</a>
                 </div>
 
                 <!-- 3. 모바일 메뉴 버튼 -->
@@ -59,6 +61,7 @@
             <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-main">메인홈</a>
             <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-info">게임소개</a>
             <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-cards">카드목록</a>
+            <a href="#" class="nav-link block px-5 py-3 text-base" data-page="page-clubs">동아리</a>
         </div>
     </header>
 
@@ -202,6 +205,34 @@
 
         </section>
 
+        <!-- 동아리: 카드와 대표 활용 예시, 학교별 인게임 아이콘 -->
+        <section id="page-clubs" class="page" aria-labelledby="clubs-heading">
+            <div class="clubs-page">
+                <div class="clubs-heading">
+                    <h2 id="clubs-heading">동아리</h2>
+                    <p>학교별 동아리를 선택하고, 카드와 대표 활용 예시를 만나보세요.</p>
+                </div>
+                <div class="club-showcase">
+                    <div id="club-detail">
+                        <div class="club-detail-heading" aria-live="polite" aria-atomic="true">
+                            <p id="club-academy">CLUB ARCHIVE</p>
+                            <h3 id="club-title">동아리를 선택해 주세요</h3>
+                        </div>
+                        <div class="club-detail-grid">
+                            <div id="club-card" class="club-card"></div>
+                            <div class="club-example">
+                                <h4>대표 활용 예시</h4>
+                                <div id="club-media" class="club-media"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="club-status" class="club-status" role="status"></div>
+                    <div id="club-schools" class="club-schools"></div>
+                    <noscript>동아리 정보를 보려면 JavaScript를 켜 주세요.</noscript>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- === 카드 확대 보기 (외곽 클릭 시 닫힘) === -->
@@ -228,6 +259,7 @@
 
     <!-- 외부 JavaScript 파일 연결 -->
     <script src="script.js"></script>
+    <script src="clubs.js"></script>
 
 </body>
 </html>

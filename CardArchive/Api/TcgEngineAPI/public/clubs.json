@@ -1,0 +1,109 @@
+[
+  {
+    "id": "trinity",
+    "name": "Trinity",
+    "clubs": [
+      {
+        "id": "After_School_Sweets_Club",
+        "title": "방과후 디저트부",
+        "icon": "/images/clubs/default.png",
+        "card": null,
+        "media": null
+      },
+      {
+        "id": "Justice_Task_Force",
+        "title": "정의실현부",
+        "icon": "/images/clubs/Justice_Task_Force-icon.png",
+        "card": "/images/clubs/Justice_Task_Force-card.png",
+        "media": null
+      },
+      {
+        "id": "Make_Up_Work_Club",
+        "title": "보충수업부",
+        "icon": "/images/clubs/Make_Up_Work_Club-icon.png",
+        "card": "/images/clubs/Make_Up_Work_Club-card.png",
+        "media": null
+      },
+      {
+        "id": "Tea_Party",
+        "title": "티파티",
+        "icon": "/images/clubs/default.png",
+        "card": null,
+        "media": null
+      },
+      {
+        "id": "Trinity_Vigilante_Crew",
+        "title": "트리니티 자경단",
+        "icon": "/images/clubs/Trinity_Vigilante_Crew-icon.png",
+        "card": "/images/clubs/Trinity_Vigilante_Crew-card.png",
+        "media": null
+      }
+    ]
+  },
+  {
+    "id": "gehenna",
+    "name": "Gehenna",
+    "clubs": [
+      {
+        "id": "Gourmet_Research_Society",
+        "title": "미식연구회",
+        "icon": "/images/clubs/Gourmet_Research_Society-icon.png",
+        "card": "/images/clubs/Gourmet_Research_Society-card.png",
+        "media": null
+      },
+      {
+        "id": "Hot_Springs_Department",
+        "title": "온천개발부",
+        "icon": "/images/clubs/Hot_Springs_Department-icon.png",
+        "card": "/images/clubs/Hot_Springs_Department-card.png",
+        "media": null
+      },
+      {
+        "id": "School_Lunch_Club",
+        "title": "급양부",
+        "icon": "/images/clubs/default.png",
+        "card": null,
+        "media": null
+      }
+    ]
+  },
+  {
+    "id": "millennium",
+    "name": "Millennium",
+    "clubs": [
+      {
+        "id": "Engineering_Department",
+        "title": "엔지니어부",
+        "icon": "/images/clubs/Engineering_Department-icon.png",
+        "card": "/images/clubs/Engineering_Department-card.png",
+        "media": null
+      }
+    ]
+  },
+  {
+    "id": "arius",
+    "name": "Arius",
+    "clubs": [
+      {
+        "id": "Arius_Squad",
+        "title": "아리우스 스쿼드",
+        "icon": "/images/clubs/default.png",
+        "card": "/images/clubs/Arius_Squad-card.png",
+        "media": null
+      }
+    ]
+  },
+  {
+    "id": "srt",
+    "name": "SRT",
+    "clubs": [
+      {
+        "id": "RABBIT_Squad",
+        "title": "RABBIT 소대",
+        "icon": "/images/clubs/default.png",
+        "card": null,
+        "media": null
+      }
+    ]
+  }
+]

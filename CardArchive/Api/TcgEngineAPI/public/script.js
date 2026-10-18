@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 페이지 상단으로 스크롤
         window.scrollTo(0, 0);
+        document.dispatchEvent(new CustomEvent('site:page-change', { detail: { pageId } }));
     }
 
     // 네비게이션 링크 클릭 이벤트 리스너 등록
