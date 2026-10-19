@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardArea = document.getElementById('club-card');
     const mediaArea = document.getElementById('club-media');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let selectedId = null;
     let video = null;
+    let mediaGeneration = 0;
+    let gifObjectUrl = null;
+    const gifBlobs = new Map();
 
     function placeholder(container, heading, message) {
         container.replaceChildren();
@@ -42,8 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectClub(club, school) {
-        if (selectedId === club.id) return;
-        selectedId = club.id;
+        const generation = ++mediaGeneration;
         schools.querySelectorAll('.club-choice').forEach(button => {
             button.setAttribute('aria-pressed', String(button.dataset.club === club.id));
         });
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             image.src = club.card;
             image.alt = `${club.title} 카드`;
             image.addEventListener('error', () => {
+                if (generation !== mediaGeneration) return;
                 placeholder(cardArea, '카드 이미지 준비 중', club.title);
             }, { once: true });
             cardArea.replaceChildren(image);
@@ -63,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         clearVideo();
+        if (gifObjectUrl) URL.revokeObjectURL(gifObjectUrl);
+        gifObjectUrl = null;
         const media = club.media;
         if (media && media.src && (media.type === 'video' || media.type === 'image')) {
             const element = document.createElement(media.type === 'video' ? 'video' : 'img');
@@ -79,12 +83,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.alt = `${club.title} 대표 활용 예시`;
             }
             element.addEventListener('error', () => {
+                if (generation !== mediaGeneration) return;
                 clearVideo();
                 placeholder(mediaArea, '영상을 불러오지 못했습니다', '다른 동아리를 선택하거나 잠시 후 다시 확인해 주세요.');
             }, { once: true });
-            element.src = media.src;
             mediaArea.replaceChildren(element);
-            playVideo();
+            if (media.type === 'image' && /\.gif(?:[?#]|$)/i.test(media.src)) {
+                // A reused GIF URL can share the browser's existing animation clock.
+                // Cache the bytes, but give every click a fresh decoder URL, including reselection.
+                if (!gifBlobs.has(media.src)) {
+                    gifBlobs.set(media.src, fetch(media.src).then(response => {
+                        if (!response.ok) throw new Error('GIF unavailable');
+                        return response.blob();
+                    }).catch(error => { gifBlobs.delete(media.src); throw error; }));
+                }
+                gifBlobs.get(media.src).then(blob => {
+                    if (generation !== mediaGeneration) return;
+                    gifObjectUrl = URL.createObjectURL(blob);
+                    element.src = gifObjectUrl;
+                }).catch(() => {
+                    if (generation === mediaGeneration)
+                        placeholder(mediaArea, '영상을 불러오지 못했습니다', '동아리를 다시 선택해 주세요.');
+                });
+            } else {
+                element.src = media.src;
+                playVideo();
+            }
         } else {
             placeholder(mediaArea, '대표 활용 영상 준비 중', '이 동아리의 플레이 예시가 이곳에 표시됩니다.');
         }
