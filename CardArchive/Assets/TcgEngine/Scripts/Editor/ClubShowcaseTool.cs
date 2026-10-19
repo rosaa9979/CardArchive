@@ -28,6 +28,7 @@ public static class ClubShowcaseTool
     static MovieRecorderSettings movie;
     static int index, startFrame, completedFrame;
     static bool opened;
+    static int previousCursor;
     static double deadline;
 
     static ClubShowcaseTool()
@@ -124,7 +125,10 @@ public static class ClubShowcaseTool
         {
             var attacker = add("Shimokura_Megu", 0, 3, 3);
             var place = add("The_Way_To_School", 1, 3, 4);
-            action = () => logic.AttackTarget(attacker, place, true);
+            action = () => {
+                recorder.Interaction(game, new ReplayInteraction { kind = "endTurn", player = 0, slot = Slot.None });
+                logic.NextStep();
+            };
             verify = () => !game.players[1].cards_board.Contains(place)
                 && game.players.SelectMany(p => p.cards_board).Any(c => c.card_id == "Hot_Spring");
             description = "A Hot Springs student attacks a Place: destroy it and summon a Hot Spring.";
@@ -133,7 +137,10 @@ public static class ClubShowcaseTool
         {
             var attacker = add("Morizuki_Suzumi", 0, 3, 3);
             var blocker = add("Sweeper", 1, 4, 3);
-            action = () => { game.phase = GamePhase.Attack; logic.AttackSearch(attacker, true); };
+            action = () => {
+                recorder.Interaction(game, new ReplayInteraction { kind = "endTurn", player = 0, slot = Slot.None });
+                logic.NextStep();
+            };
             verify = () => game.players[1].hp < 20 && blocker.damage == 0;
             description = "Prioritize the opposing teacher even with an enemy unit in range.";
         }
@@ -144,27 +151,46 @@ public static class ClubShowcaseTool
             var target = add(definition.id, 0, 3, 2);
             target.damage = target.GetHPMax() - 1;
             var enemy = add("Modded_Sweeper", 1, 3, 4);
-            action = () => logic.HealCard(target, 1);
-            verify = () => enemy.damage > 0 || !game.players[1].cards_board.Contains(enemy);
-            description = "Heal a wounded Gourmet student without fully restoring HP; trigger board-wide damage.";
+            var heal = logic.DebugInsertCard(CardData.Get("Angel_24_Lunchbox"), 0, false, Slot.None);
+            action = () => {
+                Check(logic.SelectPlayTarget(heal, target.slot), "Healing card play rejected");
+                if (game.selector != SelectorType.None) logic.SelectSlot(target.slot);
+            };
+            verify = () => target.GetHP() > 1 && (enemy.damage > 0 || !game.players[1].cards_board.Contains(enemy));
+            description = "Drag and use Angel 24 Lunchbox; heal a wounded Gourmet student, then trigger board-wide damage.";
         }
         else
         {
             Card victim;
             if (id == "Engineering_Department") { add("Shiraishi_Utaha", 0, 4, 2); victim = add("Sweeper", 0, 3, 3); }
             else if (id == "Justice_Task_Force") { add("Shizuyama_Mashiro", 0, 4, 2); victim = add("Sweeper", 0, 3, 3); }
-            else { victim = add("Tsuchinaga_Hiyori", 0, 3, 3); victim.damage = victim.GetHPMax() - 1; }
+            else {
+                victim = add("Tsuchinaga_Hiyori", 0, 3, 3); victim.damage = victim.GetHPMax() - 1;
+                // Make the returned student the only next-draw candidate; no rule state is edited after recording starts.
+                // Keep one reserve card in hand so death removal cannot trigger the empty-zones loss rule.
+                var reserve = owner.cards_deck[0];
+                owner.cards_hand.Add(reserve);
+                foreach (var filler in owner.cards_deck.Where(c => c != reserve)) owner.cards_all.Remove(filler.uid);
+                owner.cards_deck.Clear();
+            }
             var spell = logic.DebugInsertCard(CardData.Get("C4"), 1, false, Slot.None);
             game.current_player = 1;
             action = () => {
                 Slot target = victim.slot;
                 Check(logic.SelectPlayTarget(spell, target), "C4 play rejected");
                 if (game.selector != SelectorType.None) logic.SelectSlot(target);
+                if (id == "Arius_Squad") {
+                    Settle(server, logic);
+                    Check(owner.cards_deck.Contains(victim) && !owner.cards_discard.Contains(victim), "Arius student did not return to deck");
+                    recorder.Interaction(game, new ReplayInteraction { kind = "endTurn", player = 1, slot = Slot.None });
+                    logic.NextStep();
+                }
             };
             if (id == "Engineering_Department") verify = () => owner.hp < 20 && game.players[1].hp < 20;
             else if (id == "Justice_Task_Force") verify = () => owner.cards_board.Any(c => c.card_id == "Justice_Task_Force_Memeber");
-            else verify = () => owner.cards_deck.Contains(victim) && !owner.cards_discard.Contains(victim);
-            description = id == "Arius_Squad" ? "A defeated Arius student returns to the deck."
+            else verify = () => owner.cards_hand.Contains(victim) && !owner.cards_discard.Contains(victim)
+                && game.current_player == 0;
+            description = id == "Arius_Squad" ? "The opponent drags C4 to destroy Hiyori; she returns to the deck and is drawn on the next turn."
                 : id == "Engineering_Department" ? "A friendly machine dies; both teachers take damage."
                 : "A friendly unit dies; summon Justice Task Force member tokens.";
         }
@@ -183,6 +209,17 @@ public static class ClubShowcaseTool
         var restored = ReplayStateCodec.Copy(record.initialState);
         foreach (var entry in record.events.Where(e => e.kind == "state")) restored = ReplayStateCodec.Apply(restored, entry.changes);
         Check(ReplayStateCodec.Hash(restored) == record.finalHash, id + ": replay final hash mismatch");
+        var tags = typeof(GameAction).GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(ushort) && f.IsLiteral)
+            .GroupBy(f => (ushort)f.GetRawConstantValue()).ToDictionary(g => g.Key, g => g.First().Name);
+        File.WriteAllLines(Path.Combine(Folder, id + "-events.txt"), record.events.Select((e, i) => {
+            string detail = e.kind == "interaction" ? e.interaction.kind : "";
+            if (e.kind == "event") {
+                ushort tag = BitConverter.ToUInt16(Convert.FromBase64String(e.packet), 0);
+                detail = tags.TryGetValue(tag, out var name) ? name : tag.ToString();
+            }
+            return i + " " + e.kind + " " + detail;
+        }));
         File.WriteAllText(Path.Combine(Folder, id + ".json"), JsonUtility.ToJson(new ReplayUpload {
             matchId = record.matchId, players = record.players, payload = ReplayStorage.Encode(record) }));
         File.WriteAllText(Path.Combine(Folder, id + "-validation.txt"), "PASS: actual GameLogic outcome and replay final hash\n" + description + "\nEntries=" + record.events.Count);
@@ -243,6 +280,14 @@ public static class ClubShowcaseTool
                 controller = new RecorderController(controllerSettings);
                 controller.PrepareRecording(); controller.StartRecording();
                 startFrame = Time.frameCount;
+                previousCursor = -1;
+                File.WriteAllText(Path.Combine(Folder, Clubs[index] + "-timing.csv"), "seconds,cursor\n");
+            }
+            if (director.Cursor != previousCursor) {
+                previousCursor = director.Cursor;
+                File.AppendAllText(Path.Combine(Folder, Clubs[index] + "-timing.csv"),
+                    ((Time.frameCount - startFrame) / 30f).ToString("F3", System.Globalization.CultureInfo.InvariantCulture)
+                    + "," + director.Cursor + "\n");
             }
             if (Time.frameCount - startFrame >= 30) director.SetPaused(false);
             if (director.Failed) throw new InvalidOperationException(Clubs[index] + ": playback failed");

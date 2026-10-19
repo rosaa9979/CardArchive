@@ -49,18 +49,21 @@ def main():
         duration = end - start
         if duration < 2:
             raise RuntimeError('Capture too short: ' + str(clip))
-        # Fade into the media panel color; the final faded frame is held for 0.8s.
-        filters = (f'fps={args.fps},scale={args.width}:-2:flags=lanczos,'
+        # Hold the completed outcome before fading; then leave a 0.8s gap before looping.
+        presentation_duration = duration + 1.0
+        filters = (f'fps={args.fps},scale={args.width}:-2:flags=lanczos,tpad=stop_mode=clone:stop_duration=1,'
+                   f'setpts=N/({args.fps}*TB),'
                    f'fade=t=in:st=0:d=0.5:color=0xEEF5FA,'
-                   f'fade=t=out:st={duration - 0.6:.3f}:d=0.5:color=0xEEF5FA,'
-                   'tpad=stop_mode=clone:stop_duration=0.8,split[a][b];'
+                   f'fade=t=out:st={presentation_duration - 0.6:.3f}:d=0.5:color=0xEEF5FA'
+                   f'[content];color=c=0xEEF5FA:s={args.width}x{round(args.width * 9 / 32) * 2}:r={args.fps}:d=0.8[gap];'
+                   '[content][gap]concat=n=2:v=1:a=0,split[a][b];'
                    '[a]palettegen=max_colors=128:reserve_transparent=0[p];'
                    '[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle')
         gif = output / (club['id'] + '.gif')
         subprocess.run([args.ffmpeg, '-hide_banner', '-loglevel', 'error', '-ss', str(start), '-t', str(duration), '-i', str(clip),
                         '-filter_complex', filters, '-an', '-loop', '0', '-y', str(gif)], check=True)
         club['media'] = {'type': 'image', 'src': '/media/clubs/' + gif.name}
-        print(club['id'], f'{duration + 0.8:.2f}s', f'{gif.stat().st_size / 1024:.0f} KiB')
+        print(club['id'], f'{presentation_duration + 0.8:.2f}s', f'{gif.stat().st_size / 1024:.0f} KiB')
     catalog.write_text(json.dumps(groups, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
