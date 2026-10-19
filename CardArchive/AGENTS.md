@@ -637,7 +637,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 | NumericOperation | readonly 값 객체. kind·cause·value·source·target을 보관한다. target은 Card/Player 생성자 중 하나로 지정한다. 현재 게임의 호출 스택에만 존재하며 에셋이나 큐의 공유 상태에 저장하지 않는다. |
 | NumericValue | readonly 최종 kind·value. 요청 원본을 변경하지 않는다. |
 | ResolveNumericOperation | 활성 컨테이너를 조회하고 최종 종류·수치를 계산한다. HP 변경·사망·결과 이벤트는 실행하지 않는다. |
-| ApplyHealthOperation | 원래 요청의 유효성·면역 검사 → 공통 보정 → 최종 종류의 유효성 검사 → 카드/플레이어 상태 반영을 연결한다. |
+| ApplyNumericOperation / AcceptsNumericOperation | 수치 요청의 공용 적용 경로와 수락 검사. 원래 요청의 유효성·면역 검사 → 공통 보정 → 최종 종류의 유효성 검사 → 카드/플레이어 상태 반영을 연결한다. 이름은 범용이지만 현재 지원 종류는 NumericKind의 Damage/Heal(HP)뿐이며, 스탯 변경은 지원 범위를 확장할 때 이 명세와 함께 추가한다. |
 | 기존 Damage/Heal 진입점 | 요청의 원인·수신자를 지정해 같은 적용 경로를 호출한다. Card/Player 회복은 선택적 원인 카드 오버로드를 제공하고 기존 두 인자 API도 유지한다. |
 
 - 공격·반격·효과·원인 없는 피해·중독·피로·흡혈 회복·관통 피해가 공통 보정을 통과한다. 스탯 증가·최대 HP 변경·초기화는 피해/회복으로 간주하지 않는다.

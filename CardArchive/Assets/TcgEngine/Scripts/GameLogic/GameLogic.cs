@@ -440,7 +440,7 @@ namespace TcgEngine.Gameplay
             Player player = game_data.GetActivePlayer();
             //Player poison
             if (player.HasStatus(StatusType.Poisoned))
-                ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, player.GetStatusValue(StatusType.Poisoned), null, player));
+                ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, player.GetStatusValue(StatusType.Poisoned), null, player));
 
             if (player.hero != null)
                 player.hero.Refresh();
@@ -1634,19 +1634,19 @@ namespace TcgEngine.Gameplay
         // Existing event entrypoints keep their cause; every health operation crosses the same gate.
         public virtual void DamagePlayer(Card attacker, Player target, int value)
         {
-            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Attack, value, attacker, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Attack, value, attacker, target));
         }
 
         public virtual void DamagePlayer_Event(Card attacker, Player target, int value)
         {
-            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target));
+            if (attacker != null) ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target));
         }
 
         public virtual void DamagePlayer_Exhaust(Player target)
         {
             if (target == null) return;
             target.exhaust_damage += 1;
-            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Fatigue, target.exhaust_damage, null, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Fatigue, target.exhaust_damage, null, target));
         }
 
         public virtual void HealCard(Card target, int value)
@@ -1656,7 +1656,7 @@ namespace TcgEngine.Gameplay
 
         public virtual void HealCard(Card target, int value, Card source)
         {
-            ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
         }
 
         public virtual void HealPlayer(Player target, int value)
@@ -1666,28 +1666,28 @@ namespace TcgEngine.Gameplay
 
         public virtual void HealPlayer(Player target, int value, Card source)
         {
-            ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Heal, NumericCause.Ability, value, source, target));
         }
 
         public virtual void DamageCard(Card target, int value)
         {
-            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Other, value, null, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Other, value, null, target));
         }
 
         public virtual void DamageCard(Card attacker, Card target, int value, bool spell_damage = false, bool counter_attack = false)
         {
-            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage,
+            if (attacker != null) ApplyNumericOperation(new NumericOperation(NumericKind.Damage,
                 counter_attack ? NumericCause.CounterAttack : NumericCause.Attack, value, attacker, target), spell_damage);
         }
 
         public virtual void DamageCard_Event(Card target, int value)
         {
-            ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, value, null, target));
+            ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Status, value, null, target));
         }
 
         public virtual void DamageCard_Event(Card attacker, Card target, int value, bool spell_damage = false)
         {
-            if (attacker != null) ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target), spell_damage);
+            if (attacker != null) ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Ability, value, attacker, target), spell_damage);
         }
 
         // Resolve recipients once per board tile, inside the caller's existing ability phase.

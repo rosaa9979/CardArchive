@@ -105,7 +105,7 @@ namespace TcgEngine.Gameplay
                 throw new ArgumentException("Multiply requires a nonnegative numerator and positive divisor.");
         }
 
-        private bool AcceptsHealthOperation(NumericOperation request, NumericKind kind)
+        private bool AcceptsNumericOperation(NumericOperation request, NumericKind kind)
         {
             if (request.target == null) return false;
             if (request.target is Card card)
@@ -117,12 +117,12 @@ namespace TcgEngine.Gameplay
             return true;
         }
 
-        private void ApplyHealthOperation(NumericOperation request, bool spellDamage = false)
+        private void ApplyNumericOperation(NumericOperation request, bool spellDamage = false)
         {
             // Preserve existing admission checks; a converted operation must also be legal.
-            if (!AcceptsHealthOperation(request, request.kind)) return;
+            if (!AcceptsNumericOperation(request, request.kind)) return;
             NumericValue adjusted = ResolveNumericOperation(request);
-            if (!AcceptsHealthOperation(request, adjusted.kind)) return;
+            if (!AcceptsNumericOperation(request, adjusted.kind)) return;
             if (request.target is Card card)
             {
                 if (adjusted.kind == NumericKind.Heal) ApplyCardHealing(card, adjusted.value);
@@ -176,9 +176,9 @@ namespace TcgEngine.Gameplay
                         : (request.cause == NumericCause.Ability || spellDamage ? DeathCause.AbilityDamage : DeathCause.AttackDamage));
                 if (value > 0) TriggerCardAbilityType(AbilityTrigger.OnAfterDamage, attacker, target);
                 if (!spellDamage && extra > 0 && attacker.player_id == game_data.current_player && attacker.HasStatus(StatusType.Trample))
-                    ApplyHealthOperation(new NumericOperation(NumericKind.Damage, NumericCause.Trample, extra, attacker, game_data.GetPlayer(target.player_id)));
+                    ApplyNumericOperation(new NumericOperation(NumericKind.Damage, NumericCause.Trample, extra, attacker, game_data.GetPlayer(target.player_id)));
                 if (!spellDamage && attacker.HasStatus(StatusType.LifeSteal))
-                    ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.LifeSteal, damageMax, attacker, game_data.GetPlayer(attacker.player_id)));
+                    ApplyNumericOperation(new NumericOperation(NumericKind.Heal, NumericCause.LifeSteal, damageMax, attacker, game_data.GetPlayer(attacker.player_id)));
                 target.RemoveStatus(StatusType.Sleep);
                 if (request.cause == NumericCause.Ability && value > 0 && attacker.HasStatus(StatusType.Deathtouch) && target.CardData.IsCitizen())
                     KillCard(attacker, target);
@@ -205,7 +205,7 @@ namespace TcgEngine.Gameplay
 
             if ((request.cause == NumericCause.Attack || request.cause == NumericCause.Ability)
                 && request.source != null && request.source.HasStatus(StatusType.LifeSteal))
-                ApplyHealthOperation(new NumericOperation(NumericKind.Heal, NumericCause.LifeSteal, adjusted.value, request.source, game_data.GetPlayer(request.source.player_id)));
+                ApplyNumericOperation(new NumericOperation(NumericKind.Heal, NumericCause.LifeSteal, adjusted.value, request.source, game_data.GetPlayer(request.source.player_id)));
         }
     }
 }
