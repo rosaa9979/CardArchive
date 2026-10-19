@@ -1,0 +1,1844 @@
+fileFormatVersion: 2
+guid: f89c208b01e91224eb083a6b62d3d23b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4762240377050278029
+    second: HealBubbleSheet_0
+  - first:
+      213: -1486307446774519373
+    second: HealBubbleSheet_1
+  - first:
+      213: 2858946895100393148
+    second: HealBubbleSheet_2
+  - first:
+      213: 5956233219767167880
+    second: HealBubbleSheet_3
+  - first:
+      213: 5423126432830528005
+    second: HealBubbleSheet_4
+  - first:
+      213: 1025299036494504513
+    second: HealBubbleSheet_5
+  - first:
+      213: -137483731031557491
+    second: HealBubbleSheet_6
+  - first:
+      213: -5814661932858997407
+    second: HealBubbleSheet_7
+  - first:
+      213: -3960695107413337605
+    second: HealBubbleSheet_8
+  - first:
+      213: 2150303483740760322
+    second: HealBubbleSheet_9
+  - first:
+      213: 4014628176582405106
+    second: HealBubbleSheet_10
+  - first:
+      213: -4881220463919890966
+    second: HealBubbleSheet_11
+  - first:
+      213: 4065348084333687125
+    second: HealBubbleSheet_12
+  - first:
+      213: -3840786069940114767
+    second: HealBubbleSheet_13
+  - first:
+      213: -156782831457177351
+    second: HealBubbleSheet_14
+  - first:
+      213: -913594200482033642
+    second: HealBubbleSheet_15
+  - first:
+      213: -4772337737735458187
+    second: HealBubbleSheet_16
+  - first:
+      213: 3940799912452516725
+    second: HealBubbleSheet_17
+  - first:
+      213: 1369127398043153505
+    second: HealBubbleSheet_18
+  - first:
+      213: 1807588917418545831
+    second: HealBubbleSheet_19
+  - first:
+      213: -7796401242555220607
+    second: HealBubbleSheet_20
+  - first:
+      213: -4685105137198806155
+    second: HealBubbleSheet_21
+  - first:
+      213: -1742652243643993635
+    second: HealBubbleSheet_22
+  - first:
+      213: 1041025887383968653
+    second: HealBubbleSheet_23
+  - first:
+      213: -3492484197478371091
+    second: HealBubbleSheet_24
+  - first:
+      213: -4538994223722776795
+    second: HealBubbleSheet_25
+  - first:
+      213: 4667241416107185416
+    second: HealBubbleSheet_26
+  - first:
+      213: -3276546640362140266
+    second: HealBubbleSheet_27
+  - first:
+      213: 1864084141631413815
+    second: HealBubbleSheet_28
+  - first:
+      213: -514047986865385389
+    second: HealBubbleSheet_29
+  - first:
+      213: 1206859858915322288
+    second: HealBubbleSheet_30
+  - first:
+      213: -1077591745352203575
+    second: HealBubbleSheet_31
+  - first:
+      213: -9055407890826325584
+    second: HealBubbleSheet_32
+  - first:
+      213: -7063705781803632315
+    second: HealBubbleSheet_33
+  - first:
+      213: 1174405125092466575
+    second: HealBubbleSheet_34
+  - first:
+      213: -8374874683896879974
+    second: HealBubbleSheet_35
+  - first:
+      213: -325940253477737929
+    second: HealBubbleSheet_36
+  - first:
+      213: -7600406074531639908
+    second: HealBubbleSheet_37
+  - first:
+      213: 2395367426628931605
+    second: HealBubbleSheet_38
+  - first:
+      213: 7895757792082064940
+    second: HealBubbleSheet_39
+  - first:
+      213: 6810015426624843981
+    second: HealBubbleSheet_40
+  - first:
+      213: -842177992144262331
+    second: HealBubbleSheet_41
+  - first:
+      213: -2624209198862829679
+    second: HealBubbleSheet_42
+  - first:
+      213: 2636913562572602856
+    second: HealBubbleSheet_43
+  - first:
+      213: 2440515121278090647
+    second: HealBubbleSheet_44
+  - first:
+      213: 5719296059458446039
+    second: HealBubbleSheet_45
+  - first:
+      213: -6473388472290372675
+    second: HealBubbleSheet_46
+  - first:
+      213: 2962871464066835514
+    second: HealBubbleSheet_47
+  - first:
+      213: -886216320973506945
+    second: HealBubbleSheet_48
+  - first:
+      213: -8171108606607072446
+    second: HealBubbleSheet_49
+  - first:
+      213: 6991568256394729882
+    second: HealBubbleSheet_50
+  - first:
+      213: 7714517178456370021
+    second: HealBubbleSheet_51
+  - first:
+      213: -1553008416178506915
+    second: HealBubbleSheet_52
+  - first:
+      213: 6617338461783404144
+    second: HealBubbleSheet_53
+  - first:
+      213: -4655977693735816838
+    second: HealBubbleSheet_54
+  - first:
+      213: -4310691691857832954
+    second: HealBubbleSheet_55
+  - first:
+      213: -3422440658818292956
+    second: HealBubbleSheet_56
+  - first:
+      213: -1109402014069099594
+    second: HealBubbleSheet_57
+  - first:
+      213: 3087166048834145344
+    second: HealBubbleSheet_58
+  - first:
+      213: -7478316041562543335
+    second: HealBubbleSheet_59
+  - first:
+      213: 4208074664362473409
+    second: HealBubbleSheet_60
+  - first:
+      213: -7951195242515143755
+    second: HealBubbleSheet_61
+  - first:
+      213: -5980385285736459710
+    second: HealBubbleSheet_62
+  - first:
+      213: 7761873085971516812
+    second: HealBubbleSheet_63
+  - first:
+      213: 1615457246932125597
+    second: HealBubbleSheet_64
+  - first:
+      213: -3608512497953442238
+    second: HealBubbleSheet_65
+  - first:
+      213: 2202730334489649893
+    second: HealBubbleSheet_66
+  - first:
+      213: -2215987000506496950
+    second: HealBubbleSheet_67
+  - first:
+      213: -7067429146581728322
+    second: HealBubbleSheet_68
+  - first:
+      213: 6766268026222531887
+    second: HealBubbleSheet_69
+  - first:
+      213: -8002493424391261385
+    second: HealBubbleSheet_70
+  - first:
+      213: -2123254576319277572
+    second: HealBubbleSheet_71
+  - first:
+      213: 5621389079415767333
+    second: HealBubbleSheet_72
+  - first:
+      213: 9122194274972709597
+    second: HealBubbleSheet_73
+  - first:
+      213: 4123760450657438790
+    second: HealBubbleSheet_74
+  - first:
+      213: 8282269347015022682
+    second: HealBubbleSheet_75
+  - first:
+      213: -5063478028984842994
+    second: HealBubbleSheet_76
+  - first:
+      213: 994453864218292672
+    second: HealBubbleSheet_77
+  - first:
+      213: 602719867014286727
+    second: HealBubbleSheet_78
+  - first:
+      213: -8062906249872897485
+    second: HealBubbleSheet_79
+  - first:
+      213: 9084185012407784793
+    second: HealBubbleSheet_80
+  - first:
+      213: 3891958866955785174
+    second: HealBubbleSheet_81
+  - first:
+      213: 9183334867866109574
+    second: HealBubbleSheet_82
+  - first:
+      213: 5832415827820853427
+    second: HealBubbleSheet_83
+  - first:
+      213: -4079115943591347852
+    second: HealBubbleSheet_84
+  - first:
+      213: 6323267100545295464
+    second: HealBubbleSheet_85
+  - first:
+      213: 6295798303007612794
+    second: HealBubbleSheet_86
+  - first:
+      213: -1069091085130615289
+    second: HealBubbleSheet_87
+  - first:
+      213: 1655310814661229951
+    second: HealBubbleSheet_88
+  - first:
+      213: -5329567661269728579
+    second: HealBubbleSheet_89
+  - first:
+      213: -2189209241197039220
+    second: HealBubbleSheet_90
+  - first:
+      213: -654625981945763176
+    second: HealBubbleSheet_91
+  - first:
+      213: 8003097599840149787
+    second: HealBubbleSheet_92
+  - first:
+      213: -3967876400807175854
+    second: HealBubbleSheet_93
+  - first:
+      213: -2558228892744010643
+    second: HealBubbleSheet_94
+  - first:
+      213: -5736233614531545033
+    second: HealBubbleSheet_95
+  - first:
+      213: 6777737713273374474
+    second: HealBubbleSheet_96
+  - first:
+      213: 1197119669299588973
+    second: HealBubbleSheet_97
+  - first:
+      213: -6584768319714669352
+    second: HealBubbleSheet_98
+  - first:
+      213: -2610810725305307361
+    second: HealBubbleSheet_99
+  - first:
+      213: -1153411599226244406
+    second: HealBubbleSheet_100
+  - first:
+      213: -5811279563015401782
+    second: HealBubbleSheet_101
+  - first:
+      213: 4624856434642826038
+    second: HealBubbleSheet_102
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 136.72054
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: HealBubble_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b474b53549bd2941af3066ecff960c2
+      internalID: 772094589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_01
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bfe632c3b5be2b43bb8a285db6c24bb
+      internalID: -939844625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_02
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e4fcee09e994be4b96e0a065abb7e52
+      internalID: 1666622107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_03
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49e36df93d0ba8747adac935100b0eed
+      internalID: -903754275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_04
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 233f90c539390a643b029809af055b93
+      internalID: 583631620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_05
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: db685c1c27ae01940acd76d27bc1b86e
+      internalID: -828726220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_06
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd588fb4541ce0c4ca70dce8b28cb713
+      internalID: -1414691423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_07
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 1792
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d31339d97da55f34eb0bd8a222a54cfe
+      internalID: -1362724214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0cfc6d7e631739846a55195ec421c20b
+      internalID: -2023077964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_09
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 950f34b07819dc044b54afe0306c13bb
+      internalID: 453781077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_10
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 35cd1082a6c7bd341a1fbb99541a1056
+      internalID: -1382321795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_11
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d28be9e7b7b76246ac1b2b78917b297
+      internalID: -287086684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_12
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e543b98ac0fb50644bfcb20c46cb9933
+      internalID: 1121672474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_13
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 67403176a8de20447b0d8dbc80a0cfea
+      internalID: 1417432255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_14
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b5898a8723bdbbd43ac4c0b6a663d365
+      internalID: 978471176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_15
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 1536
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5307cd334abdd264aa70f65f9c61f528
+      internalID: -1193212362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8fe86cace7bda82448eb6b12bcf609a4
+      internalID: 727980009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_17
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60c4738dc3b8da644b553b6c6aae1994
+      internalID: 963170496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_18
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eeb9be5dd32a31d46be21dcaa44a6fb4
+      internalID: 1968129167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_19
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c5e4a59219a59444886efb8d0e89e2a
+      internalID: -367684261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_20
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8c5406b599a8ce4d97858f322a0fb96
+      internalID: 1756862698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_21
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dd125bb71888ed47b25783c9cea4317
+      internalID: -1315892488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_22
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0fabe7fc3db7502468d4f178ff25e7cd
+      internalID: 566042354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_23
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 1280
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ac4cb81ae5ed574da49c8fa170e279a
+      internalID: -1295900085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ecf31f6a29a030b47bb14d921f270e9f
+      internalID: 1042530998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_25
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed7b4c628235d0f468ad8bc7b6b79356
+      internalID: 1496966075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_26
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 213930bc692a94141a9787705beba81e
+      internalID: -1413834180
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_27
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4cde38ca43e6b14e8041af76ef451ea
+      internalID: -301253479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_28
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c278d8f542d999f4aa92783a7dce00f5
+      internalID: 801959101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_29
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19d3bd444eb52c448b358cc1c31bf721
+      internalID: -1633381755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_30
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b338b4cef3b9d0548849f8678db2de9e
+      internalID: -407836176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_31
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 1024
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be63f45fc948553439a6a80f0731b5ec
+      internalID: 177810948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6cb345035264d7b41882538179f029b2
+      internalID: 1085829825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_33
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e8cd1389ebfa3e4499a5a0762d6e15f2
+      internalID: 1197358319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_34
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ebea5c3335f5a4240ac6b7a9dadc8999
+      internalID: 1021517360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_35
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60d7183a89688624e8b30222c7a116f3
+      internalID: -908293524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_36
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c7be6aecfba6b940bedaf01e0a76c0c
+      internalID: -1748065290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_37
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0acf9c625c404b74a9d7e1991f38ee14
+      internalID: -1672125426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_38
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7679802a149176b4a9ec9d29c9e489fc
+      internalID: 508325012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_39
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 768
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7882122ab3cce5547b59f782391b0fec
+      internalID: -567621768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 094fc6eee483c2e4998382703a1f0ec3
+      internalID: -514101072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_41
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac4bb04726fe2894b98e7e09f48d41dc
+      internalID: 690309680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_42
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1a507c78677765b45b6dd2d91031aa49
+      internalID: -1093783517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_43
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ae7e702edbba5c4d95b5eed9755479a
+      internalID: -305044433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_44
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abf9535dbfea9e44987e85f28484583a
+      internalID: 729407620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_45
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 315cf25de050b8b47a82cf9ba3ed672f
+      internalID: 303256352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_46
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8bdce348b0142f84c9febf8225d70280
+      internalID: -1349624835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_47
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8992507c1aca424599e15229be79c23
+      internalID: 1279577768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 450ad77c0b426f647ac1d0e2d4bd2991
+      internalID: -155014870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_49
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e72f315944f14642a44165520800453
+      internalID: -1007327671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_50
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 892638036e7dc2c44893502655d4dd4b
+      internalID: 950562063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_51
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a4cc356363f7a147b951caedf6d26b8
+      internalID: -980885826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_52
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7b773f8a51d44e444b2f337caef403ca
+      internalID: 2038294432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_53
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df15bf4abeb98c346b88bc3f12a7b4ec
+      internalID: -667953235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_54
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 87edde8576f0ffa44a92b936a6daf258
+      internalID: -1889111679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_55
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 256
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 469fdf62f94d7d64dbf8c008f5d755d1
+      internalID: -1038553899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_56
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8fd7ca7c2ce64df44ac74a8a05062d4f
+      internalID: 1148556782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_57
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb87b9b62460bb44fa3e13f41bd2a77f
+      internalID: 452506767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_58
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46b51aa646d3b73469024d17dd9d09d6
+      internalID: 69049139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_59
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b37930d3ad68a7f4a9684358b1a538ac
+      internalID: -480757340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HealBubble_60
+      rect:
+        serializedVersion: 2
+        x: 1024
+        y: 0
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d127e263e2cb7294581840bc701a6b4c
+      internalID: 487065105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      HealBubble_00: 772094589
+      HealBubble_01: -939844625
+      HealBubble_02: 1666622107
+      HealBubble_03: -903754275
+      HealBubble_04: 583631620
+      HealBubble_05: -828726220
+      HealBubble_06: -1414691423
+      HealBubble_07: -1362724214
+      HealBubble_08: -2023077964
+      HealBubble_09: 453781077
+      HealBubble_10: -1382321795
+      HealBubble_11: -287086684
+      HealBubble_12: 1121672474
+      HealBubble_13: 1417432255
+      HealBubble_14: 978471176
+      HealBubble_15: -1193212362
+      HealBubble_16: 727980009
+      HealBubble_17: 963170496
+      HealBubble_18: 1968129167
+      HealBubble_19: -367684261
+      HealBubble_20: 1756862698
+      HealBubble_21: -1315892488
+      HealBubble_22: 566042354
+      HealBubble_23: -1295900085
+      HealBubble_24: 1042530998
+      HealBubble_25: 1496966075
+      HealBubble_26: -1413834180
+      HealBubble_27: -301253479
+      HealBubble_28: 801959101
+      HealBubble_29: -1633381755
+      HealBubble_30: -407836176
+      HealBubble_31: 177810948
+      HealBubble_32: 1085829825
+      HealBubble_33: 1197358319
+      HealBubble_34: 1021517360
+      HealBubble_35: -908293524
+      HealBubble_36: -1748065290
+      HealBubble_37: -1672125426
+      HealBubble_38: 508325012
+      HealBubble_39: -567621768
+      HealBubble_40: -514101072
+      HealBubble_41: 690309680
+      HealBubble_42: -1093783517
+      HealBubble_43: -305044433
+      HealBubble_44: 729407620
+      HealBubble_45: 303256352
+      HealBubble_46: -1349624835
+      HealBubble_47: 1279577768
+      HealBubble_48: -155014870
+      HealBubble_49: -1007327671
+      HealBubble_50: 950562063
+      HealBubble_51: -980885826
+      HealBubble_52: 2038294432
+      HealBubble_53: -667953235
+      HealBubble_54: -1889111679
+      HealBubble_55: -1038553899
+      HealBubble_56: 1148556782
+      HealBubble_57: 452506767
+      HealBubble_58: 69049139
+      HealBubble_59: -480757340
+      HealBubble_60: 487065105
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
