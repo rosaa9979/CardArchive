@@ -58,6 +58,8 @@ namespace TcgEngine.Client
         public UnityAction<Card, Card> onAttackHit;
         public UnityAction<Card, Card, int> onCardDamaged; //Attacker (null if none), Target, applied damage
         public UnityAction<Card, Player, int> onPlayerDamaged; //Attacker, Target player, applied damage
+        public UnityAction<Card, Card, int> onCardHealed; //Source (null if none), Target, actual HP restored
+        public UnityAction<Card, Player, int> onPlayerHealed; //Source (null if none), Target player, actual HP restored
         public UnityAction<Card, Card> onAttackEvade;
         public UnityAction<Card, Card> onAttackEnd;     //Attacker, Defender
         public UnityAction<Card, Player> onAttackPlayerStart;
@@ -115,6 +117,8 @@ namespace TcgEngine.Client
             RegisterRefresh(GameAction.AttackHit, OnAttackHit);
             RegisterRefresh(GameAction.CardDamaged, OnCardDamaged);
             RegisterRefresh(GameAction.PlayerDamaged, OnPlayerDamaged);
+            RegisterRefresh(GameAction.CardHealed, OnCardHealed);
+            RegisterRefresh(GameAction.PlayerHealed, OnPlayerHealed);
             RegisterRefresh(GameAction.AttackEvade, OnAttackEvade);
             RegisterRefresh(GameAction.AttackEnd, OnAttackEnd);
             RegisterRefresh(GameAction.AttackPlayerStart, OnAttackPlayerStart);
@@ -676,7 +680,7 @@ namespace TcgEngine.Client
             MsgAttack msg = sdata.Get<MsgAttack>();
             Card attacker = EventData.GetCard(msg.attacker_uid);
             Card target = EventData.GetCard(msg.target_uid);
-            if (target != null) AfterPresentationCommit(() => onCardDamaged?.Invoke(attacker, target, msg.damage));
+            if (target != null) QueueHealthResult(new HealthResult(attacker, target, null, false, msg.damage));
         }
 
         private void OnPlayerDamaged(SerializedData sdata)
@@ -684,7 +688,23 @@ namespace TcgEngine.Client
             MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
             Card attacker = EventData.GetCard(msg.attacker_uid);
             Player target = EventData.GetPlayer(msg.target_id);
-            if (target != null) AfterPresentationCommit(() => onPlayerDamaged?.Invoke(attacker, target, msg.damage));
+            if (target != null) QueueHealthResult(new HealthResult(attacker, null, target, false, msg.damage));
+        }
+
+        private void OnCardHealed(SerializedData sdata)
+        {
+            MsgAttack msg = sdata.Get<MsgAttack>();
+            Card source = EventData.GetCard(msg.attacker_uid);
+            Card target = EventData.GetCard(msg.target_uid);
+            if (target != null) QueueHealthResult(new HealthResult(source, target, null, true, msg.damage));
+        }
+
+        private void OnPlayerHealed(SerializedData sdata)
+        {
+            MsgAttackPlayer msg = sdata.Get<MsgAttackPlayer>();
+            Card source = EventData.GetCard(msg.attacker_uid);
+            Player target = EventData.GetPlayer(msg.target_id);
+            if (target != null) QueueHealthResult(new HealthResult(source, null, target, true, msg.damage));
         }
 
         private void OnAttackEvade(SerializedData sdata)

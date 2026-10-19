@@ -7,10 +7,10 @@ using TcgEngine.UI;
 namespace TcgEngine.FX
 {
     /// <summary>
-    /// Text number FX that appear when a card receives damage
+    /// Floating number text shown over a card or player (damage, heal, miss)
     /// </summary>
 
-    public class DamageFX : MonoBehaviour
+    public class FloatingNumberFX : MonoBehaviour
     {
         public Text text_value;
 

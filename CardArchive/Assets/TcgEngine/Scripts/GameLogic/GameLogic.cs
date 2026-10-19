@@ -68,6 +68,8 @@ namespace TcgEngine.Gameplay
         public UnityAction<Card, Card> onAttackEvade;
         public UnityAction<Card, Card, int> onCardDamaged; //Attacker (null if none), Target, final applied damage (after armor)
         public UnityAction<Card, Player, int> onPlayerDamaged; //Attacker, Target player, applied damage
+        public UnityAction<Card, Card, int> onCardHealed; //Source (null if none), Target, actual HP restored
+        public UnityAction<Card, Player, int> onPlayerHealed; //Source (null if none), Target player, actual HP restored
         public UnityAction<Card, Player> onAttackPlayerStart;
         public UnityAction<Card, Player> onAttackPlayerEnd;
         public UnityAction<Card, Player> onAttackPlayerHit;

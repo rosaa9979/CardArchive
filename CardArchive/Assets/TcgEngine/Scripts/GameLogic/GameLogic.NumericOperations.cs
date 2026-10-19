@@ -125,7 +125,7 @@ namespace TcgEngine.Gameplay
             if (!AcceptsNumericOperation(request, adjusted.kind)) return;
             if (request.target is Card card)
             {
-                if (adjusted.kind == NumericKind.Heal) ApplyCardHealing(card, adjusted.value);
+                if (adjusted.kind == NumericKind.Heal) ApplyCardHealing(request.source, card, adjusted.value);
                 else ApplyCardDamage(request, card, adjusted.value, spellDamage);
             }
             else if (request.target is Player player)
@@ -134,7 +134,7 @@ namespace TcgEngine.Gameplay
             }
         }
 
-        private void ApplyCardHealing(Card target, int value)
+        private void ApplyCardHealing(Card source, Card target, int value)
         {
             int before = target.damage;
             target.damage = (int)Math.Max(0L, (long)target.damage - value);
@@ -145,6 +145,7 @@ namespace TcgEngine.Gameplay
                 target.death_cause = DeathCause.Unknown;
             }
             game_data.GetPlayer(target.player_id).total_heal += before - target.damage;
+            onCardHealed?.Invoke(source, target, before - target.damage);
             // A zero amount is still a healing operation, not cancellation.
             TriggerCardAbilityType(AbilityTrigger.OnHeal, target);
             TriggerOtherCardsAbilityType(AbilityTrigger.OnHealOther, target);
@@ -197,11 +198,12 @@ namespace TcgEngine.Gameplay
             if (adjusted.kind == NumericKind.Heal)
             {
                 if (request.cause != NumericCause.LifeSteal) target.total_heal += target.hp - before;
+                onPlayerHealed?.Invoke(request.source, target, target.hp - before);
                 return;
             }
+            // Fatigue keeps its own notification; every other cause reports the applied damage.
             if (request.cause == NumericCause.Fatigue) onExhaustDamage?.Invoke(target);
-            else if (request.cause != NumericCause.Status && request.cause != NumericCause.Trample && request.cause != NumericCause.LifeSteal)
-                onPlayerDamaged?.Invoke(request.source, target, adjusted.value);
+            else onPlayerDamaged?.Invoke(request.source, target, adjusted.value);
 
             if ((request.cause == NumericCause.Attack || request.cause == NumericCause.Ability)
                 && request.source != null && request.source.HasStatus(StatusType.LifeSteal))

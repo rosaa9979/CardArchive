@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TcgEngine
 {
@@ -20,7 +21,9 @@ namespace TcgEngine
         public GameObject player_damage_fx;
         public GameObject player_exhausted_fx;
         public GameObject player_exhausted_other_fx;
-        public GameObject damage_fx;
+        [FormerlySerializedAs("damage_fx")]
+        public GameObject floating_damage_fx;
+        public GameObject floating_heal_fx;
         public GameObject play_card_fx;
         public GameObject play_card_other_fx;
         public GameObject play_secret_fx;

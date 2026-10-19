@@ -21,6 +21,7 @@ namespace TcgEngine.Client
         private readonly List<TcgEngine.FX.FXPlayback> presentationFX = new List<TcgEngine.FX.FXPlayback>();
         private readonly List<TcgEngine.FX.FXPlayback> continuingFX = new List<TcgEngine.FX.FXPlayback>();
         private readonly List<Action> afterPresentationCommit = new List<Action>();
+        private readonly List<HealthResult> healthResults = new List<HealthResult>();
         public bool IsPresentingState => playingPresentation;
         private ReplayState latestState;
         private readonly Queue<PresentationFrame> presentationQueue = new Queue<PresentationFrame>();
@@ -202,6 +203,7 @@ namespace TcgEngine.Client
             ongoingSpawns.Clear();
             collectingAnimations = false;
             afterPresentationCommit.Clear();
+            healthResults.Clear();
             foreach (var fx in presentationFX) if (fx != null) fx.Cancel();
             foreach (var fx in continuingFX) if (fx != null) fx.Cancel();
             presentationFX.Clear();
@@ -232,6 +234,53 @@ namespace TcgEngine.Client
         {
             if (presentationState.Pending) afterPresentationCommit.Add(action);
             else action();
+        }
+
+        // HP results of one step are merged per recipient and kind, so a recipient hit several
+        // times in the same step (e.g. one teacher through several indoor tiles) shows one number.
+        private sealed class HealthResult
+        {
+            public readonly Card source;
+            public readonly Card card;
+            public readonly Player player;
+            public readonly bool heal;
+            public int value;
+
+            public HealthResult(Card source, Card card, Player player, bool heal, int value)
+            {
+                this.source = source; this.card = card; this.player = player; this.heal = heal; this.value = value;
+            }
+
+            public bool SameRecipient(HealthResult other) => heal == other.heal && (card != null
+                ? other.card != null && card.uid == other.card.uid
+                : other.player != null && player.player_id == other.player.player_id);
+        }
+
+        private void QueueHealthResult(HealthResult result)
+        {
+            if (!presentationState.Pending) { DispatchHealthResult(result); return; }
+            foreach (var queued in healthResults)
+                if (queued.SameRecipient(result)) { queued.value += result.value; return; }
+            if (healthResults.Count == 0) afterPresentationCommit.Add(FlushHealthResults);
+            healthResults.Add(result);
+        }
+
+        private void FlushHealthResults()
+        {
+            var results = healthResults.ToArray();
+            healthResults.Clear();
+            foreach (var result in results) DispatchHealthResult(result);
+        }
+
+        private void DispatchHealthResult(HealthResult result)
+        {
+            if (result.card != null)
+            {
+                if (result.heal) onCardHealed?.Invoke(result.source, result.card, result.value);
+                else onCardDamaged?.Invoke(result.source, result.card, result.value);
+            }
+            else if (result.heal) onPlayerHealed?.Invoke(result.source, result.player, result.value);
+            else onPlayerDamaged?.Invoke(result.source, result.player, result.value);
         }
 
         // Reserve before creating OR scheduling a prefab. The generation survives a

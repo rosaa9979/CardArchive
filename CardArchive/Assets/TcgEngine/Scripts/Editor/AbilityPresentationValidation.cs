@@ -32,6 +32,7 @@ namespace TcgEngine.Editor
             var area = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<AbilityData>(
                 "Assets/TcgEngine/Resources/Abilities/spells/spell_damage1_all_enemy.asset"));
             var draw = ScriptableObject.CreateInstance<EffectDraw>();
+            var heal = ScriptableObject.CreateInstance<EffectHeal>();
             try
             {
                 check(area.playback_mode == AbilityPlaybackMode.Simultaneous, "Existing abilities default to simultaneous playback");
@@ -144,11 +145,28 @@ namespace TcgEngine.Editor
                 check(draws.Count == 2 && draws[0].game.players[0].hp == 19 && draws[1].game.players[0].hp == 17,
                     "Draw outcomes without target FX retain individual boundaries");
                 check(run.ReplayFramesMatch(frames), "Draw replay matches live boundaries");
+
+                // Healing reports the actual restored amount in the same frame as its target cue.
+                ability.target_fx = asset.target_fx;
+                ability.effects = new EffectData[] { heal };
+                ability.value = 3;
+                run = new Recording();
+                run.game.players[0].hp = 15;
+                var healed = new List<int>();
+                run.logic.onPlayerHealed += (_, __, amount) => healed.Add(amount);
+                run.logic.Resolve(ability, run.caster, run.game.players[0]);
+                run.logic.Resolve(ability, run.caster, run.game.players[0]);
+                frames = run.Take();
+                check(frames.Count == 2 && frames[0].game.players[0].hp == 18 && frames[0].Has(GameAction.PlayerHealed)
+                    && frames[0].Has(GameAction.AbilityTargetPlayer), "Heal, floating event and target cue share one frame");
+                check(healed.SequenceEqual(new[] { 3, 2 }), "Heal events report the actual HP restored, not the request");
+                check(run.ReplayFramesMatch(frames), "Heal replay keeps its target cue with the result");
             }
             finally
             {
                 UnityEngine.Object.DestroyImmediate(ability);
                 UnityEngine.Object.DestroyImmediate(draw);
+                UnityEngine.Object.DestroyImmediate(heal);
                 UnityEngine.Object.DestroyImmediate(area);
             }
             return checks;
@@ -209,6 +227,8 @@ namespace TcgEngine.Editor
                 logic.onPresentationBoundary += g => { presentation.Capture(g); replay.PresentationBoundary(g); };
                 logic.onPlayerDamaged += (c, p, n) => Emit(GameAction.PlayerDamaged);
                 logic.onCardDamaged += (c, t, n) => Emit(GameAction.CardDamaged);
+                logic.onPlayerHealed += (c, p, n) => Emit(GameAction.PlayerHealed);
+                logic.onCardHealed += (c, t, n) => Emit(GameAction.CardHealed);
                 logic.onExhaustDamage += p => Emit(GameAction.ExhaustDamage);
                 logic.onAbilityTargetPlayer += (a, c, p) => Emit(GameAction.AbilityTargetPlayer);
                 logic.onAbilityTargetCard += (a, c, t) => Emit(GameAction.AbilityTargetCard);

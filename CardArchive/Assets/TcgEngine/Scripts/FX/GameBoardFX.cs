@@ -25,6 +25,8 @@ namespace TcgEngine.FX
             client.onExhaustDamage += OnExhaustDamage;
             client.onPlayerDamaged += OnPlayerDamaged;
             client.onCardDamaged += OnCardDamaged;
+            client.onPlayerHealed += OnPlayerHealed;
+            client.onCardHealed += OnCardHealed;
             client.onAbilityStart += OnAbility;
             client.onSecretTrigger += OnSecret;
             client.onValueRolled += OnRoll;
@@ -99,11 +101,29 @@ namespace TcgEngine.FX
         void OnCardDamaged(Card attacker, Card target, int value)
         {
             if (target == null) return;
+            ShowFloatingNumber(AssetData.Get().floating_damage_fx, GetCardPosition(target), DamageText(value), target.player_id);
+        }
+
+        void OnCardHealed(Card source, Card target, int value)
+        {
+            if (target == null || value <= 0) return;
+            ShowFloatingNumber(AssetData.Get().floating_heal_fx, GetCardPosition(target), "+" + value, target.player_id);
+        }
+
+        // Absorbed hits (e.g. armor) stay "0" rather than "-0".
+        private static string DamageText(int value) => value > 0 ? "-" + value : "0";
+
+        private Vector3 GetCardPosition(Card target)
+        {
             BoardCard board = BoardCard.Get(target.uid);
             BSlot slot = BSlot.Get(target.slot);
-            Vector3 position = board != null ? board.transform.position : slot != null ? slot.GetPosition(target.slot) : Vector3.zero;
-            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, position, FXLayer.OverHand, ownerPlayerId: target.player_id);
-            if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
+            return board != null ? board.transform.position : slot != null ? slot.GetPosition(target.slot) : Vector3.zero;
+        }
+
+        private void ShowFloatingNumber(GameObject prefab, Vector3 position, string text, int ownerPlayerId)
+        {
+            GameObject fx = FXTool.DoFX(prefab, position, FXLayer.OverHand, ownerPlayerId: ownerPlayerId);
+            if (fx != null) fx.GetComponent<FloatingNumberFX>()?.SetValue(text);
         }
 
         void OnPlayerDamaged(Card attacker, Player target, int value)
@@ -119,8 +139,20 @@ namespace TcgEngine.FX
                 return;
 
             // This callback is dispatched by the same Impact that publishes HP.
-            GameObject fx = FXTool.DoFX(AssetData.Get().damage_fx, zone.transform.position, FXLayer.OverHand, ownerPlayerId: target.player_id);
-            if (fx != null) fx.GetComponent<DamageFX>()?.SetValue(value);
+            ShowFloatingNumber(AssetData.Get().floating_damage_fx, zone.transform.position, DamageText(value), target.player_id);
+        }
+
+        void OnPlayerHealed(Card source, Player target, int value)
+        {
+            if (target == null || value <= 0)
+                return;
+
+            bool opponent = target.player_id != GameClient.Get().GetPlayerID();
+            BoardSlotPlayer zone = BoardSlotPlayer.Get(opponent);
+            if (zone == null)
+                return;
+
+            ShowFloatingNumber(AssetData.Get().floating_heal_fx, zone.transform.position, "+" + value, target.player_id);
         }
 
         void OnDissolveCard(Card card, int owner_player_id)

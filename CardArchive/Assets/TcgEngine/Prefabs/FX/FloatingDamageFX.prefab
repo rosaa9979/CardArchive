@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 878534936818528840}
   - component: {fileID: 754562881462353428}
   m_Layer: 0
-  m_Name: DamageFX
+  m_Name: FloatingDamageFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

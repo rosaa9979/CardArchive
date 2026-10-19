@@ -356,8 +356,8 @@ namespace TcgEngine.FX
                 BoardCard btarget = BoardCard.Get(target.uid);
                 if (btarget != null)
                 {
-                    FXTool.ScheduleStateFX(AssetData.Get().damage_fx, btarget.transform.position,
-                        0.15f, 0, fx => fx.GetComponent<DamageFX>()?.SetValue("Miss!"), ownerPlayerId: target.player_id);
+                    FXTool.ScheduleStateFX(AssetData.Get().floating_damage_fx, btarget.transform.position,
+                        0.15f, 0, fx => fx.GetComponent<FloatingNumberFX>()?.SetValue("Miss!"), ownerPlayerId: target.player_id);
                 }
             }
         }

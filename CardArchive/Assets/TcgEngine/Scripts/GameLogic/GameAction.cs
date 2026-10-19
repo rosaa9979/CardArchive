@@ -66,6 +66,8 @@ namespace TcgEngine
         public const ushort AttackPlayerStart = 2035;
         public const ushort AttackPlayerEnd = 2036;
         public const ushort PlayerDamaged = 2037; //Final applied damage on a player
+        public const ushort CardHealed = 2038; //Actual HP restored on a card
+        public const ushort PlayerHealed = 2039; //Actual HP restored on a player
 
         public const ushort AbilityTrigger = 2040;
         public const ushort AbilityTargetCard = 2042;

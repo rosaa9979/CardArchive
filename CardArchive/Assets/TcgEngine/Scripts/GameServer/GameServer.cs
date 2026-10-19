@@ -133,6 +133,8 @@ namespace TcgEngine.Server
             gameplay.onCardStatChange += OnCardStatChange;
             gameplay.onCardDamaged += OnCardDamaged;
             gameplay.onPlayerDamaged += OnPlayerDamaged;
+            gameplay.onCardHealed += OnCardHealed;
+            gameplay.onPlayerHealed += OnPlayerHealed;
 
             gameplay.onAbilityStart += OnAbilityStart;
             gameplay.onAbilityTargetCard += OnAbilityTargetCard;
@@ -160,6 +162,8 @@ namespace TcgEngine.Server
             gameplay.onRefresh -= RefreshAll;
             gameplay.onCardDamaged -= OnCardDamaged;
             gameplay.onPlayerDamaged -= OnPlayerDamaged;
+            gameplay.onCardHealed -= OnCardHealed;
+            gameplay.onPlayerHealed -= OnPlayerHealed;
 
             gameplay.onCardPlayed -= OnCardPlayed;
             gameplay.onCardSummoned -= OnCardSummoned;
@@ -968,6 +972,24 @@ namespace TcgEngine.Server
             mdata.damage = value;
             //Same sequenced channel as RefreshAll: applied as a display prediction on the client
             SendToAll(GameAction.PlayerDamaged, mdata, NetworkDelivery.ReliableFragmentedSequenced);
+        }
+
+        protected virtual void OnCardHealed(Card source, Card target, int value)
+        {
+            MsgAttack mdata = new MsgAttack();
+            mdata.attacker_uid = source != null ? source.uid : "";
+            mdata.target_uid = target.uid;
+            mdata.damage = value; //Actual HP restored
+            SendToAll(GameAction.CardHealed, mdata, NetworkDelivery.ReliableFragmentedSequenced);
+        }
+
+        protected virtual void OnPlayerHealed(Card source, Player target, int value)
+        {
+            MsgAttackPlayer mdata = new MsgAttackPlayer();
+            mdata.attacker_uid = source != null ? source.uid : "";
+            mdata.target_id = target.player_id;
+            mdata.damage = value; //Actual HP restored
+            SendToAll(GameAction.PlayerHealed, mdata, NetworkDelivery.ReliableFragmentedSequenced);
         }
 
         protected virtual void OnAttackStart(Card attacker, Card target)
