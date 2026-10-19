@@ -33,6 +33,8 @@ namespace TcgEngine.UI
         private List<CardSelectorCard> selector_list = new List<CardSelectorCard>();
 
         private float interval;
+        //Selector version already answered; the published state keeps it until the result arrives
+        private long answered_version = -1;
         //private int selection_index = 0;
         //private float timer = 0f;
 
@@ -176,6 +178,7 @@ namespace TcgEngine.UI
                         : iability.AreCriteriaTargetConditionsMet(data, caster, selected_card)))
                     {
                         current_card = selector_card;
+                        answered_version = data.selector_version;
                         await AfterSelectAsync();
                         GameClient.Get().SelectCard(selected_card);
                         Hide();
@@ -209,6 +212,7 @@ namespace TcgEngine.UI
             if (!TcgEngine.Replay.ReplaySession.Active) return;
             current_card = selector_list.Find(c => c.GetCard().uid == uid);
             if (current_card == null) return;
+            answered_version = GameClient.Get().GetGameData().selector_version;
             await AfterSelectAsync();
             if (this != null) Hide();
         }
@@ -290,7 +294,8 @@ namespace TcgEngine.UI
         {
             Game data = GameClient.Get().GetGameData();
             int player_id = GameClient.Get().GetPlayerID();
-            return data.selector == SelectorType.SelectorCard && data.selector_player_id == player_id;
+            return data.selector == SelectorType.SelectorCard && data.selector_player_id == player_id
+                && data.selector_version != answered_version;
         }
 
         public static CardSelector Get()
