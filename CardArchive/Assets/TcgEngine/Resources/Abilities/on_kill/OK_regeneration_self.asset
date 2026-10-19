@@ -35,7 +35,7 @@ MonoBehaviour:
   show_card_fx: 1
   board_fx: {fileID: 0}
   caster_fx: {fileID: 0}
-  target_fx: {fileID: 0}
+  target_fx: {fileID: 9149152385671065729, guid: f67689770d70aff43adaf02d392d9c7c, type: 3}
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
