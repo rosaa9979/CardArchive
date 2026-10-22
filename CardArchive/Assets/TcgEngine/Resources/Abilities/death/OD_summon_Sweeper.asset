@@ -40,6 +40,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: 
-  desc: "\ud558\uad50: \uc790\uc2e0\uc774 \uc0ac\ub9dd\ud55c \ud0c0\uc77c\uc5d0 '\uc2a4\uc704\ud37c' (1/1)\ub97c \uc18c\ud658\ud569\ub2c8\ub2e4."
+  title: "\ud558\uad50"
+  desc: "\ud30c\uad34\ub420\ub54c"
   selector_desc: 

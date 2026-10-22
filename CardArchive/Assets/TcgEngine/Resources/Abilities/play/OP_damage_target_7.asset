@@ -42,6 +42,6 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 8300000, guid: d749e3d6c49e4e344af86ffee27567f4, type: 3}
   charge_target: 0
-  title: 
-  desc: 
+  title: "\ub4f1\uad50"
+  desc: "\ud328\uc5d0\uc11c \uc18c\ud658\ud560\ub54c"
   selector_desc: "\ud6a8\uacfc\ub97c \uc801\uc6a9\ud560 \ub300\uc0c1 \uc9c0\uc815"
