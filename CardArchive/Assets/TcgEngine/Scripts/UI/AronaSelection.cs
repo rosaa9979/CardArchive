@@ -16,7 +16,7 @@ namespace TcgEngine.UI
         {
             foreach (CardData arona in CardData.GetAll())
             {
-                if (!arona.IsArona())
+                if (!arona.IsArona() || !arona.deckbuilding)
                     continue;
 
                 GameObject arona_object = Instantiate(arona_prefab);

@@ -182,6 +182,9 @@ namespace TcgEngine.UI
             VariantData variant = VariantData.GetDefault();
             foreach (CardData card in CardData.GetAllDeckbuilding())
             {
+                if (card.IsArona())
+                    continue;
+
                 GameObject nCard = Instantiate(card_prefab, grid_content.transform);
                 CollectionCard dCard = nCard.GetComponent<CollectionCard>();
                 dCard.SetCard(card, variant, 0);
@@ -292,7 +295,7 @@ namespace TcgEngine.UI
 
             foreach (CardDataQ card in all_cards)
             {
-                if (card.card.deckbuilding)
+                if (card.card.deckbuilding && !card.card.IsArona())
                 {
                     CardData icard = card.card;
 
