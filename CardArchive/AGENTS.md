@@ -885,7 +885,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 
 현재 사용 가능한 카드와 카드 수정 범위는 아래 세 종류로 한정한다.
 
-1. `CardData.deckbuilding = true`인 카드. 아로나 능력 카드도 포함한다.
+1. `CardData.deckbuilding = true`인 카드.
 2. 1번 카드 중 학생 타입 카드가 소속된 동아리 카드.
 3. 위 카드들이 만들어내는 토큰 카드. 토큰 카드가 다시 만드는 토큰 카드까지 따라가며 중복은 제거한다.
 
