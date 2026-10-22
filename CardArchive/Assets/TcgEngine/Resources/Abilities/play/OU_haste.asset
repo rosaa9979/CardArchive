@@ -39,5 +39,5 @@ MonoBehaviour:
   cast_audio: {fileID: 0}
   target_audio: {fileID: 0}
   charge_target: 0
-  title: ""
-  desc: ""
+  title: "\uc18d\uc0ac"
+  desc: "\uc18c\ud658\ub41c \ud134\uc5d0\ub3c4 \uacf5\uaca9 \uac00\ub2a5"
