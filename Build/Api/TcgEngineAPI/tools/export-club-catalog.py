@@ -8,7 +8,7 @@ import re
 import shutil
 from pathlib import Path
 
-PROJECT = Path(__file__).resolve().parents[3]
+PROJECT = Path(__file__).resolve().parents[4] / 'CardArchive'
 ASSETS = PROJECT / 'Assets/TcgEngine'
 PUBLIC = Path(__file__).resolve().parents[1] / 'public'
 

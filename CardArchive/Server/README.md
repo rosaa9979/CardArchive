@@ -8,4 +8,4 @@ the server does not load a `.env` file automatically.
 
 Server addresses are kept in `NetworkData.asset` so clients can connect.
 
-The Node.js API server (`Api/TcgEngineAPI`) loads its own `.env` through `dotenv`.
+The Node.js API server (`Build/Api/TcgEngineAPI` at the repository root) loads its own `.env` through `dotenv`.

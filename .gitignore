@@ -1,2 +1,5 @@
-/Build/
+/Build/*
+!/Build/Api/
+/Build/Api/*
+!/Build/Api/TcgEngineAPI/
 /Video/

@@ -18,7 +18,7 @@ def main():
     parser.add_argument('--timings', type=Path, default=Path(__file__).with_name('club-showcase-timings.json'),
                         help='JSON mapping club IDs to [start_seconds, end_seconds] in the new captures')
     args = parser.parse_args()
-    project = Path(__file__).resolve().parents[3]
+    project = Path(__file__).resolve().parents[4] / 'CardArchive'
     source = project / '.ai-work/club-media/generated'
     public = Path(__file__).resolve().parents[1] / 'public'
     catalog = public / 'clubs.json'
