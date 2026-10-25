@@ -101,8 +101,8 @@ namespace TcgEngine
         //Start a dedicated server
         public void StartServer(ushort port)
         {
-            Debug.Log("Start Server Port " + port);
             transport.SetServer(port);
+            Debug.Log("Start Server Port " + transport.GetPort());
             connection.user_id = "";
             connection.username = "";
             network.NetworkConfig.ConnectionData = NetworkTool.NetSerialize(connection);

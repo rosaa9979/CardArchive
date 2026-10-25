@@ -20,8 +20,8 @@ namespace TcgEngine
 
         public virtual void SetServer(ushort port)
         {
-            transport.ConnectionData.ServerListenAddress = listen_all;
-            transport.SetConnectionData(listen_all, port);
+            //Force the NetworkData port, otherwise dedicated server builds use DedicatedServer.Arguments.Port (default 7777)
+            transport.SetConnectionData(true, listen_all, port, listen_all);
         }
 
         public virtual void SetClient(string address, ushort port)
