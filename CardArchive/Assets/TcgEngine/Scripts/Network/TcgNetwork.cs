@@ -229,16 +229,28 @@ namespace TcgEngine
                 return true; //Server always approve itself
 
             if (offline_mode)
+            {
+                Debug.Log("Client " + client_id + " rejected: server is offline");
                 return false;
+            }
 
             if (connect == null)
+            {
+                Debug.Log("Client " + client_id + " rejected: invalid connection data");
                 return false; //Invalid data
+            }
 
             if (string.IsNullOrEmpty(connect.username) || string.IsNullOrEmpty(connect.user_id))
+            {
+                Debug.Log("Client " + client_id + " rejected: missing username or user_id");
                 return false; //Invalid username
+            }
 
             if (checkApproval != null && !checkApproval.Invoke(client_id, connect))
+            {
+                Debug.Log("Client " + client_id + " (" + connect.username + ") rejected: custom approval failed");
                 return false; //Custom approval condition
+            }
 
             return true; //New Client approved
         }

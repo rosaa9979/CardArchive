@@ -5,6 +5,7 @@ const config = require('../config.js');
 const jwtSecret = config.jwt_secret;
 const UserModel = require('../users/users.model');
 const UserTool = require('../users/users.tool');
+const AuthTool = require('./auth.tool');
 
 exports.Login = (req, res) => {
     try {
@@ -32,9 +33,11 @@ exports.Login = (req, res) => {
             version: config.version
         }
 
+        AuthTool.logLogin(req, true, req.login.username);
         return res.status(201).send(odata);
-    
+
     } catch (err) {
+        AuthTool.logLogin(req, false, req.login ? req.login.username : null, "server error");
         return res.status(500).send({
             error: err,
             version: config.version

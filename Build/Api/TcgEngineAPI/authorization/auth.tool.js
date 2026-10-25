@@ -32,30 +32,53 @@ AuthTool.isValidJWT = (req, res, next) => {
     return next();
 };
 
+//Log login results, user is the name sent by the client or the logged user (never log passwords)
+AuthTool.logLogin = (req, success, user, reason) => {
+    var today = new Date();
+    var date = today.getFullYear() +'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var name = String(user || "-").replace(/[\r\n\t]/g, " ").substring(0, 64);
+    var type = req.originalUrl === "/auth/refresh" ? "refresh" : "login";
+    var result = success ? "success" : "failed (" + reason + ")";
+    console.log("[" + date + " " + time + "] Auth " + type + " " + result + ": " + name + " ip " + req.ip);
+};
+
 AuthTool.isLoginValid = async(req, res, next) => {
 
-    if (!req.body || !req.body.password) 
+    var login_name = req.body ? (req.body.email || req.body.username) : null;
+
+    if (!req.body || !req.body.password) {
+        AuthTool.logLogin(req, false, login_name, "missing password");
         return res.status(400).send({error: 'Invalid params'});
+    }
 
     //Requires EITHER username or email, dont need both
-    if (!req.body.email && !req.body.username) 
+    if (!req.body.email && !req.body.username) {
+        AuthTool.logLogin(req, false, login_name, "missing username");
         return res.status(400).send({error: 'Invalid params'});
+    }
 
     var user = null;
-    
+
     if(req.body.email)
         user = await UserModel.getByEmail(req.body.email);
     else if(req.body.username)
         user = await UserModel.getByUsername(req.body.username);
-    if(!user)
+    if(!user) {
+        AuthTool.logLogin(req, false, login_name, "user not found");
         return res.status(404).send({error: "Invalid username or password"});
+    }
 
     let validPass = AuthTool.validatePassword(user, req.body.password);
-    if(!validPass)
+    if(!validPass) {
+        AuthTool.logLogin(req, false, user.username, "wrong password");
         return res.status(400).send({error: 'Invalid username or password'});
+    }
 
-    if(user.permission_level <= 0)
+    if(user.permission_level <= 0) {
+        AuthTool.logLogin(req, false, user.username, "account disabled");
         return res.status(403).send({error: "Your account has been disabled, please contact support!"});
+    }
 
     req.login = {
         userId: user.id,
@@ -71,14 +94,20 @@ AuthTool.isLoginValid = async(req, res, next) => {
 
 AuthTool.isRefreshValid = async(req, res, next) => {
 
-    if (!req.body || !req.body.refresh_token)
+    if (!req.body || !req.body.refresh_token) {
+        AuthTool.logLogin(req, false, null, "missing refresh token");
         return res.status(400).send();
+    }
 
-    if (!req.headers['authorization'])
+    if (!req.headers['authorization']) {
+        AuthTool.logLogin(req, false, null, "missing access token");
         return res.status(401).send();
-	
-	if (typeof req.body.refresh_token !== "string")
+    }
+
+	if (typeof req.body.refresh_token !== "string") {
+        AuthTool.logLogin(req, false, null, "invalid refresh token");
         return res.status(400).send();
+    }
 
     try {
         //Validate access token
@@ -88,24 +117,33 @@ AuthTool.isRefreshValid = async(req, res, next) => {
         //Validate expiry time
         const nowUnixSeconds = Math.round(Number(new Date()) / 1000);
         const expiration = req.jwt.iat + config.jwt_refresh_expiration;
-        if(nowUnixSeconds > expiration)
+        if(nowUnixSeconds > expiration) {
+            AuthTool.logLogin(req, false, req.jwt.username, "token expired");
             return res.status(403).send({error: "Token Expired"});
+        }
 
         //Validate refresh token
         let refresh_token = req.body.refresh_token;
         let hash = crypto.createHmac('sha512', req.jwt.refresh_key).update(req.jwt.userId + config.jwt_secret).digest("base64");
-        if (hash !== refresh_token)
+        if (hash !== refresh_token) {
+            AuthTool.logLogin(req, false, req.jwt.username, "invalid refresh token");
             return res.status(403).send({error: 'Invalid refresh token'});
-		
+        }
+
 		//Validate refresh key in DB
         var user = await UserModel.getById(req.jwt.userId);
-        if(!user)
+        if(!user) {
+            AuthTool.logLogin(req, false, req.jwt.username, "user not found");
             return res.status(404).send({error: "Invalid user"});
-		
-		if(user.refresh_key !== req.jwt.refresh_key)
+        }
+
+		if(user.refresh_key !== req.jwt.refresh_key) {
+            AuthTool.logLogin(req, false, req.jwt.username, "refresh key changed");
             return res.status(403).send({error: 'Invalid refresh key'});
+        }
 
     } catch (err) {
+        AuthTool.logLogin(req, false, req.jwt ? req.jwt.username : null, "invalid token");
         return res.status(403).send({error: "Invalid Token"});
     }
 

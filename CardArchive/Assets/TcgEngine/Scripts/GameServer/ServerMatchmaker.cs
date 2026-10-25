@@ -79,10 +79,17 @@ namespace TcgEngine.Server
             reader.ReadNetworkSerializable(out MsgMatchmaking msg);
 
             if (iclient == null || string.IsNullOrWhiteSpace(msg.user_id) || string.IsNullOrWhiteSpace(msg.username))
+            {
+                Debug.Log("Matchmaking request ignored from client " + client_id + ": " + (iclient == null ? "unknown client" : "missing user"));
                 return;
+            }
 
             string user_id = msg.user_id;
             bool is_refresh = msg.refresh;
+
+            //Refresh requests are sent every 2 sec while waiting, only log the first one
+            if (!is_refresh)
+                Debug.Log("Matchmaking request: " + msg.username + " (client " + client_id + ") group " + msg.group + ", " + msg.players + " players, elo " + msg.elo);
 
             iclient.user_id = msg.user_id;
             iclient.username = msg.username;
@@ -166,6 +173,8 @@ namespace TcgEngine.Server
                     pindex++;
                 }
             }
+
+            Debug.Log("Match success: " + game_code + " group " + nmatch.group + " players " + string.Join(", ", nmatch.players) + (game_url != "" ? " server " + game_url : ""));
 
             //Send response to current request
             if (matched_players.ContainsKey(user_id))
