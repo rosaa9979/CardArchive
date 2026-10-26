@@ -256,6 +256,14 @@ namespace TcgEngine.UI
 
         public void StartMathmaking(GameMode mode, string group)
         {
+            //The game server refuses new matches shortly before a maintenance
+            LiveOpsManager maintenance = LiveOpsManager.Get();
+            if (maintenance != null && maintenance.IsMatchmakingBlocked())
+            {
+                WarningText.ShowText("서버 점검 예정으로 매칭을 시작할 수 없습니다");
+                return;
+            }
+
             UserDeckData deck = deck_selector_panel.GetDeck();
             if (DeckSelectorPanel.CheckDeck(deck))
             {

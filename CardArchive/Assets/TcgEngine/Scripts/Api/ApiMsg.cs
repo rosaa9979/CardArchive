@@ -72,6 +72,7 @@ namespace TcgEngine
     {
         public string tid;
         public string winner;
+        public bool canceled; //Ended by the server (maintenance): no winner and no rewards
     }
 
     [Serializable]
@@ -103,10 +104,64 @@ namespace TcgEngine
 
     //--------- Response -----------
 
+    //Maintenance schedule sent by the API with the version, login and heartbeat responses
+    [Serializable]
+    public struct MaintenanceInfo
+    {
+        public string state;            //none, scheduled, active
+        public string shutdown_at;      //ISO date, display only, clients count down from remain_sec
+        public float remain_sec;        //Seconds left before shutdown when scheduled
+        public string end_at;           //Expected reopening ISO date, can be empty
+        public string message;
+        public bool matchmaking_blocked;
+        public int block_match_minutes; //Matchmaking stops this many minutes before the shutdown
+
+        public const string StateNone = "none";
+        public const string StateScheduled = "scheduled";
+        public const string StateActive = "active";
+
+        public bool IsScheduled { get { return state == StateScheduled; } }
+        public bool IsActive { get { return state == StateActive; } }
+    }
+
+    //Admin message displayed by every client at the same time, listed until its show time
+    [Serializable]
+    public struct LiveOpsMessage
+    {
+        public string id;
+        public string text;
+        public float remain_sec; //Seconds left before display
+    }
+
+    //Live operation state, each response holds the full current lists
+    [Serializable]
+    public struct LiveOpsInfo
+    {
+        public MaintenanceInfo maintenance;
+        public LiveOpsMessage[] messages;
+    }
+
     [Serializable]
     public struct VersionResponse
     {
         public string version;
+        public LiveOpsInfo ops;
+    }
+
+    [Serializable]
+    public struct KeepOnlineResponse
+    {
+        public string id;
+        public string username;
+        public LiveOpsInfo ops;
+    }
+
+    //503 answer of every API request during maintenance
+    [Serializable]
+    public struct MaintenanceErrorResponse
+    {
+        public string error;
+        public LiveOpsInfo ops;
     }
 
     public enum VersionCheckStatus
@@ -115,6 +170,7 @@ namespace TcgEngine
         Mismatch = 10,      //Server answered with a different version
         NetworkError = 20,  //Server could not be reached or answered invalid data
         Skipped = 30,       //No API server to compare with (test mode)
+        Maintenance = 40,   //Server is in maintenance
     }
 
     public struct VersionCheckResult
@@ -123,6 +179,7 @@ namespace TcgEngine
         public string client_version;
         public string server_version;
         public string error;
+        public LiveOpsInfo ops;
 
         public bool Passed { get { return status == VersionCheckStatus.Match || status == VersionCheckStatus.Skipped; } }
     }
@@ -148,6 +205,7 @@ namespace TcgEngine
         public int validation_level;
         public int duration;
         public string version;
+        public LiveOpsInfo ops;
         public string error;
         public bool success;
     }

@@ -38,7 +38,7 @@ namespace TcgEngine
         private float online_timer = 0f;
         private long expiration_timestamp = 0;
 
-        private const float online_duration = 60f * 5f; //5 min
+        private const float online_duration = 60f; //Heartbeat, also delivers the live ops state (API config.heartbeat_interval)
 
         private static ApiClient instance;
 
@@ -56,6 +56,14 @@ namespace TcgEngine
         {
             //Refresh access token or online status
             Refresh();
+        }
+
+        //Update stops in background on mobile, send the heartbeat right away when coming back
+        //so a maintenance scheduled meanwhile is received before its shutdown time
+        private void OnApplicationPause(bool paused)
+        {
+            if (!paused && logged_in && !is_server)
+                online_timer = online_duration;
         }
 
         private void LoadTokens()
@@ -193,6 +201,7 @@ namespace TcgEngine
                 logged_in = true;
                 expired = false;
                 SaveTokens();
+                LiveOpsManager.Get()?.Receive(login_res.ops);
             }
         }
 
@@ -228,6 +237,11 @@ namespace TcgEngine
             string url = ServerURL + "/auth/keep";
             WebResponse res = await SendGetRequest(url);
             expired = !res.success;
+            if (res.success)
+            {
+                KeepOnlineResponse keep_res = ApiTool.JsonToObject<KeepOnlineResponse>(res.data);
+                LiveOpsManager.Get()?.Receive(keep_res.ops);
+            }
             return res.success;
         }
 
@@ -256,6 +270,15 @@ namespace TcgEngine
             SaveTokens();
         }
 
+        //Stops the session (heartbeat, token refresh) but keeps the saved tokens,
+        //so the login screen can refresh the session once the server is open again
+        public void EndSession()
+        {
+            logged_in = false;
+            expired = false;
+            udata = null;
+        }
+
         public async void CreateMatch(Game game_data)
         {
             if (game_data.settings.game_type != GameType.Multiplayer)
@@ -275,7 +298,8 @@ namespace TcgEngine
             Debug.Log("Match Started! " + res.success);
         }
 
-        public async void EndMatch(Game game_data, int winner_id)
+        //canceled: ended by the server (maintenance), the API completes it without winner or rewards
+        public async void EndMatch(Game game_data, int winner_id, bool canceled = false)
         {
             if (game_data.settings.game_type != GameType.Multiplayer)
                 return;
@@ -283,7 +307,8 @@ namespace TcgEngine
             Player player = game_data.GetPlayer(winner_id);
             CompleteMatchRequest req = new CompleteMatchRequest();
             req.tid = game_data.game_uid;
-            req.winner = player != null ? player.username : "";
+            req.winner = player != null && !canceled ? player.username : "";
+            req.canceled = canceled;
 
             string url = ServerURL + "/matches/complete";
             string json = ApiTool.ToJson(req);
@@ -316,12 +341,21 @@ namespace TcgEngine
 
                 VersionResponse version_data = ApiTool.JsonToObject<VersionResponse>(res.data);
                 result.server_version = version_data.version;
+                result.ops = version_data.ops;
             }
 
             if (string.IsNullOrEmpty(result.server_version))
             {
                 result.status = VersionCheckStatus.NetworkError;
                 result.error = "Invalid version response";
+                return result;
+            }
+
+            //Active: shows the maintenance popup, scheduled: shows the countdown before login
+            LiveOpsManager.Get()?.Receive(result.ops);
+            if (result.ops.maintenance.IsActive)
+            {
+                result.status = VersionCheckStatus.Maintenance;
                 return result;
             }
 
@@ -369,6 +403,14 @@ namespace TcgEngine
             last_error = response.error;
             request.Dispose();
             sending--;
+
+            //Any request can be the first to learn about the maintenance (client missed the heartbeat)
+            if (response.status == 503 && !is_server)
+            {
+                MaintenanceErrorResponse err = ApiTool.JsonToObject<MaintenanceErrorResponse>(response.data);
+                if (err.ops.maintenance.IsActive)
+                    LiveOpsManager.Get()?.Receive(err.ops);
+            }
 
             return response;
         }
