@@ -467,6 +467,8 @@ namespace TcgEngine.UI
 
         private void RefreshDeckCards()
         {
+            RebuildDeckClubs();
+
             foreach (DeckLine line in deck_card_lines)
                 line.Hide();
 
@@ -509,6 +511,9 @@ namespace TcgEngine.UI
             index = 0;
             foreach (UserCardData club in deck_clubs)
             {
+                if (index >= edit_deck_club.Length)
+                    break; //A stale deck can need more clubs than there are slots, the audit reports it
+
                 CardDataQ acard = new CardDataQ();
                 acard.card = CardData.Get(club.tid);
                 edit_deck_club[index].SetDeckClub(acard.card);
@@ -546,7 +551,6 @@ namespace TcgEngine.UI
         private void AddDeckCard(CardData card, VariantData variant, int quantity = 1)
         {
             AddDeckCard(card.id, variant.id, quantity);
-            AddDeckClub(card);
         }
 
         private void RemoveDeckCard(CardData card, VariantData variant)
@@ -594,67 +598,17 @@ namespace TcgEngine.UI
             return null;
         }
 
-        private void AddDeckClub(CardData card)
+        //Deck clubs are derived from the deck cards, never counted up and down by hand
+        private void RebuildDeckClubs()
         {
-            foreach (ClubData club in card.clubs)
-            {
-                UserCardData ucard = GetDeckClub(club);
-                if (ucard != null)
-                {
-                    ucard.quantity += 1;
-                }
-
-                else
-                {
-                    foreach (CardData acard in CardData.GetAllClub())
-                    {
-                        if (acard.clubs.Length > 0 && acard.clubs.Any(aclub => aclub.id == club.id))
-                        {
-                            ucard = new UserCardData(acard, VariantData.GetDefault());
-                            ucard.quantity = 1;
-                            deck_clubs.Add(ucard);
-                            break;
-                        }
-                    }
-
-                }
-
-            }
-
-            deck_clubs.Sort((a, b) => string.Compare(a.tid, b.tid, StringComparison.Ordinal));
+            deck_clubs = UserDeckData.GetRequiredClubs(deck_cards).ToList();
         }
 
-        private void RemoveDeckClub(CardData card)
+        private static bool SharesClub(CardData club_card, CardData card)
         {
-            foreach (ClubData club in card.clubs)
-            {
-                for (int i = deck_clubs.Count - 1; i >= 0; i--)
-                {
-                    UserCardData ucard = deck_clubs[i];
-                    if (CardData.Get(ucard.tid).clubs.Any(uclub => uclub.id == club.id))
-                    {
-                        ucard.quantity--;
-
-                        if (ucard.quantity <= 0)
-                        {
-                            deck_clubs.RemoveAt(i);
-                            edit_deck_club[i].Clear();
-                        }
-
-
-                    }
-                }
-            }
-        }
-
-        private UserCardData GetDeckClub(ClubData club)
-        {
-            foreach (UserCardData ucard in deck_clubs)
-            {
-                if (CardData.Get(ucard.tid).clubs.Any(uclub => uclub.id == club.id))
-                    return ucard;
-            }
-            return null;
+            if (club_card?.clubs == null || card?.clubs == null)
+                return false;
+            return club_card.clubs.Any(cclub => cclub != null && card.clubs.Any(aclub => aclub != null && aclub.id == cclub.id));
         }
 
         private void SaveDeck()
@@ -870,7 +824,6 @@ namespace TcgEngine.UI
             if (card != null)
             {
                 RemoveDeckCard(card, variant);
-                RemoveDeckClub(card);
             }
 
             RefreshDeckCards();
@@ -958,9 +911,14 @@ namespace TcgEngine.UI
             HashSet<ClubData> hash_clubs = new HashSet<ClubData>();
 
             foreach (UserCardData dclub in deck_clubs)
-                hash_clubs.UnionWith(CardData.Get(dclub.tid).clubs);
+            {
+                CardData club_card = CardData.Get(dclub.tid);
+                if (club_card?.clubs != null)
+                    hash_clubs.UnionWith(club_card.clubs);
+            }
 
-            hash_clubs.UnionWith(card.clubs);
+            if (card.clubs != null)
+                hash_clubs.UnionWith(card.clubs);
 
             return hash_clubs.Count;
         }
@@ -985,13 +943,14 @@ namespace TcgEngine.UI
             if (!editing_deck)
                 return 0;
 
-            ClubData club_data = club.clubs[0];
-            UserCardData ucard = GetDeckClub(club_data);
-
-            if (ucard == null)
-                return 0;
-
-            return ucard.quantity;
+            //Number of deck cards (copies included) that belong to this club
+            int count = 0;
+            foreach (UserCardData ucard in deck_cards)
+            {
+                if (SharesClub(club, CardData.Get(ucard.tid)))
+                    count += ucard.quantity;
+            }
+            return count;
         }
 
         private bool IsCardOwned(UserData udata, CardData card, VariantData variant, int quantity)

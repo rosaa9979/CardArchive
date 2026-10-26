@@ -191,6 +191,33 @@ namespace TcgEngine
             return true;
         }
 
+        //Audit every saved deck against the current card data. Repairable decks are fixed in place
+        //and returned so the caller can save them; Invalid decks are only counted.
+        public List<UserDeckData> RepairDecks(out int invalid_count)
+        {
+            List<UserDeckData> repaired = new List<UserDeckData>();
+            invalid_count = 0;
+
+            foreach (UserDeckData deck in decks ?? new UserDeckData[0])
+            {
+                if (deck == null)
+                    continue;
+
+                DeckAuditResult audit = deck.Audit();
+                if (audit.status == DeckAuditStatus.Invalid)
+                {
+                    invalid_count++;
+                    Debug.Log("Deck audit: " + deck.title + " is invalid: " + string.Join(", ", audit.issues));
+                }
+                else if (audit.status == DeckAuditStatus.Repairable)
+                {
+                    deck.RepairDerived();
+                    repaired.Add(deck);
+                }
+            }
+            return repaired;
+        }
+
         public bool IsDeckValid(UserDeckData deck)
         {
             if (Authenticator.Get().IsApi())
@@ -377,7 +404,127 @@ namespace TcgEngine
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(tid) && !string.IsNullOrWhiteSpace(title) && GetQuantity() == GameplayData.Get().deck_size && GetClubQuantity() <= GameplayData.Get().club_size;
+            return Audit().IsPlayable;
+        }
+
+        //Self check against the current card data. Card data can change after a deck was saved,
+        //so the stored deck is never trusted: removed or disabled cards make it Invalid, and
+        //data derived from the cards (clubs) that went stale makes it Repairable.
+        public DeckAuditResult Audit()
+        {
+            DeckAuditResult result = new DeckAuditResult();
+            GameplayData gdata = GameplayData.Get();
+
+            if (string.IsNullOrEmpty(tid))
+                result.AddError("덱 ID가 없습니다");
+            if (string.IsNullOrWhiteSpace(title))
+                result.AddError("덱 이름이 없습니다");
+
+            if (hero != null && !string.IsNullOrEmpty(hero.tid))
+            {
+                CardData hdata = CardData.Get(hero.tid);
+                if (hdata == null || !hdata.IsArona())
+                    result.AddError("사용할 수 없는 영웅 카드: " + hero.tid);
+            }
+
+            int total = 0;
+            Dictionary<string, int> copies = new Dictionary<string, int>();
+            foreach (UserCardData card in cards ?? new UserCardData[0])
+            {
+                CardData icard = card != null ? CardData.Get(card.tid) : null;
+                if (icard == null)
+                {
+                    result.AddError("존재하지 않는 카드: " + card?.tid);
+                    continue;
+                }
+                if (!icard.deckbuilding || !IsDeckCardType(icard))
+                    result.AddError("편성할 수 없는 카드: " + icard.title);
+                if (card.quantity <= 0)
+                    result.AddError("수량이 잘못된 카드: " + icard.title);
+
+                total += card.quantity;
+                copies.TryGetValue(icard.id, out int count);
+                copies[icard.id] = count + card.quantity;
+            }
+
+            foreach (KeyValuePair<string, int> pair in copies)
+            {
+                CardData icard = CardData.Get(pair.Key);
+                int max = icard.IsStudent() ? gdata.deck_student_duplicate_max : gdata.deck_non_student_duplicate_max;
+                if (pair.Value > max)
+                    result.AddError("편성 한도를 넘은 카드: " + icard.title + " (" + pair.Value + "/" + max + ")");
+            }
+
+            if (total != gdata.deck_size)
+                result.AddError("덱 카드 수가 맞지 않습니다 (" + total + "/" + gdata.deck_size + ")");
+
+            UserCardData[] required = GetRequiredClubs(cards);
+            if (required.Length > gdata.club_size)
+                result.AddError("동아리 수가 너무 많습니다 (" + required.Length + "/" + gdata.club_size + ")");
+            else if (!HasSameClubs(required))
+                result.MarkRepairable("동아리 구성이 카드와 맞지 않습니다");
+
+            return result;
+        }
+
+        //Rebuild everything derived from the cards. Call it before using or saving a Repairable deck.
+        public void RepairDerived()
+        {
+            clubs = GetRequiredClubs(cards);
+        }
+
+        //Club cards the deck needs, derived from the current clubs of its cards, sorted by id
+        public static UserCardData[] GetRequiredClubs(IEnumerable<UserCardData> deck_cards)
+        {
+            List<CardData> all_clubs = CardData.GetAllClub();
+            SortedDictionary<string, UserCardData> required = new SortedDictionary<string, UserCardData>(System.StringComparer.Ordinal);
+
+            foreach (UserCardData card in deck_cards ?? new UserCardData[0])
+            {
+                CardData icard = card != null ? CardData.Get(card.tid) : null;
+                if (icard == null || icard.clubs == null)
+                    continue;
+
+                foreach (ClubData club in icard.clubs)
+                {
+                    if (club == null)
+                        continue;
+
+                    foreach (CardData aclub in all_clubs)
+                    {
+                        if (aclub.clubs != null && System.Array.Exists(aclub.clubs, c => c != null && c.id == club.id))
+                        {
+                            if (!required.ContainsKey(aclub.id))
+                                required[aclub.id] = new UserCardData(aclub, VariantData.GetDefault());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return new List<UserCardData>(required.Values).ToArray();
+        }
+
+        private bool HasSameClubs(UserCardData[] required)
+        {
+            HashSet<string> stored = new HashSet<string>();
+            foreach (UserCardData club in clubs ?? new UserCardData[0])
+            {
+                if (club != null)
+                    stored.Add(club.tid);
+            }
+
+            HashSet<string> expected = new HashSet<string>();
+            foreach (UserCardData club in required)
+                expected.Add(club.tid);
+
+            return stored.SetEquals(expected) && (clubs?.Length ?? 0) == required.Length;
+        }
+
+        private static bool IsDeckCardType(CardData card)
+        {
+            return card.type == CardType.Student || card.type == CardType.NonStudent
+                || card.type == CardType.Spell || card.type == CardType.Place;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -401,6 +548,40 @@ namespace TcgEngine
                 deck.cards = new UserCardData[0];
                 return deck;
             }
+        }
+    }
+
+    public enum DeckAuditStatus
+    {
+        Valid = 0,
+        Repairable = 1, //Only data derived from the cards is stale, RepairDerived() fixes it
+        Invalid = 2,
+    }
+
+    //Result of UserDeckData.Audit(), never stored in the deck
+    public class DeckAuditResult
+    {
+        public DeckAuditStatus status = DeckAuditStatus.Valid;
+        public List<string> issues = new List<string>();
+
+        public bool IsPlayable => status != DeckAuditStatus.Invalid;
+
+        public void AddError(string issue)
+        {
+            status = DeckAuditStatus.Invalid;
+            issues.Add(issue);
+        }
+
+        public void MarkRepairable(string issue)
+        {
+            if (status == DeckAuditStatus.Valid)
+                status = DeckAuditStatus.Repairable;
+            issues.Add(issue);
+        }
+
+        public string GetFirstIssue()
+        {
+            return issues.Count > 0 ? issues[0] : "";
         }
     }
 

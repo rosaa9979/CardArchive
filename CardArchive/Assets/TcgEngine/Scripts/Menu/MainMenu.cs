@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TcgEngine.Client;
@@ -82,7 +83,7 @@ namespace TcgEngine.UI
 
         private void AfterLogin()
         {
-            BlackPanel.Get().Hide();
+            //BlackPanel stays up and blocks input until the user decks are loaded and audited (RefreshUserData)
 
             //Events
             GameClientMatchmaker matchmaker = GameClientMatchmaker.Get();
@@ -112,8 +113,41 @@ namespace TcgEngine.UI
                 this.avatar.SetAvatar(avatar);
 
                 //Decks
+                try
+                {
+                    await AuditUserDecks(user);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Deck audit failed: " + e); //Never leave the menu blocked behind the black panel
+                }
+                if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
                 RefreshDeckList();
             }
+
+            BlackPanel.Get().Hide();
+        }
+
+        //Self check every saved deck against the current card data before the menu takes input
+        private async Task AuditUserDecks(UserData user)
+        {
+            List<UserDeckData> repaired = user.RepairDecks(out int invalid_count);
+
+            if (repaired.Count > 0)
+            {
+                if (Authenticator.Get().IsApi())
+                {
+                    foreach (UserDeckData deck in repaired)
+                    {
+                        string url = ApiClient.ServerURL + "/users/deck/" + deck.tid;
+                        await ApiClient.Get().SendPostRequest(url, ApiTool.ToJson(deck));
+                    }
+                }
+                await Authenticator.Get().SaveUserData();
+            }
+
+            if (invalid_count > 0)
+                WarningText.ShowText("편성할 수 없는 덱이 " + invalid_count + "개 있습니다. 덱을 다시 편성해 주세요", 2.5f);
         }
 
         public void RefreshDeckList()
@@ -209,7 +243,7 @@ namespace TcgEngine.UI
         public void StartMathmaking(GameMode mode, string group)
         {
             UserDeckData deck = deck_selector_panel.GetDeck();
-            if (deck != null && deck.IsValid())
+            if (DeckSelectorPanel.CheckDeck(deck))
             {
                 GameClient.game_settings.game_type = GameType.Multiplayer;
                 GameClient.game_settings.game_mode = mode;

@@ -124,7 +124,7 @@ namespace TcgEngine.UI
 
         public void OnClickPlay()
         {
-            if (GetDeck() == null || !GetDeck().IsValid())
+            if (!CheckDeck(GetDeck()))
                 return;
 
             UnityAction<string> cb = onConfirm;
@@ -132,6 +132,27 @@ namespace TcgEngine.UI
             cb?.Invoke(GetDeckID());
 
             Hide();
+        }
+
+        //Game entry gate: self check the deck against the current card data and tell why it cant be used
+        public static bool CheckDeck(UserDeckData deck)
+        {
+            if (deck == null)
+            {
+                WarningText.ShowText("덱을 선택해 주세요");
+                return false;
+            }
+
+            DeckAuditResult audit = deck.Audit();
+            if (!audit.IsPlayable)
+            {
+                WarningText.ShowText(audit.GetFirstIssue(), 2f);
+                return false;
+            }
+
+            if (audit.status == DeckAuditStatus.Repairable)
+                deck.RepairDerived();
+            return true;
         }
 
         private void OnClickTab()

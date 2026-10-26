@@ -621,13 +621,14 @@ namespace TcgEngine.Server
                 {
                     if (user.IsDeckValid(udeck))
                     {
+                        udeck.RepairDerived(); //Never trust stored derived data (clubs), rebuild it from the current cards
                         gameplay.SetPlayerDeck(player, udeck);
                         SendPlayerReady(player);
                         return;
                     }
                     else
                     {
-                        Debug.Log(user.username + " deck is invalid: " + udeck.title);
+                        Debug.Log(user.username + " deck is invalid: " + udeck.title + " (" + string.Join(", ", udeck.Audit().issues) + ")");
                         return;
                     }
                 }
