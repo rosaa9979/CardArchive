@@ -31,6 +31,8 @@ namespace TcgEngine.UI
 
         private static MainMenu instance;
 
+        private const string load_key = "deck_audit";
+
         void Awake()
         {
             instance = this;
@@ -38,6 +40,11 @@ namespace TcgEngine.UI
             //Set default settings
             Application.targetFrameRate = 120;
             GameClient.game_settings = GameSettings.Default;
+        }
+
+        void OnDestroy()
+        {
+            LoadPanel.Hide(load_key); //The global panel outlives this scene
         }
 
         private void Start()
@@ -83,7 +90,7 @@ namespace TcgEngine.UI
 
         private void AfterLogin()
         {
-            //BlackPanel stays up and blocks input until the user decks are loaded and audited (RefreshUserData)
+            BlackPanel.Get().Hide();
 
             //Events
             GameClientMatchmaker matchmaker = GameClientMatchmaker.Get();
@@ -100,32 +107,39 @@ namespace TcgEngine.UI
             //FriendPanel.Get().Show();
         }
 
+        //Input stays blocked by the global LoadPanel until the user decks are loaded and audited
         public async void RefreshUserData()
         {
-            UserData user = await Authenticator.Get().LoadUserData();
-            if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
-            if (user != null)
+            LoadPanel.Show(load_key, "덱 확인 중...");
+            try
             {
-                username_txt.text = user.username;
-                credits_txt.text = GameUI.FormatNumber(user.coins);
-                
-                AvatarData avatar = AvatarData.Get(user.avatar);
-                this.avatar.SetAvatar(avatar);
-
-                //Decks
-                try
-                {
-                    await AuditUserDecks(user);
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogError("Deck audit failed: " + e); //Never leave the menu blocked behind the black panel
-                }
+                UserData user = await Authenticator.Get().LoadUserData();
                 if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
-                RefreshDeckList();
-            }
+                if (user != null)
+                {
+                    username_txt.text = user.username;
+                    credits_txt.text = GameUI.FormatNumber(user.coins);
 
-            BlackPanel.Get().Hide();
+                    AvatarData avatar = AvatarData.Get(user.avatar);
+                    this.avatar.SetAvatar(avatar);
+
+                    //Decks
+                    try
+                    {
+                        await AuditUserDecks(user);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError("Deck audit failed: " + e);
+                    }
+                    if (!Application.isPlaying || this == null || !isActiveAndEnabled || starting) return;
+                    RefreshDeckList();
+                }
+            }
+            finally
+            {
+                LoadPanel.Hide(load_key); //Every exit releases the block, even a failed load
+            }
         }
 
         //Self check every saved deck against the current card data before the menu takes input

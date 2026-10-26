@@ -44,6 +44,8 @@ namespace TcgEngine.UI
 
         private static GameUI instance;
 
+        private const string load_key = "game_connect";
+
         void Awake()
         {
             instance = this;
@@ -60,7 +62,9 @@ namespace TcgEngine.UI
         {
             GameClient.Get().onGameStart += OnGameStart;
             GameClient.Get().onNewTurn += OnNewTurn;
-            LoadPanel.Get().Show(true);
+            GameClient.Get().onConnectGame += OnConnectGame;
+            GameClient.Get().onPlayerReady += OnPlayerReady;
+            SetLoadText("Connecting to server...");
             BlackPanel.Get().Show(true);
             BlackPanel.Get().Hide();
 
@@ -69,6 +73,36 @@ namespace TcgEngine.UI
 
             if (end_turn_image?.sprite?.texture?.isReadable == true)
                 end_turn_image.alphaHitTestMinimumThreshold = 0.1f;
+        }
+
+        void OnDestroy()
+        {
+            LoadPanel.Hide(load_key); //The global panel outlives this scene, never leave it blocking the next one
+
+            GameClient client = GameClient.Get();
+            if (client != null)
+            {
+                client.onConnectGame -= OnConnectGame;
+                client.onPlayerReady -= OnPlayerReady;
+            }
+        }
+
+        private void OnConnectGame()
+        {
+            if (LoadPanel.IsRequested(load_key))
+                SetLoadText("Sending player data...");
+        }
+
+        private void OnPlayerReady(int player_id)
+        {
+            if (player_id == GameClient.Get().GetPlayerID() && LoadPanel.IsRequested(load_key))
+                SetLoadText("Waiting for other player...");
+        }
+
+        //Status text is only meaningful online, offline games still block input with an empty panel
+        private void SetLoadText(string text)
+        {
+            LoadPanel.Show(load_key, GameClient.game_settings.IsOnline() ? text : "");
         }
 
         void LateUpdate()
@@ -98,7 +132,8 @@ namespace TcgEngine.UI
 
             bool yourturn = GameClient.Get().IsYourTurn();
             bool can_input = GameClient.Get().IsInputOpen;
-            LoadPanel.Get().SetVisible(is_connecting && !data.HasStarted());
+            if (!is_connecting || data.HasStarted())
+                LoadPanel.Hide(load_key);
             //if (yourturn && end_turn_timer > 1f)
             if (can_input && yourturn && data.phase == GamePhase.Main)
             {

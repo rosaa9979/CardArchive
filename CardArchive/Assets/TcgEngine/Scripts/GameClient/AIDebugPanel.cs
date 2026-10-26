@@ -47,8 +47,10 @@ namespace TcgEngine.Client
         public int ai_level = 10;                //10 = strongest / least randomized heuristic (most deterministic)
         public bool start_hidden = true;         //Hide the panel on Awake
         public bool auto_recalc = true;          //While open + your turn, recompute on every refresh / new turn
-        public bool block_input_while_calculating = false; //Show the network LoadPanel (blocks touch) during calc
+        public bool block_input_while_calculating = false; //Show the global LoadPanel (blocks touch) during calc
         public bool reverse_order = false;       //Fill rows bottom-up (use if your layout stacks items bottom-to-top)
+
+        private const string load_key = "ai_debug_calc";
 
         private AILogic ai_logic;
         private bool evaluating;
@@ -255,8 +257,6 @@ namespace TcgEngine.Client
 
             while (ai_logic.IsRunning())
             {
-                if (block_input_while_calculating)
-                    ShowNetworkLoading(true); //Re-assert each frame (GameUI hides LoadPanel every frame)
                 yield return null;
             }
 
@@ -616,17 +616,13 @@ namespace TcgEngine.Client
             detail_group.blocksRaycasts = false; //Let hover pass through to the rows underneath
         }
 
-        //Reuse the existing network loading panel (already blocks touch input).
+        //Reuse the global loading panel (already blocks touch input) under its own request key.
         private void ShowNetworkLoading(bool show)
         {
-            LoadPanel panel = LoadPanel.Get();
-            if (panel == null)
-                return;
-
             if (show)
-                panel.Show(true);
+                LoadPanel.Show(load_key);
             else
-                panel.Hide(true);
+                LoadPanel.Hide(load_key);
         }
 
         private void SetStatus(string text)
