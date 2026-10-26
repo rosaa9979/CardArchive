@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,8 @@ namespace TcgEngine.UI
         public Text error;
 
         private static StarterDeckPanel instance;
+
+        private const string load_key = "deck_starter";
 
         protected override void Awake()
         {
@@ -53,6 +56,20 @@ namespace TcgEngine.UI
             if (deck == null)
                 return;
 
+            LoadPanel.Show(load_key, "덱 저장 중...");
+            try
+            {
+                await AddStarterDeckTest(udata, deck, deck_id);
+            }
+            finally
+            {
+                LoadPanel.Hide(load_key);
+            }
+        }
+
+        private async Task AddStarterDeckTest(UserData udata, DeckData deck, string deck_id)
+        {
+
             UserDeckData udeck = new UserDeckData();
             udeck.tid = deck_id + "_" + GameTool.GenerateRandomID(4, 7); //Add random id to differentiate from the starter deck if edited
             udeck.title = deck.title;
@@ -71,7 +88,7 @@ namespace TcgEngine.UI
 
             await Authenticator.Get().SaveUserData();
 
-            CollectionPanel.Get().ReloadUserDecks();
+            await CollectionPanel.Get().ReloadUserDecksAsync();
             Hide();
         }
 
@@ -83,18 +100,26 @@ namespace TcgEngine.UI
             if (error != null)
                 error.text = "";
 
-            string url = ApiClient.ServerURL + "/users/rewards/gain/" + ApiClient.Get().UserID;
-            string json = ApiTool.ToJson(req);
-            WebResponse res = await ApiClient.Get().SendPostRequest(url, json);
-            if (res.success)
+            LoadPanel.Show(load_key, "덱 저장 중...");
+            try
             {
-                CollectionPanel.Get().ReloadUserDecks();
-                Hide();
+                string url = ApiClient.ServerURL + "/users/rewards/gain/" + ApiClient.Get().UserID;
+                string json = ApiTool.ToJson(req);
+                WebResponse res = await ApiClient.Get().SendPostRequest(url, json);
+                if (res.success)
+                {
+                    await CollectionPanel.Get().ReloadUserDecksAsync();
+                    Hide();
+                }
+                else
+                {
+                    if (error != null)
+                        error.text = res.error;
+                }
             }
-            else
+            finally
             {
-                if (error != null)
-                    error.text = res.error;
+                LoadPanel.Hide(load_key);
             }
         }
 

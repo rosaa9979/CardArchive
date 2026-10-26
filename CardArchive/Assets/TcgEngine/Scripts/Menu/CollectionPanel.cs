@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,6 +68,9 @@ namespace TcgEngine.UI
         private string current_deck_tid;
         private bool editing_deck = false;
         private bool saving = false;
+
+        private const string deck_save_key = "deck_save";
+        private const string deck_delete_key = "deck_delete";
         private bool spawned = false;
         private bool update_grid = false;
         private float update_grid_timer = 0f;
@@ -211,6 +215,11 @@ namespace TcgEngine.UI
         }
 
         public async void ReloadUserDecks()
+        {
+            await ReloadUserDecksAsync();
+        }
+
+        public async Task ReloadUserDecksAsync()
         {
             await Authenticator.Get().LoadUserData();
             MainMenu.Get().RefreshDeckList();
@@ -639,45 +648,75 @@ namespace TcgEngine.UI
             ShowDeckList();
         }
 
+        //Deck requests block input with the global LoadPanel from the send until the response
+        //(and the deck list reload that follows it) is back, released on every exit
         private async void SaveDeckTest(UserData udata, UserDeckData udeck)
         {
-            udata.SetDeck(udeck);
-            await Authenticator.Get().SaveUserData();
-            ReloadUserDecks();
+            LoadPanel.Show(deck_save_key, "덱 저장 중...");
+            try
+            {
+                udata.SetDeck(udeck);
+                await Authenticator.Get().SaveUserData();
+                await ReloadUserDecksAsync();
+            }
+            finally
+            {
+                LoadPanel.Hide(deck_save_key);
+            }
         }
 
         private async void SaveDeckAPI(UserData udata, UserDeckData udeck)
         {
-            string url = ApiClient.ServerURL + "/users/deck/" + udeck.tid;
-            string jdata = ApiTool.ToJson(udeck);
-            WebResponse res = await ApiClient.Get().SendPostRequest(url, jdata);
-            UserDeckData[] decks = ApiTool.JsonToArray<UserDeckData>(res.data);
-            saving = res.success;
-
-            if (res.success && decks != null)
+            LoadPanel.Show(deck_save_key, "덱 저장 중...");
+            try
             {
-                udata.decks = decks;
-                await Authenticator.Get().SaveUserData();
-                ReloadUserDecks();
+                string url = ApiClient.ServerURL + "/users/deck/" + udeck.tid;
+                string jdata = ApiTool.ToJson(udeck);
+                WebResponse res = await ApiClient.Get().SendPostRequest(url, jdata);
+                UserDeckData[] decks = ApiTool.JsonToArray<UserDeckData>(res.data);
+                saving = res.success;
+
+                if (res.success && decks != null)
+                {
+                    udata.decks = decks;
+                    await Authenticator.Get().SaveUserData();
+                    await ReloadUserDecksAsync();
+                }
+                else
+                {
+                    WarningText.ShowText("덱을 저장하지 못했습니다");
+                }
+            }
+            finally
+            {
+                LoadPanel.Hide(deck_save_key);
             }
         }
 
         private async void DeleteDeck(string deck_tid)
         {
-            UserData udata = Authenticator.Get().UserData;
-            UserDeckData udeck = udata.GetDeck(deck_tid);
-            List<UserDeckData> decks = new List<UserDeckData>(udata.decks);
-            decks.Remove(udeck);
-            udata.decks = decks.ToArray();
-
-            if (Authenticator.Get().IsApi())
+            LoadPanel.Show(deck_delete_key, "덱 삭제 중...");
+            try
             {
-                string url = ApiClient.ServerURL + "/users/deck/" + deck_tid;
-                await ApiClient.Get().SendRequest(url, "DELETE", "");
-            }
+                UserData udata = Authenticator.Get().UserData;
+                UserDeckData udeck = udata.GetDeck(deck_tid);
+                List<UserDeckData> decks = new List<UserDeckData>(udata.decks);
+                decks.Remove(udeck);
+                udata.decks = decks.ToArray();
 
-            await Authenticator.Get().SaveUserData();
-            ReloadUserDecks();
+                if (Authenticator.Get().IsApi())
+                {
+                    string url = ApiClient.ServerURL + "/users/deck/" + deck_tid;
+                    await ApiClient.Get().SendRequest(url, "DELETE", "");
+                }
+
+                await Authenticator.Get().SaveUserData();
+                await ReloadUserDecksAsync();
+            }
+            finally
+            {
+                LoadPanel.Hide(deck_delete_key);
+            }
         }
 
         //---- Left Panel Filters Clicks -----------
