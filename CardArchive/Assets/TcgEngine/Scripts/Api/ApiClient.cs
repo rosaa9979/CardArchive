@@ -146,7 +146,7 @@ namespace TcgEngine
             string json = ApiTool.ToJson(data);
 
             WebResponse res = await SendPostRequest(url, json);
-            LoginResponse login_res = await GetLoginRes(res);
+            LoginResponse login_res = GetLoginRes(res);
             AfterLogin(login_res);
 
             onLogin?.Invoke(login_res);
@@ -161,28 +161,19 @@ namespace TcgEngine
             string json = ApiTool.ToJson(data);
 
             WebResponse res = await SendPostRequest(url, json);
-            LoginResponse login_res = await GetLoginRes(res);
+            LoginResponse login_res = GetLoginRes(res);
             AfterLogin(login_res);
 
             onRefresh?.Invoke(login_res);
             return login_res;
         }
 
-        private async Task<LoginResponse> GetLoginRes(WebResponse res)
+        //Version is checked separately with CheckVersion
+        private LoginResponse GetLoginRes(WebResponse res)
         {
             LoginResponse login_res = ApiTool.JsonToObject<LoginResponse>(res.data);
             login_res.success = res.success;
             login_res.error = res.error;
-
-            string server_version = await SendGetVersion();
-            //Uncomment to force having same client version as api
-            //if (!IsVersionValid())
-            if (ClientVersion != server_version)
-            {
-                login_res.error = "Invalid Version";
-                login_res.success = false;
-            }
-
             return login_res;
         }
 
@@ -300,19 +291,47 @@ namespace TcgEngine
             Debug.Log("Match Completed! " + res.success);
         }
 
-        public async Task<string> SendGetVersion()
+        //Compare client and API versions without changing login state, errors or busy status
+        //Can be called at any time, Boot scene uses it before the login menu
+        public async Task<VersionCheckResult> CheckVersion()
         {
-            string url = ServerURL + "/version";
-            WebResponse res = await SendGetRequest(url);
+            VersionCheckResult result = new VersionCheckResult();
+            result.client_version = ClientVersion;
 
-            if (res.success)
+            if (NetworkData.Get().auth_type != AuthenticatorType.Api)
             {
-                VersionResponse version_data = ApiTool.JsonToObject<VersionResponse>(res.data);
-                api_version = version_data.version;
-                return api_version;
+                result.status = VersionCheckStatus.Skipped; //Test mode has no API server
+                return result;
             }
 
-            return null;
+            using (UnityWebRequest request = WebRequest.Create(ServerURL + "/version"))
+            {
+                WebResponse res = await WaitRequest(request);
+                if (!res.success)
+                {
+                    result.status = VersionCheckStatus.NetworkError;
+                    result.error = string.IsNullOrEmpty(res.error) ? "HTTP " + res.status : res.error;
+                    return result;
+                }
+
+                VersionResponse version_data = ApiTool.JsonToObject<VersionResponse>(res.data);
+                result.server_version = version_data.version;
+            }
+
+            if (string.IsNullOrEmpty(result.server_version))
+            {
+                result.status = VersionCheckStatus.NetworkError;
+                result.error = "Invalid version response";
+                return result;
+            }
+
+            result.status = IsVersionMatch(result.client_version, result.server_version) ? VersionCheckStatus.Match : VersionCheckStatus.Mismatch;
+            return result;
+        }
+
+        public static bool IsVersionMatch(string client_version, string server_version)
+        {
+            return !string.IsNullOrEmpty(server_version) && client_version == server_version;
         }
 
         public async Task<WebResponse> SendGetRequest(string url)
@@ -344,10 +363,22 @@ namespace TcgEngine
 
         private async Task<WebResponse> SendRequest(UnityWebRequest request)
         {
+            sending++;
+
+            WebResponse response = await WaitRequest(request);
+            last_error = response.error;
+            request.Dispose();
+            sending--;
+
+            return response;
+        }
+
+        //Send and wait for the request only, without changing client state
+        private async Task<WebResponse> WaitRequest(UnityWebRequest request)
+        {
             int wait = 0;
             int wait_max = request.timeout * 1000;
             request.timeout += 1; //Add offset to make sure it aborts first
-            sending++;
 
             var async_oper = request.SendWebRequest();
             while (!async_oper.isDone)
@@ -355,15 +386,11 @@ namespace TcgEngine
                 await TimeTool.Delay(200);
                 wait += 200;
                 if (wait >= wait_max)
-                    request.Abort(); //Abort to avoid unity errors on 
+                    request.Abort(); //Abort to avoid unity errors on
             }
 
             WebResponse response = WebRequest.GetResponse(request);
             response.error = GetError(response);
-            last_error = response.error;
-            request.Dispose();
-            sending--;
-
             return response;
         }
 
@@ -412,13 +439,6 @@ namespace TcgEngine
         public string GetLastError()
         {
             return last_error;
-        }
-
-        //Use this function if you want to prevent players to login with an outdated client
-        //Call it inside the login and loginrefresh functions after the api_version is set and return error if invalid
-        public bool IsVersionValid()
-        {
-            return ClientVersion == ServerVersion; 
         }
 
         public UserData UserData { get { return udata; } }

@@ -109,6 +109,24 @@ namespace TcgEngine
         public string version;
     }
 
+    public enum VersionCheckStatus
+    {
+        Match = 0,          //Client and server versions are the same
+        Mismatch = 10,      //Server answered with a different version
+        NetworkError = 20,  //Server could not be reached or answered invalid data
+        Skipped = 30,       //No API server to compare with (test mode)
+    }
+
+    public struct VersionCheckResult
+    {
+        public VersionCheckStatus status;
+        public string client_version;
+        public string server_version;
+        public string error;
+
+        public bool Passed { get { return status == VersionCheckStatus.Match || status == VersionCheckStatus.Skipped; } }
+    }
+
     [Serializable]
     public struct RegisterResponse
     {
