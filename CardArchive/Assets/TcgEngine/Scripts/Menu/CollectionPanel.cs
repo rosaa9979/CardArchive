@@ -257,6 +257,7 @@ namespace TcgEngine.UI
             deck_list_panel.Show();
             card_list_panel.Hide();
             editing_deck = false;
+            RefreshCardsQuantities(); //Clear the deck limit dimming right away, never wait for a deck reload that can fail
         }
 
         private void ShowDeckCards()
@@ -674,7 +675,6 @@ namespace TcgEngine.UI
                 string jdata = ApiTool.ToJson(udeck);
                 WebResponse res = await ApiClient.Get().SendPostRequest(url, jdata);
                 UserDeckData[] decks = ApiTool.JsonToArray<UserDeckData>(res.data);
-                saving = res.success;
 
                 if (res.success && decks != null)
                 {
@@ -689,6 +689,7 @@ namespace TcgEngine.UI
             }
             finally
             {
+                saving = false; //A failed or unreadable save must not keep blocking the deck list and save button
                 LoadPanel.Hide(deck_save_key);
             }
         }
