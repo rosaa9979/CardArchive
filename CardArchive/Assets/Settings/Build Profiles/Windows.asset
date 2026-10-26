@@ -23,6 +23,9 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
+    m_path: Assets/TcgEngine/Resources/Scenes/Menu/Boot.unity
+    m_guid: 641eb556dd6e4abd83643fea43823ef6
+  - m_enabled: 1
     m_path: Assets/TcgEngine/Resources/Scenes/Menu/LoginMenu.unity
     m_guid: 35845f83f169a8249ba97386e43cc114
   - m_enabled: 1
