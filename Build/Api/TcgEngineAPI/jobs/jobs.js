@@ -12,7 +12,7 @@ const ExecuteJobs = async() =>
 
 exports.InitJobs = function()
 {
-    schedule.scheduleJob('* 1 * * *', function(){  // this for one hour
+    schedule.scheduleJob('0 * * * *', function(){  // every hour, at minute 0
         ExecuteJobs();
     });
     
