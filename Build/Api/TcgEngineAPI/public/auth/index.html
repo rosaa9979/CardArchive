@@ -24,7 +24,7 @@
     <!-- 대시보드 화면 -->
     <section id="dashboard-view" class="hidden">
         <header class="topbar">
-            <div class="topbar-title">Card Archive 통계</div>
+            <div class="topbar-title">Card Archive 관리자</div>
             <div class="topbar-right">
                 <span id="admin-name"></span>
                 <button id="logout-button">로그아웃</button>
@@ -32,9 +32,17 @@
         </header>
 
         <div class="layout">
-            <nav id="stat-menu" class="side-menu"></nav>
+            <nav class="side-menu">
+                <div class="menu-group">운영</div>
+                <button class="menu-item" data-page="maintenance">서버 점검</button>
+                <button class="menu-item" data-page="messages">메시지 전송</button>
+                <button class="menu-item" data-page="audit">감사 로그</button>
+                <div class="menu-group">통계</div>
+                <div id="stat-menu"></div>
+            </nav>
 
-            <main class="content">
+            <!-- 통계 -->
+            <main id="page-stat" class="content page hidden">
                 <div class="content-header">
                     <h2 id="stat-title"></h2>
                     <div class="content-tools">
@@ -45,11 +53,133 @@
                 <div id="stat-info" class="stat-info"></div>
                 <div id="stat-error" class="error-msg"></div>
                 <div class="table-wrap">
-                    <table id="stat-table"></table>
+                    <table id="stat-table" class="data-table"></table>
+                </div>
+            </main>
+
+            <!-- 서버 점검 -->
+            <main id="page-maintenance" class="content page hidden">
+                <div class="content-header">
+                    <h2>서버 점검</h2>
+                    <div class="content-tools">
+                        <button id="mt-refresh">새로고침</button>
+                    </div>
+                </div>
+                <div id="mt-error" class="error-msg"></div>
+
+                <div class="card">
+                    <div class="card-row">
+                        <span id="mt-badge" class="badge"></span>
+                        <span id="mt-countdown" class="countdown"></span>
+                    </div>
+                    <dl class="info-list">
+                        <dt>종료 시각</dt><dd id="mt-shutdown">-</dd>
+                        <dt>예상 종료</dt><dd id="mt-end">-</dd>
+                        <dt>안내 메시지</dt><dd id="mt-message">-</dd>
+                        <dt>매칭</dt><dd id="mt-match">-</dd>
+                        <dt>마지막 변경</dt><dd id="mt-updated">-</dd>
+                    </dl>
+                    <div class="card-actions">
+                        <button id="mt-cancel" class="btn-secondary hidden">예약 취소</button>
+                        <button id="mt-open" class="btn-primary hidden">점검 해제 (서버 열기)</button>
+                    </div>
+                </div>
+
+                <form id="mt-form" class="card">
+                    <h3 id="mt-form-title">점검 예약</h3>
+                    <p class="hint">예약 시각이 되면 접속 중인 모든 클라이언트가 동시에 종료되고, 이후 API 요청은 점검 응답(503)을 받습니다. 관리자, 게임 서버, 화이트리스트 계정은 계속 접속할 수 있습니다.</p>
+                    <label>종료 시각
+                        <div class="field-row">
+                            <input id="mt-shutdown-input" type="datetime-local" required>
+                            <button type="button" class="btn-small" data-add-min="30">+30분</button>
+                            <button type="button" class="btn-small" data-add-min="60">+1시간</button>
+                            <button type="button" class="btn-small" data-add-min="120">+2시간</button>
+                        </div>
+                    </label>
+                    <label>예상 종료 시각 (선택)
+                        <input id="mt-end-input" type="datetime-local">
+                    </label>
+                    <label>안내 메시지
+                        <textarea id="mt-message-input" rows="3" maxlength="500" placeholder="업데이트를 위한 서버 점검이 진행됩니다."></textarea>
+                    </label>
+                    <label>매칭 차단 (종료 몇 분 전부터)
+                        <input id="mt-block-input" type="number" min="0" max="60" value="5">
+                    </label>
+                    <div id="mt-form-note" class="hint"></div>
+                    <div class="card-actions">
+                        <button type="submit" id="mt-submit" class="btn-primary">점검 예약</button>
+                    </div>
+                </form>
+
+                <form id="mt-whitelist-form" class="card">
+                    <h3>화이트리스트</h3>
+                    <p class="hint">점검 중에도 접속을 허용할 유저명 (한 줄에 하나). 관리자와 게임 서버 계정은 넣지 않아도 됩니다.</p>
+                    <textarea id="mt-whitelist-input" rows="4"></textarea>
+                    <div class="card-actions">
+                        <button type="submit" class="btn-secondary">화이트리스트 저장</button>
+                    </div>
+                </form>
+            </main>
+
+            <!-- 메시지 전송 -->
+            <main id="page-messages" class="content page hidden">
+                <div class="content-header">
+                    <h2>메시지 전송</h2>
+                    <div class="content-tools">
+                        <button id="msg-refresh">새로고침</button>
+                    </div>
+                </div>
+                <div id="msg-error" class="error-msg"></div>
+
+                <form id="msg-form" class="card">
+                    <h3>새 메시지</h3>
+                    <p id="msg-hint" class="hint"></p>
+                    <textarea id="msg-text" rows="3" placeholder="접속 중인 모든 유저에게 표시할 문구"></textarea>
+                    <div class="card-row">
+                        <span id="msg-count" class="hint"></span>
+                    </div>
+                    <div class="card-actions">
+                        <button type="submit" id="msg-send" class="btn-primary">발송</button>
+                    </div>
+                </form>
+
+                <div class="table-wrap card-table">
+                    <table id="msg-table" class="data-table"></table>
+                </div>
+            </main>
+
+            <!-- 감사 로그 -->
+            <main id="page-audit" class="content page hidden">
+                <div class="content-header">
+                    <h2>감사 로그</h2>
+                    <div class="content-tools">
+                        <button id="audit-refresh">새로고침</button>
+                    </div>
+                </div>
+                <div id="audit-info" class="stat-info"></div>
+                <div id="audit-error" class="error-msg"></div>
+                <div class="table-wrap">
+                    <table id="audit-table" class="data-table"></table>
                 </div>
             </main>
         </div>
     </section>
+
+    <!-- 확인 모달 -->
+    <div id="confirm-modal" class="modal hidden">
+        <form id="confirm-form" class="modal-card">
+            <h3 id="confirm-title"></h3>
+            <p id="confirm-message"></p>
+            <label id="confirm-type-label" class="hidden">
+                <span id="confirm-type-hint"></span>
+                <input id="confirm-type-input" type="text" autocomplete="off">
+            </label>
+            <div class="card-actions">
+                <button type="button" id="confirm-cancel" class="btn-secondary">취소</button>
+                <button type="submit" id="confirm-ok" class="btn-danger">확인</button>
+            </div>
+        </form>
+    </div>
 
     <script src="script.js"></script>
 </body>
