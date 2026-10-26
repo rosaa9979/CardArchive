@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Gourmet_Research_Society
   title: "\uBBF8\uC2DD\uC5F0\uAD6C\uD68C"
   academy: {fileID: 11400000, guid: a032a8902ce6c2f4a9ac3a8af10112a2, type: 2}
-  icon: {fileID: 21300000, guid: e061faa038e4f48418cb07bad1e849a4, type: 3}
+  icon: {fileID: 21300000, guid: f3d86f12213845f4e87aabbc09386cbd, type: 3}
   synergy_type: 1
   synergy_value: 10
   synergy_threshold: 1

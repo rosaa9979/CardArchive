@@ -15,4 +15,7 @@ MonoBehaviour:
   id: Arius_Squad
   title: "\uC544\uB9AC\uC6B0\uC2A4 \uC2A4\uCFFC\uB4DC"
   academy: {fileID: 11400000, guid: 975ff0350acf0294cbe484a2a93f1d5b, type: 2}
-  icon: {fileID: 21300000, guid: e061faa038e4f48418cb07bad1e849a4, type: 3}
+  icon: {fileID: 21300000, guid: 3cb77446058178a4e92aa3e9427d0198, type: 3}
+  synergy_type: 2
+  synergy_value: 10
+  synergy_threshold: 1
