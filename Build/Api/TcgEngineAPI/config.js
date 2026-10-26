@@ -75,4 +75,10 @@ module.exports = {
   //Market
   sell_ratio: 0.8,          //Sell ratio compared to buy price
 
+  //Maintenance
+  heartbeat_interval: 60,      //Client heartbeat (/auth/keep) interval in seconds, must match ApiClient.online_duration
+  maintenance_min_notice: 1800, //Minimum seconds between scheduling and shutdown (30 min), players get notices before being disconnected
+  message_delay: 300,          //Admin messages are displayed by every client this many seconds after sending (5 min)
+  message_max_length: 200,
+
 };

@@ -4,6 +4,8 @@ const https = require('https');
 const express = require('express');
 const config = require('./config.js');
 const Limiter = require('./tools/limiter.tool');
+const MaintenanceTool = require('./maintenance/maintenance.tool');
+const LiveOpsTool = require('./liveops/liveops.tool');
 const mongoose = require("mongoose");
 
 const app = express();
@@ -23,6 +25,7 @@ mongoose.connect(connect, {
 });
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected!");
+  LiveOpsTool.load().catch((e) => console.error("Live ops load error:", e));
 });
 
 process.on('unhandledRejection', (e) => console.error('UnhandledRejection:', e));
@@ -50,8 +53,11 @@ require('./replays/replays.routes').route(app);
 //Parse JSON body
 app.use(express.json({ limit: "100kb" }));
 
-//Log request
+//Log request, except the client heartbeat sent every minute by each player
+const unlogged_paths = ["/auth/keep"];
 app.use((req, res, next) => {
+    if (unlogged_paths.includes(req.path))
+        return next();
     var today = new Date();
     var date = today.getFullYear() +'-'+(today.getMonth()+1)+'-'+today.getDate();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -60,8 +66,11 @@ app.use((req, res, next) => {
     next();
 })
 
-//Public folder 
+//Public folder
 app.use('/', express.static('public'));
+
+//During maintenance every API request answers 503, except game servers, admins and whitelisted users
+app.use(MaintenanceTool.blockRequests);
 
 //Route root DIR
 app.get('/', function(req, res){
@@ -101,6 +110,9 @@ ActivityRouter.route(app);
 
 const StatsRouter = require("./stats/stats.routes");
 StatsRouter.route(app);
+
+const AdminRouter = require("./admin/admin.routes");
+AdminRouter.route(app);
 
 
 //HTTP

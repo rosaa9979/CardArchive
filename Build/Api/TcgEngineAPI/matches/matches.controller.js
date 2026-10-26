@@ -54,12 +54,16 @@ exports.completeMatch = async(req, res) => {
     
     var matchId = req.body.tid;
     var winner = req.body.winner;
+    var canceled = req.body.canceled === true; //Ended by the server (maintenance): no winner and no rewards
 
-    if (!matchId || !winner)
+    if (!matchId || (!winner && !canceled))
         return res.status(400).send({ error: "Invalid parameters" });
-	
-	if(typeof matchId != "string" || typeof winner != "string")
+
+	if(typeof matchId != "string" || (!canceled && typeof winner != "string"))
         return res.status(400).send({error: "Invalid parameters" });
+
+    if(canceled)
+        winner = "";
 
     var match = await MatchModel.get(matchId);
     if(!match)
@@ -78,7 +82,7 @@ exports.completeMatch = async(req, res) => {
     match.completed = true;
     
     //Add Rewards
-    if(match.ranked)
+    if(match.ranked && !canceled)
     {
         match.udata[0].reward = await MatchTool.GainMatchReward(player0, player1, winner);
         match.udata[1].reward = await MatchTool.GainMatchReward(player1, player0, winner);
