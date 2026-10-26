@@ -109,6 +109,15 @@ namespace TcgEngine.Server
                 }
             }
 
+            //No new match shortly before a maintenance, clients show the countdown banner
+            LiveOpsManager maintenance = LiveOpsManager.Get();
+            if (maintenance != null && maintenance.IsMatchmakingBlocked())
+            {
+                if (!is_refresh)
+                    Debug.Log("Matchmaking refused, maintenance scheduled: " + msg.username);
+                return;
+            }
+
             //Data
             MatchPlayerData pdata = new MatchPlayerData();
             pdata.user_id = msg.user_id;

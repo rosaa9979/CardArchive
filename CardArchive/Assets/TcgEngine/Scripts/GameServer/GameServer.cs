@@ -28,6 +28,7 @@ namespace TcgEngine.Server
         private float expiration = 0f;
         private float win_expiration = 0f;
         private bool is_dedicated_server = false;
+        private bool canceled = false; //Ended by the server maintenance
 
         private List<ClientData> players = new List<ClientData>();            //Exclude observers, stays in array when disconnected, only players can send commands
         private List<ClientData> connected_clients = new List<ClientData>();  //Include obervers, removed from array when disconnected, all clients receive refreshes
@@ -816,6 +817,16 @@ namespace TcgEngine.Server
             return gameplay.IsGameEnded();
         }
 
+        //Server maintenance: ends a running game without winner, the API completes the match without rewards
+        public virtual void EndGameCanceled()
+        {
+            if (!gameplay.IsGameStarted() || gameplay.IsGameEnded())
+                return;
+
+            canceled = true;
+            gameplay.EndGame(-1);
+        }
+
         public virtual bool IsGameExpired()
         {
             return expiration > game_expire_time; //Means that the game expired (everyone left or game ended)
@@ -846,7 +857,7 @@ namespace TcgEngine.Server
             if (is_dedicated_server && Authenticator.Get().IsApi())
             {
                 //End Match and give rewards
-                ApiClient.Get().EndMatch(game_data, winner != null ? winner.player_id : -1);
+                ApiClient.Get().EndMatch(game_data, winner != null ? winner.player_id : -1, canceled);
             }
         }
 

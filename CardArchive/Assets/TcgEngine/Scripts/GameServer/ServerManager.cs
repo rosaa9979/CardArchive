@@ -59,7 +59,23 @@ namespace TcgEngine.Server
                 network.StartServer(NetworkData.Get().port);
             }
 
+            LiveOpsManager.Get().onShutdown += OnMaintenanceShutdown;
+
             Login();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            LiveOpsManager maintenance = LiveOpsManager.Get();
+            if (maintenance != null)
+                maintenance.onShutdown -= OnMaintenanceShutdown;
+        }
+
+        //Maintenance shutdown: running games end without winner, players leave by themselves at the same time
+        protected virtual void OnMaintenanceShutdown()
+        {
+            foreach (KeyValuePair<string, GameServer> pair in game_list)
+                pair.Value.EndGameCanceled();
         }
 
         protected virtual void Update()
