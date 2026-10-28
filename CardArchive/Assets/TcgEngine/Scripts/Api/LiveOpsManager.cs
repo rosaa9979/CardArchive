@@ -18,6 +18,7 @@ namespace TcgEngine
     /// Announcements are shown only when their time passes while the game is running (not on receive nor after a pause).
     /// Maintenance: NoticeText 10 and 5 min before, a countdown in the last minute, then back to the Boot scene with a popup.
     /// Messages: NoticeText at their show time.
+    /// Kick (ban, logout or account delete by an admin): logged out and back to the Boot scene with a popup.
     /// The game server only reads the maintenance state (matchmaking block, onShutdown) and never leaves.
     /// Created on first use and kept between scenes, the popup is built in code.
     /// </summary>
@@ -28,7 +29,7 @@ namespace TcgEngine
 
         public UnityAction onShutdown; //Shutdown time reached or server reported an active maintenance
 
-        private const string load_key = "maintenance";
+        private const string load_key = "liveops";
         private const float busy_wait_max = 5f; //Max wait for pending requests (deck save...) before leaving
         private static readonly int[] notice_minutes = { 10, 5 }; //Announced once each when the time passes while playing
         private const float notice_duration = 4f;
@@ -48,7 +49,10 @@ namespace TcgEngine
 
         private Canvas canvas;
         private GameObject popup;
+        private Text popup_title;
         private Text popup_text;
+        private Text retry_text;
+        private bool kick_popup = false; //Kick popup only closes, a maintenance popup retries and is hidden by the next open state
         private GameObject event_system; //Only created when the current scene has none (Boot scene)
 
         private static LiveOpsManager instance;
@@ -125,14 +129,15 @@ namespace TcgEngine
                 if (!closed)
                     Shutdown();
                 else if (IsClientSide() && !leaving)
-                    ShowPopup(); //Retry from the Boot scene while still in maintenance
+                    ShowMaintenancePopup(); //Retry from the Boot scene while still in maintenance
             }
             else
             {
                 shutdown_time = -1f;
                 closed = false;
                 ResetNotices();
-                HidePopup();
+                if (!kick_popup)
+                    HidePopup();
             }
         }
 
@@ -144,16 +149,36 @@ namespace TcgEngine
             onShutdown?.Invoke();
 
             if (IsClientSide())
-                Leave();
+                LeaveForMaintenance();
         }
 
-        private async void Leave()
+        //Session closed by an admin, the login refused while banned only shows the popup
+        public void Kick(KickInfo kick)
+        {
+            if (!IsClientSide() || leaving)
+                return;
+
+            Debug.Log("Session closed by an admin: " + kick.reason);
+            ApiClient client = ApiClient.Get();
+            if (client != null && client.IsLoggedIn())
+                Leave("계정 상태가 변경되어 접속을 종료합니다", false, () => ShowKickPopup(kick));
+            else
+                ShowKickPopup(kick);
+        }
+
+        private void LeaveForMaintenance()
+        {
+            //Keep the saved tokens so the next login screen can refresh the session after the maintenance
+            Leave("서버 점검으로 접속을 종료합니다", true, ShowMaintenancePopup);
+        }
+
+        private async void Leave(string load_text, bool keep_tokens, UnityAction show_popup)
         {
             if (leaving)
                 return;
 
             leaving = true;
-            LoadPanel.Show(load_key, "서버 점검으로 접속을 종료합니다");
+            LoadPanel.Show(load_key, load_text);
 
             //Let pending requests finish so nothing is half saved, the API still accepts them until it answers 503
             ApiClient client = ApiClient.Get();
@@ -167,8 +192,10 @@ namespace TcgEngine
             if (!Application.isPlaying || this == null)
                 return;
 
-            //Keep the saved tokens so the next login screen can refresh the session after the maintenance
-            client?.EndSession();
+            if (keep_tokens)
+                client?.EndSession();
+            else
+                client?.Logout();
             messages.Clear();
             NoticeText.ClearText();
 
@@ -181,7 +208,7 @@ namespace TcgEngine
 
             LoadPanel.Hide(load_key);
             leaving = false;
-            ShowPopup();
+            show_popup();
         }
 
         //Game server stops matchmaking a few minutes before the shutdown, clients check it before searching
@@ -320,28 +347,63 @@ namespace TcgEngine
 
         // ---- UI ----
 
-        private void ShowPopup()
+        private void ShowMaintenancePopup()
         {
-            BuildUI();
             string message = string.IsNullOrWhiteSpace(info.message) ? "서버 점검 중입니다. 잠시 후 다시 접속해 주세요." : info.message;
             string end_time = FormatDate(info.end_at);
             if (!string.IsNullOrEmpty(end_time))
                 message += "\n\n예상 종료: " + end_time;
+            ShowPopup("서버 점검 안내", message, "다시 시도", false);
+        }
+
+        private void ShowKickPopup(KickInfo kick)
+        {
+            if (kick.reason == "banned")
+            {
+                string until = FormatDate(kick.until);
+                string message = "계정 이용이 정지되었습니다.";
+                if (!string.IsNullOrWhiteSpace(kick.message))
+                    message += "\n\n사유: " + kick.message;
+                message += "\n해제: " + (string.IsNullOrEmpty(until) ? "영구 정지" : until);
+                ShowPopup("이용 정지 안내", message, "확인", true);
+            }
+            else if (kick.reason == "deleted")
+            {
+                ShowPopup("계정 안내", "계정이 삭제되었습니다.", "확인", true);
+            }
+            else
+            {
+                ShowPopup("접속 종료", "운영자에 의해 로그아웃되었습니다.\n다시 로그인해 주세요.", "확인", true);
+            }
+        }
+
+        private void ShowPopup(string title, string message, string retry_label, bool kick)
+        {
+            BuildUI();
+            kick_popup = kick;
+            popup_title.text = title;
             popup_text.text = message;
+            retry_text.text = retry_label;
             popup.SetActive(true);
             EnsureEventSystem();
         }
 
         private void HidePopup()
         {
+            kick_popup = false;
             if (popup != null)
                 popup.SetActive(false);
             ReleaseEventSystem();
         }
 
+        //Kick popup: the Boot scene already goes on to the login screen
         private void OnClickRetry()
         {
+            bool kick = kick_popup;
             HidePopup();
+            if (kick)
+                return;
+
             BootMenu boot = FindAnyObjectByType<BootMenu>();
             if (boot != null)
                 boot.CheckVersion(); //Shows the popup again if the server is still in maintenance
@@ -410,14 +472,13 @@ namespace TcgEngine
             Image box = CreateImage("Box", popup.transform, new Color(0.12f, 0.13f, 0.16f, 0.98f));
             SetRect(box.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(960f, 560f));
 
-            Text title = CreateText("Title", box.transform, font, 44, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -60f), new Vector2(-80f, 80f));
-            title.text = "서버 점검 안내";
+            popup_title = CreateText("Title", box.transform, font, 44, TextAnchor.MiddleCenter);
+            SetRect(popup_title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -60f), new Vector2(-80f, 80f));
 
             popup_text = CreateText("Message", box.transform, font, 30, TextAnchor.MiddleCenter);
             SetRect(popup_text.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 10f), new Vector2(-100f, -300f));
 
-            CreateButton("Retry", box.transform, font, "다시 시도", new Vector2(-170f, 70f), new Color(0.23f, 0.42f, 1f), OnClickRetry);
+            retry_text = CreateButton("Retry", box.transform, font, "다시 시도", new Vector2(-170f, 70f), new Color(0.23f, 0.42f, 1f), OnClickRetry);
             CreateButton("Quit", box.transform, font, "게임 종료", new Vector2(170f, 70f), new Color(0.17f, 0.19f, 0.23f), OnClickQuit);
 
             popup.SetActive(false);
@@ -455,7 +516,7 @@ namespace TcgEngine
             return text;
         }
 
-        private void CreateButton(string name, Transform parent, Font font, string label, Vector2 pos, Color color, UnityAction action)
+        private Text CreateButton(string name, Transform parent, Font font, string label, Vector2 pos, Color color, UnityAction action)
         {
             Image image = CreateImage(name, parent, color);
             SetRect(image.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), pos, new Vector2(280f, 76f));
@@ -467,6 +528,7 @@ namespace TcgEngine
             Stretch(text.rectTransform, Vector2.zero);
             text.text = label;
             text.raycastTarget = false;
+            return text;
         }
 
         private void SetRect(RectTransform rect, Vector2 anchor_min, Vector2 anchor_max, Vector2 pos, Vector2 size)

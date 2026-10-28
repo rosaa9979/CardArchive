@@ -164,6 +164,24 @@ namespace TcgEngine
         public LiveOpsInfo ops;
     }
 
+    //Session closed by an admin, sent with a 403 by any authenticated request (and by login while banned)
+    [Serializable]
+    public struct KickInfo
+    {
+        public string reason;   //banned, revoked (kick or password changed by an admin), deleted
+        public string until;    //Ban end as ISO date, empty when permanent
+        public string message;  //Ban reason
+
+        public bool IsValid { get { return !string.IsNullOrEmpty(reason); } }
+    }
+
+    [Serializable]
+    public struct KickErrorResponse
+    {
+        public string error;
+        public KickInfo kick;
+    }
+
     public enum VersionCheckStatus
     {
         Match = 0,          //Client and server versions are the same

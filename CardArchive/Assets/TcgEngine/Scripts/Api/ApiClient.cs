@@ -412,6 +412,14 @@ namespace TcgEngine
                     LiveOpsManager.Get()?.Receive(err.ops);
             }
 
+            //Banned, logged out or deleted by an admin: the session cannot continue
+            if (response.status == 403 && !is_server)
+            {
+                KickErrorResponse err = ApiTool.JsonToObject<KickErrorResponse>(response.data);
+                if (err.kick.IsValid)
+                    LiveOpsManager.Get()?.Kick(err.kick);
+            }
+
             return response;
         }
 
