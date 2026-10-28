@@ -242,6 +242,32 @@ form.content-tools { margin: 0; }
 .password-result { font-size: 13px; padding: 10px 12px; border-radius: 6px; background: #1f3a2b; color: #6fdc9a; white-space: pre-wrap; }
 .password-result code { font-size: 15px; font-weight: 700; user-select: all; }
 
+.field-inline { flex-direction: row !important; align-items: center; gap: 8px !important; }
+.field-inline input { width: 160px; }
+.item-rows { display: flex; flex-direction: column; gap: 6px; }
+.item-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.item-row .item-kind { font-size: 12px; color: #9aa1ad; width: 30px; }
+.item-row .item-name { flex: 1; min-width: 220px; }
+.item-row .item-qty { width: 100px; }
+.card select, .modal-card select, .item-row select, .data-table select {
+    background: #16181d;
+    border: 1px solid #2c313a;
+    border-radius: 6px;
+    color: #e6e8ee;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+.data-table td input, .data-table td select { padding: 4px 6px; font-size: 13px; }
+.data-table td input { width: 70px; background: #16181d; border: 1px solid #2c313a; border-radius: 6px; color: #e6e8ee; }
+.deck-tools { margin-bottom: 8px; }
+.deck-tools.hidden { display: none; }
+.modal-card.modal-wide { width: 720px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.deck-card-wrap { max-height: 300px; overflow-y: auto; }
+.issue-list { list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #f2c94c; }
+.issue-list:empty { display: none; }
+.text-warning { color: #f2c94c; }
+.table-btn + .table-btn { margin-left: 4px; }
+
 .tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
 .tab {
     background: none;

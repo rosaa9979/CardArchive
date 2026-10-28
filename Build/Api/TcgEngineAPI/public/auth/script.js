@@ -169,6 +169,7 @@ var user_detail = null;    //Last /admin/users/:id response
 var user_tab = "decks";
 var open_deck = null;      //Deck tid expanded in the decks tab
 var users_notice = "";     //Result of the last action shown once above the list (account deleted)
+var catalog = null;        //Last /admin/catalog response, loaded once when the first user is opened
 
 const PermissionLabels = { 1: "유저", 5: "게임 서버", 10: "관리자" };
 
@@ -316,7 +317,10 @@ async function openUser(id) {
         user_tab = "decks";
         open_deck = null;
         resetManageForms();
+        resetGrantForm();
     }
+    if (!catalog)
+        await loadCatalog();
     user_detail = detail;
     renderUser();
 }
@@ -403,6 +407,7 @@ function renderManage() {
 
     document.getElementById("user-manage-note").classList.toggle("hidden", detail.manageable);
     document.getElementById("user-manage-body").classList.toggle("hidden", !detail.manageable);
+    document.getElementById("user-grant-form").classList.toggle("hidden", !detail.manageable);
 
     //An expired ban stays in the document until it is replaced or cleared, shown as the last ban
     const items = [];
@@ -533,6 +538,7 @@ function renderUserTab() {
     const detail = user_detail;
     const table = document.getElementById("user-tab-table");
     table.innerHTML = "";
+    document.getElementById("user-deck-tools").classList.toggle("hidden", user_tab !== "decks" || !detail.manageable);
 
     if (user_tab === "decks")
         return renderDecks(table);
@@ -588,10 +594,24 @@ function renderMatches(table) {
     table.appendChild(tbody);
 }
 
-//Clicking a deck shows its cards below it
+function makeButtonCell(buttons) {
+    const td = document.createElement("td");
+    for (const [label, action] of buttons) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "table-btn";
+        button.textContent = label;
+        button.addEventListener("click", (e) => { e.stopPropagation(); action(); });
+        td.appendChild(button);
+    }
+    return td;
+}
+
+//Clicking a deck shows its cards and rule warnings below it
 function renderDecks(table) {
+    const manageable = user_detail.manageable;
     const columns = [
-        { label: "덱 이름" }, { label: "대표" }, { label: "클럽" }, { label: "카드 수", type: "number" }, { label: "" },
+        { label: "덱 이름" }, { label: "대표" }, { label: "클럽" }, { label: "카드 수", type: "number" }, { label: "검사" }, { label: "" },
     ];
     table.appendChild(buildHeader(columns, null));
     const tbody = document.createElement("tbody");
@@ -603,7 +623,10 @@ function renderDecks(table) {
         tr.appendChild(makeCell(deck.hero ? cardName(deck.hero) : "-"));
         tr.appendChild(makeCell(deck.clubs.map((c) => c.title || c.tid).join(", ") || "-"));
         tr.appendChild(makeCell(formatValue(deck.card_count, "number"), "num"));
-        tr.appendChild(makeCell(opened ? "▲" : "▼", "text-offline"));
+        tr.appendChild(makeCell(deck.issues.length ? "경고 " + deck.issues.length : "정상", deck.issues.length ? "text-warning" : "text-online"));
+        tr.appendChild(manageable
+            ? makeButtonCell([["수정", () => openDeckEditor(deck)], ["삭제", () => deleteDeck(deck)], [opened ? "▲" : "▼", () => toggleDeck(deck)]])
+            : makeCell(opened ? "▲" : "▼", "text-offline"));
         tr.addEventListener("click", () => {
             open_deck = opened ? null : deck.tid;
             renderUserTab();
@@ -613,13 +636,437 @@ function renderDecks(table) {
         if (opened) {
             const sub = document.createElement("tr");
             sub.className = "sub-row";
-            const td = makeCell(deck.cards.map((c) => cardName(c) + " ×" + c.quantity).join("\n") || "카드 없음", "wrap");
+            const lines = deck.issues.map((issue) => "⚠ " + issue);
+            if (lines.length) lines.push("");
+            const td = makeCell(lines.concat(deck.cards.map((c) => cardName(c) + " ×" + c.quantity)).join("\n") || "카드 없음", "wrap");
             td.colSpan = columns.length;
             sub.appendChild(td);
             tbody.appendChild(sub);
         }
     }
     table.appendChild(tbody);
+}
+
+function toggleDeck(deck) {
+    open_deck = open_deck === deck.tid ? null : deck.tid;
+    renderUserTab();
+}
+
+// ---- User items and decks ----
+
+const HeroType = "아로나";
+const DeckCardTypes = ["학생", "비학생", "이벤트", "장소"];
+
+var deck_edit = null;      //{tid ("" for a new deck), cards: [{tid, variant, quantity}]} while the deck modal is open
+var deck_check_timer = null;
+var deck_check_id = 0;     //Only the answer of the last check is shown
+
+async function loadCatalog() {
+    try {
+        catalog = await apiGet("/admin/catalog");
+    } catch (e) {
+        handleError(e, "user-error");
+        return;
+    }
+    catalog.card_map = new Map(catalog.cards.map((c) => [c.tid, c]));
+    catalog.search_map = new Map();
+
+    const fill = (id, items) => {
+        const list = document.getElementById(id);
+        list.innerHTML = "";
+        for (const [value, tid] of items) {
+            const option = document.createElement("option");
+            option.value = value;
+            list.appendChild(option);
+            catalog.search_map.set(value, tid);
+        }
+    };
+    const label = (card) => (card.title || card.tid) + " · " + card.tid;
+    fill("catalog-cards", catalog.cards.map((c) => [label(c), c.tid]));
+    fill("catalog-deck-cards", catalog.cards.filter((c) => DeckCardTypes.includes(c.type)).map((c) => [label(c), c.tid]));
+    fill("catalog-packs", catalog.packs.map((tid) => [tid, tid]));
+}
+
+//Picked datalist text, or a typed id
+function resolveSearch(text) {
+    text = text.trim();
+    return catalog.search_map.get(text) || text;
+}
+
+function catalogName(tid) {
+    const card = catalog && catalog.card_map.get(tid);
+    return card && card.title ? card.title + " (" + tid + ")" : tid;
+}
+
+function makeVariantSelect(value) {
+    const select = document.createElement("select");
+    for (const tid of catalog.variants) {
+        const option = document.createElement("option");
+        option.value = tid;
+        option.textContent = tid === catalog.default_variant ? tid + " (기본)" : tid;
+        select.appendChild(option);
+    }
+    select.value = value || catalog.default_variant;
+    return select;
+}
+
+// ---- Grant ----
+
+function resetGrantForm() {
+    document.getElementById("grant-coins").value = 0;
+    document.getElementById("grant-xp").value = 0;
+    document.getElementById("grant-items").innerHTML = "";
+    document.getElementById("grant-reason").value = "";
+}
+
+function addGrantRow(kind) {
+    const row = document.createElement("div");
+    row.className = "item-row";
+    row.dataset.kind = kind;
+
+    const kind_label = document.createElement("span");
+    kind_label.className = "item-kind";
+    kind_label.textContent = kind === "card" ? "카드" : "팩";
+    row.appendChild(kind_label);
+
+    const name = document.createElement("input");
+    name.className = "item-name";
+    name.setAttribute("list", kind === "card" ? "catalog-cards" : "catalog-packs");
+    name.placeholder = kind === "card" ? "카드 이름 또는 ID" : "팩 ID";
+    name.autocomplete = "off";
+    row.appendChild(name);
+
+    if (kind === "card") {
+        const variant = makeVariantSelect("");
+        variant.className = "item-variant";
+        row.appendChild(variant);
+    }
+
+    const qty = document.createElement("input");
+    qty.className = "item-qty";
+    qty.type = "number";
+    qty.step = "1";
+    qty.value = 1;
+    row.appendChild(qty);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "table-btn";
+    remove.textContent = "삭제";
+    remove.addEventListener("click", () => row.remove());
+    row.appendChild(remove);
+
+    document.getElementById("grant-items").appendChild(row);
+    name.focus();
+}
+
+//Reads the grant form, null with an error shown when a value is invalid
+function readGrant() {
+    const grant = {
+        coins: parseInt(document.getElementById("grant-coins").value) || 0,
+        xp: parseInt(document.getElementById("grant-xp").value) || 0,
+        cards: [],
+        packs: [],
+    };
+    for (const row of document.querySelectorAll("#grant-items .item-row")) {
+        const tid = resolveSearch(row.querySelector(".item-name").value);
+        const quantity = parseInt(row.querySelector(".item-qty").value);
+        if (!tid || !quantity) continue;
+        if (row.dataset.kind === "card") {
+            if (!catalog.card_map.has(tid))
+                return grantError("없는 카드입니다: " + tid);
+            grant.cards.push({ tid: tid, variant: row.querySelector(".item-variant").value, quantity: quantity });
+        } else {
+            if (!catalog.packs.includes(tid))
+                return grantError("없는 팩입니다: " + tid);
+            grant.packs.push({ tid: tid, quantity: quantity });
+        }
+    }
+    return grant;
+}
+
+function grantError(message) {
+    document.getElementById("user-error").textContent = message;
+    return null;
+}
+
+function formatSigned(value) {
+    return (value > 0 ? "+" : "") + formatValue(value, "number");
+}
+
+function describeGrant(grant) {
+    const lines = [];
+    if (grant.coins) lines.push("코인 " + formatSigned(grant.coins));
+    if (grant.xp) lines.push("XP " + formatSigned(grant.xp));
+    for (const card of grant.cards) lines.push("카드 " + catalogName(card.tid) + " [" + card.variant + "] " + formatSigned(card.quantity));
+    for (const pack of grant.packs) lines.push("팩 " + pack.tid + " " + formatSigned(pack.quantity));
+    return lines;
+}
+
+async function submitGrant(e) {
+    e.preventDefault();
+    document.getElementById("user-error").textContent = "";
+    const grant = readGrant();
+    if (!grant) return;
+    const reason = document.getElementById("grant-reason").value.trim();
+    const lines = describeGrant(grant);
+    if (lines.length === 0)
+        return grantError("지급하거나 회수할 항목을 입력하세요.");
+    if (!reason)
+        return grantError("사유를 입력하세요.");
+
+    if (!await confirmAction("지급 · 회수", user_detail.user.username + "\n\n" + lines.join("\n") + "\n\n사유: " + reason))
+        return;
+    if (await runUserAction("grant", { grant: grant, reason: reason }))
+        resetGrantForm();
+}
+
+// ---- Premade deck ----
+
+function openPremadeModal() {
+    const select = document.getElementById("premade-deck");
+    select.innerHTML = "";
+    for (const deck of catalog.decks) {
+        const option = document.createElement("option");
+        option.value = deck.tid;
+        option.textContent = (deck.title || deck.tid) + " · " + deck.card_count + "장";
+        select.appendChild(option);
+    }
+    document.getElementById("premade-reason").value = "";
+    document.getElementById("premade-error").textContent = catalog.decks.length ? "" : "등록된 기본 덱이 없습니다.";
+    document.getElementById("premade-modal").classList.remove("hidden");
+}
+
+async function submitPremade(e) {
+    e.preventDefault();
+    const tid = document.getElementById("premade-deck").value;
+    const reason = document.getElementById("premade-reason").value.trim();
+    if (!tid || !reason) {
+        document.getElementById("premade-error").textContent = "덱과 사유를 선택하세요.";
+        return;
+    }
+    document.getElementById("premade-modal").classList.add("hidden");
+    await runUserAction("grant", { grant: { decks: [tid] }, reason: reason });
+}
+
+// ---- Deck editor ----
+
+function openDeckEditor(deck) {
+    deck_edit = {
+        tid: deck ? deck.tid : "",
+        cards: deck ? deck.cards.map((c) => ({ tid: c.tid, variant: c.variant || catalog.default_variant, quantity: c.quantity })) : [],
+    };
+    document.getElementById("deck-modal-title").textContent = deck ? "덱 수정 · " + (deck.title || deck.tid) : "새 덱 만들기";
+    document.getElementById("deck-title").value = deck ? deck.title : "";
+    document.getElementById("deck-reason").value = "";
+    document.getElementById("deck-card-search").value = "";
+    document.getElementById("deck-error").textContent = "";
+
+    const hero = document.getElementById("deck-hero");
+    hero.innerHTML = "";
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = "없음";
+    hero.appendChild(none);
+    for (const card of catalog.cards.filter((c) => c.type === HeroType)) {
+        const option = document.createElement("option");
+        option.value = card.tid;
+        option.textContent = card.title || card.tid;
+        hero.appendChild(option);
+    }
+    hero.value = deck && deck.hero ? deck.hero.tid : "";
+
+    document.getElementById("deck-modal").classList.remove("hidden");
+    renderDeckEditor();
+}
+
+function closeDeckEditor() {
+    deck_edit = null;
+    clearTimeout(deck_check_timer);
+    document.getElementById("deck-modal").classList.add("hidden");
+}
+
+function readDeck() {
+    const hero = document.getElementById("deck-hero").value;
+    return {
+        title: document.getElementById("deck-title").value.trim(),
+        hero: hero ? { tid: hero, variant: catalog.default_variant } : {},
+        cards: deck_edit.cards,
+    };
+}
+
+function renderDeckEditor() {
+    const table = document.getElementById("deck-card-table");
+    table.innerHTML = "";
+    table.appendChild(buildHeader([{ label: "카드" }, { label: "종류" }, { label: "변형" }, { label: "수량" }, { label: "" }], null));
+    const tbody = document.createElement("tbody");
+    deck_edit.cards.forEach((entry, index) => {
+        const card = catalog.card_map.get(entry.tid);
+        const tr = document.createElement("tr");
+        tr.appendChild(makeCell(catalogName(entry.tid)));
+        tr.appendChild(makeCell(card ? card.type : "?"));
+
+        const variant_td = document.createElement("td");
+        const variant = makeVariantSelect(entry.variant);
+        variant.addEventListener("change", () => { entry.variant = variant.value; scheduleDeckCheck(); });
+        variant_td.appendChild(variant);
+        tr.appendChild(variant_td);
+
+        const qty_td = document.createElement("td");
+        const qty = document.createElement("input");
+        qty.type = "number";
+        qty.min = "1";
+        qty.value = entry.quantity;
+        qty.addEventListener("input", () => { entry.quantity = parseInt(qty.value) || 0; updateDeckSummary(); scheduleDeckCheck(); });
+        qty_td.appendChild(qty);
+        tr.appendChild(qty_td);
+
+        tr.appendChild(makeButtonCell([["삭제", () => { deck_edit.cards.splice(index, 1); renderDeckEditor(); }]]));
+        tbody.appendChild(tr);
+    });
+    if (deck_edit.cards.length === 0) {
+        const tr = document.createElement("tr");
+        const td = makeCell("카드를 추가하세요.", "text-offline");
+        td.colSpan = 5;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    updateDeckSummary();
+    scheduleDeckCheck();
+}
+
+function updateDeckSummary() {
+    const total = deck_edit.cards.reduce((n, c) => n + (c.quantity || 0), 0);
+    document.getElementById("deck-summary").textContent = "카드 " + total + " / " + catalog.rules.deck_size + "장";
+}
+
+function addDeckCard() {
+    const input = document.getElementById("deck-card-search");
+    const tid = resolveSearch(input.value);
+    const card = catalog.card_map.get(tid);
+    if (!card || !DeckCardTypes.includes(card.type)) {
+        document.getElementById("deck-error").textContent = "덱에 넣을 수 있는 카드가 아닙니다: " + input.value;
+        return;
+    }
+    document.getElementById("deck-error").textContent = "";
+    const found = deck_edit.cards.find((c) => c.tid === tid && c.variant === catalog.default_variant);
+    if (found) found.quantity++;
+    else deck_edit.cards.push({ tid: tid, variant: catalog.default_variant, quantity: 1 });
+    input.value = "";
+    input.focus();
+    renderDeckEditor();
+}
+
+//Asks the server for the derived clubs and the rule warnings, shortly after the last change
+function scheduleDeckCheck() {
+    clearTimeout(deck_check_timer);
+    deck_check_timer = setTimeout(checkDeck, 300);
+}
+
+async function checkDeck() {
+    if (!deck_edit) return;
+    const id = ++deck_check_id;
+    const deck = readDeck();
+    const list = document.getElementById("deck-issues");
+    var result;
+    try {
+        result = await apiPost("/admin/decks/check", { deck: Object.assign({}, deck, { title: deck.title || "-" }) });
+    } catch (e) {
+        if (e.auth) return handleError(e, "deck-error");
+        result = { issues: [e.error], deck: null };
+    }
+    if (id !== deck_check_id || !deck_edit) return;
+
+    list.innerHTML = "";
+    for (const issue of result.issues) {
+        const li = document.createElement("li");
+        li.textContent = "⚠ " + issue;
+        list.appendChild(li);
+    }
+    const clubs = result.deck ? result.deck.clubs.map((c) => catalogName(c.tid)).join(", ") : "";
+    updateDeckSummary();
+    document.getElementById("deck-summary").textContent += " · 동아리 " + (clubs || "없음");
+    deck_edit.issues = result.issues;
+}
+
+async function submitDeck(e) {
+    e.preventDefault();
+    const deck = readDeck();
+    const reason = document.getElementById("deck-reason").value.trim();
+    const error = document.getElementById("deck-error");
+    if (!deck.title || !reason) {
+        error.textContent = "덱 이름과 사유를 입력하세요.";
+        return;
+    }
+    if (deck.cards.some((c) => !c.quantity || c.quantity < 1)) {
+        error.textContent = "수량은 1 이상이어야 합니다.";
+        return;
+    }
+
+    var message = (deck_edit.tid ? "덱을 수정합니다." : "새 덱을 만듭니다.") + "\n사유: " + reason;
+    if (deck_edit.issues && deck_edit.issues.length)
+        message += "\n\n규칙에 맞지 않아 게임에서 사용할 수 없습니다:\n" + deck_edit.issues.join("\n");
+    if (!await confirmAction(deck_edit.tid ? "덱 수정" : "새 덱 만들기", user_detail.user.username + " · " + deck.title + "\n" + message))
+        return;
+
+    error.textContent = "";
+    const path = "/admin/users/" + encodeURIComponent(user_detail.user.id) + "/decks/" + encodeURIComponent(deck_edit.tid || "new");
+    try {
+        user_detail = await apiPost(path, { deck: deck, reason: reason });
+    } catch (err) {
+        return handleError(err, "deck-error");
+    }
+    closeDeckEditor();
+    renderUser();
+}
+
+async function deleteDeck(deck) {
+    const reason = await promptReason("덱 삭제", user_detail.user.username + " · " + (deck.title || deck.tid) + " 덱을 삭제합니다. 덱에 든 카드는 보유 카드에 그대로 남습니다.");
+    if (!reason) return;
+    document.getElementById("user-error").textContent = "";
+    try {
+        user_detail = await apiPost("/admin/users/" + encodeURIComponent(user_detail.user.id) + "/decks/" + encodeURIComponent(deck.tid) + "/delete", { reason: reason });
+    } catch (e) {
+        return handleError(e, "user-error");
+    }
+    renderUser();
+}
+
+//Confirm modal with a free text reason, resolves the reason or "" when canceled
+function promptReason(title, message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("confirm-modal");
+        const form = document.getElementById("confirm-form");
+        const input = document.getElementById("confirm-type-input");
+        const ok = document.getElementById("confirm-ok");
+
+        document.getElementById("confirm-title").textContent = title;
+        document.getElementById("confirm-message").textContent = message;
+        document.getElementById("confirm-type-label").classList.remove("hidden");
+        document.getElementById("confirm-type-hint").textContent = "사유 (감사 로그에 기록됩니다)";
+        input.value = "";
+        input.maxLength = 200;
+        ok.disabled = true;
+        modal.classList.remove("hidden");
+        input.focus();
+
+        const onInput = () => { ok.disabled = input.value.trim() === ""; };
+        const close = (result) => {
+            modal.classList.add("hidden");
+            input.removeAttribute("maxLength");
+            input.removeEventListener("input", onInput);
+            form.removeEventListener("submit", onSubmit);
+            document.getElementById("confirm-cancel").removeEventListener("click", onCancel);
+            resolve(result);
+        };
+        const onSubmit = (e) => { e.preventDefault(); if (!ok.disabled) close(input.value.trim()); };
+        const onCancel = () => close("");
+
+        input.addEventListener("input", onInput);
+        form.addEventListener("submit", onSubmit);
+        document.getElementById("confirm-cancel").addEventListener("click", onCancel);
+    });
 }
 
 // ---- Maintenance ----
@@ -999,6 +1446,9 @@ const AuditLabels = {
     admin_user_kick: "강제 로그아웃",
     admin_user_password: "비밀번호 변경 (관리자)",
     admin_user_delete: "계정 삭제",
+    admin_user_grant: "지급 · 회수",
+    admin_user_deck_save: "덱 저장",
+    admin_user_deck_delete: "덱 삭제",
 };
 
 async function loadAudit() {
@@ -1189,6 +1639,19 @@ document.getElementById("user-unban").addEventListener("click", unbanUser);
 document.getElementById("user-kick").addEventListener("click", kickUser);
 document.getElementById("user-password-form").addEventListener("submit", setUserPassword);
 document.getElementById("user-delete").addEventListener("click", deleteUser);
+document.getElementById("user-grant-form").addEventListener("submit", submitGrant);
+document.getElementById("grant-add-card").addEventListener("click", () => addGrantRow("card"));
+document.getElementById("grant-add-pack").addEventListener("click", () => addGrantRow("pack"));
+document.getElementById("deck-new").addEventListener("click", () => openDeckEditor(null));
+document.getElementById("deck-premade").addEventListener("click", openPremadeModal);
+document.getElementById("premade-form").addEventListener("submit", submitPremade);
+document.getElementById("premade-cancel").addEventListener("click", () => document.getElementById("premade-modal").classList.add("hidden"));
+document.getElementById("deck-form").addEventListener("submit", submitDeck);
+document.getElementById("deck-cancel").addEventListener("click", closeDeckEditor);
+document.getElementById("deck-card-add").addEventListener("click", addDeckCard);
+document.getElementById("deck-card-search").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addDeckCard(); } });
+document.getElementById("deck-title").addEventListener("input", scheduleDeckCheck);
+document.getElementById("deck-hero").addEventListener("change", scheduleDeckCheck);
 for (const button of document.querySelectorAll("[data-ban-days]"))
     button.addEventListener("click", () => { document.getElementById("user-ban-days").value = button.dataset.banDays; });
 for (const tab of document.querySelectorAll("#user-tabs .tab")) {

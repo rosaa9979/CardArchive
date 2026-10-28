@@ -150,12 +150,36 @@
                         </div>
                     </div>
 
+                    <form id="user-grant-form" class="card manage-card">
+                        <h3>지급 · 회수</h3>
+                        <p class="hint">양수는 지급, 음수는 회수입니다. 보유량보다 많이 회수할 수 없습니다. 접속 중인 유저는 다음에 해당 화면을 열 때 반영됩니다.</p>
+                        <div class="field-row">
+                            <label class="field-inline">코인 <input id="grant-coins" type="number" step="1" value="0"></label>
+                            <label class="field-inline">XP <input id="grant-xp" type="number" step="1" value="0"></label>
+                        </div>
+                        <div id="grant-items" class="item-rows"></div>
+                        <div class="field-row">
+                            <button type="button" id="grant-add-card" class="btn-small">+ 카드</button>
+                            <button type="button" id="grant-add-pack" class="btn-small">+ 팩</button>
+                        </div>
+                        <label>사유 (감사 로그에 기록됩니다)
+                            <input id="grant-reason" type="text" maxlength="200">
+                        </label>
+                        <div class="card-actions">
+                            <button type="submit" class="btn-primary">적용</button>
+                        </div>
+                    </form>
+
                     <div id="user-tabs" class="tabs">
                         <button class="tab" data-tab="decks">덱</button>
                         <button class="tab" data-tab="cards">보유 카드</button>
                         <button class="tab" data-tab="packs">팩</button>
                         <button class="tab" data-tab="matches">최근 매치</button>
                         <button class="tab" data-tab="activities">활동 기록</button>
+                    </div>
+                    <div id="user-deck-tools" class="card-row deck-tools">
+                        <button type="button" id="deck-new" class="btn-small">+ 새 덱 만들기</button>
+                        <button type="button" id="deck-premade" class="btn-small">기본 덱 보내기</button>
                     </div>
                     <div class="table-wrap">
                         <table id="user-tab-table" class="data-table"></table>
@@ -270,6 +294,61 @@
             </main>
         </div>
     </section>
+
+    <!-- 덱 편집 모달 -->
+    <div id="deck-modal" class="modal hidden">
+        <form id="deck-form" class="modal-card modal-wide">
+            <h3 id="deck-modal-title"></h3>
+            <label>덱 이름
+                <input id="deck-title" type="text" maxlength="50" required>
+            </label>
+            <label>영웅
+                <select id="deck-hero"></select>
+            </label>
+            <label>카드 추가
+                <div class="field-row">
+                    <input id="deck-card-search" type="text" list="catalog-deck-cards" placeholder="카드 이름 또는 ID" autocomplete="off">
+                    <button type="button" id="deck-card-add" class="btn-small">추가</button>
+                </div>
+            </label>
+            <div class="table-wrap deck-card-wrap">
+                <table id="deck-card-table" class="data-table"></table>
+            </div>
+            <div id="deck-summary" class="hint"></div>
+            <ul id="deck-issues" class="issue-list"></ul>
+            <label>사유 (감사 로그에 기록됩니다)
+                <input id="deck-reason" type="text" maxlength="200">
+            </label>
+            <div id="deck-error" class="error-msg"></div>
+            <div class="card-actions">
+                <button type="button" id="deck-cancel" class="btn-secondary">취소</button>
+                <button type="submit" id="deck-save" class="btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 기본 덱 보내기 모달 -->
+    <div id="premade-modal" class="modal hidden">
+        <form id="premade-form" class="modal-card">
+            <h3>기본 덱 보내기</h3>
+            <p class="hint">DB에 등록된 기본 덱을 복사해 보냅니다. 덱에 든 카드도 함께 지급됩니다.</p>
+            <label>덱
+                <select id="premade-deck"></select>
+            </label>
+            <label>사유 (감사 로그에 기록됩니다)
+                <input id="premade-reason" type="text" maxlength="200">
+            </label>
+            <div id="premade-error" class="error-msg"></div>
+            <div class="card-actions">
+                <button type="button" id="premade-cancel" class="btn-secondary">취소</button>
+                <button type="submit" class="btn-primary">보내기</button>
+            </div>
+        </form>
+    </div>
+
+    <datalist id="catalog-deck-cards"></datalist>
+    <datalist id="catalog-cards"></datalist>
+    <datalist id="catalog-packs"></datalist>
 
     <!-- 확인 모달 -->
     <div id="confirm-modal" class="modal hidden">
