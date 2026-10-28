@@ -54,6 +54,42 @@ exports.route = function (app) {
         AdminController.DeleteUser
     ]);
 
+    // ADMIN - ITEMS AND DECKS ----------------------
+
+    app.get('/admin/catalog', [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.GetCatalog
+    ]);
+
+    //Body: deck
+    app.post('/admin/decks/check', [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.CheckDeck
+    ]);
+
+    //Body: grant {coins, xp, cards, packs, decks}, reason
+    app.post('/admin/users/:userId/grant', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.GrantItems
+    ]);
+
+    //Body: deck {title, hero, cards}, reason. deckId "new" adds a deck
+    app.post('/admin/users/:userId/decks/:deckId', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.SaveDeck
+    ]);
+
+    //Body: reason
+    app.post('/admin/users/:userId/decks/:deckId/delete', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.DeleteDeck
+    ]);
+
     // ADMIN - MAINTENANCE ----------------------
 
     app.get('/admin/maintenance', [

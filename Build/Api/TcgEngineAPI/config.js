@@ -75,6 +75,12 @@ module.exports = {
   //Market
   sell_ratio: 0.8,          //Sell ratio compared to buy price
 
+  //Deck rules, must match GameplayData (the game server checks decks, the admin tool only warns)
+  deck_size: 20,
+  deck_student_duplicate_max: 1,
+  deck_non_student_duplicate_max: 2,
+  club_size: 3,
+
   //Maintenance
   heartbeat_interval: 60,      //Client heartbeat (/auth/keep) interval in seconds, must match ApiClient.online_duration
   online_margin: 2.5,          //A user is online while the last heartbeat is younger than heartbeat_interval x this (one missed heartbeat tolerated)

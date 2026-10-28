@@ -3,6 +3,7 @@ const MaintenanceTool = require('../maintenance/maintenance.tool');
 const MessageTool = require('../messages/messages.tool');
 const AdminTool = require('./admin.tool');
 const AdminUsersTool = require('./admin.users.tool');
+const AdminItemsTool = require('./admin.items.tool');
 const UserModel = require('../users/users.model');
 const Validator = require('../tools/validator.tool');
 
@@ -350,6 +351,87 @@ exports.DeleteUser = async (req, res) => {
 
     await AdminTool.log(req, "user_delete", Object.assign({user_id: user.id}, summary));
     return res.status(200).send({deleted: summary, server_time: new Date()});
+};
+
+// ----- User items and decks -----------
+
+//Runs an item or deck change on a managed user, answers the refreshed detail.
+//change(user, catalog) returns the audit data; invalid requests throw ActionError and change nothing.
+async function runItemsAction(req, res, action, change) {
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+
+    var data;
+    try {
+        var reason = AdminItemsTool.parseReason(req.body.reason);
+        var catalog = await AdminItemsTool.loadCatalog();
+        var prepare = change(catalog);
+        data = await AdminItemsTool.update(user.id, (target) => prepare(target));
+        data.reason = reason;
+    } catch (e) {
+        if (e instanceof AdminItemsTool.ActionError)
+            return res.status(400).send({error: e.message});
+        console.error("User " + action + " error:", e);
+        return res.status(500).send({error: "Failed to update the user"});
+    }
+
+    await AdminTool.log(req, action, Object.assign({user_id: user.id, username: user.username}, data));
+    return sendDetail(res, user);
+}
+
+exports.GetCatalog = async (req, res) => {
+    try {
+        return res.status(200).send(await AdminItemsTool.getCatalog());
+    } catch (e) {
+        console.error("Catalog error:", e);
+        return res.status(500).send({error: "Failed to load the catalog"});
+    }
+};
+
+//Body: deck {title, hero, cards}, answers the deck as it would be saved (clubs derived) and its rule warnings
+exports.CheckDeck = async (req, res) => {
+    try {
+        var catalog = await AdminItemsTool.loadCatalog();
+        var deck = AdminItemsTool.parseDeck(req.body.deck, catalog);
+        return res.status(200).send({deck: deck, issues: AdminItemsTool.getDeckIssues(deck, catalog)});
+    } catch (e) {
+        if (e instanceof AdminItemsTool.ActionError)
+            return res.status(400).send({error: e.message});
+        console.error("Deck check error:", e);
+        return res.status(500).send({error: "Failed to check the deck"});
+    }
+};
+
+//Body: grant {coins, xp, cards, packs, decks} with signed amounts, reason
+exports.GrantItems = async (req, res) => {
+    return runItemsAction(req, res, "user_grant", (catalog) => {
+        var grant = AdminItemsTool.parseGrant(req.body.grant, catalog);
+        return (user) => {
+            var before = {coins: user.coins, xp: user.xp};
+            AdminItemsTool.applyGrant(user, grant, catalog);
+            return {grant: grant, before: before, after: {coins: user.coins, xp: user.xp}};
+        };
+    });
+};
+
+//Body: deck {title, hero, cards}, reason. deckId "new" adds a deck.
+exports.SaveDeck = async (req, res) => {
+    var tid = req.params.deckId === "new" ? "" : req.params.deckId;
+    return runItemsAction(req, res, "user_deck_save", (catalog) => {
+        var deck = AdminItemsTool.parseDeck(req.body.deck, catalog);
+        return (user) => {
+            var result = AdminItemsTool.saveDeck(user, tid, deck);
+            return {deck: result.deck, previous: result.previous, issues: AdminItemsTool.getDeckIssues(result.deck, catalog)};
+        };
+    });
+};
+
+//Body: reason
+exports.DeleteDeck = async (req, res) => {
+    return runItemsAction(req, res, "user_deck_delete", () => {
+        return (user) => ({deck: AdminItemsTool.removeDeck(user, req.params.deckId)});
+    });
 };
 
 // ----- Audit log -----------

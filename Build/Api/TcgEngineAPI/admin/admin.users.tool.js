@@ -7,6 +7,7 @@ const MatchModel = require('../matches/matches.model');
 const MarketModel = require('../market/market.model');
 const Activity = require('../activity/activity.model');
 const SessionTool = require('../authorization/session.tool');
+const AdminItemsTool = require('./admin.items.tool');
 const TransactionTool = require('../tools/transaction.tool');
 
 //User lookup and account actions (ban, kick, password, delete) of the admin tool
@@ -96,9 +97,10 @@ function toCardEntry(entry, titles) {
     };
 }
 
-function toDeck(deck, titles) {
+function toDeck(deck, titles, catalog) {
     var cards = (deck.cards || []).filter((c) => c && c.tid).map((c) => toCardEntry(c, titles));
     return {
+        issues: AdminItemsTool.getDeckIssues(deck, catalog),
         tid: deck.tid,
         title: deck.title || "",
         hero: deck.hero && deck.hero.tid ? toCardEntry(deck.hero, titles) : null,
@@ -157,6 +159,7 @@ AdminUsersTool.getDetail = async (id) => {
     for (var card of user.cards || [])
         tids.add(card.tid);
     var titles = await getCardTitles(tids);
+    var catalog = await AdminItemsTool.loadCatalog();
 
     var matches = await MatchModel.listByPlayer(user.username, AdminUsersTool.match_limit);
     var activities = await getActivities(user);
@@ -171,7 +174,7 @@ AdminUsersTool.getDetail = async (id) => {
         banned: SessionTool.isBanned(user),
         manageable: AdminUsersTool.canManage(user),
         friend_count: (user.friends || []).length,
-        decks: (user.decks || []).map((d) => toDeck(d, titles)),
+        decks: (user.decks || []).filter((d) => d && d.tid).map((d) => toDeck(d, titles, catalog)),
         cards: (user.cards || []).map((c) => toCardEntry(c, titles))
             .sort((a, b) => (a.title || a.tid).localeCompare(b.title || b.tid)),
         packs: (user.packs || []).map((p) => ({tid: p.tid, quantity: p.quantity})),
