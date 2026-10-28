@@ -82,6 +82,7 @@ body {
     cursor: pointer;
 }
 .topbar-right button:hover, .content-tools button:hover { background: #3a404c; }
+form.content-tools { margin: 0; }
 
 .layout {
     display: flex;
@@ -205,6 +206,54 @@ body {
 .status-pending { color: #f2c94c; }
 .status-sent { color: #6fdc9a; }
 .status-canceled { color: #6f7684; }
+
+/* ---- Users ---- */
+
+.data-table tr.clickable { cursor: pointer; }
+.data-table tr.sub-row td { background: #191c22; color: #b7bdc8; }
+.data-table tr.sub-row:hover { background: none; }
+
+.dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #4a505c;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.dot-online { background: #3fcf7f; box-shadow: 0 0 6px rgba(63, 207, 127, 0.6); }
+.text-online { color: #6fdc9a; }
+.text-offline { color: #6f7684; }
+
+.result-win { color: #6fdc9a; }
+.result-lose { color: #ff7b72; }
+.result-none, .result-ongoing { color: #9aa1ad; }
+
+.pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; font-size: 13px; color: #9aa1ad; }
+
+.card-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.card-grid .card { flex: 1; min-width: 300px; max-width: 520px; }
+
+.text-banned { color: #ff7b72; }
+.dot-banned { background: #ff7b72; }
+.manage-card { max-width: 1052px; margin-bottom: 16px; }
+.manage-section { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid #2c313a; }
+.password-result { font-size: 13px; padding: 10px 12px; border-radius: 6px; background: #1f3a2b; color: #6fdc9a; white-space: pre-wrap; }
+.password-result code { font-size: 15px; font-weight: 700; user-select: all; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #9aa1ad;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.tab:hover { color: #e6e8ee; }
+.tab.active { color: #fff; border-bottom-color: #4a7dff; font-weight: 600; }
 
 /* ---- Cards and forms ---- */
 

@@ -34,6 +34,7 @@
         <div class="layout">
             <nav class="side-menu">
                 <div class="menu-group">운영</div>
+                <button class="menu-item" data-page="users">유저</button>
                 <button class="menu-item" data-page="maintenance">서버 점검</button>
                 <button class="menu-item" data-page="messages">메시지 전송</button>
                 <button class="menu-item" data-page="audit">감사 로그</button>
@@ -54,6 +55,111 @@
                 <div id="stat-error" class="error-msg"></div>
                 <div class="table-wrap">
                     <table id="stat-table" class="data-table"></table>
+                </div>
+            </main>
+
+            <!-- 유저 -->
+            <main id="page-users" class="content page hidden">
+                <div id="users-list-view">
+                    <div class="content-header">
+                        <h2>유저</h2>
+                        <form id="users-search-form" class="content-tools">
+                            <input id="users-search-input" type="text" maxlength="100" placeholder="이름 일부, 이메일 또는 ID">
+                            <button type="submit">검색</button>
+                        </form>
+                    </div>
+                    <div id="users-info" class="stat-info"></div>
+                    <div id="users-error" class="error-msg"></div>
+                    <div class="table-wrap">
+                        <table id="users-table" class="data-table"></table>
+                    </div>
+                    <div class="pager">
+                        <button id="users-prev" class="btn-small">이전</button>
+                        <span id="users-page"></span>
+                        <button id="users-next" class="btn-small">다음</button>
+                    </div>
+                </div>
+
+                <div id="user-detail-view" class="hidden">
+                    <div class="content-header">
+                        <div class="card-row">
+                            <button id="user-back" class="btn-small">← 목록</button>
+                            <h2 id="user-title"></h2>
+                        </div>
+                        <div class="content-tools">
+                            <button id="user-refresh">새로고침</button>
+                        </div>
+                    </div>
+                    <div id="user-info" class="stat-info"></div>
+                    <div id="user-error" class="error-msg"></div>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <h3>기본 정보</h3>
+                            <dl id="user-profile" class="info-list"></dl>
+                        </div>
+                        <div class="card">
+                            <h3>재화 · 전적</h3>
+                            <dl id="user-stats" class="info-list"></dl>
+                        </div>
+                    </div>
+
+                    <div id="user-manage" class="card manage-card">
+                        <div class="card-row">
+                            <h3>계정 관리</h3>
+                            <span id="user-ban-badge" class="badge"></span>
+                        </div>
+                        <p id="user-manage-note" class="hint hidden">관리자와 게임 서버 계정은 여기서 변경할 수 없습니다.</p>
+                        <div id="user-manage-body">
+                            <dl id="user-ban-info" class="info-list"></dl>
+
+                            <form id="user-ban-form" class="manage-section">
+                                <label>정지 기간 (일, 0은 영구)
+                                    <div class="field-row">
+                                        <input id="user-ban-days" type="number" min="0" max="3650" value="7" required>
+                                        <button type="button" class="btn-small" data-ban-days="1">1일</button>
+                                        <button type="button" class="btn-small" data-ban-days="3">3일</button>
+                                        <button type="button" class="btn-small" data-ban-days="7">7일</button>
+                                        <button type="button" class="btn-small" data-ban-days="30">30일</button>
+                                        <button type="button" class="btn-small" data-ban-days="0">영구</button>
+                                    </div>
+                                </label>
+                                <label>사유 (유저에게 표시됩니다)
+                                    <input id="user-ban-reason" type="text" maxlength="200" required>
+                                </label>
+                                <div class="card-actions">
+                                    <button type="button" id="user-unban" class="btn-secondary hidden">정지 해제</button>
+                                    <button type="submit" id="user-ban-submit" class="btn-danger">정지</button>
+                                </div>
+                            </form>
+
+                            <form id="user-password-form" class="manage-section">
+                                <label>비밀번호 변경
+                                    <div class="field-row">
+                                        <input id="user-password-input" type="text" autocomplete="off" maxlength="50" placeholder="비워 두면 임시 비밀번호를 만듭니다">
+                                        <button type="submit" class="btn-secondary">변경</button>
+                                    </div>
+                                </label>
+                                <div id="user-password-result" class="password-result hidden"></div>
+                            </form>
+
+                            <div class="manage-section card-actions">
+                                <button type="button" id="user-kick" class="btn-secondary">강제 로그아웃</button>
+                                <button type="button" id="user-delete" class="btn-danger">계정 삭제</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="user-tabs" class="tabs">
+                        <button class="tab" data-tab="decks">덱</button>
+                        <button class="tab" data-tab="cards">보유 카드</button>
+                        <button class="tab" data-tab="packs">팩</button>
+                        <button class="tab" data-tab="matches">최근 매치</button>
+                        <button class="tab" data-tab="activities">활동 기록</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table id="user-tab-table" class="data-table"></table>
+                    </div>
                 </div>
             </main>
 

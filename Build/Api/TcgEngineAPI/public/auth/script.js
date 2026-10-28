@@ -1,5 +1,5 @@
 //Card Archive admin tool.
-//Operation pages (maintenance, audit log) are static pages in index.html.
+//Operation pages (users, maintenance, messages, audit log) are static pages in index.html.
 //Stat tables are rendered generically from the columns definition sent by
 //the server (/stats/:id), so adding a new stat only requires a new backend
 //module in stats/modules/. To customize how one stat is displayed, register
@@ -9,7 +9,7 @@ const CustomRenderers = {};
 
 var token = sessionStorage.getItem("admin_token") || "";
 var admin_name = sessionStorage.getItem("admin_name") || "";
-var current_page = null;   //"maintenance", "audit" or "stat:<id>"
+var current_page = null;   //"users", "maintenance", "messages", "audit" or "stat:<id>"
 var current_stat = null;   //Last loaded stat data {id, title, columns, rows}
 var sort_key = null;
 var sort_asc = true;
@@ -84,7 +84,9 @@ function openPage(page) {
         item.classList.toggle("active", item.dataset.page === page);
 
     stopPageTimers();
-    if (page === "maintenance")
+    if (page === "users")
+        openUserList();
+    else if (page === "maintenance")
         loadMaintenance();
     else if (page === "messages")
         loadMessages();
@@ -120,7 +122,7 @@ async function openDashboard() {
         menu.appendChild(button);
     }
 
-    openPage("maintenance");
+    openPage("users");
 }
 
 // ---- Confirm modal ----
@@ -157,6 +159,467 @@ function confirmAction(title, message, type_text) {
         form.addEventListener("submit", onSubmit);
         document.getElementById("confirm-cancel").addEventListener("click", onCancel);
     });
+}
+
+// ---- Users ----
+
+var users_query = "";      //Search text of the list being shown
+var users_page = 0;
+var user_detail = null;    //Last /admin/users/:id response
+var user_tab = "decks";
+var open_deck = null;      //Deck tid expanded in the decks tab
+var users_notice = "";     //Result of the last action shown once above the list (account deleted)
+
+const PermissionLabels = { 1: "유저", 5: "게임 서버", 10: "관리자" };
+
+const MatchResultLabels = {
+    win: "승리",
+    lose: "패배",
+    none: "무승부·취소",
+    ongoing: "진행 중",
+};
+
+const ActivityLabels = {
+    register: "가입",
+    edit_email: "이메일 변경",
+    edit_password: "비밀번호 변경",
+    edit_permission: "권한 변경",
+    fix_variants: "카드 변형 수정",
+    user_buy_card: "카드 구매",
+    user_sell_card: "카드 판매",
+    user_buy_pack: "팩 구매",
+    user_sell_pack: "팩 판매",
+    user_open_pack: "팩 개봉",
+    market_add: "거래소 등록",
+    market_remove: "거래소 등록 취소",
+    market_trade: "거래소 거래",
+    reward_add: "보상 등록",
+    reward_give: "보상 지급",
+    reward_gain: "보상 수령",
+};
+
+function getPermissionLabel(level) {
+    return PermissionLabels[level] ? PermissionLabels[level] + " (" + level + ")" : String(level);
+}
+
+//"3분 전" style age, relative to the server clock of the last response
+function formatAgo(value, server_time) {
+    if (!value) return "-";
+    const sec = Math.max(0, (new Date(server_time).getTime() - new Date(value).getTime()) / 1000);
+    if (sec < 60) return "방금";
+    if (sec < 3600) return Math.floor(sec / 60) + "분 전";
+    if (sec < 86400) return Math.floor(sec / 3600) + "시간 전";
+    return Math.floor(sec / 86400) + "일 전";
+}
+
+function formatRecord(user) {
+    const rate = user.matches > 0 ? Math.round(user.victories / user.matches * 100) + "%" : "-";
+    return user.matches + "전 " + user.victories + "승 " + user.defeats + "패 (" + rate + ")";
+}
+
+function makeCell(text, class_name) {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (class_name) td.className = class_name;
+    return td;
+}
+
+function makeStatusCell(online, banned) {
+    const td = document.createElement("td");
+    const dot = document.createElement("span");
+    dot.className = "dot" + (banned ? " dot-banned" : online ? " dot-online" : "");
+    td.appendChild(dot);
+    td.appendChild(document.createTextNode(banned ? "정지" : online ? "접속 중" : "오프라인"));
+    td.className = banned ? "text-banned" : online ? "text-online" : "text-offline";
+    return td;
+}
+
+function setUserView(detail) {
+    document.getElementById("users-list-view").classList.toggle("hidden", detail);
+    document.getElementById("user-detail-view").classList.toggle("hidden", !detail);
+}
+
+//Coming back from a user keeps the last search and page
+function openUserList() {
+    setUserView(false);
+    loadUsers(users_query, users_page);
+}
+
+async function loadUsers(query, page) {
+    document.getElementById("users-error").textContent = "";
+    var result;
+    try {
+        result = await apiGet("/admin/users?q=" + encodeURIComponent(query) + "&page=" + page);
+    } catch (e) {
+        return handleError(e, "users-error");
+    }
+
+    users_query = query;
+    users_page = page;
+    renderUsers(result);
+}
+
+function renderUsers(result) {
+    const online = result.users.filter((user) => user.online).length;
+    document.getElementById("users-info").textContent = (users_notice ? users_notice + " · " : "") + (users_query ? "\"" + users_query + "\" 검색 · " : "최근 접속순 · ")
+        + "이 페이지 " + result.users.length + "명 중 접속 중 " + online + "명 · 조회 시각 " + formatDate(result.server_time);
+
+    const columns = [
+        { label: "상태" }, { label: "유저명" }, { label: "권한" }, { label: "코인", type: "number" },
+        { label: "ELO", type: "number" }, { label: "전적" }, { label: "최근 접속" }, { label: "가입일" },
+    ];
+    const table = document.getElementById("users-table");
+    table.innerHTML = "";
+    table.appendChild(buildHeader(columns, null));
+
+    const tbody = document.createElement("tbody");
+    for (const user of result.users) {
+        const tr = document.createElement("tr");
+        tr.className = "clickable";
+        tr.appendChild(makeStatusCell(user.online, user.banned));
+        tr.appendChild(makeCell(user.username));
+        tr.appendChild(makeCell(getPermissionLabel(user.permission_level)));
+        tr.appendChild(makeCell(formatValue(user.coins, "number"), "num"));
+        tr.appendChild(makeCell(formatValue(user.elo, "number"), "num"));
+        tr.appendChild(makeCell(formatRecord(user)));
+        tr.appendChild(makeCell(formatAgo(user.last_online_time, result.server_time)));
+        tr.appendChild(makeCell(formatDate(user.account_create_time)));
+        tr.addEventListener("click", () => openUser(user.id));
+        tbody.appendChild(tr);
+    }
+    if (result.users.length === 0) {
+        const tr = document.createElement("tr");
+        const td = makeCell("검색 결과가 없습니다.", "text-offline");
+        td.colSpan = columns.length;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+
+    users_notice = "";
+    document.getElementById("users-page").textContent = (users_page + 1) + "페이지";
+    document.getElementById("users-prev").disabled = users_page === 0;
+    document.getElementById("users-next").disabled = !result.has_more;
+}
+
+async function openUser(id) {
+    setUserView(true);
+    document.getElementById("user-error").textContent = "";
+    var detail;
+    try {
+        detail = await apiGet("/admin/users/" + encodeURIComponent(id));
+    } catch (e) {
+        return handleError(e, "user-error");
+    }
+
+    if (!user_detail || user_detail.user.id !== detail.user.id) {
+        user_tab = "decks";
+        open_deck = null;
+        resetManageForms();
+    }
+    user_detail = detail;
+    renderUser();
+}
+
+function fillInfoList(id, items) {
+    const list = document.getElementById(id);
+    list.innerHTML = "";
+    for (const [label, value] of items) {
+        const dt = document.createElement("dt");
+        dt.textContent = label;
+        const dd = document.createElement("dd");
+        dd.textContent = value === null || value === undefined || value === "" ? "-" : value;
+        list.appendChild(dt);
+        list.appendChild(dd);
+    }
+}
+
+function renderUser() {
+    const detail = user_detail;
+    const user = detail.user;
+
+    const title = document.getElementById("user-title");
+    title.innerHTML = "";
+    const dot = document.createElement("span");
+    dot.className = "dot" + (detail.banned ? " dot-banned" : detail.online ? " dot-online" : "");
+    title.appendChild(dot);
+    title.appendChild(document.createTextNode(user.username));
+
+    document.getElementById("user-info").textContent = (detail.banned ? "정지 · " : "") + (detail.online ? "접속 중" : "오프라인")
+        + " · 최근 접속 " + formatAgo(user.last_online_time, detail.server_time)
+        + " · 조회 시각 " + formatDate(detail.server_time);
+
+    fillInfoList("user-profile", [
+        ["ID", user.id],
+        ["이메일", user.email],
+        ["권한", getPermissionLabel(user.permission_level)],
+        ["이메일 인증", user.validation_level > 0 ? "인증됨" : "미인증"],
+        ["가입일", formatDate(user.account_create_time)],
+        ["최근 로그인", formatDate(user.last_login_time)],
+        ["최근 접속", formatDate(user.last_online_time)],
+        ["아바타", user.avatar],
+        ["카드 뒷면", user.cardback],
+        ["친구", detail.friend_count + "명"],
+    ]);
+    fillInfoList("user-stats", [
+        ["코인", formatValue(user.coins, "number")],
+        ["XP", formatValue(user.xp, "number")],
+        ["ELO", formatValue(user.elo, "number")],
+        ["전적", formatRecord(user)],
+        ["덱", detail.decks.length + "개"],
+        ["보유 카드", detail.cards.length + "종 " + detail.cards.reduce((n, c) => n + c.quantity, 0) + "장"],
+    ]);
+
+    const counts = {
+        decks: detail.decks.length,
+        cards: detail.cards.length,
+        packs: detail.packs.length,
+        matches: detail.matches.length,
+        activities: detail.activities.length,
+    };
+    for (const tab of document.querySelectorAll("#user-tabs .tab")) {
+        tab.classList.toggle("active", tab.dataset.tab === user_tab);
+        tab.textContent = UserTabLabels[tab.dataset.tab] + " (" + counts[tab.dataset.tab] + ")";
+    }
+    renderManage();
+    renderUserTab();
+}
+
+// ---- User account actions ----
+
+function resetManageForms() {
+    document.getElementById("user-ban-days").value = 7;
+    document.getElementById("user-ban-reason").value = "";
+    document.getElementById("user-password-input").value = "";
+}
+
+function renderManage() {
+    const detail = user_detail;
+    const user = detail.user;
+
+    const badge = document.getElementById("user-ban-badge");
+    badge.textContent = detail.banned ? "정지 중" : "정상";
+    badge.className = "badge " + (detail.banned ? "badge-active" : "badge-none");
+
+    document.getElementById("user-manage-note").classList.toggle("hidden", detail.manageable);
+    document.getElementById("user-manage-body").classList.toggle("hidden", !detail.manageable);
+
+    //An expired ban stays in the document until it is replaced or cleared, shown as the last ban
+    const items = [];
+    if (user.ban_time) {
+        items.push([detail.banned ? "정지 해제" : "지난 정지 해제", user.ban_until ? formatDate(user.ban_until) : "영구"]);
+        items.push(["정지 사유", user.ban_reason]);
+        items.push(["처리", (user.ban_by || "-") + " · " + formatDate(user.ban_time)]);
+    }
+    items.push(["마지막 강제 종료", user.session_revoke_time ? formatDate(user.session_revoke_time) : ""]);
+    fillInfoList("user-ban-info", items);
+
+    document.getElementById("user-ban-submit").textContent = detail.banned ? "정지 변경" : "정지";
+    document.getElementById("user-unban").classList.toggle("hidden", !user.ban_time);
+
+    const result = document.getElementById("user-password-result");
+    result.classList.toggle("hidden", !detail.temp_password);
+    result.innerHTML = "";
+    if (detail.temp_password) {
+        result.appendChild(document.createTextNode("임시 비밀번호: "));
+        const code = document.createElement("code");
+        code.textContent = detail.temp_password;
+        result.appendChild(code);
+        result.appendChild(document.createTextNode("\n이 화면을 벗어나면 다시 볼 수 없습니다. 유저에게 전달하고 로그인 후 변경하도록 안내하세요."));
+    }
+}
+
+//Posts an account action and shows the refreshed detail it answers
+async function runUserAction(action, body) {
+    document.getElementById("user-error").textContent = "";
+    try {
+        user_detail = await apiPost("/admin/users/" + encodeURIComponent(user_detail.user.id) + "/" + action, body);
+    } catch (e) {
+        handleError(e, "user-error");
+        return false;
+    }
+    renderUser();
+    return true;
+}
+
+async function banUser(e) {
+    e.preventDefault();
+    const user = user_detail.user;
+    const days = parseInt(document.getElementById("user-ban-days").value);
+    const reason = document.getElementById("user-ban-reason").value.trim();
+    if (isNaN(days) || days < 0 || days > 3650 || !reason) {
+        document.getElementById("user-error").textContent = "정지 기간(0~3650일)과 사유를 입력하세요.";
+        return;
+    }
+
+    const period = days > 0 ? days + "일" : "영구";
+    if (!await confirmAction(user_detail.banned ? "정지 변경" : "계정 정지",
+        user.username + " 계정을 " + period + " 정지합니다.\n사유: " + reason + "\n\n접속 중이면 다음 요청이나 하트비트(최대 1분) 때 종료되고, 기간 동안 로그인할 수 없습니다.",
+        user.username))
+        return;
+
+    if (await runUserAction("ban", { days: days, reason: reason }))
+        resetManageForms();
+}
+
+async function unbanUser() {
+    const user = user_detail.user;
+    const message = user_detail.banned
+        ? user.username + " 계정의 정지를 해제합니다. 바로 다시 로그인할 수 있습니다."
+        : user.username + " 계정의 지난 정지 기록을 지웁니다.";
+    if (!await confirmAction("정지 해제", message))
+        return;
+    await runUserAction("unban");
+}
+
+async function kickUser() {
+    const user = user_detail.user;
+    if (!await confirmAction("강제 로그아웃", user.username + " 계정을 모든 기기에서 로그아웃시킵니다. 접속 중이면 다음 요청이나 하트비트(최대 1분) 때 종료되며, 다시 로그인할 수 있습니다."))
+        return;
+    await runUserAction("kick");
+}
+
+async function setUserPassword(e) {
+    e.preventDefault();
+    const user = user_detail.user;
+    const password = document.getElementById("user-password-input").value;
+    if (password && (password.length < 4 || password.length > 50)) {
+        document.getElementById("user-error").textContent = "비밀번호는 4~50자여야 합니다.";
+        return;
+    }
+
+    const message = (password ? user.username + " 계정의 비밀번호를 입력한 값으로 바꿉니다." : user.username + " 계정의 비밀번호를 임시 비밀번호로 바꿉니다. 임시 비밀번호는 한 번만 표시됩니다.")
+        + "\n\n모든 기기에서 로그아웃됩니다.";
+    if (!await confirmAction("비밀번호 변경", message))
+        return;
+
+    if (await runUserAction("password", { password: password }))
+        document.getElementById("user-password-input").value = "";
+}
+
+async function deleteUser() {
+    const user = user_detail.user;
+    if (!await confirmAction("계정 삭제",
+        user.username + " 계정과 보유 카드, 덱, 재화, 거래소 등록을 모두 삭제합니다. 되돌릴 수 없습니다.\n매치 기록과 활동 기록에는 이름이 남습니다.",
+        user.username))
+        return;
+
+    document.getElementById("user-error").textContent = "";
+    var result;
+    try {
+        result = await apiPost("/admin/users/" + encodeURIComponent(user.id) + "/delete", { confirm: user.username });
+    } catch (e) {
+        return handleError(e, "user-error");
+    }
+
+    user_detail = null;
+    users_notice = result.deleted.username + " 계정을 삭제했습니다";
+    openUserList();
+}
+
+const UserTabLabels = {
+    decks: "덱",
+    cards: "보유 카드",
+    packs: "팩",
+    matches: "최근 매치",
+    activities: "활동 기록",
+};
+
+function cardName(entry) {
+    return entry.title ? entry.title + " (" + entry.tid + ")" : entry.tid;
+}
+
+function renderUserTab() {
+    const detail = user_detail;
+    const table = document.getElementById("user-tab-table");
+    table.innerHTML = "";
+
+    if (user_tab === "decks")
+        return renderDecks(table);
+    if (user_tab === "matches")
+        return renderMatches(table);
+
+    var columns, rows;
+    if (user_tab === "cards") {
+        columns = [
+            { key: "name", label: "카드", type: "string" },
+            { key: "variant", label: "변형", type: "string" },
+            { key: "quantity", label: "수량", type: "number" },
+        ];
+        rows = detail.cards.map((c) => ({ name: cardName(c), variant: c.variant, quantity: c.quantity }));
+    } else if (user_tab === "packs") {
+        columns = [
+            { key: "tid", label: "팩", type: "string" },
+            { key: "quantity", label: "수량", type: "number" },
+        ];
+        rows = detail.packs;
+    } else {
+        columns = [
+            { key: "timestamp", label: "시각", type: "date" },
+            { key: "type", label: "활동", type: "string" },
+            { key: "data", label: "내용", type: "string" },
+        ];
+        rows = detail.activities.map((a) => ({
+            timestamp: a.timestamp,
+            type: ActivityLabels[a.type] || AuditLabels[a.type] || a.type,
+            data: a.data && Object.keys(a.data).length > 0 ? JSON.stringify(a.data) : "",
+        }));
+    }
+
+    table.appendChild(buildHeader(columns, null));
+    table.appendChild(buildBody(columns, rows));
+}
+
+function renderMatches(table) {
+    const columns = [
+        { label: "시작" }, { label: "상대" }, { label: "결과" }, { label: "모드" }, { label: "종료" },
+    ];
+    table.appendChild(buildHeader(columns, null));
+    const tbody = document.createElement("tbody");
+    for (const match of user_detail.matches) {
+        const tr = document.createElement("tr");
+        tr.appendChild(makeCell(formatDate(match.start)));
+        tr.appendChild(makeCell(match.opponent || "-"));
+        tr.appendChild(makeCell(MatchResultLabels[match.result] || match.result, "result-" + match.result));
+        tr.appendChild(makeCell((match.ranked ? "랭크" : "일반") + (match.mode ? " · " + match.mode : "")));
+        tr.appendChild(makeCell(formatDate(match.end)));
+        tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+}
+
+//Clicking a deck shows its cards below it
+function renderDecks(table) {
+    const columns = [
+        { label: "덱 이름" }, { label: "대표" }, { label: "클럽" }, { label: "카드 수", type: "number" }, { label: "" },
+    ];
+    table.appendChild(buildHeader(columns, null));
+    const tbody = document.createElement("tbody");
+    for (const deck of user_detail.decks) {
+        const opened = open_deck === deck.tid;
+        const tr = document.createElement("tr");
+        tr.className = "clickable";
+        tr.appendChild(makeCell(deck.title || deck.tid));
+        tr.appendChild(makeCell(deck.hero ? cardName(deck.hero) : "-"));
+        tr.appendChild(makeCell(deck.clubs.map((c) => c.title || c.tid).join(", ") || "-"));
+        tr.appendChild(makeCell(formatValue(deck.card_count, "number"), "num"));
+        tr.appendChild(makeCell(opened ? "▲" : "▼", "text-offline"));
+        tr.addEventListener("click", () => {
+            open_deck = opened ? null : deck.tid;
+            renderUserTab();
+        });
+        tbody.appendChild(tr);
+
+        if (opened) {
+            const sub = document.createElement("tr");
+            sub.className = "sub-row";
+            const td = makeCell(deck.cards.map((c) => cardName(c) + " ×" + c.quantity).join("\n") || "카드 없음", "wrap");
+            td.colSpan = columns.length;
+            sub.appendChild(td);
+            tbody.appendChild(sub);
+        }
+    }
+    table.appendChild(tbody);
 }
 
 // ---- Maintenance ----
@@ -531,6 +994,11 @@ const AuditLabels = {
     admin_maintenance_whitelist: "화이트리스트 변경",
     admin_message_send: "메시지 발송",
     admin_message_cancel: "메시지 취소",
+    admin_user_ban: "계정 정지",
+    admin_user_unban: "정지 해제",
+    admin_user_kick: "강제 로그아웃",
+    admin_user_password: "비밀번호 변경 (관리자)",
+    admin_user_delete: "계정 삭제",
 };
 
 async function loadAudit() {
@@ -708,6 +1176,27 @@ document.getElementById("table-filter").addEventListener("input", () => renderSt
 for (const item of document.querySelectorAll(".menu-item[data-page]"))
     item.addEventListener("click", () => openPage(item.dataset.page));
 
+document.getElementById("users-search-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    loadUsers(document.getElementById("users-search-input").value.trim(), 0);
+});
+document.getElementById("users-prev").addEventListener("click", () => loadUsers(users_query, Math.max(users_page - 1, 0)));
+document.getElementById("users-next").addEventListener("click", () => loadUsers(users_query, users_page + 1));
+document.getElementById("user-back").addEventListener("click", () => openUserList());
+document.getElementById("user-refresh").addEventListener("click", () => openUser(user_detail.user.id));
+document.getElementById("user-ban-form").addEventListener("submit", banUser);
+document.getElementById("user-unban").addEventListener("click", unbanUser);
+document.getElementById("user-kick").addEventListener("click", kickUser);
+document.getElementById("user-password-form").addEventListener("submit", setUserPassword);
+document.getElementById("user-delete").addEventListener("click", deleteUser);
+for (const button of document.querySelectorAll("[data-ban-days]"))
+    button.addEventListener("click", () => { document.getElementById("user-ban-days").value = button.dataset.banDays; });
+for (const tab of document.querySelectorAll("#user-tabs .tab")) {
+    tab.addEventListener("click", () => {
+        user_tab = tab.dataset.tab;
+        renderUser();
+    });
+}
 document.getElementById("mt-refresh").addEventListener("click", () => loadMaintenance());
 document.getElementById("mt-form").addEventListener("submit", submitMaintenance);
 document.getElementById("mt-cancel").addEventListener("click", cancelMaintenance);
