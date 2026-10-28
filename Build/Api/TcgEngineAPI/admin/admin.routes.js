@@ -2,9 +2,57 @@ const AdminController = require('./admin.controller');
 const AuthTool = require('../authorization/auth.tool');
 const config = require('../config');
 
-const ADMIN = config.permissions.ADMIN; //Admin tool only, every action is written to the audit log
+const ADMIN = config.permissions.ADMIN; //Admin tool only, every change is written to the audit log
 
 exports.route = function (app) {
+
+    // ADMIN - USERS ----------------------
+
+    //Query: q, page
+    app.get('/admin/users', [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.SearchUsers
+    ]);
+
+    app.get('/admin/users/:userId', [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.GetUser
+    ]);
+
+    //Body: days (0 is permanent), reason
+    app.post('/admin/users/:userId/ban', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.BanUser
+    ]);
+
+    app.post('/admin/users/:userId/unban', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.UnbanUser
+    ]);
+
+    app.post('/admin/users/:userId/kick', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.KickUser
+    ]);
+
+    //Body: password (empty generates a temporary one)
+    app.post('/admin/users/:userId/password', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.SetUserPassword
+    ]);
+
+    //Body: confirm (username)
+    app.post('/admin/users/:userId/delete', app.post_limiter, [
+        AuthTool.isValidJWT,
+        AuthTool.isPermissionLevel(ADMIN),
+        AdminController.DeleteUser
+    ]);
 
     // ADMIN - MAINTENANCE ----------------------
 

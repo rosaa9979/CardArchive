@@ -3,6 +3,7 @@ const crypto = require('crypto');
 
 const config = require('../config.js');
 const UserModel = require('../users/users.model');
+const SessionTool = require('./session.tool');
 
 //-----Validations------
 
@@ -28,6 +29,11 @@ AuthTool.isValidJWT = (req, res, next) => {
     } catch (err) {
         return res.status(403).send({error: "Invalid Token"});
     }
+
+    //Banned, kicked or deleted by an admin after the token was signed
+    var kick = SessionTool.check(req.jwt);
+    if (kick)
+        return SessionTool.sendKick(res, kick);
 
     return next();
 };
@@ -78,6 +84,11 @@ AuthTool.isLoginValid = async(req, res, next) => {
     if(user.permission_level <= 0) {
         AuthTool.logLogin(req, false, user.username, "account disabled");
         return res.status(403).send({error: "Your account has been disabled, please contact support!"});
+    }
+
+    if(SessionTool.isBanned(user)) {
+        AuthTool.logLogin(req, false, user.username, "banned");
+        return SessionTool.sendKick(res, SessionTool.getBanKick(user));
     }
 
     req.login = {
@@ -135,6 +146,11 @@ AuthTool.isRefreshValid = async(req, res, next) => {
         if(!user) {
             AuthTool.logLogin(req, false, req.jwt.username, "user not found");
             return res.status(404).send({error: "Invalid user"});
+        }
+
+        if(SessionTool.isBanned(user)) {
+            AuthTool.logLogin(req, false, req.jwt.username, "banned");
+            return SessionTool.sendKick(res, SessionTool.getBanKick(user));
         }
 
 		if(user.refresh_key !== req.jwt.refresh_key) {

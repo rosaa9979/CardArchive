@@ -9,6 +9,9 @@ const activitySchema = new Schema(
     data: {type: Object, _id: false},
 });
 
+activitySchema.index({username: 1, timestamp: -1}); //Activities of one user, most recent first
+activitySchema.index({"data.user_id": 1, timestamp: -1}, {sparse: true}); //Admin actions on one account
+
 activitySchema.methods.toObj = function () {
   var elem = this.toObject();
   delete elem.__v;

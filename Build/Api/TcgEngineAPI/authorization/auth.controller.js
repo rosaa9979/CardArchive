@@ -8,6 +8,7 @@ const UserTool = require('../users/users.tool');
 const AuthTool = require('./auth.tool');
 const MaintenanceTool = require('../maintenance/maintenance.tool');
 const LiveOpsTool = require('../liveops/liveops.tool');
+const SessionTool = require('./session.tool');
 
 //Used for both login and refresh
 exports.Login = (req, res) => {
@@ -58,7 +59,15 @@ exports.Login = (req, res) => {
 exports.KeepOnline = async(req, res, next) => {
     
     var token = req.jwt;
-    UserModel.patch(token.userId, {last_online_time: new Date()});
+
+    //No document without an error: the account was deleted, also after an API restart lost the closed sessions
+    try {
+        var user = await UserModel.UserModel.findByIdAndUpdate(token.userId, {last_online_time: new Date()});
+        if (!user)
+            return SessionTool.sendKick(res, {reason: "deleted", until: "", message: ""});
+    } catch (e) {
+        console.error("Heartbeat update error:", e);
+    }
 
     //Heartbeat also delivers the live ops state (maintenance, messages), clients count down from remain_sec
     var data = {id: token.userId, username: token.username, login_time: new Date(token.iat * 1000), server_time: new Date(), ops: LiveOpsTool.getOps() };

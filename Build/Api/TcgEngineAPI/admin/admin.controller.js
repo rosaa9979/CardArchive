@@ -2,6 +2,9 @@ const config = require('../config');
 const MaintenanceTool = require('../maintenance/maintenance.tool');
 const MessageTool = require('../messages/messages.tool');
 const AdminTool = require('./admin.tool');
+const AdminUsersTool = require('./admin.users.tool');
+const UserModel = require('../users/users.model');
+const Validator = require('../tools/validator.tool');
 
 const message_max = 500;
 const whitelist_max = 50;
@@ -184,6 +187,169 @@ exports.CancelMessage = async (req, res) => {
 
     await AdminTool.log(req, "message_cancel", {id: message.id, text: message.text});
     return res.status(200).send(await getMessagesState());
+};
+
+// ----- Users -----------
+
+//Query: q (part of username, exact email or exact id), page
+exports.SearchUsers = async (req, res) => {
+    var q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    var page = Math.max(parseInt(req.query.page) || 0, 0);
+    if (q.length > 100)
+        return res.status(400).send({error: "Search text is too long"});
+
+    try {
+        var result = await AdminUsersTool.search(q, page);
+        result.server_time = new Date();
+        return res.status(200).send(result);
+    } catch (e) {
+        console.error("User search error:", e);
+        return res.status(500).send({error: "Failed to search the users"});
+    }
+};
+
+exports.GetUser = async (req, res) => {
+    var detail;
+    try {
+        detail = await AdminUsersTool.getDetail(req.params.userId);
+    } catch (e) {
+        console.error("User detail error:", e);
+        return res.status(500).send({error: "Failed to load the user"});
+    }
+    if (!detail)
+        return res.status(404).send({error: "User not found"});
+
+    detail.server_time = new Date();
+    return res.status(200).send(detail);
+};
+
+// ----- User account actions -----------
+
+//Loads the target of an account action, sends the error and returns null when it cannot be changed
+async function getManagedUser(req, res) {
+    var id = req.params.userId;
+    var user = /^[0-9a-f]{24}$/i.test(id) ? await UserModel.getById(id) : null;
+    if (!user) {
+        res.status(404).send({error: "User not found"});
+        return null;
+    }
+    if (!AdminUsersTool.canManage(user)) {
+        res.status(400).send({error: "Admin and game server accounts cannot be changed here"});
+        return null;
+    }
+    return user;
+}
+
+//Every action answers the refreshed detail, like GetUser
+async function sendDetail(res, user, extra) {
+    var detail = await AdminUsersTool.getDetail(user.id);
+    if (!detail)
+        return res.status(404).send({error: "User not found"});
+    detail.server_time = new Date();
+    return res.status(200).send(Object.assign(detail, extra || {}));
+}
+
+//Body: days (0 is permanent), reason
+exports.BanUser = async (req, res) => {
+    var days = Number(req.body.days);
+    var reason = typeof req.body.reason === "string" ? req.body.reason.trim() : "";
+    if (!Number.isInteger(days) || days < 0 || days > AdminUsersTool.ban_days_max)
+        return res.status(400).send({error: "Ban duration must be between 0 (permanent) and " + AdminUsersTool.ban_days_max + " days"});
+    if (reason.length === 0 || reason.length > AdminUsersTool.ban_reason_max)
+        return res.status(400).send({error: "Reason must be between 1 and " + AdminUsersTool.ban_reason_max + " characters"});
+
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+
+    try {
+        user = await AdminUsersTool.ban(user, days, reason, req.jwt.username);
+    } catch (e) {
+        console.error("User ban error:", e);
+        return res.status(500).send({error: "Failed to ban the user"});
+    }
+
+    await AdminTool.log(req, "user_ban", {user_id: user.id, username: user.username, days: days, until: user.ban_until, reason: reason});
+    return sendDetail(res, user);
+};
+
+exports.UnbanUser = async (req, res) => {
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+    if (!user.ban_time)
+        return res.status(400).send({error: "User is not banned"});
+
+    var previous = {until: user.ban_until, reason: user.ban_reason, by: user.ban_by};
+    try {
+        user = await AdminUsersTool.unban(user);
+    } catch (e) {
+        console.error("User unban error:", e);
+        return res.status(500).send({error: "Failed to unban the user"});
+    }
+
+    await AdminTool.log(req, "user_unban", {user_id: user.id, username: user.username, previous: previous});
+    return sendDetail(res, user);
+};
+
+//Logs the user out of every device, the next request or heartbeat sends the client back to the login
+exports.KickUser = async (req, res) => {
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+
+    try {
+        user = await AdminUsersTool.kick(user);
+    } catch (e) {
+        console.error("User kick error:", e);
+        return res.status(500).send({error: "Failed to log out the user"});
+    }
+
+    await AdminTool.log(req, "user_kick", {user_id: user.id, username: user.username});
+    return sendDetail(res, user);
+};
+
+//Body: password (empty generates a temporary one, sent back once)
+exports.SetUserPassword = async (req, res) => {
+    var password = req.body.password || "";
+    if (password && !Validator.validatePassword(password))
+        return res.status(400).send({error: "Invalid password"});
+
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+
+    var result;
+    try {
+        result = await AdminUsersTool.setPassword(user, password);
+    } catch (e) {
+        console.error("User password error:", e);
+        return res.status(500).send({error: "Failed to change the password"});
+    }
+
+    //Never log the password itself
+    await AdminTool.log(req, "user_password", {user_id: user.id, username: user.username, generated: result.generated});
+    return sendDetail(res, user, {temp_password: result.password});
+};
+
+//Body: confirm (the username, typed by the admin)
+exports.DeleteUser = async (req, res) => {
+    var user = await getManagedUser(req, res);
+    if (!user)
+        return;
+    if (req.body.confirm !== user.username)
+        return res.status(400).send({error: "Type the username to confirm the delete"});
+
+    var summary;
+    try {
+        summary = await AdminUsersTool.remove(user);
+    } catch (e) {
+        console.error("User delete error:", e);
+        return res.status(500).send({error: "Failed to delete the user"});
+    }
+
+    await AdminTool.log(req, "user_delete", Object.assign({user_id: user.id}, summary));
+    return res.status(200).send({deleted: summary, server_time: new Date()});
 };
 
 // ----- Audit log -----------

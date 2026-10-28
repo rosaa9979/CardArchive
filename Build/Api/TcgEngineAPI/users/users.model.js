@@ -13,6 +13,13 @@ const userSchema = new Schema({
   last_login_time: {type: Date, default: null},
   last_online_time: {type: Date, default: null},
 
+  //Admin restrictions, a ban is active while ban_time is set and ban_until is empty (permanent) or in the future
+  ban_time: {type: Date, default: null},
+  ban_until: {type: Date, default: null},
+  ban_reason: {type: String, default: ""},
+  ban_by: {type: String, default: ""},
+  session_revoke_time: {type: Date, default: null},    //Access tokens signed before this time are refused (ban, kick, password set by an admin)
+
   refresh_key: {type: String, default: ""},           //Used for refreshing the current login JWT token
   proof_key: {type: String, default: ""},             //Used to proof to a another server who you are
   email_confirm_key: {type: String, default: ""},      //Used to confirm email
@@ -75,6 +82,11 @@ userSchema.methods.deleteAdminOnly = function(){
     delete user.email;
     delete user.permission_level;
     delete user.validation_level;
+    delete user.ban_time;
+    delete user.ban_until;
+    delete user.ban_reason;
+    delete user.ban_by;
+    delete user.session_revoke_time;
     delete user.password;
     delete user.refresh_key;
     delete user.proof_key;

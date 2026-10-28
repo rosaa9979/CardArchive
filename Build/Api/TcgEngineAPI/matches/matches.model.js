@@ -16,6 +16,8 @@ const matchSchema = new Schema({
     udata: [{ type: Object, _id: false }],
 });
 
+matchSchema.index({players: 1, start: -1}); //Matches of one player, most recent first
+
 matchSchema.methods.toObj = function() {
     var match = this.toObject();
     delete match.__v;
@@ -69,6 +71,17 @@ exports.list = async(startTime, endTime, winnerId, completed) => {
 
     try{
         var matches = await Match.find(options)
+        return matches || [];
+    }
+    catch{
+        return [];
+    }
+};
+
+//Most recent matches the user played in
+exports.listByPlayer = async(username, limit) => {
+    try{
+        var matches = await Match.find({players: username}).sort({start: -1}).limit(limit);
         return matches || [];
     }
     catch{

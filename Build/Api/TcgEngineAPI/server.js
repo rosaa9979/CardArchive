@@ -6,6 +6,7 @@ const config = require('./config.js');
 const Limiter = require('./tools/limiter.tool');
 const MaintenanceTool = require('./maintenance/maintenance.tool');
 const LiveOpsTool = require('./liveops/liveops.tool');
+const SessionTool = require('./authorization/session.tool');
 const mongoose = require("mongoose");
 
 const app = express();
@@ -26,6 +27,7 @@ mongoose.connect(connect, {
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected!");
   LiveOpsTool.load().catch((e) => console.error("Live ops load error:", e));
+  SessionTool.load().catch((e) => console.error("Closed sessions load error:", e));
 });
 
 process.on('unhandledRejection', (e) => console.error('UnhandledRejection:', e));

@@ -77,6 +77,7 @@ module.exports = {
 
   //Maintenance
   heartbeat_interval: 60,      //Client heartbeat (/auth/keep) interval in seconds, must match ApiClient.online_duration
+  online_margin: 2.5,          //A user is online while the last heartbeat is younger than heartbeat_interval x this (one missed heartbeat tolerated)
   maintenance_min_notice: 1800, //Minimum seconds between scheduling and shutdown (30 min), players get notices before being disconnected
   message_delay: 300,          //Admin messages are displayed by every client this many seconds after sending (5 min)
   message_max_length: 200,

@@ -153,3 +153,9 @@ exports.remove = async(user, card, variant) => {
         return false;
     }
 };
+
+//Every offer of a seller, throws so the account delete transaction rolls back
+exports.removeBySeller = async(user, opts = {}) => {
+    var result = await Market.deleteMany({seller: user}, opts);
+    return result.deletedCount;
+};
