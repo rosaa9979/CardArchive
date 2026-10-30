@@ -53,10 +53,15 @@ namespace TcgEngine.Client
         private bool drag = false;
 
         //Press tracking: pointer-down on a card arms the drag; the drag only starts when
-        //the pointer crosses the hand line, and it drags the currently focused (previewed) card.
+        //the pointer crosses the hand line. It drags the pressed card, unless the pointer
+        //scrubbed to another card and held its preview (preview_delay) before leaving the hand.
+        //Brief focus picked up on the way out (fanned neighbors overlap above the pressed card) is ignored.
         //PC focus comes from hover, mobile focus from touch — everything else is identical.
         private static HandCard pressed_card = null;
         private static bool press_consumed = false;
+        private static HandCard press_target = null;
+        private static HandCard scrub_card = null;
+        private static float scrub_timer = 0f;
 
         private static List<HandCard> card_list = new List<HandCard>();
 
@@ -83,6 +88,15 @@ namespace TcgEngine.Client
             card_list.Remove(this);
             if (pressed_card == this)
                 pressed_card = null;
+            if (press_target == this)
+                press_target = null;
+        }
+
+        private void OnDisable()
+        {
+            //A hidden card never receives its pointer-exit, so drop the hover focus here
+            //(otherwise the stale focus can win over the card actually under the pointer)
+            focus = false;
         }
 
         void Update()
@@ -162,14 +176,34 @@ namespace TcgEngine.Client
 
             Vector2 mpos = GameCamera.Get().MouseToPercent(Input.mousePosition);
 
-            //Pressed and crossed the hand line: start dragging the focused (previewed) card
+            //Pressed: a scrubbed-to card becomes the drag target only once its preview was held
+            if (pressed_card == this && !press_consumed && GetDrag() == null)
+            {
+                HandCard focused = GetFocusedRaw();
+                if (focused != scrub_card)
+                {
+                    scrub_card = focused;
+                    scrub_timer = 0f;
+                }
+                scrub_timer += Time.deltaTime;
+                if (focused != null && scrub_timer >= GameConfig.Gesture.preview_delay)
+                    press_target = focused;
+            }
+
+            //Pressed and crossed the hand line: start dragging the target card
             if (pressed_card == this && !press_consumed && GetDrag() == null
                 && mpos.y > GameConfig.Gesture.hand_drag_line)
             {
-                HandCard target = GetFocusedRaw();
-                if (target == null)
-                    target = this;
+                HandCard target = press_target != null ? press_target : this;
                 target.StartDrag();
+            }
+
+            //Pointer-up only reaches the pressed card; if it is hidden (another card is being dragged)
+            //release the drag here instead
+            if (IsDrag() && !Input.GetMouseButton(0) && (pressed_card == null || !pressed_card.isActiveAndEnabled))
+            {
+                pressed_card = null;
+                ReleaseDrag();
             }
 
             if ((!GameClient.Get().IsInputOpen || !GameClient.Get().IsYourTurn() || game_data.phase != GamePhase.Main) && IsDrag() && mpos.y >= GameConfig.Gesture.hand_drag_line)
@@ -312,6 +346,7 @@ namespace TcgEngine.Client
             if (GameTool.IsMobile() && !Input.GetMouseButton(0))
                 return;
 
+            ClearFocusAll();
             focus = true;
         }
 
@@ -333,6 +368,10 @@ namespace TcgEngine.Client
             //On mobile the touch is the "hover", so it also focuses the card for the preview.
             pressed_card = this;
             press_consumed = false;
+            press_target = this;
+            scrub_card = this;
+            scrub_timer = 0f;
+            ClearFocusAll();
             focus = true;
         }
 
@@ -388,6 +427,7 @@ namespace TcgEngine.Client
         {
             pressed_card = null;
             press_consumed = true;
+            press_target = null;
         }
 
         private static void ClearFocusAll()
