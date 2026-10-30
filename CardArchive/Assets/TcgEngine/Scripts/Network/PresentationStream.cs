@@ -117,6 +117,17 @@ namespace TcgEngine
         }
     }
 
+    public sealed class MsgSelectMoveRequest : INetworkSerializable
+    {
+        public Slot from;
+        public Slot to;
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeNetworkSerializable(ref from);
+            serializer.SerializeNetworkSerializable(ref to);
+        }
+    }
+
     public sealed class MsgPlayRequest : MsgPlayCard, INetworkSerializable
     {
         public string target_uid = "";

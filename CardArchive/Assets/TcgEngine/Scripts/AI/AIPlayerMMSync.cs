@@ -118,6 +118,13 @@ namespace TcgEngine.AI
                 return false;
             }
 
+            if (action.type == GameAction.SelectMove)
+            {
+                if (action.slot_from != Slot.None && action.slot != Slot.None)
+                    gameplay.SelectMove(action.slot_from, action.slot);
+                return false;
+            }
+
             if (action.type == GameAction.SelectChoice)
             {
                 gameplay.SelectChoice(action.value);

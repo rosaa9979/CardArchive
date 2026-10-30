@@ -62,7 +62,7 @@ namespace TcgEngine.AI
             {
                 if (game_data.selector == SelectorType.SelectorCard)
                     SelectRandomCard();
-                else if (game_data.selector == SelectorType.SelectTarget)
+                else if (game_data.selector == SelectorType.SelectTarget || game_data.selector == SelectorType.SelectMove)
                     SelectRandomTarget();
                 else if (game_data.selector == SelectorType.SelectorChoice)
                     SelectRandomChoice();
@@ -119,6 +119,13 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (ability != null && caster != null && ability.IsMoveSelector())
+            {
+                var moves = ability.GetSelectableMoves(game_data, caster, game_data.selector_context);
+                if (moves.Count > 0) { var move = moves[rand.Next(moves.Count)]; gameplay.SelectMove(move.from, move.to); }
+                else gameplay.CancelSelection();
+                return;
+            }
             if (ability == null || caster == null || !ability.IsTargetSelector()) return;
             var slots = ability.GetSelectableSlots(game_data, caster, game_data.selector_context);
             if (slots.Count > 0) gameplay.SelectSlot(slots[rand.Next(slots.Count)]);

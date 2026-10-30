@@ -42,6 +42,12 @@ namespace TcgEngine
             DoEffect(logic, ability, caster, target);
         }
 
+        //Move selection: selected = departure slot, target = destination slot
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot selected, Slot target, AbilityEventContext context)
+        {
+            DoEffect(logic, ability, caster, selected, target);
+        }
+
         public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster)
         {
             //Server side gameplay logic
@@ -68,6 +74,11 @@ namespace TcgEngine
         }
 
         public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, CardData target)
+        {
+            //Server side gameplay logic
+        }
+
+        public virtual void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot selected, Slot target)
         {
             //Server side gameplay logic
         }

@@ -23,6 +23,8 @@ namespace TcgEngine
         //Target chosen while this card is played, for its OnPlay SelectTarget ability (AbilityData.IsPlaySelectTarget).
         //Only one kind is set at a time; cleared when the card starts a new play.
         public Slot play_target_slot = Slot.None;
+        //Departure slot of an OnPlay SelectMove ability (play_target_slot is then the destination).
+        public Slot play_move_from_slot = Slot.None;
 
         //Death phase (Phase 2): destroy effects mark the card dying instead of removing it immediately.
         //It stays on board (keeps its slot, keeps reacting to triggers) until the Death Creation Step
@@ -589,9 +591,16 @@ namespace TcgEngine
             play_target_slot = target;
         }
 
+        public void SetPlayMoveTarget(Slot from, Slot to)
+        {
+            SetPlayTarget(to);
+            play_move_from_slot = from;
+        }
+
         public void ClearPlayTarget()
         {
             play_target_slot = Slot.None;
+            play_move_from_slot = Slot.None;
         }
 
         public bool HasActiveAbility(Game data, AbilityTrigger trigger)
@@ -750,6 +759,7 @@ namespace TcgEngine
             dest.damage = source.damage;
             dest.play_order = source.play_order;
             dest.play_target_slot = source.play_target_slot;
+            dest.play_move_from_slot = source.play_move_from_slot;
             dest.dying = source.dying;
             dest.death_source_uid = source.death_source_uid;
             dest.death_cause = source.death_cause;

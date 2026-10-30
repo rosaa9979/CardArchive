@@ -136,11 +136,11 @@ namespace TcgEngine
                 && state == GameState.Play && selector != SelectorType.None;
         }
 
-        //Only a target selection can be cancelled by its player, and only if its ability allows it.
+        //Only a target or move selection can be cancelled by its player, and only if its ability allows it.
         //Card and choice selectors come after the card is played and must be answered.
         public virtual bool CanCancelSelector()
         {
-            if (selector != SelectorType.SelectTarget)
+            if (selector != SelectorType.SelectTarget && selector != SelectorType.SelectMove)
                 return false;
 
             AbilityData ability = AbilityData.Get(selector_ability_id);
@@ -377,6 +377,9 @@ namespace TcgEngine
 
             if (!ability.AreTriggerConditionsMet(this, card))
                 return false; //Conditions not met
+
+            if (ability.IsMoveSelector() && !ability.HasValidSelectTarget(this, card))
+                return false; //No (from, to) pair: the cost would be paid without a move
 
             return true;
         }
@@ -843,5 +846,6 @@ namespace TcgEngine
         SelectTarget = 10,
         SelectorCard = 20,
         SelectorChoice = 30,
+        SelectMove = 40,
     }
 }

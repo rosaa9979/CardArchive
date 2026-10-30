@@ -430,6 +430,34 @@ namespace TcgEngine
             return result;
         }
 
+        // Move selection: one (from, to) pair. UI, server CanTarget and AI share this check.
+        // The departure unit follows the unit selection limits; the destination always follows Game.CanMoveCard.
+        public bool CanTarget(Game data, Card caster, Slot from, Slot to, AbilityEventContext context = null, bool evaluate = false)
+        {
+            if (caster == null || !IsMoveSelector() || !from.IsValid() || !to.IsValid()) return false;
+            Card unit = data.GetSlotCard(from);
+            if (unit == null || !data.CanInputTarget(unit) || unit.HasStatus(StatusType.Stealth)
+                || unit.HasStatus(StatusType.SpellImmunity) || !data.CanMoveCard(unit, to, true)) return false;
+            if (!evaluate) context = SelectionQuery(data, caster, context);
+            return AreCriteriaTargetConditionsMet(data, caster, from, to, context);
+        }
+
+        // Enumerates each board unit once as departure and each board slot once as destination.
+        public List<(Slot from, Slot to)> GetSelectableMoves(Game data, Card caster, AbilityEventContext context = null)
+        {
+            return EnumerateSelectableMoves(data, caster, context).ToList();
+        }
+
+        private IEnumerable<(Slot from, Slot to)> EnumerateSelectableMoves(Game data, Card caster, AbilityEventContext context)
+        {
+            if (!IsMoveSelector()) yield break;
+            List<Slot> slots = Slot.GetAll();
+            foreach (Player player in data.players)
+                foreach (Card unit in player.cards_board.ToList())
+                    foreach (Slot to in slots)
+                        if (CanTarget(data, caster, unit.slot, to, context)) yield return (unit.slot, to);
+        }
+
         // A selector only accepts its authoritative cached candidates; validation never rerolls filters.
         public bool IsSelectionCandidate(Game data, Card caster, Card target, AbilityEventContext context)
         {
@@ -513,6 +541,23 @@ namespace TcgEngine
                     slot_card.AddStatus(stat, value, duration);
             }
 
+        }
+
+        //Move selection: statuses go to the unit that was on the departure slot
+        public void DoEffects(GameLogic logic, Card caster, Slot selected, Slot target, AbilityEventContext context = null)
+        {
+            Card unit = logic.GetGameData().GetSlotCard(selected);
+            foreach (EffectData effect in effects)
+            {
+                EffectStepDebug.LogEffect(this, effect, caster, target);
+                effect?.DoEffect(logic, this, caster, selected, target, context: context);
+                logic.RecordReplayState();
+            }
+            if (unit != null)
+            {
+                foreach (StatusData stat in status)
+                    unit.AddStatus(stat, value, duration);
+            }
         }
 
         public void DoEffects(GameLogic logic, Card caster, CardData target, AbilityEventContext context = null)
@@ -891,6 +936,9 @@ namespace TcgEngine
             if (IsTargetSelector())
                 return GetSelectableSlots(game_data, caster, context).Count > 0;
 
+            if (IsMoveSelector())
+                return EnumerateSelectableMoves(game_data, caster, context).Any();
+
             if (criteria_target == AbilityTarget.CardSelector)
             {
                 if (HasValidCardTarget(game_data, caster, context: context))
@@ -963,15 +1011,20 @@ namespace TcgEngine
             return criteria_target == AbilityTarget.SelectTarget || criteria_target == AbilityTarget.SelectSlot;
         }
 
+        public bool IsMoveSelector()
+        {
+            return criteria_target == AbilityTarget.SelectMove;
+        }
+
         public bool IsSelector()
         {
-            return IsTargetSelector() || criteria_target == AbilityTarget.CardSelector || criteria_target == AbilityTarget.ChoiceSelector;
+            return IsTargetSelector() || IsMoveSelector() || criteria_target == AbilityTarget.CardSelector || criteria_target == AbilityTarget.ChoiceSelector;
         }
 
         //Target selected while the card is being played (GameLogic.SelectPlayTarget), stored on the caster until this OnPlay resolves
         public bool IsPlaySelectTarget()
         {
-            return trigger == AbilityTrigger.OnPlay && IsTargetSelector();
+            return trigger == AbilityTrigger.OnPlay && (IsTargetSelector() || IsMoveSelector());
         }
 
         public static AbilityData Get(string id)
@@ -1025,7 +1078,7 @@ namespace TcgEngine
 
         OnDraw = 45,
 
-        OnMove = 47, //When this card moves to another slot (player-initiated move, not forced relocation)
+        OnMove = 47, //When this card moves to another slot (player move and forced relocation such as move effects or knockback)
 
         OnHeal = 50,
         OnHealOther = 51,
@@ -1059,6 +1112,7 @@ namespace TcgEngine
 
         SelectTarget = 30,        //Serialized alias for position selection
         SelectSlot = 31,          //Select a board slot; clicking its occupant selects the slot
+        SelectMove = 32,          //Drag a board unit to a destination slot; conditions receive (from, to) through ConditionCanMove
 
         CardSelector = 40,          //Card selector menu
         ChoiceSelector = 50,        //Choice selector menu

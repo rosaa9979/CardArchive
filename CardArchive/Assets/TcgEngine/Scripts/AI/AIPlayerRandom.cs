@@ -41,7 +41,7 @@ namespace TcgEngine.AI
 
                 if (!is_selecting && game_data.selector != SelectorType.None && game_data.selector_player_id == player_id)
                 {
-                    if (game_data.selector == SelectorType.SelectTarget)
+                    if (game_data.selector == SelectorType.SelectTarget || game_data.selector == SelectorType.SelectMove)
                     {
                         //AI select target
                         is_selecting = true;
@@ -206,6 +206,12 @@ namespace TcgEngine.AI
             Game game_data = gameplay.GetGameData();
             AbilityData ability = AbilityData.Get(game_data.selector_ability_id);
             Card caster = game_data.GetCard(game_data.selector_caster_uid);
+            if (ability != null && caster != null && ability.IsMoveSelector())
+            {
+                var moves = ability.GetSelectableMoves(game_data, caster, game_data.selector_context);
+                if (moves.Count > 0) { var move = moves[rand.Next(moves.Count)]; gameplay.SelectMove(move.from, move.to); }
+                return;
+            }
             if (ability == null || caster == null || !ability.IsTargetSelector()) return;
             var slots = ability.GetSelectableSlots(game_data, caster, game_data.selector_context);
             if (slots.Count > 0) gameplay.SelectSlot(slots[rand.Next(slots.Count)]);

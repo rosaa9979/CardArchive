@@ -39,6 +39,20 @@ namespace TcgEngine.FX
                 else if (hero != null && hero.GetCard() != null && hero.GetCard().uid == data.selector_caster_uid)
                 { source = hero.transform.position; visible = true; }
             }
+            if (data.selector == SelectorType.SelectMove)
+            {
+                // Move selection: departure tile -> cursor while dragging, departure -> destination once released.
+                PlayerControls controls = PlayerControls.Get();
+                if (!data.IsPlayerSelectorTurn(client.GetPlayer()) || controls == null) { Hide(); return; }
+                BSlot from = BSlot.Get(controls.GetMoveFrom());
+                if (from == null) { Hide(); return; }
+                Vector3 start = from.GetPosition(controls.GetMoveFrom());
+                if (controls.IsMoveDragging()) { SetEndpoints(start, GameBoard.Get().RaycastMouseBoard()); return; }
+                BSlot to = BSlot.Get(controls.GetMoveTo());
+                if (to == null) { Hide(); return; }
+                SetEndpoints(start, to.GetPosition(controls.GetMoveTo()));
+                return;
+            }
             if (!visible) { Hide(); return; }
             // The tile marker still snaps, but the arrow always follows the cursor.
             SetEndpoints(source, GameBoard.Get().RaycastMouseBoard());
