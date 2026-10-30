@@ -97,6 +97,7 @@ namespace TcgEngine.Tools
                 total += Export<TraitData>(outDir, "Trait",     BuildSimpleRow,  null);
                 total += Export<MarkerData>(outDir, "Marker",   BuildSimpleRow,  null);
                 total += Export<StatusData>(outDir, "Status",   BuildSimpleRow,  null);
+                total += Export<KeywordData>(outDir, "Keyword", BuildSimpleRow,  null);
                 total += ExportWorkbook(outDir, "Condition",
                     BuildConditionTable(),
                     BuildFilterTable(),
@@ -225,12 +226,13 @@ namespace TcgEngine.Tools
             { "CardData",  new[] { "Club.xlsx", "Weapon.xlsx", "Trait.xlsx", "Marker.xlsx", "Ability.xlsx", "Pack.xlsx" } },
             { "Academy",   new string[0] },
             { "Club",      new[] { "Academy.xlsx" } },
-            { "Ability",   new[] { "Condition.xlsx", "Effect.xlsx", "Status.xlsx", "Ability.xlsx", "DataContainer.xlsx" } },
+            { "Ability",   new[] { "Condition.xlsx", "Effect.xlsx", "Status.xlsx", "Keyword.xlsx", "Ability.xlsx", "DataContainer.xlsx" } },
             { "DataContainer", new string[0] },
             { "Weapon",    new string[0] },
             { "Trait",     new string[0] },
             { "Marker",    new string[0] },
-            { "Status",    new string[0] },
+            { "Status",    new[] { "Keyword.xlsx" } },
+            { "Keyword",   new string[0] },
             { "Pack",      new[] { "Rarity.xlsx", "Variant.xlsx" } },
             { "Rarity",    new string[0] },
             { "Variant",   new string[0] },
@@ -563,6 +565,7 @@ namespace TcgEngine.Tools
             { typeof(TraitData),    "Trait" },
             { typeof(MarkerData),   "Marker" },
             { typeof(StatusData),   "Status" },
+            { typeof(KeywordData),  "Keyword" },
             { typeof(WeaponData),   "Weapon" },
             { typeof(PackData),     "Pack" },
             { typeof(VariantData),  "Variant" },
@@ -1772,7 +1775,7 @@ namespace TcgEngine.Tools
 
         static readonly string[] AbilityColumns =
         {
-            "id", "title", "desc", "selector_desc",
+            "id", "title", "desc", "selector_desc", "keywords",
             "trigger", "criteria_target",
             "conditions_trigger", "conditions_criteria_target",
             "condition_wide_range", "condition_target", "filters_target", "sort_target",
@@ -1792,6 +1795,7 @@ namespace TcgEngine.Tools
                 { "title", a.title },
                 { "desc", a.desc },
                 { "selector_desc", a.selector_desc },
+                { "keywords", JoinRefs(a.keywords) },
                 { "trigger", a.trigger.ToString() },
                 { "criteria_target", a.criteria_target.ToString() },
                 { "conditions_trigger", JoinRefs(a.conditions_trigger) },

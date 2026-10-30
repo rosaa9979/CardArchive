@@ -36,3 +36,5 @@ MonoBehaviour:
   charge_target: 0
   title: Intimidate
   desc: When attacking, target does not counter-attack.
+  keywords:
+  - {fileID: 11400000, guid: 6688c213e4ba5af1b0c9e6d5895347f6, type: 2}

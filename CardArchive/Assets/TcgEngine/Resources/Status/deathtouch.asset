@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 20
   title: Deathtouch
   icon: {fileID: 0}
-  desc: Kill any creature it damages.
+  keyword: {fileID: 11400000, guid: 2137c2ad72015384abd98e013acf2dd4, type: 2}
   status_fx: {fileID: 0}
   hvalue: 1

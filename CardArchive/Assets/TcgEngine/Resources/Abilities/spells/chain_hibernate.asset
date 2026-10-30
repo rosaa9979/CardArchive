@@ -41,3 +41,5 @@ MonoBehaviour:
   charge_target: 0
   title: 
   desc: 
+  keywords:
+  - {fileID: 11400000, guid: ae42d5c9fa7c5ace82db0e75b1160cd6, type: 2}

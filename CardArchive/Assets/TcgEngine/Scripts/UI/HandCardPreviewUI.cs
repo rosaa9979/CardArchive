@@ -129,45 +129,7 @@ namespace TcgEngine.UI
                 // --- (이하 능력/상태 표시 로직은 기존과 동일) ---
                 Card pcard = hcard.GetCard();
 
-                int index = 0;
-                foreach (AbilityData ability in pcard.GetAbilities())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        if (ability.condition_wide_range != null && ability.condition_wide_range != default_wide_area_range)
-                        {
-                            status_lines[index].SetLine(pcard.CardData, ability.condition_wide_range.thumnail);
-                            index++;
-                        }
-                    }
-                }
-
-                foreach (AbilityData ability in pcard.GetAbilities())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ability.desc))
-                        {
-                            status_lines[index].SetLine(pcard.CardData, ability);
-                            index++;
-                        }
-                    }
-                }
-
-                // Status
-                foreach (CardStatus status in pcard.GetAllStatus())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        StatusData istatus = StatusData.Get(status.type);
-                        if (istatus != null && !string.IsNullOrWhiteSpace(istatus.desc))
-                        {
-                            int ival = Mathf.Max(status.value, Mathf.CeilToInt(status.duration / 2f));
-                            status_lines[index].SetLine(istatus, ival);
-                            index++;
-                        }
-                    }
-                }
+                StatusLine.SetLines(status_lines, pcard, default_wide_area_range);
                 
                 bool is_outline_enabled = GameClient.Get().IsInputOpen && GameClient.Get().IsYourTurn() && game_data.phase == GamePhase.Main && GameClient.Get().GetLatestGameData().CanPlay(GameClient.Get().GetLatestGameData().GetCard(hcard.GetCardUID()))
                     && !GameClient.Get().IsCardPending(hcard.GetCardUID());

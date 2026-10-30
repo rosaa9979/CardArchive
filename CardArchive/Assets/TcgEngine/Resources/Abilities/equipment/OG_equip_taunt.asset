@@ -36,3 +36,5 @@ MonoBehaviour:
   charge_target: 0
   title: Taunt
   desc: Bearer has taunt.
+  keywords:
+  - {fileID: 11400000, guid: 39ee0feedb1759c99cad12306867377f, type: 2}

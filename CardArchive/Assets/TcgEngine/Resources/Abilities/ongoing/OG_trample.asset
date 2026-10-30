@@ -40,3 +40,5 @@ MonoBehaviour:
   charge_target: 0
   title: Trample
   desc: Excess damage is dealt to player hp.
+  keywords:
+  - {fileID: 11400000, guid: 624db9fbfdad5f81a693792096b5a23f, type: 2}

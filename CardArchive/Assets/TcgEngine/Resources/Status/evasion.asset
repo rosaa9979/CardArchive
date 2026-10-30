@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 42
   title: "\ud68c\ud53c"
   icon: {fileID: 0}
-  desc: "\ubc1b\ub294 \uacf5\uaca9\uc744 50% \ud655\ub960\ub85c \ud68c\ud53c (\ub09c\uc0ac\uc640 \uc911\ubcf5 \uc801\uc6a9 \ubd88\uac00)"
+  keyword: {fileID: 11400000, guid: 8545fe1a2fca5aea9639f0d303e538fb, type: 2}
   status_fx: {fileID: 0}
   hvalue: 0

@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 5
   title: HP Bonus
   icon: {fileID: 0}
-  desc: Bonus HP.
+  keyword: {fileID: 11400000, guid: d908f78c1a4053d1bf008e2636dd0797, type: 2}
   status_fx: {fileID: 0}
   hvalue: 1

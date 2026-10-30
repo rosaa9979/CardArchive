@@ -39,3 +39,5 @@ MonoBehaviour:
   charge_target: 0
   title: Deathtouch
   desc: Kill any creature it damages.
+  keywords:
+  - {fileID: 11400000, guid: 2137c2ad72015384abd98e013acf2dd4, type: 2}

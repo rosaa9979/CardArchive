@@ -16,7 +16,7 @@ MonoBehaviour:
   title: Silenced
   icon: {fileID: 0}
   bad_status: 1
-  desc: Cannot use abilities.
+  keyword: {fileID: 11400000, guid: f914b9fc630b57af85099878d6ad5b36, type: 2}
   status_fx: {fileID: 8207343968682951967, guid: 0a2325e55f302f84aa511ce672526fad,
     type: 3}
   hvalue: -1

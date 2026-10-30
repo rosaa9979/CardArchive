@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 26
   title: Trample
   icon: {fileID: 0}
-  desc: Extra damage is dealt to player.
+  keyword: {fileID: 11400000, guid: 624db9fbfdad5f81a693792096b5a23f, type: 2}
   status_fx: {fileID: 0}
   hvalue: 1

@@ -15,7 +15,7 @@ MonoBehaviour:
   effect: 10
   title: Stealth
   icon: {fileID: 0}
-  desc: Cannot be targeted.
+  keyword: {fileID: 11400000, guid: 4f65d6eec9b45d6f9e49ec10f743ddfb, type: 2}
   status_fx: {fileID: 8207343968682951967, guid: e72747cc0e9c38d44bd336fd52003b7c,
     type: 3}
   hvalue: 1

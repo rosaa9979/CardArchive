@@ -41,3 +41,5 @@ MonoBehaviour:
   charge_target: 0
   title: Paralyse
   desc: Paralyse target character for 3 turns.
+  keywords:
+  - {fileID: 11400000, guid: 2c147adeba4550c28ae2789e759d94b9, type: 2}

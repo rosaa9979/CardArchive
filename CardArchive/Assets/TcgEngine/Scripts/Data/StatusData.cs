@@ -55,9 +55,7 @@ namespace TcgEngine
         public string title;
         public Sprite icon;
         public bool bad_status;
-
-        [TextArea(3, 5)]
-        public string desc;
+        public KeywordData keyword;   //Explained in the card preview while the card has this status
 
         [Header("FX")]
         public GameObject status_fx;
@@ -70,17 +68,6 @@ namespace TcgEngine
         public string GetTitle()
         {
             return title;
-        }
-
-        public string GetDesc()
-        {
-            return GetDesc(1);
-        }
-
-        public string GetDesc(int value)
-        {
-            string des = desc.Replace("<value>", value.ToString());
-            return des;
         }
 
         public static void Load(string folder = "")

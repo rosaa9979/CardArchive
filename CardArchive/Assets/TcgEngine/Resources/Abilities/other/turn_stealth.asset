@@ -42,3 +42,5 @@ MonoBehaviour:
   title: Stealth
   desc: At the end of your turn, if you have at least one other character in play,
     go in stealth.
+  keywords:
+  - {fileID: 11400000, guid: 4f65d6eec9b45d6f9e49ec10f743ddfb, type: 2}

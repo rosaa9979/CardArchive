@@ -39,3 +39,5 @@ MonoBehaviour:
   charge_target: 0
   title: Spell Immunity
   desc: Cannot be targeted or damaged by spells and traps.
+  keywords:
+  - {fileID: 11400000, guid: 48c6fa360fda5cb99b53954a382cb475, type: 2}

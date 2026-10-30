@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 43
   title: "\uc120\uc0dd\ub2d8\u0020\uc6b0\uc120\u0020\uacf5\uaca9"
   icon: {fileID: 0}
-  desc: 
+  keyword: {fileID: 0}
   status_fx: {fileID: 0}
   hvalue: 0

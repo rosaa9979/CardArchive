@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 28
   title: Life Steal
   icon: {fileID: 0}
-  desc: Heal yourself when dealing damage.
+  keyword: {fileID: 11400000, guid: e3d9fa8bae015211aa93aa36f3fb2f2f, type: 2}
   status_fx: {fileID: 0}
   hvalue: 1

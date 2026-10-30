@@ -118,6 +118,11 @@ namespace TcgEngine.EditorValidation
             if (ongoing && ability.HasEffectOrStatus() && ability.conditions_trigger != null && ability.conditions_trigger.Any(c => c != null
                 && c.evaluation == ConditionEvaluationPolicy.EvaluateOnce))
                 yield return "Ongoing recalculation has no invocation cache. Define its lifetime before using EvaluateOnce.";
+            foreach (StatusData status in (ability.status ?? new StatusData[0]).Where(s => s != null && s.keyword != null))
+            {
+                if (ability.keywords == null || !ability.keywords.Contains(status.keyword))
+                    yield return "keywords is missing " + status.keyword.id + " applied by status " + status.name + ".";
+            }
         }
     }
 }

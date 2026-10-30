@@ -16,9 +16,7 @@ MonoBehaviour:
   title: Sleep
   icon: {fileID: 0}
   bad_status: 1
-  desc: 'Does not unexhaust.
-
-    Removed if attacked.'
+  keyword: {fileID: 11400000, guid: ae42d5c9fa7c5ace82db0e75b1160cd6, type: 2}
   status_fx: {fileID: 8207343968682951967, guid: 73965d73de1b01a4c8c2f1820472d53f,
     type: 3}
   hvalue: -1

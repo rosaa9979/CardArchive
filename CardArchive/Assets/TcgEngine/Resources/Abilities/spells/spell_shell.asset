@@ -41,3 +41,5 @@ MonoBehaviour:
   charge_target: 0
   title: Shell
   desc: Target gains shell, it ignores damage on the next hit.
+  keywords:
+  - {fileID: 11400000, guid: c599cc01d9b656c593e13d59e2dd31fb, type: 2}

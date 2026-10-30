@@ -40,3 +40,5 @@ MonoBehaviour:
   charge_target: 0
   title: "\uB3C4\uBC1C"
   desc: "\uB3C4\uBC1C"
+  keywords:
+  - {fileID: 11400000, guid: 39ee0feedb1759c99cad12306867377f, type: 2}

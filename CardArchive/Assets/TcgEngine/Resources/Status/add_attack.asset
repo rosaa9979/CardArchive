@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 4
   title: "\uacf5\uaca9\ub825 \uc99d\uac00"
   icon: {fileID: 0}
-  desc: 
+  keyword: {fileID: 0}
   status_fx: {fileID: 0}
   hvalue: 1

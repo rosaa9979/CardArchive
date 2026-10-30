@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 24
   title: Flying
   icon: {fileID: 0}
-  desc: Ignores Taunt.
+  keyword: {fileID: 11400000, guid: f7da0e9fde395a03b2d8f35f1d620d1a, type: 2}
   status_fx: {fileID: 0}
   hvalue: 1

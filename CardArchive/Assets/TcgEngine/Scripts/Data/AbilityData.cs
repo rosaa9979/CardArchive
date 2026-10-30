@@ -90,6 +90,7 @@ namespace TcgEngine
         public string desc;
         [TextArea(5, 7)]
         public string selector_desc;
+        public KeywordData[] keywords = System.Array.Empty<KeywordData>(); //Keywords explained in the card preview
 
         public static List<AbilityData> ability_list = new List<AbilityData>();                             //Faster access in loops
         public static Dictionary<string, AbilityData> ability_dict = new Dictionary<string, AbilityData>(); //Faster access in Get(id)
