@@ -93,6 +93,13 @@ namespace TcgEngine.Client
             return bounds.Contains(wpos);
         }
 
+        //Board plane test (x, y) for positions whose depth differs from the slot collider, such as spawned FX
+        public bool IsInsidePlanar(Vector3 wpos)
+        {
+            wpos.z = bounds.center.z;
+            return bounds.Contains(wpos);
+        }
+
         public static BSlot GetNearest(Vector3 pos)
         {
             BSlot nearest = null;

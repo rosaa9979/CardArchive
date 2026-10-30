@@ -40,6 +40,7 @@ namespace TcgEngine
             System.Action create = () => {
                 if (reservation != null && (client == null || !client.IsCurrentReservation(reservation))) return;
                 GameObject fx = Instantiate(prefab, position, GetFXRotation());
+                FollowBoardLayer(fx);
                 ManageLifetime(fx, GetDuration(prefab), reservation, ownerPlayerId, onPlaybackReady);
                 onCreated?.Invoke(fx);
             };
@@ -73,6 +74,7 @@ namespace TcgEngine
                 duration = duration < 0f ? GetDuration(fx_prefab) : duration;
                 var reservation = GameClient.Get()?.ReservePresentationAnimation(fx_prefab);
                 GameObject fx = Instantiate(fx_prefab, pos, GetFXRotation());
+                FollowBoardLayer(fx);
                 ManageLifetime(fx, duration, reservation, ownerPlayerId);
                 return fx;
             }
@@ -173,11 +175,19 @@ namespace TcgEngine
                 SnapFX snap = fx.AddComponent<SnapFX>();
                 snap.target = snap_target;
                 snap.offset = offset;
+                FollowBoardLayer(fx);
                 float duration = GetDuration(fx_prefab);
                 ManageLifetime(fx, duration, reservation, ownerPlayerId);
                 return fx;
             }
             return null;
+        }
+
+        //World FX keep their order band but take the sorting layer of the board slot under them (highlighted slots)
+        private static void FollowBoardLayer(GameObject fx)
+        {
+            if (fx != null && fx.GetComponent<SortingLayerFollow>() == null)
+                fx.AddComponent<SortingLayerFollow>();
         }
 
         // The owner rule is shared by world, UI, attached, status and ongoing FX.
