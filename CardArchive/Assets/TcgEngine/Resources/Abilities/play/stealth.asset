@@ -39,3 +39,5 @@ MonoBehaviour:
   charge_target: 0
   title: Stealth
   desc: Cannot be targeted or attacked until it performs an action.
+  keywords:
+  - {fileID: 11400000, guid: 4f65d6eec9b45d6f9e49ec10f743ddfb, type: 2}

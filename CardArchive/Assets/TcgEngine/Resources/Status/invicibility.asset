@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 12
   title: Invincible
   icon: {fileID: 0}
-  desc: Cannot be destroyed.
+  keyword: {fileID: 11400000, guid: 2107a833cfde51909033c6fda68568b6, type: 2}
   status_fx: {fileID: 0}
   hvalue: 2

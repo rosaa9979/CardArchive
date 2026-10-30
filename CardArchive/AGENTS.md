@@ -126,6 +126,7 @@
 | Text | `title` | 문자열 | 능력 표시명. 참조 키와 독립적으로 관리한다. |
 | Text | `desc` | 문자열 | 능력 설명. 호출하는 GetDesc 오버로드의 치환 규칙을 사용한다. |
 | Text | `selector_desc` | 문자열 | 선택 안내. 8.7의 간결한 지정형으로 선택 대상과 단계를 안내한다. 대상 제한은 기존 조건과 선택 검증 경로를 따른다. |
+| Text | `keywords` | KeywordData 배열 | 카드 미리보기에 설명할 키워드. 능력 문구가 표기하는 키워드를 대상과 무관하게 모두 나열한다. `status`가 부여하는 상태의 keyword도 포함한다(8.7). |
 
 | 미지정 설정 | 규칙 |
 | --- | --- |
@@ -302,7 +303,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | AbilityData.GetDesc() | desc 원문을 사용한다. |
 | selector_desc / AimTargetFX | 선택 안내 원문을 사용한다. 치환자를 해석하지 않는다. |
 | CardData / CardUI | text_format의 인덱스 치환자 `{i}`에 text_values[i]의 Resolve 결과를 넣는다. text_format 미지정 시 text를 사용하고 desc는 상세 설명으로 표시한다. |
-| StatusData.GetDesc(value) | desc의 `<value>`에 전달값을 적용한다. 인자 없는 호출은 API의 기본 표시값을 사용한다. |
+| KeywordData.GetDesc() | desc 원문을 사용한다. 치환자를 해석하지 않는다. |
 | DescValueStatic | 설정된 text를 사용한다. |
 | DescValueCardStat | 설정된 기본 수치를 읽는다. 런타임은 표시용 카드의 현재 값, 정적 화면은 CardData 기본값을 사용한다. |
 | DescValueStat | 설정된 `marker`의 값을 읽는다. 런타임은 표시용 카드의 Marker 값, 정적 화면은 CardData.markers의 초기값을 사용한다. Marker가 플레이어에게 보이는 경로는 이 치환값과 카드 본문뿐이다. |
@@ -559,7 +560,8 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | 데이터 종류 | 주요 필드 | 데이터 규격 및 적용 규칙 |
 | --- | --- | --- |
 | TraitData | `id/title/icon` | 종족 분류 태그(예: machine). 값이 없고 보유 여부만 의미가 있다. CardData.traits가 부여하며 런타임 CardTrait도 id만 갖는다. 화면에 태그로 표시한다. |
-| StatusData | `effect`, `title/icon/desc/status_fx`, `bad_status`, `hvalue` | 규칙을 바꾸는 키워드·상태이상. 상태 종류, 표시 정보, 상태 분류 및 AI 평가값을 정의한다. 상태 수치와 수명은 부여 경로에서 전달한다. GameLogic은 StatusType으로 읽는다. |
+| StatusData | `effect`, `title/icon/keyword/status_fx`, `bad_status`, `hvalue` | 규칙을 바꾸는 키워드·상태이상. 상태 종류, 표시 정보, 상태 분류 및 AI 평가값을 정의한다. 미리보기 설명은 `keyword`의 KeywordData가 담당한다. 상태 수치와 수명은 부여 경로에서 전달한다. GameLogic은 StatusType으로 읽는다. |
+| KeywordData | `id/title/desc` | 카드 미리보기에서 설명하는 표시 전용 키워드(등교·하교·속사·난사 등). 게임 규칙에 영향을 주지 않는다. AbilityData.keywords와 StatusData.keyword가 참조한다. |
 | MarkerData / MarkerValue | `id/title/desc`, `marker/value` | 계산·분기용 내부 정수값(보너스 수치, 카운터, 저장 좌표·저장값, 분기 표식). CardData.markers가 초기값을 정의하고 런타임은 Card/Player의 `markers`·`ongoing_markers`에 보관한다. title·desc는 에디터용이며 태그로 표시하지 않는다. |
 
 | 판단 | Trait | Status | Marker |
@@ -905,7 +907,8 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 
 ### 8.7 카드 표시 문구
 
-- 현재 사용 카드의 오른쪽 능력 안내는 기본적으로 `AbilityData.title`과 `desc`를 비워 숨긴다. 카드 본문에 “등교:” 또는 “하교:”가 명시된 경우 대응 능력에 각각 제목 “등교”·설명 “손패에서 소환 시 발동하는 효과”, 제목 “하교”·설명 “필드에서 파괴될 때 발동하는 효과”를 설정한다. OnPlay라는 이유만으로 이벤트 카드에 등교 설명을 추가하지 않는다. 속사는 별도 Status가 아닌 능력이므로 `OU_haste`에 제목 “속사”·설명 “소환된 턴에도 공격 가능”을 설정한다. 난사·회피·기절의 안내는 각 StatusData.desc에 설정하며 문장형 종결어미 없이 짧게 표기한다. 카드 본문·선택 안내·상태 설명·범위 이미지는 이 규칙의 변경 대상이 아니다.
+- 카드 미리보기의 오른쪽 안내는 범위 이미지 다음에 KeywordData를 표시한다. 표시 순서는 ① 카드의 능력(`Card.GetAbilities()`, 부여받은 능력 포함)이 나열한 `AbilityData.keywords`, ② 카드에 붙어 있는 상태(`GetAllStatus()`)의 `StatusData.keyword`이며 같은 KeywordData는 한 번만 표시한다. 손패에서도 ①은 표시된다. `AbilityData.title`·`desc`는 미리보기에 쓰지 않는다(`title`은 선택 UI 제목으로 계속 쓴다).
+- 카드 본문에 “등교:” 또는 “하교:”가 명시된 경우 대응 능력의 keywords에 `enrollment`(등교) 또는 `dismissal`(하교)를 넣는다. OnPlay라는 이유만으로 이벤트 카드에 등교를 넣지 않는다. 속사는 `OU_haste`의 keywords에 `haste`로 넣는다. 능력이 상태를 부여하면 그 상태의 keyword를 대상(자신·아군·상대)과 무관하게 keywords에 넣는다. 누락은 `TcgEngine/Validate Selected Ability Fields`가 경고한다. 키워드 설명은 KeywordData.desc에 문장형 종결어미 없이 짧게 표기한다. 카드 본문·선택 안내·범위 이미지는 이 규칙의 변경 대상이 아니다.
 
 - 선택 안내(`selector_desc`)는 문장형 종결어미와 마침표 없이 “효과를 적용할 대상 지정”, “효과를 적용할 타일 지정”, “이동할 유닛 지정”, “이동할 타일 지정”, “소환할 타일 지정”처럼 짧은 “지정”형으로 통일한다. 효과 수치·결과·카드 이름·대상 조건을 반복하지 않고 선택 대상과 단계 구분에 필요한 정보만 남긴다. 선택 안내의 간결화는 대상 조건이나 게임 규칙을 변경하지 않는다.
 

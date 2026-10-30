@@ -15,7 +15,7 @@ MonoBehaviour:
   effect: 18
   title: Spell Immunity
   icon: {fileID: 0}
-  desc: Cannot be targeted or damaged by spells and traps.
+  keyword: {fileID: 11400000, guid: 48c6fa360fda5cb99b53954a382cb475, type: 2}
   status_fx: {fileID: 2359911801270334615, guid: b3d90b2abb5dc0d419fa9393d64062fd,
     type: 3}
   hvalue: 1

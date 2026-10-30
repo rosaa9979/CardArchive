@@ -45,3 +45,5 @@ MonoBehaviour:
   title: "\ub4f1\uad50"
   desc: "\uc190\ud328\uc5d0\uc11c \uc18c\ud658 \uc2dc \ubc1c\ub3d9\ud558\ub294 \ud6a8\uacfc"
   selector_desc: 
+  keywords:
+  - {fileID: 11400000, guid: 2743f9b4b7395c97bbb38904e25fc3da, type: 2}

@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\uae30\uc808"
   icon: {fileID: 0}
   bad_status: 1
-  desc: "\uacf5\uaca9 \ubc0f \uc774\ub3d9 \ubd88\uac00"
+  keyword: {fileID: 11400000, guid: 2c147adeba4550c28ae2789e759d94b9, type: 2}
   status_fx: {fileID: 333339856484750616, guid: 7b4fb318f22132249b71d750fcff75bf,
     type: 3}
   hvalue: -1

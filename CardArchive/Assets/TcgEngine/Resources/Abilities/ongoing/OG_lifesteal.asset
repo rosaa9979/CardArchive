@@ -39,3 +39,5 @@ MonoBehaviour:
   charge_target: 0
   title: Life Steal
   desc: Heal yourself when dealing damage.
+  keywords:
+  - {fileID: 11400000, guid: e3d9fa8bae015211aa93aa36f3fb2f2f, type: 2}

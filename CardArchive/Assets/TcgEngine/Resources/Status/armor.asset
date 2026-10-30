@@ -15,6 +15,6 @@ MonoBehaviour:
   effect: 16
   title: Armor
   icon: {fileID: 0}
-  desc: 
+  keyword: {fileID: 0}
   status_fx: {fileID: 0}
   hvalue: 1

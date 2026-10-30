@@ -88,50 +88,7 @@ namespace TcgEngine.UI
 
                 card_ui.SetCard(pcard);
 
-                //Abilities
-                int index = 0;
-                foreach (AbilityData ability in pcard.GetAbilities())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        if (ability.condition_wide_range != null && ability.condition_wide_range != default_wide_area_range)
-                        //Dont display default ability (GetAbilitiesDesc does that already)
-                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
-                        {
-                            status_lines[index].SetLine(pcard.CardData, ability.condition_wide_range.thumnail);
-                            index++;
-                        }
-                    }
-                }
-
-                foreach (AbilityData ability in pcard.GetAbilities())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ability.desc))
-                        //Dont display default ability (GetAbilitiesDesc does that already)
-                        //if (!pcard.CardData.HasAbility(ability) && !string.IsNullOrWhiteSpace(ability.desc))
-                        {
-                            status_lines[index].SetLine(pcard.CardData, ability);
-                            index++;
-                        }
-                    }
-                }
-
-                //Status
-                foreach (CardStatus status in pcard.GetAllStatus())
-                {
-                    if (index < status_lines.Length)
-                    {
-                        StatusData istatus = StatusData.Get(status.type);
-                        if (istatus != null && !string.IsNullOrWhiteSpace(istatus.desc))
-                        {
-                            int ival = Mathf.Max(status.value, Mathf.CeilToInt(status.duration / 2f));
-                            status_lines[index].SetLine(istatus, ival);
-                            index++;
-                        }
-                    }
-                }
+                StatusLine.SetLines(status_lines, pcard, default_wide_area_range);
             }
 
         }

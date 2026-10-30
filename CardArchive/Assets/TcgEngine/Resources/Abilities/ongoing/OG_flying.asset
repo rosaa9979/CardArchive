@@ -39,3 +39,5 @@ MonoBehaviour:
   charge_target: 0
   title: Flying
   desc: Can ignore Taunt.
+  keywords:
+  - {fileID: 11400000, guid: f7da0e9fde395a03b2d8f35f1d620d1a, type: 2}

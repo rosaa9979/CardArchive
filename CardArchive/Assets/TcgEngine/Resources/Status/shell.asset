@@ -15,7 +15,7 @@ MonoBehaviour:
   effect: 13
   title: Shell
   icon: {fileID: 0}
-  desc: On the first hit, takes no damage.
+  keyword: {fileID: 11400000, guid: c599cc01d9b656c593e13d59e2dd31fb, type: 2}
   status_fx: {fileID: 8041625327064058042, guid: 364d6092a8e082740990d503ddee9024,
     type: 3}
   hvalue: 1

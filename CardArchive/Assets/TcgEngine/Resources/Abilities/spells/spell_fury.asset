@@ -41,3 +41,5 @@ MonoBehaviour:
   charge_target: 0
   title: Fury
   desc: Target character gains Fury. It can attack twice per turn.
+  keywords:
+  - {fileID: 11400000, guid: 54edf7009bef57078b7615d4fe1949ee, type: 2}

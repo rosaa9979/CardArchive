@@ -41,3 +41,5 @@ MonoBehaviour:
   charge_target: 0
   title: "\uc18d\uc0ac"
   desc: "\uc18c\ud658\ub41c \ud134\uc5d0\ub3c4 \uacf5\uaca9 \uac00\ub2a5"
+  keywords:
+  - {fileID: 11400000, guid: 1eef8fb7b34f5700b6c06aad30dc8b3c, type: 2}

@@ -43,3 +43,5 @@ MonoBehaviour:
   title: "포격 지정"
   desc: "턴 종료 시 타일을 지정합니다."
   selector_desc: "포격할 타일을 지정하세요."
+  keywords:
+  - {fileID: 11400000, guid: 0b5e2fe4c4ae5c93be64f696541da715, type: 2}
