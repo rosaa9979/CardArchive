@@ -16,24 +16,22 @@ MonoBehaviour:
   trigger: 10
   conditions_trigger: []
   condition_repeat: {fileID: 11400000, guid: 2b4ea38fcd01def4d8ae7b5e0201afff, type: 2}
-  criteria_target: 31
-  effect_target: 1
+  criteria_target: 32
+  effect_target: 0
   conditions_criteria_target:
-  - {fileID: 11400000, guid: f6f22b601add97b48bc76cdcccbe8258, type: 2}
-  - {fileID: 11400000, guid: 41c58513071a53b4e9066a58c439760f, type: 2}
-  - {fileID: 11400000, guid: 065da32cbd133734493695579723a718, type: 2}
+  - {fileID: 11400000, guid: 390dad48f81f4b668b701ccded478752, type: 2}
   condition_wide_range: {fileID: 11400000, guid: 5554130374b6d12449b0cb6357f9b6db,
     type: 2}
   condition_target: []
   filters_target: []
   sort_target: {fileID: 11400000, guid: 6e2f4a0b1c8d4e3fa0b1c2d3e4f50617, type: 2}
-  effects: []
+  effects:
+  - {fileID: 11400000, guid: 4014e8278782cd14a95bf2e8e9282577, type: 2}
   status: []
   value: 0
   duration: 0
-  can_cancel: 0
-  chain_abilities:
-  - {fileID: 11400000, guid: db905f313241d8643bde21c764797db1, type: 2}
+  can_cancel: 1
+  chain_abilities: []
   mana_cost: 0
   exhaust: 0
   show_card_fx: 1

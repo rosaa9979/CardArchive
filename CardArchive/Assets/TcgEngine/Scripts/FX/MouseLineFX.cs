@@ -16,8 +16,9 @@ namespace TcgEngine.FX
         [Min(0f)] public float outline_width = 0.025f;
         [Min(0.01f)] public float arrow_length = 0.38f;
         private HandCard play_targeting_card;
+        private SortingLayerBase sorting;
 
-        void Awake() { TargetingManager.SetLineFX(this); Hide(); }
+        void Awake() { sorting = SortingLayerBase.Get(gameObject); TargetingManager.SetLineFX(this); Hide(); }
         public void SetPlayTargetingCard(HandCard card) { play_targeting_card = card; }
 
         void LateUpdate()
@@ -39,6 +40,20 @@ namespace TcgEngine.FX
                 else if (hero != null && hero.GetCard() != null && hero.GetCard().uid == data.selector_caster_uid)
                 { source = hero.transform.position; visible = true; }
             }
+            if (data.selector == SelectorType.SelectMove)
+            {
+                // Move selection: departure tile -> cursor while dragging, departure -> destination once released.
+                PlayerControls controls = PlayerControls.Get();
+                if (!data.IsPlayerSelectorTurn(client.GetPlayer()) || controls == null) { Hide(); return; }
+                BSlot from = BSlot.Get(controls.GetMoveFrom());
+                if (from == null) { Hide(); return; }
+                Vector3 start = from.GetPosition(controls.GetMoveFrom());
+                if (controls.IsMoveDragging()) { SetEndpoints(start, GameBoard.Get().RaycastMouseBoard()); return; }
+                BSlot to = BSlot.Get(controls.GetMoveTo());
+                if (to == null) { Hide(); return; }
+                SetEndpoints(start, to.GetPosition(controls.GetMoveTo()));
+                return;
+            }
             if (!visible) { Hide(); return; }
             // The tile marker still snaps, but the arrow always follows the cursor.
             SetEndpoints(source, GameBoard.Get().RaycastMouseBoard());
@@ -52,6 +67,8 @@ namespace TcgEngine.FX
             if (distance < 0.04f || shaft_outline == null || shaft_fill == null || arrow_outline == null || arrow_fill == null)
             { Hide(); return; }
             Vector3 direction = new Vector3(delta.x / distance, delta.y / distance, 0f);
+            // Stay above highlighted tiles at either end of the line.
+            sorting?.Apply(SortingLayerBase.GetHigherLayer(SortingLayerBase.GetBoardLayerAt(source), SortingLayerBase.GetBoardLayerAt(destination)));
             source.z = destination.z;
             Quaternion rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
             // Collapse only for endpoints closer than the head itself.

@@ -901,8 +901,8 @@ namespace TcgEngine.Gameplay
                     var execution = AbilityExecutionContext.PreparePlay(game_data, card);
                     if (iability.HasValidSelectTarget(game_data, card, execution))
                     {
-                        OpenSelection(SelectorType.SelectTarget, iability, card, card, 1, 0, execution);
-                        return true; //SelectCard/SelectPlayer/SelectSlot plays it from its slot
+                        OpenSelection(iability.IsMoveSelector() ? SelectorType.SelectMove : SelectorType.SelectTarget, iability, card, card, 1, 0, execution);
+                        return true; //SelectCard/SelectPlayer/SelectSlot/SelectMove plays it from its slot
                     }
                 }
 
@@ -1031,9 +1031,8 @@ namespace TcgEngine.Gameplay
 
                 onCardMoved?.Invoke(card, slot);
 
-                //Trigger move abilities (only on player-initiated moves, not forced relocation such as knockback)
-                if (!skip_cost)
-                    TriggerCardAbilityType(AbilityTrigger.OnMove, card);
+                //Trigger move abilities (player moves and forced relocation such as move effects or knockback)
+                TriggerCardAbilityType(AbilityTrigger.OnMove, card);
 
                 CompletePresentationStep();
                 resolve_queue.ResolveAll(GameConfig.Timing.move_card);
@@ -1046,7 +1045,7 @@ namespace TcgEngine.Gameplay
             {
                 RecordInteraction("ability", card.player_id, card.uid);
                 Player player = game_data.GetPlayer(card.player_id);
-                if (!is_ai_predict && !iability.IsTargetSelector())
+                if (!is_ai_predict && !iability.IsTargetSelector() && !iability.IsMoveSelector())
                     player.AddHistory(GameAction.CastAbility, card, iability);
                 card.RemoveStatus(StatusType.Stealth);
                 TriggerCardAbility(iability, card);
@@ -2245,6 +2244,7 @@ namespace TcgEngine.Gameplay
 
             ResolvePresentedAbility(iability, () => {
                 ResolveCardAbilityPlayTarget(iability, caster, context: context);
+                ResolveCardAbilityPlayMove(iability, caster, context: context);
                 ResolveCardAbilityPlayers(iability, caster, context: context);
                 ResolveCardAbilityCards(iability, caster, context: context);
                 ResolveCardAbilitySlots(iability, caster, context: context);
@@ -2271,6 +2271,12 @@ namespace TcgEngine.Gameplay
                 return OpenSelection(SelectorType.SelectTarget, iability, caster, triggerer, max_repeat, current_repeat, context);
             }
 
+            if (iability.IsMoveSelector() && !iability.IsPlaySelectTarget())
+            {
+                //Wait for the (from, to) pair
+                return OpenSelection(SelectorType.SelectMove, iability, caster, triggerer, max_repeat, current_repeat, context);
+            }
+
             if (iability.criteria_target == AbilityTarget.ChoiceSelector)
             {
                 return OpenSelection(SelectorType.SelectorChoice, iability, caster, triggerer, max_repeat, current_repeat, context);
@@ -2282,6 +2288,20 @@ namespace TcgEngine.Gameplay
         {
             if (ability.criteria_target == AbilityTarget.PlayTarget)
                 ResolveSpatialRecipients(ability, caster, ability.GetSpatialTargets(game_data, caster, context, is_play_target: true), context);
+        }
+
+        //OnPlay SelectMove: the pair was chosen in SelectMove before the card was played and is read from the caster
+        protected virtual void ResolveCardAbilityPlayMove(AbilityData ability, Card caster, AbilityEventContext context = null)
+        {
+            if (ability.IsMoveSelector() && ability.IsPlaySelectTarget())
+                ResolveMoveTarget(ability, caster, caster.play_move_from_slot, caster.play_target_slot, context);
+        }
+
+        //Revalidates the pair at resolution: the unit or the destination may have changed since the selection
+        private void ResolveMoveTarget(AbilityData ability, Card caster, Slot from, Slot to, AbilityEventContext context)
+        {
+            if (ability.CanTarget(game_data, caster, from, to, context, true))
+                ResolveEffectTarget(ability, caster, from, to, context);
         }
 
         private void ResolveSpatialRecipients(AbilityData ability, Card caster, List<object> recipients, AbilityEventContext context)
@@ -2386,6 +2406,16 @@ namespace TcgEngine.Gameplay
                 () => iability.DoEffects(this, caster, target, context: context), () => {
                     onAbilityTargetSlot?.Invoke(iability, caster, target);
                     game_data.last_targeted_slot = target;
+                });
+        }
+
+        protected virtual void ResolveEffectTarget(AbilityData iability, Card caster, Slot from, Slot to, AbilityEventContext context = null)
+        {
+            (context as AbilityExecutionContext)?.RecordTarget(to, game_data.GetSlotCard(from)?.uid);
+            ResolvePresentedTarget(iability,
+                () => iability.DoEffects(this, caster, from, to, context: context), () => {
+                    onAbilityTargetSlot?.Invoke(iability, caster, to);
+                    game_data.last_targeted_slot = to;
                 });
         }
 
@@ -2925,6 +2955,27 @@ namespace TcgEngine.Gameplay
         public virtual void SelectPlayer(Player target) { SelectTarget(target); }
         public virtual void SelectSlot(Slot target) { SelectTarget(target); }
 
+        //Move selection: the unit on from moves to to. Same lifetime as SelectTarget (play preparation, phase resumption).
+        public virtual void SelectMove(Slot from, Slot to)
+        {
+            if (!TryGetSelection(out var ability, out var caster, out var triggerer, out var context)) return;
+            if (game_data.selector != SelectorType.SelectMove || !ability.CanTarget(game_data, caster, from, to, context, true)) return;
+
+            Player owner = game_data.GetPlayer(caster.player_id);
+            Card unit = game_data.GetSlotCard(from);
+            RecordInteraction("move_select", owner.player_id, caster.uid, slot: to, target: unit.uid);
+            if (!is_ai_predict) owner.AddHistory(GameAction.CastAbility, caster, ability, to);
+
+            if (ability.IsPlaySelectTarget())
+            {
+                caster.SetPlayMoveTarget(from, to);
+                FinishPlaySelection(ability, caster, context);
+                return;
+            }
+            CompleteSelection(ability, caster, triggerer, context,
+                () => ResolveMoveTarget(ability, caster, from, to, context));
+        }
+
         private bool TryGetSelection(out AbilityData ability, out Card caster, out Card triggerer,
             out AbilityExecutionContext context)
         {
@@ -3074,9 +3125,9 @@ namespace TcgEngine.Gameplay
         }
 
         //Turn time is up (or the turn is ended) with a selection still pending: answer it without the player.
-        //  Target of a card being played: cancellable -> back to hand, otherwise played without a target
+        //  Target or move of a card being played: cancellable -> back to hand, otherwise played without a target
         //  Card selector / choice selector: a random valid option is picked (like Hearthstone Discover)
-        //  Any other target selection: ended without a target
+        //  Any other target or move selection: ended without a target
         protected virtual void ResolveSelectorOnTimeout()
         {
             AbilityEventContext context = game_data.selector_context;
@@ -3091,7 +3142,7 @@ namespace TcgEngine.Gameplay
                 return;
             }
 
-            if (game_data.selector == SelectorType.SelectTarget)
+            if (game_data.selector == SelectorType.SelectTarget || game_data.selector == SelectorType.SelectMove)
             {
                 Player player = game_data.GetPlayer(caster.player_id);
                 if (player.cards_board_temp.Contains(caster) && !ability.can_cancel)

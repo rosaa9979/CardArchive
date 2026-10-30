@@ -157,7 +157,7 @@ ENUM은 의미와 직렬화 값을 함께 관리한다. 동일한 이름이 다�
 | OnKill | 39 | 처치 귀속 카드의 처치 반응. |
 | OnDeath / OnDeathOther | 40 / 42 | 본인/다른 카드의 사망 이벤트. |
 | OnDraw | 45 | 드로우 이벤트. |
-| OnMove | 47 | 이동 처리 경로가 발행하는 이벤트. 효과로 이동한 경우에도 해당 경로가 발행하면 반응한다. |
+| OnMove | 47 | 이동 처리 경로(GameLogic.MoveCard)가 발행하는 이벤트. 플레이어 이동과 효과·밀치기에 의한 강제 이동(skip_cost=true) 모두 발행한다. skip_cost는 리플레이의 플레이어 이동 기록 여부만 정한다. |
 | OnHeal / OnHealOther | 50 / 51 | 회복 처리 이벤트. 이벤트 발생과 실제 회복량은 별도 값이다. |
 | OnAddClubOther | 55 | 동아리 가입 이벤트. 가입 카드가 triggerer다. |
 
@@ -183,6 +183,7 @@ ENUM은 의미와 직렬화 값을 함께 관리한다. 동일한 이름이 다�
 | AttachedSlot | 28 | 부착 위치를 나타내는 슬롯. |
 | SelectTarget | 30 | 기존 직렬화 값을 보존하는 슬롯 선택 이름. SelectSlot과 같은 위치 입력·검사·수신자 변환 경로를 사용한다. |
 | SelectSlot | 31 | 위치 선택. 보드 Card 클릭은 해당 Slot, Player 클릭은 PlayerSlot으로 정규화한다. OnPlay는 play_target_slot에 위치를 저장하고 다른 발동은 해결 중 선택한다. 실제 수신자 및 PlayerSlot 허용 여부는 effect_target으로 정한다. |
+| SelectMove | 32 | 이동 선택. 보드 유닛(출발지)과 도착지 Slot 한 쌍을 SelectorType.SelectMove로 한 번에 입력받는다. 기준 조건은 ConditionCanMove 하나이며 쌍은 (Slot selected=출발지, Slot target=도착지)로 평가한다. OnPlay는 play_move_from_slot/play_target_slot에 쌍을 저장하고 다른 발동은 해결 중 선택한다. 공간 기준이 아니므로 effect_target은 기본값 Slot으로 둔다. |
 | CardSelector | 40 | 조건과 필터로 구성한 카드 목록에서 선택. |
 | ChoiceSelector | 50 | 연결된 능력 목록에서 선택. |
 
@@ -239,6 +240,7 @@ ENUM은 의미와 직렬화 값을 함께 관리한다. 동일한 이름이 다�
 - 보드 선택 입력은 위치로 통일한다. 기준 조건은 보드 Slot을 검사하고 CardType·Owner 등 점유 조건은 그 슬롯의 유닛을 조회한다. `ConditionTarget(Card)`는 슬롯 선택의 기준 조건으로 사용하지 않는다. PlayerSlot의 기준 조건은 해당 Player에 적용한다. 유닛 적용 능력에서 기준 위치가 반드시 점유되어야 한다면 점유·카드 종류 조건으로 제한한다. 범위 능력은 빈 기준 위치를 허용할 수 있다.
 - 유닛 적용 능력의 선택 시 기준 위치의 점유 유닛에는 현재 보드 존재·사망 대기·HP·은신·주문 면역 제한을 검사한다. 슬롯 적용 능력은 점유 유닛의 지정 제한으로 위치 선택을 막지 않는다. 범위 안의 다른 유닛은 최종 조건과 각 효과의 수치 적용 규칙을 따른다.
 - `GetSpatialTargets`는 PlayTarget, OnPlay 선택, 해결 중 선택, 자동 위치 기준의 공통 범위 확장·수신자 변환·최종 조건·필터·정렬 경로다. `GetSlotTargets`는 이 결과 중 Slot 수신자를 요청하는 접근자이며, 선택된 Card/Player를 별도 목록 경로에서 다시 실행하지 않는다. `GetSelectableSlots`는 보드 위치와 허용된 PlayerSlot을 각각 한 번 열거하며 UI·서버 CanTarget·AI가 같은 자격 검사를 사용한다.
+- 이동 선택 패킷 `MsgSelectMoveRequest`는 출발지·도착지 Slot을 저장하고 Card의 사용 시 이동 선택은 play_move_from_slot·play_target_slot에 저장한다. 실행 시 출발지의 현재 유닛을 이동 대상으로 확정한다. `GetSelectableMoves`는 보드 유닛을 출발지로, 보드 Slot을 도착지로 각각 한 번 열거하며 UI·서버 CanTarget(from, to)·AI가 같은 자격 검사를 사용한다.
 - 선택 패킷 `MsgSelectSlotRequest`와 Card의 사용 시 선택 상태는 슬롯만 저장한다. 보드 선택을 카드 UID나 별도 플레이어 ID로 재해석하지 않는다. 카드 클릭도 표시된 위치를 전달하며 일반 카드 조작의 UID 유효성 검사로 슬롯 선택을 차단하지 않는다. 서버 입력 게이트·선택 세대 검사는 유지한다.
 - 저장된 선택은 위치이며 실행 대상 선정 시 그 위치의 현재 수신자를 확정한다. 확정된 Card 목록은 첫 DoEffect 전에 완성하고 실행 중 다른 카드로 대체하지 않는다. 보드에서 사라진 확정 유닛은 생략한다. 반복 회차는 새로 대상을 선정한다. CardSelector와 ChoiceSelector는 비공간 선택으로 기존 카드 UID/능력 선택을 유지한다.
 - 선택 UI, 서버 확정 검사, 최종 적용은 같은 대상 제한을 사용한다. 미지원 대상형은 명시적으로 거부하고 기본 오버로드의 허용/무동작에 의존하지 않는다.
@@ -257,6 +259,7 @@ ENUM은 의미와 직렬화 값을 함께 관리한다. 동일한 이름이 다�
 | 일반 CardData 목록 | 검사 | 없음 | 없음 | 적용 |
 | PlayTarget·OnPlay 선택·해결 중 선택의 보드 위치 | 같은 CanTarget(Slot) 검사 | 적용 후 중복 제거 | 변환된 수신자에 검사 | 변환된 대상형에 적용 |
 | PlayTarget·OnPlay 선택·해결 중 선택의 PlayerSlot | 허용된 Player 검사 | 없음 | Player에 검사 | Player에 적용 |
+| SelectMove(OnPlay·해결 중 선택) | CanTarget(from, to): 출발 유닛의 보드 존재·HP·은신·주문 면역, CanMoveCard(unit, to), conditions_criteria_target의 쌍 판정; 확정과 실행 시점에 재검사 | 없음 | 없음 | 없음 |
 | CardSelector | 후보 구성은 일반 Card 목록 경로; 확정은 캐시 UID 포함 및 현재 기준·최종 조건 재검사; 필터 재추첨 없음 | 후보 구성 시 적용 | 후보 구성 시 검사 | 후보 구성 시 적용 |
 | Ongoing 보드 목록 | 검사 | 적용 | 검사 | 없음 |
 | Ongoing Self/Player/Club/EquippedCard 및 손패·장비 목록 | 검사 | 없음 | 없음 | 없음 |
@@ -325,7 +328,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | Evaluate | 공통 입력, object target, ConditionStage, context, 선택적 selected | Trigger 단계에서 발동 판정을 먼저 검사한 뒤 대상형별 판정을 호출한다. Slot과 selected가 함께 전달되면 해당 기준 포함 오버로드를 사용한다. 공통 평가기는 이 결과에 evaluation 정책을 적용한다. |
 | IsTriggerConditionMet | Game, AbilityData, caster, context | 대상과 독립적인 시전자·게임·이벤트 자격을 검사한다. |
 | IsTargetConditionMet | 공통 입력과 Card / Player / Slot / CardData | 전달된 대상형의 자격을 검사한다. 카드 인스턴스와 카드 정의를 구분한다. |
-| IsTargetConditionMet의 기준 포함 오버로드 | 공통 입력과 Card 또는 Slot 기준, Slot 후보 | 기준과 후보 사이의 공간 관계를 검사한다. |
+| IsTargetConditionMet의 기준 포함 오버로드 | 공통 입력과 Card 또는 Slot 기준, Slot 후보 | 기준과 후보 사이의 공간 관계를 검사한다. SelectMove에서는 기준이 출발지, 후보가 도착지다. |
 | conditions_trigger | 발동 주체와 이벤트 원인 | 각 조건의 발동 판정과 원인 대상 판정을 결합한다. |
 | conditions_criteria_target | 기준 후보 또는 선택 후보 | 범위 확장의 기준이 될 자격을 검사한다. |
 | condition_target | 범위 확장 후 수신자 | 실제 적용 대상의 자격을 검사한다. |
@@ -339,7 +342,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 
 #### 6.2.2 전체 파생 클래스의 필드와 오버라이드
 
-아래 표는 현재 ConditionData의 모든 직접·간접 파생 클래스를 조사한 결과다. 런타임 제작용 클래스는 38개이며 모두 직접 상속한다. Editor 검증 전용 조건은 제작용 목록에 포함하지 않는다. 각 행은 필드의 선언형, 실제 오버라이드, 대상형별 판정을 함께 기록한다. 지원 대상형과 입력 제약은 해당 오버라이드를 기준으로 읽는다.
+아래 표는 현재 ConditionData의 모든 직접·간접 파생 클래스를 조사한 결과다. 런타임 제작용 클래스는 39개이며 모두 직접 상속한다. Editor 검증 전용 조건은 제작용 목록에 포함하지 않는다. 각 행은 필드의 선언형, 실제 오버라이드, 대상형별 판정을 함께 기록한다. 지원 대상형과 입력 제약은 해당 오버라이드를 기준으로 읽는다.
 
 - 메서드 표기에서 공통 인자 `Game data, AbilityData ability, Card caster`와 선택적 `AbilityEventContext context`는 생략한다. `IsTriggerConditionMet()`는 발동 판정, `IsTargetConditionMet(...)`의 괄호는 나머지 대상 인자다.
 - 표에 없는 오버라이드는 ConditionData의 기본 `true`를 상속한다. 명시적으로 `false`를 반환하는 경로와 기본 메서드를 상속하는 경로를 구분한다. 선언된 오버라이드가 모든 ENUM 값·대상 상태를 지원한다는 뜻은 아니다.
@@ -349,6 +352,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | 클래스 / 소스 | Inspector 필드 : 형식 | 선언된 오버라이드 | 현재 판정 및 입력 규칙 |
 | --- | --- | --- | --- |
 | [ConditionBossGauge](Assets/TcgEngine/Scripts/Conditions/ConditionBossGauge.cs) | `gauge: BossGaugeType`; `oper: ConditionOperatorInt`; `value: int`; `compare_to_max: bool` | `IsTriggerConditionMet()`<br>`IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | 모든 오버라이드가 동일 게이지를 검사한다. boss_state가 없으면 false. 현재값을 compare_to_max에 따라 게이지 최대값 또는 value와 비교한다. |
+| [ConditionCanMove](Assets/TcgEngine/Scripts/Conditions/ConditionCanMove.cs) | `unit_conditions: ConditionData[]`; `slot_conditions: ConditionData[]`; `relation_conditions: ConditionData[]` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(CardData)`<br>`IsTargetConditionMet(Card selected, Slot)`<br>`IsTargetConditionMet(Slot selected, Slot)` | SelectMove 전용. (Slot selected, Slot)은 selected를 출발지, target을 도착지로 해석한다. 출발지 점유 유닛이 없으면 false다. unit_conditions는 그 유닛(Card), slot_conditions는 도착지(Slot), relation_conditions는 (출발지, 도착지)를 같은 평가기의 Criteria 역할로 검사하고 모두 AND로 결합한다. null 목록과 null 항목은 제한이 없다. 다른 오버라이드는 모두 false다. 도착지의 빈 칸·진영·장소 위치 제한은 조건이 아니라 CanMoveCard가 검사한다. |
 | [ConditionCanPlace](Assets/TcgEngine/Scripts/Conditions/ConditionCanPlace.cs) | `purpose: BoardDestinationPurpose`; `last_type: ConditionLastType`; `place_card: CardData`; `card_owner: ConditionPlayerType`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(Card selected, Slot)` | Card는 해당 위치의 Slot 검사로 전달한다. 이동/배치 목적에 따라 CanMoveCard/CanPlaceCard를 호출한다. 최근 지정·선택 원인은 문맥의 UID로 조회하고 누락 시 다른 카드로 대체하지 않는다. 명시 CardData는 Placement와 Self/Opponent만 지원하며 인스턴스 생성 없이 검사한다. Player는 false다. |
 | [ConditionCardData](Assets/TcgEngine/Scripts/Conditions/ConditionCardData.cs) | `card_types: List<CardData>`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(CardData)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card.card_id 또는 CardData.id가 card_types의 id 중 하나인지 검사하고 oper를 적용한다. 빈 목록은 포함되지 않음으로 판정한다. Player/Slot은 항상 false다. |
 | [ConditionCardPile](Assets/TcgEngine/Scripts/Conditions/ConditionCardPile.cs) | `type: PileType`; `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Card는 Club/Hand/Board/Equipped/Deck/Discard/Secret/Temp 소속 여부에 oper를 적용하며 null 및 미지원 영역은 false다. Player는 false. Slot은 type=Board이고 Slot.None이 아니면 true이며 oper와 실제 점유는 검사하지 않는다. |
@@ -375,7 +379,7 @@ FilterData는 집합을 축소하고 SortData는 적용 순서를 정한다. Con
 | [ConditionSlotAttachmentEmpty](Assets/TcgEngine/Scripts/Conditions/ConditionSlotAttachmentEmpty.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Slot은 GetAttachCard(target)가 없는지 oper로 검사한다. Card/Player는 false에 oper를 적용한다. |
 | [ConditionSlotDist](Assets/TcgEngine/Scripts/Conditions/ConditionSlotDist.cs) | `distance: int`; `diagonals: bool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot은 caster.slot 기준으로 diagonals에 따라 IsInDistance 또는 IsInDistanceStraight를 호출하고 distance를 적용한다. |
 | [ConditionSlotLocate](Assets/TcgEngine/Scripts/Conditions/ConditionSlotLocate.cs) | `Inside: bool`; `Outside: bool`; `Neutral: bool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot은 Inside일 때 양측 내부 타일, Outside일 때 양측 내부도 중립 행도 아닌 위치, Neutral일 때 중립 행을 OR로 허용한다. 현재 중립 행 판정은 y=3이다. |
-| [ConditionSlotNeighbor](Assets/TcgEngine/Scripts/Conditions/ConditionSlotNeighbor.cs) | `range: int` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot은 caster.slot.GetNeighborSlot(range)에 포함되는지 검사한다. |
+| [ConditionSlotNeighbor](Assets/TcgEngine/Scripts/Conditions/ConditionSlotNeighbor.cs) | `range: int` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)`<br>`IsTargetConditionMet(Slot selected, Slot)` | Card는 target.slot으로 전달한다. Slot은 caster.slot.GetNeighborSlot(range)에 포함되는지 검사한다. (Slot selected, Slot)은 selected.GetNeighborSlot(range) 포함 여부를 검사한다(이동 관계에서는 출발지 기준 거리). |
 | [ConditionSlotPid](Assets/TcgEngine/Scripts/Conditions/ConditionSlotPid.cs) | `player: bool`; `opponent: bool`; `neutral: bool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot의 p를 caster 소유자 ID·상대 ID·중립값과 비교해 켜진 항목을 OR로 허용한다. 현재 중립값은 2이며 Slot.GetP 변환 없이 player_id와 직접 비교한다. |
 | [ConditionSlotRange](Assets/TcgEngine/Scripts/Conditions/ConditionSlotRange.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Slot)` | Card는 target.slot으로 전달한다. Slot은 caster.slot.GetNeighborSlot(caster.GetRange()) 포함 여부에 oper를 적용한다. |
 | [ConditionSlotUnitEmpty](Assets/TcgEngine/Scripts/Conditions/ConditionSlotUnitEmpty.cs) | `oper: ConditionOperatorBool` | `IsTargetConditionMet(Card)`<br>`IsTargetConditionMet(Player)`<br>`IsTargetConditionMet(Slot)` | Slot은 GetSlotCard(target)가 없는지 oper로 검사한다. Card/Player는 false에 oper를 적용한다. |
@@ -432,7 +436,7 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 
 | 실행 경로 | 입력 | 규칙 |
 | --- | --- | --- |
-| DoEffect | GameLogic, AbilityData, caster, context 및 선택적 대상 | 일반 효과를 실행한다. 무대상·Card·List<Card>·Player·Slot·CardData 오버로드를 구분한다. |
+| DoEffect | GameLogic, AbilityData, caster, context 및 선택적 대상 | 일반 효과를 실행한다. 무대상·Card·List<Card>·Player·Slot·CardData·(Slot selected, Slot) 오버로드를 구분한다. (Slot selected, Slot)은 SelectMove의 출발지·도착지이며 AbilityData.DoEffects가 상태를 출발지의 유닛에 적용한다. |
 | DoOngoingEffect | GameLogic, AbilityData, caster, Card 또는 Player | 지속 상태 재계산에 기여한다. 일반 효과와 별도의 구현 경로다. |
 | AbilityData.value / duration | 정수 수치 / 기간 | 각 파생형이 소비하는 단위·부호·수량·계산식·기간 의미를 정의한다. 모든 효과가 두 값을 모두 사용하는 것은 아니다. |
 | AbilityEventContext | 이벤트 당시의 실행 정보 | 필요로 하는 문맥 유형과 누락 시 동작을 정의한다. 중첩 효과에도 문맥을 전달한다. |
@@ -484,7 +488,7 @@ EffectData 기본형에는 공통 직렬화 필드가 없다. 공통 수치와 �
 | [EffectKnockback](Assets/TcgEngine/Scripts/Effects/EffectKnockback.cs) | 추가 필드 없음 | `DoEffect(Card)` | caster와 target이 존재하고 ability.value가 양수일 때 caster→target 방향으로 최대 해당 칸 수만큼 빈 타일을 탐색한다. 현재 축 조건은 vy=0 또는 vx=0 또는 vx=vy이며 동일 위치는 제외한다. 각 경유 후보를 CanMoveCard(..., true)로 검사하여 최초 불허 위치 앞에서 멈추고 최종 후보가 같은 검사를 통과하면 MoveCard(..., true)한다. |
 | [EffectMana](Assets/TcgEngine/Scripts/Effects/EffectMana.cs) | 추가 필드 없음 | `DoEffect(Player)` | Player.mana에 ability.value를 가산하고 0 이상으로 보정한다. 최대 마나는 변경하지 않으며 현재 마나의 상한도 보정하지 않는다. |
 | [EffectMovePileTopToBottom](Assets/TcgEngine/Scripts/Effects/EffectMovePileTopToBottom.cs) | `pile: PileType` | `DoEffect()`<br>`DoEffect(Card)` | 무대상과 Card 모두 caster 소유자의 Deck/Discard/Hand 선두 카드를 끝으로 옮긴다. 미지원 pile 또는 항목 수가 순환에 부족하면 무동작이다. 전달 Card와 ability.value는 사용하지 않는다. |
-| [EffectMoveUnit](Assets/TcgEngine/Scripts/Effects/EffectMove.cs) | `target_type: EffectActionType` | `DoEffect(Slot)`<br>`DoEffect(Slot, context)` | Self/AbilityTriggerer/LastPlayed/LastTargeted/LastSelected 원인을 선택하여 MoveCard로 이동한다. 문맥이 있으면 원인 UID를 사용하므로 같은 위치의 교체 카드를 이동시키지 않는다. 문맥 없는 호출은 기존 Game 기록을 사용한다. 목적지·이동 가능 여부는 공통 이동 검사를 따른다. |
+| [EffectMoveUnit](Assets/TcgEngine/Scripts/Effects/EffectMove.cs) | `target_type: EffectActionType` | `DoEffect(Slot)`<br>`DoEffect(Slot, context)`<br>`DoEffect(Slot selected, Slot)` | Slot 경로는 Self/AbilityTriggerer/LastPlayed/LastTargeted/LastSelected 원인을 선택하여 MoveCard(..., true)로 이동한다. 문맥이 있으면 원인 UID를 사용하므로 같은 위치의 교체 카드를 이동시키지 않는다. 문맥 없는 호출은 기존 Game 기록을 사용한다. (Slot selected, Slot)은 target_type을 사용하지 않고 selected의 유닛을 target으로 MoveCard(..., true)한다. 목적지·이동 가능 여부는 공통 이동 검사를 따른다. |
 | [EffectPlay](Assets/TcgEngine/Scripts/Effects/EffectPlay.cs) | 추가 필드 없음 | `DoEffect(Card)` | caster 소유자의 임의 빈 Slot을 고른 뒤 대상 Card를 그 플레이어의 그룹에서 제거하고 손패에 추가한다. 빈 Slot이 있으면 PlayCard(..., true)를 호출한다. 빈 Slot이 없으면 손패에 남는다. 소유자 변경과 손패 용량 검사를 이 클래스에서 하지 않는다. |
 | [EffectPlayCard](Assets/TcgEngine/Scripts/Effects/EffectPlayCard.cs) | `play_card: CardData` | `DoEffect(Slot)` | play_card를 caster 소유로 생성해 손패에 추가한 뒤 Slot이 None이 아니면 PlayCard(..., true)를 호출한다. None이면 생성된 카드가 손패에 남는다. 이 클래스의 손패 추가에는 용량 검사가 없다. |
 | [EffectRemoveAbility](Assets/TcgEngine/Scripts/Effects/EffectRemoveAbility.cs) | `remove_ability: AbilityData` | `DoEffect(Card)` | Card에서 remove_ability를 RemoveAbility로 제거한다. 지속 제거 경로는 없다. |
@@ -736,7 +740,7 @@ DataTableExporter는 Ability의 data_containers 참조와 DataContainer 테이�
 | 전이 | 문맥 및 스코프 처리 |
 | --- | --- |
 | 실행 → 선택 대기 | OpenSelection에서 selector 상태·입력 문맥·후보 캐시를 저장한다. 해결 중 선택은 실행 스코프를 suspended_scope로 보존하고 큐를 보류한다. |
-| 선택 대기 → 확정 | SelectTarget에서 보드 Card·Player 클릭을 Slot·PlayerSlot으로 정규화하고 같은 슬롯 검사·GetSpatialTargets 경로로 처리한다. 비공간 CardSelector는 카드 후보 검사를 유지한다. FinishPlaySelection은 준비 문맥으로 PlayCard를 호출하고, CompleteSelection은 반복 인자를 보존한 뒤 같은 Phase를 재개한다. ResetSelectionState는 문맥과 후보 캐시를 해제한다. |
+| 선택 대기 → 확정 | SelectMove는 쌍을 CanTarget(from, to)로 검사한 뒤 OnPlay면 play_move_from_slot·play_target_slot을 저장하고 FinishPlaySelection, 그 외에는 CompleteSelection으로 같은 Phase를 재개한다. SelectTarget에서 보드 Card·Player 클릭을 Slot·PlayerSlot으로 정규화하고 같은 슬롯 검사·GetSpatialTargets 경로로 처리한다. 비공간 CardSelector는 카드 후보 검사를 유지한다. FinishPlaySelection은 준비 문맥으로 PlayCard를 호출하고, CompleteSelection은 반복 인자를 보존한 뒤 같은 Phase를 재개한다. ResetSelectionState는 문맥과 후보 캐시를 해제한다. |
 | 선택 대기 → 취소 | 선택 문맥을 정리하고 임시 영역 카드를 복구한다. 보존 스코프를 해제하며 빈 스코프는 회수한다. 이미 등록된 작업은 정상 소진한다. |
 | 선택 대기 → 시간 초과 | 선택 종류와 취소 정책에 맞는 종료/자동 선택 경로를 적용한다. |
 

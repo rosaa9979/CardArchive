@@ -542,21 +542,10 @@ namespace TcgEngine.FX
             }
         }
 
+        //Card art, canvases and the FX attached to the card move together; orders are kept
         public void SetSortingOrder(string layer_id)
         {
-            Canvas[] canvases = bcard.GetCanvases();
-
-            foreach (Canvas canvas in canvases)
-            {
-                canvas.sortingLayerName = layer_id;
-            }
-
-            SpriteRenderer sprite_renderer = bcard.card_sprite;
-
-            if (sprite_renderer != null)
-            {
-                sprite_renderer.sortingLayerName = layer_id;
-            }
+            SortingLayerBase.Get(bcard.gameObject).Apply(layer_id);
         }
     }
 }

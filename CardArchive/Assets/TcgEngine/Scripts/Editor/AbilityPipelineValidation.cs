@@ -115,7 +115,8 @@ namespace TcgEngine.EditorValidation
             var actions = new List<TcgEngine.AI.AIAction>();
             typeof(TcgEngine.AI.AILogic).GetMethod("AddSelectActions", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(ai, new object[] { actions, game, null });
-            var keys = actions.Select(a => a.type + ":" + a.target_uid + ":" + a.target_player_id + ":" + a.slot.x + ":" + a.slot.y + ":" + a.slot.p + ":" + a.value).ToList();
+            var keys = actions.Select(a => a.type + ":" + a.target_uid + ":" + a.target_player_id + ":" + a.slot_from.x + ":" + a.slot_from.y
+                + ":" + a.slot.x + ":" + a.slot.y + ":" + a.slot.p + ":" + a.value).ToList();
             Check(keys.Count == keys.Distinct().Count(), "duplicate AI candidates: " + keys.Count + "/" + keys.Distinct().Count());
             return actions;
         }
@@ -142,6 +143,71 @@ namespace TcgEngine.EditorValidation
                         }
                     }
                 }
+            });
+            Case("Move packets roundtrip departure and destination", () => {
+                using (var writer = new Unity.Netcode.FastBufferWriter(128, Unity.Collections.Allocator.Temp)) {
+                    writer.WriteNetworkSerializable(new MsgSelectMoveRequest { from = S(2, 3), to = S(3, 3) });
+                    using (var reader = new Unity.Netcode.FastBufferReader(writer, Unity.Collections.Allocator.Temp)) {
+                        reader.ReadNetworkSerializable(out MsgSelectMoveRequest decoded);
+                        Check(decoded.from == S(2, 3) && decoded.to == S(3, 3) && reader.Position == writer.Length, "move packet mismatch");
+                    }
+                }
+            });
+            Case("Move selection accepts one valid pair and pays once", () => {
+                var f = new Fixture(); var unit = f.Add("Commuting_Student_MIDDLE", 0, S(2, 2));
+                var enemy = f.Add("Commuting_Student_MIDDLE", 1, S(2, 4)); var a = AbilityData.Get("activate_move_ally");
+                Check(a != null && a.IsMoveSelector() && a.chain_abilities.Length == 0, "move ability not migrated");
+                f.logic.TriggerCardAbility(a, unit); f.Settle();
+                Check(f.game.selector == SelectorType.SelectMove && f.game.CanCancelSelector(), "move selector missing");
+                var moves = a.GetSelectableMoves(f.game, unit, f.game.selector_context);
+                Check(moves.Count > 0 && moves.All(m => m.from == unit.slot && unit.slot.GetNeighborSlot(1).Contains(m.to)
+                    && f.game.CanMoveCard(unit, m.to, true)), "pair outside unit/destination/relation conditions");
+                Check(!moves.Any(m => m.from == enemy.slot), "enemy unit accepted by ally move");
+                var actions = SelectionActions(f.game);
+                Check(actions.Count == moves.Count && actions.All(x => x.type == GameAction.SelectMove), "AI move candidates lost or duplicated");
+                f.logic.SelectSlot(S(3, 2)); f.logic.SelectMove(unit.slot, S(2, 4)); f.logic.SelectMove(unit.slot, S(4, 2));
+                Check(f.game.selector == SelectorType.SelectMove && unit.slot == S(2, 2) && f.game.players[0].mana == 100, "invalid input accepted");
+                f.logic.SelectMove(unit.slot, S(3, 2)); f.Settle();
+                Check(unit.slot == S(3, 2) && f.game.selector == SelectorType.None && f.game.players[0].mana == 99, "pair not applied once");
+                f.Roundtrip();
+            });
+            Case("Move ability without a pair cannot be cast", () => {
+                var f = new Fixture(); var unit = f.Add("Commuting_Student_MIDDLE", 0, S(1, 1)); var a = AbilityData.Get("activate_move_ally");
+                Check(f.game.CanCastAbility(unit, a), "free neighbor rejected");
+                foreach (Slot slot in unit.slot.GetNeighborSlot(1).Where(s => s != unit.slot)) f.Add("Commuting_Student_MIDDLE", 1, slot);
+                Check(!a.HasValidSelectTarget(f.game, unit) && !f.game.CanCastAbility(unit, a), "cast allowed without a destination");
+            });
+            Case("Cancelled move selection keeps cost and position", () => {
+                var f = new Fixture(); var unit = f.Add("Commuting_Student_MIDDLE", 0, S(2, 2)); var a = AbilityData.Get("activate_move_ally");
+                f.logic.TriggerCardAbility(a, unit); f.Settle(); f.logic.CancelSelection();
+                Check(f.game.selector == SelectorType.None && unit.slot == S(2, 2) && f.game.players[0].mana == 100
+                    && !f.game.ability_played.Contains(a.id), "cancel moved or paid");
+            });
+            Case("OnPlay move keeps its pair through the play", () => {
+                var f = new Fixture(); var reisa = f.Add("Uzawa_Reisa", 0, Slot.None); var enemy = f.Add("Commuting_Student_MIDDLE", 1, S(2, 3));
+                var a = reisa.GetAbilities().First(x => x.IsMoveSelector());
+                Check(a.IsPlaySelectTarget() && a.can_cancel, "OnPlay move ability not migrated");
+                Check(f.logic.SelectPlayTarget(reisa, S(2, 2)), "play rejected");
+                Check(f.game.selector == SelectorType.SelectMove && f.game.players[0].cards_board_temp.Contains(reisa), "play move selector missing");
+                var moves = a.GetSelectableMoves(f.game, reisa, f.game.selector_context);
+                Check(moves.Count > 0 && moves.All(m => m.from == enemy.slot && reisa.slot.GetNeighborSlot(reisa.GetRange()).Contains(m.to)
+                    && f.game.CanMoveCard(enemy, m.to, true)), "enemy pair outside range or territory");
+                f.logic.CancelSelection();
+                Check(f.game.players[0].cards_hand.Contains(reisa) && enemy.slot == S(2, 3), "cancel did not restore card");
+                Check(f.logic.SelectPlayTarget(reisa, S(2, 2)), "replay rejected");
+                Slot to = moves[0].to; f.logic.SelectMove(enemy.slot, to); f.Settle();
+                Check(f.game.IsOnBoard(reisa) && enemy.slot == to && f.game.selector == SelectorType.None, "pair lost through play");
+                f.Roundtrip();
+            });
+            Case("Forced relocation triggers OnMove", () => {
+                var f = new Fixture(); var unit = f.Add("Commuting_Student_MIDDLE", 0, S(3, 2)); var attacker = f.Add("Commuting_Student_MIDDLE", 1, S(2, 2));
+                var onMove = Ability(AbilityTarget.Self); onMove.trigger = AbilityTrigger.OnMove; onMove.value = 1;
+                var add = Make<EffectAddStat>(); add.type = EffectStatType.Attack; onMove.effects = new EffectData[] { add }; unit.AddAbility(onMove);
+                int attack = unit.attack; f.logic.MoveCard(unit, S(3, 1), true); f.Settle();
+                Check(unit.slot == S(3, 1) && unit.attack == attack + 1, "forced move skipped OnMove");
+                var push = Ability(AbilityTarget.Self); push.value = 1; f.logic.MoveCard(unit, S(3, 2), true); f.Settle();
+                Make<EffectKnockback>().DoEffect(f.logic, push, attacker, unit); f.Settle();
+                Check(unit.slot == S(4, 2) && unit.attack == attack + 3, "knockback skipped OnMove");
             });
             Case("Row damage selects an empty position but only damages units", () => {
                 var f = new Fixture(); var left = f.Add("Commuting_Student_MIDDLE", 0, S(1, 2)); var right = f.Add("Commuting_Student_MIDDLE", 1, S(5, 2)); left.hp = right.hp = 20;

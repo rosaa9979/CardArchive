@@ -5,8 +5,8 @@ using UnityEngine;
 namespace TcgEngine
 {
     /// <summary>
-    /// SlotRange check each axis variable individualy for range between the caster and target
-    /// If you want to check the travel distance instead (all at once) use SlotDist
+    /// SlotNeighbor checks if the target is within a fixed hex distance (range) of the caster slot.
+    /// With a selected slot (move relation, area center), the distance is measured from the selected slot instead.
     /// </summary>
 
     [CreateAssetMenu(fileName = "condition", menuName = "TcgEngine/Condition/SlotNeighbor", order = 11)]
@@ -25,6 +25,11 @@ namespace TcgEngine
             List<Slot> cslot_neighbor = caster.slot.GetNeighborSlot(range);
 
             return cslot_neighbor.Contains(target);
+        }
+
+        public override bool IsTargetConditionMet(Game data, AbilityData ability, Card caster, Slot selected, Slot target, AbilityEventContext context = null)
+        {
+            return selected.GetNeighborSlot(range).Contains(target);
         }
     }
 }

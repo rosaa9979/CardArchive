@@ -69,6 +69,9 @@ namespace TcgEngine.UI
             if (game_data.selector == SelectorType.SelectTarget)
                 return new BSlotIndicatorTypeSelector();
 
+            if (game_data.selector == SelectorType.SelectMove)
+                return new BSlotIndicatorTypeMoveSelector();
+
             if (hcard != null)
                 return new BSlotIndicatorTypeDragCard();
 

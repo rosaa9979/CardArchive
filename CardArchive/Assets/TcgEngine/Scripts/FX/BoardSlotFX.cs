@@ -190,14 +190,10 @@ namespace TcgEngine.FX
             SetAnimParameter(true);
         }
 
+        //Every renderer under the slot (sprites, particles, spine) moves together; orders are kept
         public void SetSortingLayer(string layer_id)
         {
-            SpriteRenderer[] spriteRenderers = bslot.GetComponentsInChildren<SpriteRenderer>();
-
-            foreach (SpriteRenderer sr in spriteRenderers)
-            {
-                sr.sortingLayerName = layer_id;
-            }
+            SortingLayerBase.Get(bslot.gameObject).Apply(layer_id);
         }
 
         public void ResetIndicator()

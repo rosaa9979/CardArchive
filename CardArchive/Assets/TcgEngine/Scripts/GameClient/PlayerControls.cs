@@ -22,6 +22,12 @@ namespace TcgEngine.Client
         private bool press_long = false;
         private float press_time = 0f;
 
+        //Move selection (SelectorType.SelectMove): drag a unit to a slot, sent only by ConfirmMoveSelection
+        private bool move_dragging = false;
+        private Slot move_from = Slot.None;
+        private Slot move_to = Slot.None;
+        private long move_version = -1;
+
         private static PlayerControls instance;
 
         void Awake()
@@ -49,6 +55,10 @@ namespace TcgEngine.Client
                 CancelBoardPress();
                 UnselectAll();
             }
+
+            //Move selection owns the board press while it is open
+            if (UpdateMoveSelection())
+                return;
 
             //Press starts on the board only (not over UI, not on a hand card)
             if (Input.GetMouseButtonDown(0) && !press_active)
@@ -127,6 +137,98 @@ namespace TcgEngine.Client
             }
         }
 
+        private bool UpdateMoveSelection()
+        {
+            GameClient client = GameClient.Get();
+            Game gdata = client.GetLatestGameData();
+            Player player = gdata.GetPlayer(client.GetPlayerID());
+            if (gdata.selector != SelectorType.SelectMove || !gdata.IsPlayerSelectorTurn(player))
+            {
+                ClearMoveSelection();
+                return false;
+            }
+
+            //A new selection never reuses the pair chosen for a previous one
+            if (move_version != gdata.selector_version)
+            {
+                ClearMoveSelection();
+                move_version = gdata.selector_version;
+            }
+
+            CancelBoardPress();
+
+            if (Input.GetMouseButtonDown(0) && client.IsInputOpen && !GameUI.IsUIOpened() && !SelectMoveUI.IsPointerOver())
+            {
+                //Dragging again always clears the previous pair
+                move_from = Slot.None;
+                move_to = Slot.None;
+                BSlot bslot = BSlot.GetNearest(GameBoard.Get().RaycastMouseBoard());
+                Card unit = bslot is BoardSlot ? gdata.GetSlotCard(bslot.GetSlot()) : null;
+                if (unit != null && gdata.IsOnBoard(unit))
+                {
+                    move_from = unit.slot;
+                    move_dragging = true;
+                }
+            }
+
+            if (move_dragging && Input.GetMouseButtonUp(0))
+            {
+                move_dragging = false;
+                BSlot bslot = BSlot.GetNearest(GameBoard.Get().RaycastMouseBoard());
+                Slot to = bslot is BoardSlot ? bslot.GetSlot() : Slot.None;
+                if (IsValidMove(gdata, move_from, to))
+                    move_to = to;
+                else
+                    move_from = Slot.None; //Released on an invalid slot: no pair
+            }
+            return true;
+        }
+
+        private bool IsValidMove(Game gdata, Slot from, Slot to)
+        {
+            AbilityData ability = AbilityData.Get(gdata.selector_ability_id);
+            Card caster = gdata.GetCard(gdata.selector_caster_uid);
+            return ability != null && ability.CanTarget(gdata, caster, from, to, gdata.selector_context);
+        }
+
+        public bool IsMoveDragging()
+        {
+            return move_dragging;
+        }
+
+        public Slot GetMoveFrom()
+        {
+            return move_from;
+        }
+
+        public Slot GetMoveTo()
+        {
+            return move_to;
+        }
+
+        //A complete pair that is still valid on the latest state
+        public bool HasMoveSelection()
+        {
+            Game gdata = GameClient.Get().GetLatestGameData();
+            return !move_dragging && move_to != Slot.None && gdata.selector == SelectorType.SelectMove
+                && move_version == gdata.selector_version && IsValidMove(gdata, move_from, move_to);
+        }
+
+        public void ConfirmMoveSelection()
+        {
+            if (!HasMoveSelection())
+                return;
+            GameClient.Get().SelectMove(move_from, move_to);
+            ClearMoveSelection();
+        }
+
+        public void ClearMoveSelection()
+        {
+            move_dragging = false;
+            move_from = Slot.None;
+            move_to = Slot.None;
+        }
+
         private void CancelBoardPress()
         {
             press_active = false;
@@ -187,6 +289,7 @@ namespace TcgEngine.Client
         public void UnselectAll()
         {
             selected_card = null;
+            ClearMoveSelection();
 
             Game gdata = GameClient.Get().GetLatestGameData();
             HandCard handcard = HandCard.GetDrag();

@@ -427,6 +427,12 @@ namespace TcgEngine.Client
             SendAction(GameAction.SelectSlot, new MsgSelectSlotRequest { slot = slot });
         }
 
+        public void SelectMove(Slot from, Slot to)
+        {
+            if (game_data.selector_version != GetLatestGameData().selector_version) return;
+            SendAction(GameAction.SelectMove, new MsgSelectMoveRequest { from = from, to = to });
+        }
+
         public void SelectChoice(int c)
         {
             if (game_data.selector_version != GetLatestGameData().selector_version) return;

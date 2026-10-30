@@ -114,6 +114,11 @@ namespace TcgEngine.AI
                 SelectSlot(action.slot);
             }
 
+            if (action.type == GameAction.SelectMove)
+            {
+                SelectMove(action.slot_from, action.slot);
+            }
+
             if (action.type == GameAction.SelectChoice)
             {
                 SelectChoice(action.value);
@@ -198,6 +203,14 @@ namespace TcgEngine.AI
             if (slot != Slot.None)
             {
                 gameplay.SelectSlot(slot);
+            }
+        }
+
+        private void SelectMove(Slot from, Slot to)
+        {
+            if (from != Slot.None && to != Slot.None)
+            {
+                gameplay.SelectMove(from, to);
             }
         }
 

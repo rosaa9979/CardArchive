@@ -107,6 +107,7 @@ namespace TcgEngine.Server
             RegisterAction(GameAction.SelectCard, ReceiveSelectCard);
             RegisterAction(GameAction.SelectPlayer, ReceiveSelectPlayer);
             RegisterAction(GameAction.SelectSlot, ReceiveSelectSlot);
+            RegisterAction(GameAction.SelectMove, ReceiveSelectMove);
             RegisterAction(GameAction.SelectChoice, ReceiveSelectChoice);
             RegisterAction(GameAction.SelectMulligan, ReceiveSelectMulligan);
             RegisterAction(GameAction.CancelSelect, ReceiveCancelSelection);
@@ -518,6 +519,17 @@ namespace TcgEngine.Server
             {
                 if(slot.IsValid() || (slot.IsPlayerSlot() && game_data.GetPlayer(slot.p) != null))
                     gameplay.SelectSlot(slot);
+            }
+        }
+
+        public void ReceiveSelectMove(ClientData iclient, SerializedData sdata)
+        {
+            MsgSelectMoveRequest request = sdata.Get<MsgSelectMoveRequest>();
+            Player player = GetPlayer(iclient);
+            if (player != null && request != null && game_data.IsPlayerSelectorTurn(player) && !gameplay.IsResolving())
+            {
+                if (request.from.IsValid() && request.to.IsValid())
+                    gameplay.SelectMove(request.from, request.to);
             }
         }
 

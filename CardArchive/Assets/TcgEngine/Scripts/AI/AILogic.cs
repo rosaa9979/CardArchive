@@ -464,6 +464,17 @@ namespace TcgEngine.AI
                 }
             }
 
+            if (ability.IsMoveSelector())
+            {
+                foreach (var move in ability.GetSelectableMoves(data, caster, data.selector_context))
+                {
+                    AIAction action = CreateAction(GameAction.SelectMove, caster);
+                    action.slot_from = move.from;
+                    action.slot = move.to;
+                    actions.Add(action);
+                }
+            }
+
             if (ability.criteria_target == AbilityTarget.CardSelector)
             {
                 List<Card> cards = ability.GetSelectionCandidates(data, caster);
@@ -555,6 +566,11 @@ namespace TcgEngine.AI
             if (action.type == GameAction.SelectSlot)
             {
                 game_logic.SelectSlot(action.slot);
+            }
+
+            if (action.type == GameAction.SelectMove)
+            {
+                game_logic.SelectMove(action.slot_from, action.slot);
             }
 
             if (action.type == GameAction.SelectChoice)
@@ -776,6 +792,7 @@ namespace TcgEngine.AI
         public int target_player_id;
         public string ability_id;
         public Slot slot;
+        public Slot slot_from;      //Departure slot of a SelectMove action (slot is the destination)
         public int value;
 
         public int score;           //Score to determine which orders get cut and ignored
@@ -794,6 +811,8 @@ namespace TcgEngine.AI
                 txt += " card " + card.card_id;
             if (target != null)
                 txt += " target " + target.card_id;
+            if (slot_from != Slot.None)
+                txt += " from " + slot_from.x + "-" + slot_from.y;
             if (slot != Slot.None)
                 txt += " slot " + slot.x + "-" + slot.y;
             if (ability_id != null)
@@ -812,6 +831,7 @@ namespace TcgEngine.AI
             ability_id = null;
             target_player_id = -1;
             slot = Slot.None;
+            slot_from = Slot.None;
             value = -1;
             score = 0;
             sort = 0;

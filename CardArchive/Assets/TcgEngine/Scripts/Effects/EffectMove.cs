@@ -22,7 +22,15 @@ namespace TcgEngine
         {
             Game game_data = logic.GetGameData();
             Card target_unit = GetTarget(game_data, caster, context);
-            logic.MoveCard(target_unit, target);
+            logic.MoveCard(target_unit, target, true); //Forced relocation: not recorded as a player move
+        }
+
+        //Move selection: the unit on the departure slot moves to the destination slot (target_type is not used)
+        public override void DoEffect(GameLogic logic, AbilityData ability, Card caster, Slot selected, Slot target)
+        {
+            Game game_data = logic.GetGameData();
+            Card target_unit = game_data.GetSlotCard(selected);
+            logic.MoveCard(target_unit, target, true);
         }
 
         public Card GetTarget(Game gdata, Card caster, AbilityEventContext context = null)

@@ -27,6 +27,7 @@ namespace TcgEngine
         public const ushort SelectCard = 1030;
         public const ushort SelectPlayer = 1032;
         public const ushort SelectSlot = 1034;
+        public const ushort SelectMove = 1035;
         public const ushort SelectChoice = 1036;
         public const ushort SelectMulligan = 1038;
         public const ushort CancelSelect = 1039;
@@ -104,6 +105,8 @@ namespace TcgEngine
                 return "select_choice";
             if (type == GameAction.SelectSlot)
                 return "select_slot";
+            if (type == GameAction.SelectMove)
+                return "select_move";
             if (type == GameAction.CancelSelect)
                 return "cancel_select";
             if (type == GameAction.Resign)
