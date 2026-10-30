@@ -4819,8 +4819,8 @@ MonoBehaviour:
   hp_icon: {fileID: 0}
   cost_icon: {fileID: 0}
   member_icon: {fileID: 0}
-  range_background: {fileID: 4800613350615321205}
-  range_icon: {fileID: 6699126841843954622}
+  range_background: {fileID: 6699126841843954622}
+  range_icon: {fileID: 4800613350615321205}
   trait_background: {fileID: 0}
   club_background: {fileID: 0}
   academy_logo: {fileID: 0}
