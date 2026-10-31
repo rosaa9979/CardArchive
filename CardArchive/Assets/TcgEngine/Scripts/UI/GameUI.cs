@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TcgEngine.Client;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 namespace TcgEngine.UI
 {
@@ -27,8 +28,11 @@ namespace TcgEngine.UI
         public Image end_turn_image;
         public Sprite end_turn_on;
         public Sprite end_turn_off;
-        public Animator timeout_animator;
         public AudioClip timeout_audio;
+        public Color timeout_color = new Color32(220, 40, 40, 255);
+        public float timeout_pulse_scale = 1.55f;
+
+        private const int timeout_warning_time = 10; //Seconds left on your turn when the timer turns red and pulses
 
         [Header("Hide UI Option")]
         public Image hide_option_icon;
@@ -113,7 +117,8 @@ namespace TcgEngine.UI
             float remaining = TcgEngine.Replay.ReplaySession.Active ? data.turn_timer : GameClient.Get().TurnTimeRemaining;
             turn_timer.text = Mathf.RoundToInt(remaining).ToString();
             turn_timer.enabled = remaining < 999f;
-            turn_timer.color = new Color32(37, 44, 91, 255);
+            bool timeout_warning = GameClient.Get().IsYourTurn() && Mathf.RoundToInt(remaining) <= timeout_warning_time;
+            turn_timer.color = timeout_warning ? timeout_color : (Color)new Color32(37, 44, 91, 255);
         }
 
         void Update()
@@ -155,9 +160,8 @@ namespace TcgEngine.UI
             if (data.state == GameState.Play)
             {
                 int val = Mathf.RoundToInt(data.turn_timer);
-                //int tick_val = 10;
-                //if (val < prev_time_val && val <= tick_val)
-                //    PulseFX();
+                if (yourturn && val < prev_time_val && val <= timeout_warning_time)
+                    PulseFX();
                 prev_time_val = val;
             }
 
@@ -192,9 +196,15 @@ namespace TcgEngine.UI
             hide_option_icon.SetNativeSize();
         }
 
+        //Grow then shrink the timer number only (same timing as the old TimeoutPulse clip, which also hit the icon)
         private void PulseFX()
         {
-            timeout_animator?.SetTrigger("pulse");
+            RectTransform timer_rect = turn_timer.rectTransform;
+            timer_rect.DOKill();
+            timer_rect.localScale = Vector3.one;
+            DOTween.Sequence().SetTarget(timer_rect)
+                .Append(timer_rect.DOScale(timeout_pulse_scale, 0.17f).SetEase(Ease.OutQuad))
+                .Append(timer_rect.DOScale(1f, 0.5f).SetEase(Ease.InOutQuad));
             AudioTool.Get().PlaySFX("time", timeout_audio, 1f);
         }
 
